@@ -19,7 +19,7 @@ def identifier():
     """
     Returns valid UUID for Orange Button identifiers
     """
-    return  str(uuid.uuid4())
+    return  str(uuuid.uuid4())
 
 def validate(inp):
     """
