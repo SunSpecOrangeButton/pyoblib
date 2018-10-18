@@ -21,3 +21,6 @@ class TestCore(unittest.TestCase):
 
     def test_validate(self):
         self.assertFalse(identifier.validate("dfasfdfsadfds"))   
+
+if __name__ == '__main__':
+    unittest.main()
