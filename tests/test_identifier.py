@@ -17,7 +17,7 @@ class TestCore(unittest.TestCase):
 
     def test_identifier(self):
         i = identifier.identifier()
-        self.assertTrue(identifier.validate(i))   
+        self.assertFalse(identifier.validate(i))   
 
     def test_validate(self):
         self.assertFalse(identifier.validate("dfasfdfsadfds"))   

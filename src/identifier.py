@@ -19,11 +19,11 @@ def identifier():
     """
     Returns valid UUID for Orange Button identifiers
     """
-    return  str(uuuid.uuid4())
+    return  str(uuid.uuid4())
 
 def validate(inp):
     """
-    Validates that a particular string is either a vlaid UUID or not a valid UUID.
+    Validates that a particular string is either a valid UUID or not a valid UUID.
     """
     m = re.match(REG_EX, inp)
     if m is not None and m.group(0) != "":
