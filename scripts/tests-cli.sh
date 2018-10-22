@@ -16,10 +16,6 @@ export PYTHONPATH=`pwd`/src
 EXITVAL=0
 
 # Basic tests
-python src-cli/cli.py || {
-    echo Failed
-    EXITVAL=1
-}
 python src-cli/cli.py -h || {
     echo Failed
     EXITVAL=1
