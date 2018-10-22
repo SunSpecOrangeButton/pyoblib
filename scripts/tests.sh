@@ -19,7 +19,7 @@ export PYTHONPATH=`pwd`/src
 EXITVAL=0
 
 cd tests
-python -m unittest test_identifier.py || {
+python -m unittest test_identifier || {
     EXITVAL=1
 }
 cd ..
