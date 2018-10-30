@@ -23,10 +23,7 @@ def identifier():
 
 def validate(inp):
     """
-    Validates that a particular string is either a vlaid UUID or not a valid UUID.
+    Validates that a particular string is either a valid UUID or not a valid UUID.
     """
     m = re.match(REG_EX, inp)
-    if m is not None and m.group(0) != "":
-        return True
-    else: 
-        return False
+    return m is not None and m.group(0) != ""
