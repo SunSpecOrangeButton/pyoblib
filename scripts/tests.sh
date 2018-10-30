@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# Copyright 2018 Wells Fargo
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # pyou may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,14 +16,36 @@
 
 echo Testing
 
-export PYTHONPATH=`pwd`/src
+export PYTHONPATH=`pwd`/src:`pwd`/tests
 
 EXITVAL=0
 
-cd tests
 python -m unittest test_identifier || {
     EXITVAL=1
 }
-cd ..
+
+python -m unittest test_taxonomy || {
+    EXITVAL=1
+}
+
+python -m unittest test_taxonomy_semantic || {
+    EXITVAL=1
+}
+
+python -m unittest test_taxonomy_types || {
+    EXITVAL=1
+}
+
+python -m unittest test_taxonomy_misc || {
+    EXITVAL=1
+}
+
+python -m unittest test_taxonomy_units || {
+    EXITVAL=1
+}
+
+python -m unittest test_validator || {
+    EXITVAL=1
+}
 
 exit $EXITVAL
