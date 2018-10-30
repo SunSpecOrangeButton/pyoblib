@@ -12,8 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+echo Testing
+
 export PYTHONPATH=`pwd`/src
 
+EXITVAL=0
+
 cd tests
-python -m unittest test_identifier.py
+python -m unittest test_identifier || {
+    EXITVAL=1
+}
 cd ..
+
+exit $EXITVAL

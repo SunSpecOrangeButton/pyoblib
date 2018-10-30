@@ -13,5 +13,11 @@
 # limitations under the License.
 
 
+EXITVAL=0
+
 export PYTHONPATH=`pwd`/src
-python src-cli/cli.py $1 $2 $3 $4 $5
+python src-cli/cli.py $1 $2 $3 $4 $5 || {
+    EXITVAL = $?
+}
+
+exit $EXITVAL
