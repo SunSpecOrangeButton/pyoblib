@@ -6,6 +6,7 @@ python:
 - 3.5
 - 3.6
 script:
+- scripts/setup-dev.sh;
 - scripts/tests.sh;
 - scripts/tests-cli.sh
 notifications:

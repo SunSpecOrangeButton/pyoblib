@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-import identifier
+# TODO: Usage of ../solar-taxonomy works on the first run of the compiled
+# cli but does not clean up at the end of the run.  Subsequent runs 
+# produce warnings but still function.  In order to correct the behavior
+# remove .. from the path.  This will require coding changes to find the
+# correct placement of solar-taxonomy.
 
-class TestCore(unittest.TestCase):
-
-    def test_identifier(self):
-        i = identifier.identifier()
-        self.assertTrue(identifier.validate(i))   
-
-    def test_validate(self):
-        self.assertFalse(identifier.validate("dfasfdfsadfds"))   
+export PYTHONPATH=`pwd`/src
+pyinstaller --add-data ../solar-taxonomy:../solar-taxonomy --clean --onefile src-cli/cli.py

@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-import identifier
+# This uses pdoc to create text based documentation.  It is very basic
+# and it likely  could be replaced with an HTML based documentation
+# generator.  To run this script "pip install pdoc" must be issued first.
 
-class TestCore(unittest.TestCase):
+export PYTHONPATH=`pwd`/src
 
-    def test_identifier(self):
-        i = identifier.identifier()
-        self.assertTrue(identifier.validate(i))   
+# pdoc --html --overwrite --html-dir=out src
+# cp -r out/src docs/oblib
 
-    def test_validate(self):
-        self.assertFalse(identifier.validate("dfasfdfsadfds"))   
+pdoc src/identifier.py	
+echo
+echo
+
+pdoc src/taxonomy.py
+echo
+echo
+
+pdoc src/taxonomy_semantic.py		
+echo
+echo
+
+pdoc src/taxonomy_types.py	
+echo
+echo
+
+pdoc src/taxonomy_units.py
+echo
+echo
+
+pdoc src/taxonomy_misc.py

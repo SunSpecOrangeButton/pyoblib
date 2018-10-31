@@ -1,0 +1,3 @@
+# pyinstaller  TODO: Failing on Python 3.3 - reason unknonwn.  Diagnose and fix
+pdoc
+flake8
