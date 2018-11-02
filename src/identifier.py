@@ -27,5 +27,4 @@ def validate(inp):
     """
     Validates that a particular string is either a valid UUID or not a valid UUID.
     """
-    m = re.match(REG_EX, inp)
-    return m is not None and m.group(0) != ""
+    return re.search(REG_EX, inp, re.IGNORECASE) is not None
