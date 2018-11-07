@@ -15,7 +15,7 @@
 import os
 import xml.sax
 
-import taxonomy
+import constants
 
 
 class _TaxonomyTypesHandler(xml.sax.ContentHandler):
@@ -57,11 +57,11 @@ class TaxonomyTypes(object):
         tax = _TaxonomyTypesHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return tax.types()
 
     def _load_types(self):
-        for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/core/"):
+        for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/core/"):
             if 'types' in filename:
                 types = self._load_types_file("/core/" + filename)
         return types
