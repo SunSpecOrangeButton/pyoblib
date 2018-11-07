@@ -104,10 +104,11 @@ class TaxonomyMisc(object):
         return tax.numeric_types()
 
     def _load_numeric_types(self):
-        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                                "core")):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
             if 'numeric' in filename:
-                numeric_types = self._load_numeric_types_file(filename)
+                numeric_types = self._load_numeric_types_file(os.path.join(
+                        pathname, filename))
         return numeric_types
 
     def _load_ref_parts_file(self, pathname):
@@ -118,10 +119,11 @@ class TaxonomyMisc(object):
         return tax.ref_parts()
 
     def _load_ref_parts(self):
-        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                                "core")):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
             if 'ref-parts' in filename:
-                ref_parts = self._load_ref_parts_file(filename)
+                ref_parts = self._load_ref_parts_file(os.path.name(pathname,
+                                                                   filename))
         return ref_parts
 
     def _load_generic_roles_file(self, pathname):
@@ -132,10 +134,11 @@ class TaxonomyMisc(object):
         return tax.roles()
 
     def _load_generic_roles(self):
-        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                                "core")):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
             if 'gen-roles' in filename:
-                generic_roles = self._load_generic_roles_file(filename)
+                generic_roles = self._load_generic_roles_file(os.path.join(
+                        pathname, filename))
         return generic_roles
 
     def numeric_types(self):

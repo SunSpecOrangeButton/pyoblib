@@ -61,10 +61,10 @@ class TaxonomyTypes(object):
         return tax.types()
 
     def _load_types(self):
-        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                                "core")):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
             if 'types' in filename:
-                types = self._load_types_file(filename)
+                types = self._load_types_file(os.path.join(pathname, filename))
         return types
 
     def types(self):
