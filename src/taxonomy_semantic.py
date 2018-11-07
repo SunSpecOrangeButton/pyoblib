@@ -82,7 +82,7 @@ class TaxonomySemantic(object):
         eh = _ElementsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(eh)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, fn)))
         return eh.elements()
 
     def _load_elements(self):
@@ -100,26 +100,35 @@ class TaxonomySemantic(object):
         tax = _TaxonomySemanticHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, fn)))
         return tax.concepts()
 
     def _load_concepts(self):
+        """
+        Returns a dict of available concepts
+        """
         # TODO: Better understand the relationship of "def" vs. "pre" xml files.  Using pre seems
         # to load a more accurate representation of the taxonomy but this was found via trial and
         # error as opposed to a scientific methodology.
         concepts = {}
-        for dirname in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/data/"):
-            for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/data/" + dirname):
+        for dirname in os.listdir(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+                                               "data")):
+            for filename in os.listdir(
+                    os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, "data",
+                                 dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file("/data/" + dirname + "/" +
-                                                                 filename)
-        for dirname in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/documents/"):
-            for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/documents/" + dirname):
+                    concepts[dirname] = self._load_concepts_file(
+                            os.path.join("data", dirname, filename))
+        for dirname in os.listdir(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+                                               "documents")):
+            for filename in os.listdir(
+                    os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, "documents",
+                                 dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file("/documents/" + dirname + "/" +
-                                                                 filename)
+                    concepts[dirname] = self._load_concepts_file(
+                            os.path.join("documents", dirname, filename))
         return concepts
 
     def validate_concept(self, concept):
@@ -162,6 +171,7 @@ class TaxonomySemantic(object):
         if data in self._concepts:
             return True
         else:
+        Returns information on a single concept.
             return False
 
     def concepts_ep(self, data):
@@ -176,7 +186,6 @@ class TaxonomySemantic(object):
 
     def concept_info(self, concept):
         """
-        Returns information on a single concept.
         """
 
         found = False
