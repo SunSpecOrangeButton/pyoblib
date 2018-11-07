@@ -16,7 +16,7 @@
 
 echo Testing
 
-export PYTHONPATH=`pwd`/src:`pwd`/tests
+export PYTHONPATH=`pwd`/src/obcore:`pwd`/tests
 
 EXITVAL=0
 
