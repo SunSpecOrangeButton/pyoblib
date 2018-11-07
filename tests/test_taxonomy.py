@@ -20,7 +20,7 @@ import taxonomy_units
 import taxonomy_misc
 
 
-class TestCore(unittest.TestCase):
+class TestTaxonomy(unittest.TestCase):
 
     def test_unit(self):
         self.assertIsInstance(taxonomy.Unit(), taxonomy.Unit)

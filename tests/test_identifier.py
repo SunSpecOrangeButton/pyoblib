@@ -16,7 +16,7 @@ import unittest
 import identifier
 
 
-class TestCore(unittest.TestCase):
+class TestIdentifier(unittest.TestCase):
     def test_valid_identifiers(self):
         # UUID1.
         self.assertTrue(identifier.validate('70e7cfc6-def7-11e8-bb65-10e7c6792ac1'))
