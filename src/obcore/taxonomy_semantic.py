@@ -123,7 +123,8 @@ class TaxonomySemantic(object):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                            os.path.join("data", dirname, filename))
+                            os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+                                         "data", dirname, filename))
         for dirname in os.listdir(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
                                                "documents")):
             for filename in os.listdir(
