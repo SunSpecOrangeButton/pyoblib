@@ -171,7 +171,6 @@ class TaxonomySemantic(object):
         if data in self._concepts:
             return True
         else:
-        Returns information on a single concept.
             return False
 
     def concepts_ep(self, data):
@@ -186,6 +185,7 @@ class TaxonomySemantic(object):
 
     def concept_info(self, concept):
         """
+        Returns information on a single concept.
         """
 
         found = False
