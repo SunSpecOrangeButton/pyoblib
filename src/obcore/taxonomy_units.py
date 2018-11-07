@@ -15,6 +15,7 @@
 import xml.sax
 
 import taxonomy
+import constants
 
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
@@ -78,7 +79,7 @@ class TaxonomyUnits(object):
         tax = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return tax.units()
 
     def _load_units(self):

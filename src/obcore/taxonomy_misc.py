@@ -15,7 +15,8 @@
 import os
 import xml.sax
 
-import taxonomy
+import constants
+
 
 #
 # TODO: All taxonomy files are covered except for solar-ref-roles which has only one entry.
@@ -99,11 +100,11 @@ class TaxonomyMisc(object):
         tax = _TaxonomyNumericHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return tax.numeric_types()
 
     def _load_numeric_types(self):
-        for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/core/"):
+        for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/core/"):
             if 'numeric' in filename:
                 numeric_types = self._load_numeric_types_file("/core/" + filename)
         return numeric_types
@@ -112,11 +113,11 @@ class TaxonomyMisc(object):
         tax = _TaxonomyRefPartsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return tax.ref_parts()
 
     def _load_ref_parts(self):
-        for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/core/"):
+        for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/core/"):
             if 'ref-parts' in filename:
                 ref_parts = self._load_ref_parts_file("/core/" + filename)
         return ref_parts
@@ -125,11 +126,11 @@ class TaxonomyMisc(object):
         tax = _TaxonomyGenericRolesHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return tax.roles()
 
     def _load_generic_roles(self):
-        for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/core/"):
+        for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/core/"):
             if 'gen-roles' in filename:
                 generic_roles = self._load_generic_roles_file("/core/" + filename)
         return generic_roles

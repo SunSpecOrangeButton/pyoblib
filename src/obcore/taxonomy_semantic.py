@@ -17,6 +17,7 @@ import xml.sax
 
 import taxonomy
 import validator
+import constants
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -82,7 +83,7 @@ class TaxonomySemantic(object):
         eh = _ElementsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(eh)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return eh.elements()
 
     def _load_elements(self):
@@ -100,7 +101,7 @@ class TaxonomySemantic(object):
         tax = _TaxonomySemanticHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(taxonomy.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
         return tax.concepts()
 
     def _load_concepts(self):
@@ -108,14 +109,14 @@ class TaxonomySemantic(object):
         # to load a more accurate representation of the taxonomy but this was found via trial and
         # error as opposed to a scientific methodology.
         concepts = {}
-        for dirname in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/data/"):
-            for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/data/" + dirname):
+        for dirname in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/data/"):
+            for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/data/" + dirname):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file("/data/" + dirname + "/" +
                                                                  filename)
-        for dirname in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/documents/"):
-            for filename in os.listdir(taxonomy.SOLAR_TAXONOMY_DIR + "/documents/" + dirname):
+        for dirname in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/documents/"):
+            for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/documents/" + dirname):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file("/documents/" + dirname + "/" +
