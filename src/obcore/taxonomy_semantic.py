@@ -78,11 +78,11 @@ class TaxonomySemantic(object):
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
 
-    def _load_elements_file(self, fn):
+    def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(eh)
-        parser.parse(open(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, fn)))
+        parser.parse(open(pathname))
         return eh.elements()
 
     def _load_elements(self):
@@ -96,11 +96,11 @@ class TaxonomySemantic(object):
         """
         return self._elements
 
-    def _load_concepts_file(self, fn):
+    def _load_concepts_file(self, pathname):
         tax = _TaxonomySemanticHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, fn)))
+        parser.parse(open(pathname))
         return tax.concepts()
 
     def _load_concepts(self):
@@ -128,7 +128,8 @@ class TaxonomySemantic(object):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                            os.path.join("documents", dirname, filename))
+                            os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+                                         "documents", dirname, filename))
         return concepts
 
     def validate_concept(self, concept):
