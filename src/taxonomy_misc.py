@@ -43,7 +43,7 @@ class _TaxonomyNumericHandler(xml.sax.ContentHandler):
 
 class _TaxonomyRefPartsHandler(xml.sax.ContentHandler):
     """
-    Loads Taxonomy Ref Prts from the numeric us xsd file.
+    Loads Taxonomy Ref Parts from the numeric us xsd file.
     """
 
     def __init__(self):
@@ -86,7 +86,7 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
 
 class TaxonomyMisc(object):
     """
-    Represents Miscellaneous Taxonomy Objects that is not covered in the
+    Represents Miscellaneous Taxonomy Objects that are not covered in the
     other classes.  Generally speaking these are rarely used.
     """
 
@@ -170,7 +170,7 @@ class TaxonomyMisc(object):
 
     def generic_roles(self):
         """
-        A list of genericroles
+        A list of generic roles
         """
 
         return self._generic_roles
