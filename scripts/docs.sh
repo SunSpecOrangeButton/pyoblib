@@ -18,29 +18,29 @@
 # and it likely  could be replaced with an HTML based documentation
 # generator.  To run this script "pip install pdoc" must be issued first.
 
-export PYTHONPATH=`pwd`/src
+export PYTHONPATH=`pwd`/src/obcore
 
 # pdoc --html --overwrite --html-dir=out src
-# cp -r out/src docs/oblib
+# cp -r out/src/obcore docs/oblib
 
-pdoc src/identifier.py	
-echo
-echo
-
-pdoc src/taxonomy.py
+pdoc src/obcore/identifier.py
 echo
 echo
 
-pdoc src/taxonomy_semantic.py		
+pdoc src/obcore/taxonomy.py
 echo
 echo
 
-pdoc src/taxonomy_types.py	
+pdoc src/obcore/taxonomy_semantic.py
 echo
 echo
 
-pdoc src/taxonomy_units.py
+pdoc src/obcore/taxonomy_types.py
 echo
 echo
 
-pdoc src/taxonomy_misc.py
+pdoc src/obcore/taxonomy_units.py
+echo
+echo
+
+pdoc src/obcore/taxonomy_misc.py
