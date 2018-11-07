@@ -6,6 +6,6 @@ purpose at this point in time is for commentary on the directory structure and m
 have been placed here such that a Continuous Integration procedure can be setup.  Please use the Developers Slack 
 Channel to post suggestions and/or offer to assist.
 
-The Taxonomy classes have been added and is ready for the upcoming programming session on 11/7 and 11/8.  Please
-feel free to review but please do not start to use the library actively until after the resultant code from the
-programming session is made available.
+The Taxonomy classes have been added and is ready for the upcoming programming session on 11/7/2018 and 11/8/2018.
+Please feel free to review but please do not start to use the library actively until after the resultant code from
+the programming session is made available.
