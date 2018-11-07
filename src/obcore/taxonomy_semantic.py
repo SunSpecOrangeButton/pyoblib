@@ -79,16 +79,20 @@ class TaxonomySemantic(object):
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
 
-    def _load_elements_file(self, fn):
+    def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(eh)
-        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(pathname))
         return eh.elements()
 
     def _load_elements(self):
-        elements = self._load_elements_file("/core/solar_2018-03-31_r01.xsd")
-        elements.update(self._load_elements_file("/external/us-gaap-2017-01-31.xsd"))
+        elements = self._load_elements_file(os.path.join(
+                constants.SOLAR_TAXONOMY_DIR, "core",
+                "solar_2018-03-31_r01.xsd"))
+        elements.update(self._load_elements_file(os.path.join(
+                constants.SOLAR_TAXONOMY_DIR, "external",
+                "us-gaap-2017-01-31.xsd")))
         return elements
 
     def elements(self):
@@ -97,30 +101,41 @@ class TaxonomySemantic(object):
         """
         return self._elements
 
-    def _load_concepts_file(self, fn):
+    def _load_concepts_file(self, pathname):
         tax = _TaxonomySemanticHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
+        parser.parse(open(pathname))
         return tax.concepts()
 
     def _load_concepts(self):
+        """
+        Returns a dict of available concepts
+        """
         # TODO: Better understand the relationship of "def" vs. "pre" xml files.  Using pre seems
         # to load a more accurate representation of the taxonomy but this was found via trial and
         # error as opposed to a scientific methodology.
         concepts = {}
-        for dirname in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/data/"):
-            for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/data/" + dirname):
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "data")):
+            for filename in os.listdir(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "data",
+                                 dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file("/data/" + dirname + "/" +
-                                                                 filename)
-        for dirname in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/documents/"):
-            for filename in os.listdir(constants.SOLAR_TAXONOMY_DIR + "/documents/" + dirname):
+                    concepts[dirname] = self._load_concepts_file(
+                            os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                         "data", dirname, filename))
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "documents")):
+            for filename in os.listdir(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents",
+                                 dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file("/documents/" + dirname + "/" +
-                                                                 filename)
+                    concepts[dirname] = self._load_concepts_file(
+                            os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                         "documents", dirname, filename))
         return concepts
 
     def validate_concept(self, concept):
