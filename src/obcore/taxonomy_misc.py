@@ -122,7 +122,7 @@ class TaxonomyMisc(object):
         pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
         for filename in os.listdir(pathname):
             if 'ref-parts' in filename:
-                ref_parts = self._load_ref_parts_file(os.path.name(pathname,
+                ref_parts = self._load_ref_parts_file(os.path.join(pathname,
                                                                    filename))
         return ref_parts
 
