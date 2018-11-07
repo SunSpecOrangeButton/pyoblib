@@ -139,7 +139,6 @@ class TaxonomySemantic(object):
         """
         Validates if a concept is present in the Taxonomy and that its value is legal.
         """
-
         # Check presence
         found = False
         concept_info = False
@@ -150,7 +149,7 @@ class TaxonomySemantic(object):
                     concept_info = self.concept_info(concept)
                     break
         if not found:
-            return found
+            return ["'{}' concept not found.".format(concept)]
 
         return validator.validate_concept_value(concept_info, value)
 

@@ -157,7 +157,12 @@ def validate_concept(args):
 
 
 def validate_value(args):
-    print("Valid:", tax.semantic.validate_concept_value(args.concept, args.value))
+    result = tax.semantic.validate_concept_value(args.concept, args.value)
+    if len(result) > 0:
+        result += ["False"]
+    else:
+        result += ["True"]
+    print("Valid:", "\n".join(result))
 
 
 def validate_ep(args):
