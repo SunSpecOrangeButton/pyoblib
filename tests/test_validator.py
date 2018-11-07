@@ -52,8 +52,8 @@ class TestValidator(unittest.TestCase):
         self.assertEqual(0, len(validator.validate_concept_value(concept, "")))
 
         concept.id = "SomeIdentifier"
-        self.assertFalse(validator.validate_concept_value(concept, "Arf"))
-        self.assertTrue(validator.validate_concept_value(concept, identifier.identifier()))
+        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, identifier.identifier())))
 
 
     def test_get_validator_method_name(self):
