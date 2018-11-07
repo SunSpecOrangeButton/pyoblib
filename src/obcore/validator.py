@@ -39,7 +39,7 @@ def validate_concept_value(concept, value):
         errors += ["'{}' is not allowed to be nillable (null).".format(concept.id)]
 
     # Check data type and validator calling
-    if type(concept.type_name) in [str, unicode]:
+    if type(concept.type_name).__name__ in ["str", "unicode"]:
         method_name = get_validator_method_name(concept.type_name)
         validator_module = sys.modules[__name__]
         found_method = getattr(validator_module, method_name, None)
@@ -83,7 +83,7 @@ def xbrli_boolean_item_type_validator(value, concept):
 
 def xbrli_string_item_type_validator(value, concept):
     errors = []
-    if type(value) not in [str, unicode]:
+    if type(value).__name__ not in ["str", "unicode"]:
         errors += ["'{}' is not a valid string value.".format(value)]
     return errors
 
