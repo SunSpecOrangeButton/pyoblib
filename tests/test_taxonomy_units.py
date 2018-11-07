@@ -18,7 +18,7 @@ import taxonomy_units
 tax = taxonomy_units.TaxonomyUnits()
 
 
-class TestCore(unittest.TestCase):
+class TestTaxonomyUnits(unittest.TestCase):
 
     def test_taxonomy_units(self):
         self.assertEqual(len(tax.units()), 296)

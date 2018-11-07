@@ -18,7 +18,7 @@ import taxonomy_types
 tax = taxonomy_types.TaxonomyTypes()
 
 
-class TestCore(unittest.TestCase):
+class TestTaxonomyTypes(unittest.TestCase):
 
     def test_taxonomy_types(self):
         self.assertEqual(len(tax.types()), 65)

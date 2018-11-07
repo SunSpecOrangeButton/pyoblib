@@ -18,7 +18,7 @@ import taxonomy_semantic
 tax = taxonomy_semantic.TaxonomySemantic()
 
 
-class TestTaxonomy(unittest.TestCase):
+class TestTaxonomySemantic(unittest.TestCase):
 
     def test_concept_info(self):
         ci = tax.concept_info("solar:AdvisorInvoicesCounterparties")

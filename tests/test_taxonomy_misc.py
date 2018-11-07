@@ -18,7 +18,7 @@ import taxonomy_misc
 tax = taxonomy_misc.TaxonomyMisc()
 
 
-class TestCore(unittest.TestCase):
+class TestTaxonomyMisc(unittest.TestCase):
 
     def test_taxonomy_numeric_types(self):
         self.assertEqual(len(tax.numeric_types()), 13)
