@@ -17,6 +17,7 @@ import xml.sax
 
 import taxonomy
 import validator
+import constants
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -87,10 +88,10 @@ class TaxonomySemantic(object):
 
     def _load_elements(self):
         elements = self._load_elements_file(os.path.join(
-                taxonomy.SOLAR_TAXONOMY_DIR, "core",
+                constants.SOLAR_TAXONOMY_DIR, "core",
                 "solar_2018-03-31_r01.xsd"))
         elements.update(self._load_elements_file(os.path.join(
-                taxonomy.SOLAR_TAXONOMY_DIR, "external",
+                constants.SOLAR_TAXONOMY_DIR, "external",
                 "us-gaap-2017-01-31.xsd")))
         return elements
 
@@ -115,25 +116,25 @@ class TaxonomySemantic(object):
         # to load a more accurate representation of the taxonomy but this was found via trial and
         # error as opposed to a scientific methodology.
         concepts = {}
-        for dirname in os.listdir(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "data")):
             for filename in os.listdir(
-                    os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, "data",
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "data",
                                  dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                            os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+                            os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                          "data", dirname, filename))
-        for dirname in os.listdir(os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "documents")):
             for filename in os.listdir(
-                    os.path.join(taxonomy.SOLAR_TAXONOMY_DIR, "documents",
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents",
                                  dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                            os.path.join(taxonomy.SOLAR_TAXONOMY_DIR,
+                            os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                          "documents", dirname, filename))
         return concepts
 
@@ -154,7 +155,6 @@ class TaxonomySemantic(object):
         """
         Validates if a concept is present in the Taxonomy and that its value is legal.
         """
-
         # Check presence
         found = False
         concept_info = False
@@ -165,7 +165,7 @@ class TaxonomySemantic(object):
                     concept_info = self.concept_info(concept)
                     break
         if not found:
-            return found
+            return ["'{}' concept not found.".format(concept)]
 
         return validator.validate_concept_value(concept_info, value)
 
