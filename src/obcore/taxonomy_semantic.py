@@ -86,8 +86,10 @@ class TaxonomySemantic(object):
         return eh.elements()
 
     def _load_elements(self):
-        elements = self._load_elements_file("/core/solar_2018-03-31_r01.xsd")
-        elements.update(self._load_elements_file("/external/us-gaap-2017-01-31.xsd"))
+        elements = self._load_elements_file(os.path.join(
+                SOLAR_TAXONOMY_DIR, "core", "solar_2018-03-31_r01.xsd"))
+        elements.update(self._load_elements_file(os.path.join(
+                SOLAR_TAXONOMY_DIR, "external", "us-gaap-2017-01-31.xsd")))
         return elements
 
     def elements(self):
