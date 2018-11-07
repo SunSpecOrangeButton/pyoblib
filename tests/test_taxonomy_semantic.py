@@ -67,9 +67,9 @@ class TestTaxonomy(unittest.TestCase):
         self.assertTrue(tax.validate_concept("solar:AdvisorInvoicesCounterparties"))
 
     def test_concept_value(self):
-        self.assertTrue(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff"))
-        self.assertFalse(tax.validate_concept_value("solar:TaxEquityCommunicaionPlan", "Arff"))
-        self.assertFalse(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37))
+        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")))
+        self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicaionPlan", "Arff")))
+        self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37)))
 
         # TODO: Once the validator is fully working test a large number of cases.
 

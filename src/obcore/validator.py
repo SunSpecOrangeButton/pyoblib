@@ -49,7 +49,8 @@ def validate_concept_value(concept, value):
     # Check identifiers.  This is based upon the name of the field containing the word Identifier
     # in it.
     if concept.id.find("Identifier") != -1:
-        return identifier.validate(value)
+        if identifier.validate(value) is False:
+            errors += ["'{}' is not valid identifier.".format(concept.id)]
 
     # If all conditions clear then the value passes.
     return errors
