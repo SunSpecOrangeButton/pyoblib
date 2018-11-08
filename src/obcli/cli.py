@@ -207,6 +207,18 @@ generate_identifier_parser = subparsers.add_parser('generate-identifier',
                                                    help='Generate an Orange Button Identifier')
 generate_identifier_parser.set_defaults(command='generate_identifier')
 
+validate_identifier_parser = subparsers.add_parser('validate-identifier',
+                                                   help='Validate an Orange Button Identifier')
+validate_identifier_parser.set_defaults(command='validate_identifier')
+validate_identifier_parser.add_argument('identifier', action='store',
+                                        help='The identifer to validate')
+
+version_parser = subparsers.add_parser('version', help='CLI Version')
+version_parser.set_defaults(command='version')
+
+taxonomy_parser = subparsers.add_parser('taxonomy', help='Taxonomy Meta-data Related Commands')
+subparsers = taxonomy_parser.add_subparsers(help='commands')
+
 list_concept_info_parser = subparsers.add_parser('list-concept-info',
                                                  help='List Orange Button concept information')
 list_concept_info_parser.set_defaults(command='list_concept_info')
@@ -221,16 +233,16 @@ list_unit_info_parser.add_argument('unit', action='store',
 
 list_concepts_info_parser = subparsers.add_parser(
         'list-concepts-info',
-        help='List concept information in an Orange Button End Point')
+        help='List concept information in an Orange Button Entry Point')
 list_concepts_info_parser.set_defaults(command='list_ep_concepts_info')
 list_concepts_info_parser.add_argument('ep', action='store',
-                                       help='The end point to list concepts for')
+                                       help='The entry point to list concepts for')
 
 list_concepts_parser = subparsers.add_parser('list-concepts',
-                                             help='List concepts in an Orange Button End Point')
+                                             help='List concepts in an Orange Button Entry Point')
 list_concepts_parser.set_defaults(command='list_concepts')
 list_concepts_parser.add_argument('ep', action='store',
-                                  help='The end point to list concepts for')
+                                  help='The entry point to list concepts for')
 
 list_types_parser = subparsers.add_parser('list-type-enums',
                                           help='List enumerations in an Orange Button Type')
@@ -275,16 +287,10 @@ validate_value_parser.add_argument('value', action='store',
                                    help='The value to validate')
 
 validate_ep_parser = subparsers.add_parser('validate-ep',
-                                           help='Validate an Orange Button End Point')
+                                           help='Validate an Orange Button Entry Point')
 validate_ep_parser.set_defaults(command='validate_ep')
 validate_ep_parser.add_argument('ep', action='store',
-                                help='The end point to validate')
-
-validate_identifier_parser = subparsers.add_parser('validate-identifier',
-                                                   help='Validate an Orange Button Identifier')
-validate_identifier_parser.set_defaults(command='validate_identifier')
-validate_identifier_parser.add_argument('identifier', action='store',
-                                        help='The identifer to validate')
+                                help='The entry point to validate')
 
 validate_type_parser = subparsers.add_parser('validate-type',
                                              help='Validate an Orange Button Type')
@@ -315,9 +321,6 @@ validate_unit_parser = subparsers.add_parser('validate-unit',
 validate_unit_parser.set_defaults(command='validate_unit')
 validate_unit_parser.add_argument('generic_unit', action='store',
                                   help='The Unit to validate')
-
-version_parser = subparsers.add_parser('version', help='CLI Version')
-version_parser.set_defaults(command='version')
 
 args = parser.parse_args()
 
