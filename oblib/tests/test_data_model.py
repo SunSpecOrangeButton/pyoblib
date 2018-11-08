@@ -24,6 +24,19 @@ class TestDataModelEntrypoint(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def _check_arrays_equivalent(self, array1, array2):
+        # An ugly hack to make the tests work in both python2
+        # and python3:
+        if hasattr( self, 'assertCountEqual'):
+            self.assertCountEqual(array1, array2)
+        else:
+            self.assertItemsEqual(array1, array2)
+
+        # assertCountEqual is the new name for what was previously
+        # assertItemsEqual. assertItemsEqual is unsupported in Python 3
+        # but assertCountEqual is unsupported in Python 2.
+
+
     def test_instantiate_empty_entrypoint(self):
         doc = Entrypoint("CutSheet")
 
@@ -39,16 +52,17 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # and each table should have a correct list of axes, as defined by
         # the taxonomy for CutSheets:
         tables = doc.getTableNames()
-        self.assertCountEqual(tables, ["solar:InverterPowerLevelTable",
+        self._check_arrays_equivalent(tables,
+                                      ["solar:InverterPowerLevelTable",
                                        "solar:CutSheetDetailsTable"])
-        self.assertCountEqual(doc.getTable("solar:InverterPowerLevelTable").axes(),
-                             ["solar:ProductIdentifierAxis",
-                              "solar:InverterPowerLevelPercentAxis"])
-        self.assertCountEqual(doc.getTable("solar:CutSheetDetailsTable").axes(),
-                              ["solar:ProductIdentifierAxis",
-                               "solar:TestConditionAxis"])
-        # assertCountEqual is the new name for what was previously
-        # assertItemsEqual. assertItemsEqual is unsupported in Python 3.
+        self._check_arrays_equivalent(
+            doc.getTable("solar:InverterPowerLevelTable").axes(),
+                         ["solar:ProductIdentifierAxis",
+                          "solar:InverterPowerLevelPercentAxis"])
+        self._check_arrays_equivalent(
+            doc.getTable("solar:CutSheetDetailsTable").axes(),
+                         ["solar:ProductIdentifierAxis",
+                          "solar:TestConditionAxis"])
 
     def test_get_table_for_concept(self):
         doc = Entrypoint("CutSheet")
