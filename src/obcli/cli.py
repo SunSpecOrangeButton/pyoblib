@@ -207,6 +207,12 @@ generate_identifier_parser = subparsers.add_parser('generate-identifier',
                                                    help='Generate an Orange Button Identifier')
 generate_identifier_parser.set_defaults(command='generate_identifier')
 
+validate_identifier_parser = subparsers.add_parser('validate-identifier',
+                                                   help='Validate an Orange Button Identifier')
+validate_identifier_parser.set_defaults(command='validate_identifier')
+validate_identifier_parser.add_argument('identifier', action='store',
+                                        help='The identifer to validate')
+
 version_parser = subparsers.add_parser('version', help='CLI Version')
 version_parser.set_defaults(command='version')
 
@@ -285,12 +291,6 @@ validate_ep_parser = subparsers.add_parser('validate-ep',
 validate_ep_parser.set_defaults(command='validate_ep')
 validate_ep_parser.add_argument('ep', action='store',
                                 help='The entry point to validate')
-
-validate_identifier_parser = subparsers.add_parser('validate-identifier',
-                                                   help='Validate an Orange Button Identifier')
-validate_identifier_parser.set_defaults(command='validate_identifier')
-validate_identifier_parser.add_argument('identifier', action='store',
-                                        help='The identifer to validate')
 
 validate_type_parser = subparsers.add_parser('validate-type',
                                              help='Validate an Orange Button Type')
