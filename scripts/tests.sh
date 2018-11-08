@@ -48,4 +48,8 @@ python -m unittest test_validator || {
     EXITVAL=1
 }
 
+python -m unittest test_data_model || {
+    EXITVAL=1
+}
+
 exit $EXITVAL

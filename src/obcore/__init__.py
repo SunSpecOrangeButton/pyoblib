@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import identifier
-import model
+import data_model
 import taxonomy
 import taxonomy_semantic
 import taxonomy_types
@@ -21,5 +21,5 @@ import taxonomy_units
 import taxonomy_misc
 import validator
 
-__all__ = ['identifier', 'model', 'taxonomy', 'taxonomy_semantic', 'taxonomy_types', 'taxonomy_units',
+__all__ = ['identifier', 'data_model', 'taxonomy', 'taxonomy_semantic', 'taxonomy_types', 'taxonomy_units',
            'taxonomy_misc', 'validator']

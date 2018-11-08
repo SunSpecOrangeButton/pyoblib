@@ -21,7 +21,13 @@ import constants
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
-
+    """
+    Reads the files in solar-taxonomy/core/*.xsd
+    This extracts the metadata for each concept name, such as the datatype
+    of the concept, whether it's nillable, etc.
+    As a SAX parser, it streams the XML, and startElement() is called
+    once for each element in the file.
+    """
     def __init__(self):
         self._elements = {}
 
@@ -58,9 +64,15 @@ class _ElementsHandler(xml.sax.ContentHandler):
 
 
 class _TaxonomySemanticHandler(xml.sax.ContentHandler):
-
+    """
+    Reads the files in solar-taxonomy/documents/<document name>/*_pre.xml
+    This extracts the list of concept names from the presentation file.
+    As a SAX parser,it streams the XML, and startElement() is called
+    once for each XML element in the file.
+    """
     def __init__(self):
         self._concepts = []
+
 
     def startElement(self, name, attrs):
         if name == "loc":
@@ -73,11 +85,47 @@ class _TaxonomySemanticHandler(xml.sax.ContentHandler):
         return self._concepts
 
 
+
+class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
+    """
+    Reads the files in solar-taxonomy/documents/<document name>/*_def.xml
+    This extracts the relationships between the concepts, such as when one
+    concept is a parent of another, when a concept belongs to a hypercube,
+    etc.
+    As a SAX parser,it streams the XML, and startElement() is called
+    once for each XML element in the file.
+    """
+    def __init__(self):
+        self._relationships = []
+
+
+    def startElement(self, name, attrs):
+        if name == "definitionArc":
+            relationship = {"role": None, "from": None, "to": None, "order": None}
+            for item in attrs.items():
+                if item[0] == "xlink:arcrole":
+                    relationship['role'] = item[1].split("/")[-1]
+                if item[0] == "xlink:from":
+                    relationship['from'] = item[1].replace("_", ":")
+                if item[0] == "xlink:to":
+                    relationship['to'] = item[1].replace("_", ":")
+                if item[0] == "order":
+                    relationship['order'] = item[1]
+            self._relationships.append(relationship)
+            # Question TBD: do we need to remember which document definition
+            # this relationship came from? would the same concepts ever have
+            # different relationships in one document than another?
+
+    def relationships(self):
+        return self._relationships
+
+
 class TaxonomySemantic(object):
 
     def __init__(self):
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
+        self._relationships = self._load_relationships()
 
     def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
@@ -138,6 +186,22 @@ class TaxonomySemantic(object):
                                          "documents", dirname, filename))
         return concepts
 
+    def _load_relationships_file(self, fn):
+        tax = _TaxonomyRelationshipHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(tax)
+        parser.parse(open(os.path.join(constants.SOLAR_TAXONOMY_DIR, fn)))
+        return tax.relationships()
+
+    def _load_relationships(self):
+        relationships = {}
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
+                if 'def.' in filename:
+                    relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
+        return relationships
+
+
     def validate_concept(self, concept):
         """
         Validates if a concept is present in the Taxonomy
@@ -186,6 +250,16 @@ class TaxonomySemantic(object):
 
         if data in self._concepts:
             return self._concepts[data]
+        else:
+            return None
+
+    def relationships_ep(self, endpoint):
+        """
+        Returns a list of all relationshiops in an end point
+        """
+
+        if endpoint in self._relationships:
+            return self._relationships[endpoint]
         else:
             return None
 
