@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from taxonomy_semantic import TaxonomySemantic
-
 
 class Hypercube(object):
     """
@@ -72,7 +70,7 @@ class Entrypoint(object):
     and from particular physical file format (or database schema) will
     be handled elsewhere.
     """
-    def __init__(self, entrypoint_name):
+    def __init__(self, entrypoint_name, taxonomy_semantic):
         """
         Initializes an empty instance of a document corresponding to the named
         entrypoint. entrypoint_name is a string that must match an entry point in
@@ -81,8 +79,10 @@ class Entrypoint(object):
         Looks up the relationships between concepts for this entry point from
         the taxonomy to know the hierarchical relationship of concepts, tables,
         and axes/dimensions.
+        taxonomy_semantic should be the global singleton TaxonomySemantic
+        object.
         """
-        self.ts = TaxonomySemantic()
+        self.ts = taxonomy_semantic
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}."\
