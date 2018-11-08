@@ -43,83 +43,83 @@ python src/obcli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576 
 }
   
 # Units tests
-python src/obcli/cli.py list-units || {
+python src/obcli/cli.py taxonomy list-units || {
     EXITVAL=1
 }
-python src/obcli/cli.py list-units-details || {
+python src/obcli/cli.py taxonomy list-units-details || {
     EXITVAL=1
 }
-python src/obcli/cli.py list-unit-info rad || {
+python src/obcli/cli.py taxonomy list-unit-info rad || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-unit rad || {
+python src/obcli/cli.py taxonomy validate-unit rad || {
     EXITVAL=1
 }
 
 # Numeric type tests
-python src/obcli/cli.py list-numeric-types || {
+python src/obcli/cli.py taxonomy list-numeric-types || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-numeric-type electricCurrentItemType || {
+python src/obcli/cli.py taxonomy validate-numeric-type electricCurrentItemType || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-numeric-type electricCurrentIteType || {
+python src/obcli/cli.py taxonomy validate-numeric-type electricCurrentIteType || {
     EXITVAL=1
 }
 
 # Types test
-python src/obcli/cli.py list-type-enums climateZoneANSIItemType || {
+python src/obcli/cli.py taxonomy list-type-enums climateZoneANSIItemType || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-type climateZoneANSIItemType || {
+python src/obcli/cli.py taxonomy validate-type climateZoneANSIItemType || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-type climateZoneANSIItemype || {
+python src/obcli/cli.py taxonomy validate-type climateZoneANSIItemype || {
     EXITVAL=1
 }
 
 # Semantic tests
-python src/obcli/cli.py validate-ep MonthlyOperatingReport || {
+python src/obcli/cli.py taxonomy validate-ep MonthlyOperatingReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-ep MonthlyOperatngReport || {
+python src/obcli/cli.py taxonomy validate-ep MonthlyOperatngReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py list-concepts MonthlyOperatingReport || {
+python src/obcli/cli.py taxonomy list-concepts MonthlyOperatingReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py list-concepts-info MonthlyOperatingReport || {
+python src/obcli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py list-concept-info solar:AccountsReceivableCustomerName || {
+python src/obcli/cli.py taxonomy list-concept-info solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-concept solar:AccountsReceivableCustomerName || {
+python src/obcli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-value solar:AccountsReceivableCustomerName George || {
+python src/obcli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
     EXITVAL=1
 }
 
 # Ref parts tests
-python src/obcli/cli.py list-ref-parts || {
+python src/obcli/cli.py taxonomy list-ref-parts || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-ref-part Dimension || {
+python src/obcli/cli.py taxonomy validate-ref-part Dimension || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-ref-part Dimnsion || {
+python src/obcli/cli.py taxonomy validate-ref-part Dimnsion || {
     EXITVAL=1
 }
 
 # Generic roles tests
-python src/obcli/cli.py list-generic-roles || {
+python src/obcli/cli.py taxonomy list-generic-roles || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-generic-role "Generic UML composition arc" || {
+python src/obcli/cli.py taxonomy validate-generic-role "Generic UML composition arc" || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-generic-role "Generic UML compositin arc" || {
+python src/obcli/cli.py taxonomy validate-generic-role "Generic UML compositin arc" || {
     EXITVAL=1
 }
 
