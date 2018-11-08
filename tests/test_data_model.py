@@ -100,24 +100,24 @@ class TestDataModelEntrypoint(unittest.TestCase):
                            "solar:TestConditionAxis": "placeholder",
                            "duration": "forever" }
 
-        self.assertFalse( doc.sufficientContext("solar:DeviceCost",
-                                                noTimeContext) )
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:DeviceCost", noTimeContext)
         self.assertTrue( doc.sufficientContext("solar:DeviceCost",
                                                 instantContext))
         # A context with a duration instead of an instant should also be
         # rejected:
-        self.assertFalse( doc.sufficientContext("solar:DeviceCost",
-                                                durationContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:DeviceCost", durationContext)
 
 
         # solar:ModuleNameplateCapacity has period_type duration. A context
         # without a duration should be insufficient:
-        self.assertFalse( doc.sufficientContext("solar:ModuleNameplateCapacity",
-                                                noTimeContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:ModuleNameplateCapacity", noTimeContext)
         # A context with an instant instead of a duration should also be
         # rejected:
-        self.assertFalse( doc.sufficientContext("solar:ModuleNameplateCapacity",
-                                               instantContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:ModuleNameplateCapacity", instantContext)
         self.assertTrue( doc.sufficientContext("solar:ModuleNameplateCapacity",
                                                durationContext))
 
@@ -130,28 +130,27 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # DeviceCost is on the CutSheetDetailsTable so it needs a value
         # for ProductIdentifierAxis and TestConditionAxis.
-        self.assertFalse( doc.sufficientContext("solar:DeviceCost", {}) )
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:DeviceCost", {})
 
         context = {"instant": datetime.now(),
                    "solar:ProductIdentifierAxis": "placeholder",
                    "solar:TestConditionAxis": "placeholder"}
-        self.assertTrue( doc.sufficientContext("solar:DeviceCost", context))
+        self.assertTrue( doc.sufficientContext("solar:DeviceCost", context) )
 
         badContext = {"instant": datetime.now(),
                       "solar:TestConditionAxis": "placeholder"}
-        self.assertFalse( doc.sufficientContext("solar:DeviceCost", badContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:DeviceCost", badContext)
 
         badContext = {"instant": datetime.now(),
                       "solar:ProductIdentifierAxis": "placeholder"}
-        self.assertFalse( doc.sufficientContext("solar:DeviceCost", badContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext("solar:DeviceCost", badContext)
 
 
         # How do we know what are valid values for ProductIdentifierAxis and
         # TestConditionAxis?  (I think they are meant to be UUIDs.)
-
-        # Note: Campbell wants to go back and create an "identifier" type and
-        # use that (not the name). then we can write a validator that any field
-        # with the identifier type needs to have a UUID.
 
         # Note: TestConditionAxis is part of the following relationships:
         # solar:TestConditionAxis -> dimension-domain -> solar:TestConditionDomain
@@ -167,9 +166,40 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         badContext = {"instant": datetime.now(),
                       "solar:InverterPowerLevelPercentAxis": "placeholder"}
-        self.assertFalse( doc.sufficientContext(concept, badContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext(concept, badContext)
 
         badContext = {"instant": datetime.now(),
                       "solar:ProductIdentifierAxis": "placeholder"}
-        self.assertFalse( doc.sufficientContext(concept, badContext))
+        with self.assertRaises(Exception):
+            doc.sufficientContext(concept, badContext)
 
+
+    def test_set_and_get(self):
+        # Tests the case where .set() is called correctly. Verify the
+        # data is stored and can be retrieved using .get().
+        doc = Entrypoint("CutSheet")
+
+        # Write a TypeOfDevice and a DeviceCost:
+
+        doc.set("solar:TypeOfDevice", "Module",
+                    {"duration": "forever",
+                     "solar:ProductIdentifierAxis": "placeholder",
+                     "solar:TestConditionAxis": "placeholder"})
+        doc.set("solar:DeviceCost", 100,
+                    {"instant": datetime.now(),
+                     "solar:ProductIdentifierAxis": "placeholder",
+                     "solar:TestConditionAxis": "placeholder"})
+
+        self.assertEqual( doc.get("solar:TypeOfDevice", {}), "Module")
+        self.assertEqual( doc.get("solar:DeviceCost", {}), 100)
+        # TODO: DeviceCost should require units
+
+    def test_set_raises_exception(self):
+        # Tests the case where .set() is called incorrectly. It should
+        # raise exceptions if required information is missing.
+        with self.assertRaises(Exception):
+            doc.set("solar:TypeOfDevice", "Module", {})
+
+        with self.assertRaises(Exception):
+            doc.set("solar:DeviceCost", 100, {})

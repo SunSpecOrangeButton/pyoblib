@@ -104,6 +104,8 @@ class Entrypoint(object):
         self._find_tables()
         self._find_parents()
 
+        self.facts = {}
+
 
     def allowedConcepts(self):
         return self._all_allowed_concepts
@@ -221,7 +223,9 @@ class Entrypoint(object):
         metadata = self.ts.concept_info(concept_name)
         if metadata.period_type == "duration":
             if not "duration" in context:
-                return False
+                raise Exception("Missing required duration in {} context".format(
+                    concept_name))
+
             # a valid duration is either "forever" or {"start", "end"}
             duration = context["duration"]
             valid = False
@@ -230,12 +234,14 @@ class Entrypoint(object):
             if "start" in duration and "end" in duration:
                 valid = True
             if not valid:
-                return False
+                raise Exception("Invalid duration in {} context".format(
+                    concept_name))
             # TODO check isinstance(duration["start"], datetime)
 
         if metadata.period_type == "instant":
             if not "instant" in context:
-                return False
+                raise Exception("Missing required instant in {} context".format(
+                    concept_name))
 
         # If we got this far, we know the time period is OK. Now check the
         # required axes, if this concept is on a table:
@@ -243,7 +249,10 @@ class Entrypoint(object):
         if table is not None:
             for axis in table.axes():
                 if not axis in context:
-                    return False
+                    raise Exception("Missing required {} axis for {}".format(
+                        axis, concept_name))
+                # Check that the value given for the axis is valid!
+                # (How do we do that?)
         # TODO check that we haven't given any EXTRA axes that the table
         # DOESN'T want?
 
@@ -258,6 +267,8 @@ class Entrypoint(object):
         If concept and context are identical to a previous call, the old fact
         will be overwritten. Otherwise, a new fact is created.
         """
+        # TODO should also take unit and decimals as arguments? Or should those
+        # be given as properties of context?
         if not concept in self._all_allowed_concepts:
             raise Exception("{} is not allowed in the {} entrypoint".format(
                 concept, self.entrypoint_name))
@@ -279,6 +290,11 @@ class Entrypoint(object):
         # complain if context has wrong unit
         # complain if context has wrong duration/instant type
         # add to facts
+
+        # figure out the data structure for facts that can be keyed on
+        # context as well as concept.  Probably need to copy over the logic
+        # from py-xbrl-generator that turns context values into a context ID.
+        self.facts[concept] = value
 
         # concept_metadata properties:
         #x.period_type
@@ -302,7 +318,7 @@ class Entrypoint(object):
         # complain if no value for concept
         # complain if context needed and not provided
         #
-        pass
+        return self.facts[concept]
 
     def isValid(self):
         """
