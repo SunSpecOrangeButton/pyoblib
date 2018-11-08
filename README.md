@@ -11,7 +11,23 @@ The rest of this read me file is in template form at this point in time.  It wil
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Temporary Instructions:
+
+A series of shell scripts are availalable to assist with development, packaging, etc...   Their state is preliminary but they can be used to get started.
+
+* cli.sh: Runs the CLI before it is packaged.
+* dist-cli.sh: Packages the CLI into a single file executable.
+* docs.sh: Creates the documentation (currently requires some manual work).
+* setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
+* tests-cli.sh Runs the CLI test suite.
+* tests.sh Runs the python tests.
+
+All scripts must be run from the root core directory (i.e. "scripts/tests.sh" is the correct usage).  Run "scripts/setup-dev.sh" before usage of other scripts.
+
+Long Term this project is being updated so that its procedures mimic the successful [pvlib](https://github.com/pvlib/pvlib-python) project.  This way many of the configuration files and lessons learned by the pvlib team can be levereaged.  At this point in time many of the scripts listed above
+may no longer be necessary and may be deprecated.
+
+### NOTE: THE REST OF THIS FILE IS STILL IN THE FORMAT OF THE TEMPLATE
 
 ### Prerequisites
 
