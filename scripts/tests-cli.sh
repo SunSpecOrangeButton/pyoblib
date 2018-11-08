@@ -14,112 +14,112 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export PYTHONPATH=`pwd`/src/obcore
+export PYTHONPATH=`pwd`/oblib
 EXITVAL=0
 
 # Basic tests
-python src/obcli/cli.py -h || {
+python scripts/cli/cli.py -h || {
     EXITVAL=1
 }
-python src/obcli/cli.py --help || {
+python scripts/cli/cli.py --help || {
     EXITVAL=1
 }
-python src/obcli/cli.py info || {
+python scripts/cli/cli.py info || {
     EXITVAL=1
 }
-python src/obcli/cli.py version || {
+python scripts/cli/cli.py version || {
     EXITVAL=1
 }
 
 # Identifier tests
-python src/obcli/cli.py generate-identifier || {
+python scripts/cli/cli.py generate-identifier || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576d || {
+python scripts/cli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576d || {
     EXITVAL=1
 }
-python src/obcli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576 || {
+python scripts/cli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576 || {
     EXITVAL=1
 }
   
 # Units tests
-python src/obcli/cli.py taxonomy list-units || {
+python scripts/cli/cli.py taxonomy list-units || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy list-units-details || {
+python scripts/cli/cli.py taxonomy list-units-details || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy list-unit-info rad || {
+python scripts/cli/cli.py taxonomy list-unit-info rad || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-unit rad || {
+python scripts/cli/cli.py taxonomy validate-unit rad || {
     EXITVAL=1
 }
 
 # Numeric type tests
-python src/obcli/cli.py taxonomy list-numeric-types || {
+python scripts/cli/cli.py taxonomy list-numeric-types || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-numeric-type electricCurrentItemType || {
+python scripts/cli/cli.py taxonomy validate-numeric-type electricCurrentItemType || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-numeric-type electricCurrentIteType || {
+python scripts/cli/cli.py taxonomy validate-numeric-type electricCurrentIteType || {
     EXITVAL=1
 }
 
 # Types test
-python src/obcli/cli.py taxonomy list-type-enums climateZoneANSIItemType || {
+python scripts/cli/cli.py taxonomy list-type-enums climateZoneANSIItemType || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-type climateZoneANSIItemType || {
+python scripts/cli/cli.py taxonomy validate-type climateZoneANSIItemType || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-type climateZoneANSIItemype || {
+python scripts/cli/cli.py taxonomy validate-type climateZoneANSIItemype || {
     EXITVAL=1
 }
 
 # Semantic tests
-python src/obcli/cli.py taxonomy validate-ep MonthlyOperatingReport || {
+python scripts/cli/cli.py taxonomy validate-ep MonthlyOperatingReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-ep MonthlyOperatngReport || {
+python scripts/cli/cli.py taxonomy validate-ep MonthlyOperatngReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy list-concepts MonthlyOperatingReport || {
+python scripts/cli/cli.py taxonomy list-concepts MonthlyOperatingReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
+python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy list-concept-info solar:AccountsReceivableCustomerName || {
+python scripts/cli/cli.py taxonomy list-concept-info solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
+python scripts/cli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
     EXITVAL=1
 }
 
 # Ref parts tests
-python src/obcli/cli.py taxonomy list-ref-parts || {
+python scripts/cli/cli.py taxonomy list-ref-parts || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-ref-part Dimension || {
+python scripts/cli/cli.py taxonomy validate-ref-part Dimension || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-ref-part Dimnsion || {
+python scripts/cli/cli.py taxonomy validate-ref-part Dimnsion || {
     EXITVAL=1
 }
 
 # Generic roles tests
-python src/obcli/cli.py taxonomy list-generic-roles || {
+python scripts/cli/cli.py taxonomy list-generic-roles || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-generic-role "Generic UML composition arc" || {
+python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML composition arc" || {
     EXITVAL=1
 }
-python src/obcli/cli.py taxonomy validate-generic-role "Generic UML compositin arc" || {
+python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML compositin arc" || {
     EXITVAL=1
 }
 
