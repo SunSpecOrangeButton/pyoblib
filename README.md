@@ -1,11 +1,13 @@
-# Orange Button Core Library
+# Orange Button Python Library (pyoblib)
 
-The Orange Button Core library contains source code that may be used by other Orange Button code.  By definition funcitonality in this library should be consumable by multiple other Orange Button projects.  If functionality is only usable in a single isntance it should be placed in another project.
+The Orange Button Python library contains core source code that may be used by other Orange Button code.  By definition functionality in this library should be consumable by multiple other Orange Button projects.  If functionality is only usable in a single instance it should be placed in another project.
 
-Documentation (API interface) is here: [link](https://github.com/SunSpecOrangeButton/core/tree/master/docs)
+Documentation (API interface) is here: [link](https://github.com/SunSpecOrangeButton/pyoblib/tree/master/docs)
 
 
 NOTE: At this point in time the Core library is being setup and is in development.  It may be possible to use some of its functionality although it is likely to see significant regular changes in SDK signatures.
+
+The rest of this read me file is in template form at this point in time.  It will be updated in the near future.
 
 ## Getting Started
 
