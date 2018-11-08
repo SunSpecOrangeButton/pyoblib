@@ -41,7 +41,13 @@ class _ElementsHandler(xml.sax.ContentHandler):
                     else:
                         element.abstract = True
                 elif item[0] == "id":
-                    element.id = item[1].replace("_", ":")
+                    # Turn the first underscore (only the first) into
+                    # a colon. For example, the concept named
+                    # solar:InverterPowerLevel10PercentMember_1 appears
+                    # in the id field as
+                    # solar_InverterPowerLevel10PercentMember_1. We want
+                    # to replace the first underscore but not the second.
+                    element.id = item[1].replace("_", ":", 1)
                 elif item[0] == "name":
                     element.name = item[1]
                 elif item[0] == "nillable":
@@ -78,7 +84,7 @@ class _TaxonomySemanticHandler(xml.sax.ContentHandler):
         if name == "loc":
             for item in attrs.items():
                 if item[0] == "xlink:label":
-                    concept = item[1].replace("_", ":")
+                    concept = item[1].replace("_", ":", 1)
                     self._concepts.append(concept)
 
     def concepts(self):
@@ -106,9 +112,9 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
                 if item[0] == "xlink:arcrole":
                     relationship['role'] = item[1].split("/")[-1]
                 if item[0] == "xlink:from":
-                    relationship['from'] = item[1].replace("_", ":")
+                    relationship['from'] = item[1].replace("_", ":", 1)
                 if item[0] == "xlink:to":
-                    relationship['to'] = item[1].replace("_", ":")
+                    relationship['to'] = item[1].replace("_", ":", 1)
                 if item[0] == "order":
                     relationship['order'] = item[1]
             self._relationships.append(relationship)

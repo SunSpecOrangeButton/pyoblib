@@ -14,6 +14,7 @@
 
 import unittest
 from data_model import Entrypoint
+from datetime import datetime
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -62,11 +63,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         table = doc.getTableForConcept("solar:CutSheetDetailsTable")
         self.assertIsNone(table)
 
-        for concept_name in doc.all_my_concepts.keys():
-            table = doc.getTableForConcept(concept_name)
-            if table is not None:
-                print "{} belongs in {}".format(concept_name, table.name())
-
 
     def test_can_write_concept(self):
         doc = Entrypoint("CutSheet")
@@ -84,3 +80,33 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertFalse( doc.canWriteConcept('solar:ProductIdentifierAxis'))
         self.assertTrue( doc.canWriteConcept('solar:ProductIdentifier'))
 
+    def test_sufficient_context_timeframe(self):
+        doc = Entrypoint("CutSheet")
+
+        # in order to set a concept value, sufficient context must be
+        # provided. what is sufficient context varies by concept.
+        # in general the context must provide the correct time information
+        # (either duration or instant)
+
+        # solar:DeviceCost has period_type instant
+        # so it requires a context with an instant. A context without an instant
+        # should be insufficient:
+        self.assertFalse( doc.sufficientContext("solar:DeviceCost", {}) )
+        self.assertTrue( doc.sufficientContext("solar:DeviceCost",
+                                               {"instant": datetime.now() }))
+        # A context with a duration instead of an instant should also be
+        # rejected:
+        self.assertFalse( doc.sufficientContext("solar:DeviceCost",
+                                               {"duration": "forever" }))
+
+
+        # solar:ModuleNameplateCapacity has period_type duration. A context
+        # without a duration should be insufficient:
+        self.assertFalse( doc.sufficientContext("solar:ModuleNameplateCapacity",
+                                                {}) )
+        # A context with an instant instead of a duration should also be
+        # rejected:
+        self.assertFalse( doc.sufficientContext("solar:ModuleNameplateCapacity",
+                                               {"instant": datetime.now() }))
+        self.assertTrue( doc.sufficientContext("solar:ModuleNameplateCapacity",
+                                               {"duration": "forever" }))

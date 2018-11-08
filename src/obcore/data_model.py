@@ -191,7 +191,53 @@ class Entrypoint(object):
         return None
 
     def canWriteConcept(self, concept_name):
-        return concept_name in self.all_my_concepts:
+        """
+        Returns True if concept_name is a writeable concept within this
+        document. False for concepts not in this document or concepts that
+        are only abstract parents of writeable concepts. e.g. you can't
+        write a value to an "Abstract" or a "LineItem".
+        """
+        if concept_name in self.all_my_concepts:
+            abstract_keywords = ["Abstract", "LineItems", "Table", "Domain", "Axis"]
+            for word in abstract_keywords:
+                if concept_name.endswith(word):
+                    return False
+            return True
+        return False
+
+    def sufficientContext(self, concept_name, context):
+        """
+        True if the given context dictionary contains all the information
+        needed to provide full context for the named concept -- sufficient
+        timeframe information (duration/instant), sufficient axes to place
+        the fact within its table, etc.
+        """
+        # should this return false or should it raise exception?
+        # the good thing about raising exception is it tells us exactly
+        # what's wrong.
+        metadata = self.ts.concept_info(concept_name)
+        if metadata.period_type == "duration":
+            if not "duration" in context:
+                return False
+            # a valid duration is either "forever" or {"start", "end"}
+            duration = context["duration"]
+            valid = False
+            if duration == "forever":
+                valid = True
+            if "start" in duration and "end" in duration:
+                valid = True
+            if not valid:
+                return False
+            # TODO check isinstance(duration["start"], datetime)
+
+        if metadata.period_type == "instant":
+            if not "instant" in context:
+                return False
+        # Refactor to put this logic into the Concept?
+        # make the Context into an object instead of a dictionary?
+        # do Context arguments as **kwargs ?
+        return True
+
 
     def set(self, concept, value, context=None):
         """
@@ -207,7 +253,7 @@ class Entrypoint(object):
         if not self.canWriteConcept(concept):
             raise Exception("{} is not a writeable concept".format(concept))
 
-        concept_ancestors = self.all_my_concepts.getAncestors()
+        concept_ancestors = self.all_my_concepts[concept].getAncestors()
         concept_metadata = self.ts.concept_info(concept)
         table = self.getTableForConcept(concept)
 
