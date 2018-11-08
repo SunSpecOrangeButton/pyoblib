@@ -1,0 +1,336 @@
+# Copyright 2018 Jonathan Xia
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# pyou may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#    http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from taxonomy_semantic import TaxonomySemantic
+
+
+class Hypercube(object):
+    """
+    (Currently a placeholder) a data structure to represent a table
+    (aka a Hypercube) within a document.
+    """
+    def __init__(self, table_name, axis_names):
+        self._table_name = table_name
+        self._axis_names = axis_names
+        self._line_items = []
+
+    def name(self):
+        return self._table_name
+
+    def axes(self):
+        return self._axis_names
+
+    def addLineItem(self, line_item_name):
+        self._line_items = line_item_name
+
+    def hasLineItem(self, line_item_name):
+        return line_item_name in self._line_items
+
+class Concept(object):
+    def __init__(self, concept_name):
+        self.name = concept_name
+        self.parent = None
+        self.children = []
+
+    def setParent(self, new_parent):
+        self.parent = new_parent
+        if not self in self.parent.children:
+            self.parent.children.append(self)
+
+    def addChild(self, new_child):
+        if not new_child in self.children:
+            self.children.append(new_child)
+        new_child.parent = self
+
+    def getAncestors(self):
+        # returns a list of concept's parent, concept's parent's parent, etc.
+        ancestors = []
+        curr = self
+        while curr.parent is not None:
+            ancestors.append(curr.parent)
+            curr = curr.parent
+        return ancestors
+
+
+class Entrypoint(object):
+    """
+    A data structure representing an orange button document
+    from a particular entrypoint -- for example, an MOR.
+    This class's representation of the data is format-agnostic, it just
+    provides methods for getting/setting and validation; translation to
+    and from particular physical file format (or database schema) will
+    be handled elsewhere.
+    """
+    def __init__(self, entrypoint_name):
+        """
+        Initializes an empty instance of a document corresponding to the named
+        entrypoint. entrypoint_name is a string that must match an entry point in
+        the taxonomy. Looks up the list of concepts for this entry point from
+        the taxonomy to know what concepts are allowed in the document.
+        Looks up the relationships between concepts for this entry point from
+        the taxonomy to know the hierarchical relationship of concepts, tables,
+        and axes/dimensions.
+        """
+        self.ts = TaxonomySemantic()
+        self.entrypoint_name = entrypoint_name
+        if not self.ts.validate_ep(entrypoint_name):
+            raise Exception("There is no Orange Button entrypoint named {}."\
+                                .format(entrypoint_name))
+
+        # This gives me the list of every concept that could ever be
+        # included in the document.
+
+        self._all_allowed_concepts = self.ts.concepts_ep(entrypoint_name)
+
+        # ts.concepts_info_ep(entrypoint_name)  # fails on
+        # u'solar:MeterRatingAccuracy:1'
+
+        # Get the relationships (this comes from solar_taxonomy/documents/
+        #  <entrypoint>/<entrypoint><version>_def.xml)
+        self.relations = self.ts.relationships_ep(entrypoint_name)
+        # Search through the relationships to find all of the tables, their
+        # axes, and parent/child relationships between concepts:
+        self._find_tables()
+        self._find_parents()
+
+        self.facts = {}
+
+
+    def allowedConcepts(self):
+        return self._all_allowed_concepts
+
+    def _find_tables(self):
+        """
+        Uses relations to find all of the tables (hypercubes) allowed in
+        the document, and the axes and lineitems for each one.
+        """
+        # When there's an arcrole of "hypercube-dimensions", the "from"
+        # is a hypercube/table, and the "to" is an axis.
+        self._tables = {}
+        axes = {}
+        for relation in self.relations:
+            if relation['role'] == 'hypercube-dimension':
+                table_name = relation['from']
+                axis_name = relation['to']
+                if not table_name in axes:
+                    axes[table_name] = []
+                axes[table_name].append(axis_name)
+        for table_name in axes:
+            self._tables[table_name] = Hypercube( table_name, axes[table_name] )
+
+        # If there's an arcrole of "all" then the "from" is a LineItems
+        # and the "to" is the table?  I think?
+        for relation in self.relations:
+            if relation['role'] == 'all':
+                line_item = relation['from']
+                table_name = relation['to']
+                table = self._tables[table_name]
+                table.addLineItem(line_item)
+
+
+    def _find_parents(self):
+        # Put the concepts into a tree based on domain-member
+        # relations.
+        all_my_concepts = {}
+        for relation in self.relations:
+            if relation['role'] == 'domain-member':
+                parent = relation['from']
+                child = relation['to']
+                if not parent in all_my_concepts:
+                    all_my_concepts[parent] = Concept(parent)
+                if not child in all_my_concepts:
+                    all_my_concepts[child] = Concept(child)
+                all_my_concepts[parent].addChild(all_my_concepts[child])
+        self.all_my_concepts = all_my_concepts
+
+    def getTableNames(self):
+        return self._tables.keys()
+
+    def getTable(self, table_name):
+        return self._tables[table_name]
+
+    def _identify_relations(self, concept_name):
+        # Development method for listing all relationships for debugging
+        # purposes. Do not use in production.
+        from_me = [r for r in self.relations if r['from'] == concept_name]
+        for x in from_me:
+            print( "{} -> {} -> {}".format(concept_name, x['role'], x['to']))
+        to_me = [r for r in self.relations if r['to'] == concept_name]
+        for x in to_me:
+            print( "{} -> {} -> {}".format(x['from'], x['role'], concept_name))
+
+    def getTableForConcept(self, concept_name):
+        """
+        Given a concept_name, returns the table (Hypercube object) which
+        that concept belongs inside of, or None if there's no match.
+        """
+        if not concept_name in self._all_allowed_concepts:
+            raise Exception("{} is not an allowed concept for {}".format(
+                concept_name, self.entrypoint_name))
+
+        # We know that a concept belongs in a table because the concept
+        # is a descendant of a LineItem that has a relationship to the
+        # table.
+        if not concept_name in self.all_my_concepts:
+            return None
+        ancestors = self.all_my_concepts[concept_name].getAncestors()
+        for ancestor in ancestors:
+            if "LineItem" in ancestor.name:
+                for table in self._tables.values():
+                    if table.hasLineItem(ancestor.name):
+                        return table
+        return None
+
+    def canWriteConcept(self, concept_name):
+        """
+        Returns True if concept_name is a writeable concept within this
+        document. False for concepts not in this document or concepts that
+        are only abstract parents of writeable concepts. e.g. you can't
+        write a value to an "Abstract" or a "LineItem".
+        """
+        if concept_name in self.all_my_concepts:
+            abstract_keywords = ["Abstract", "LineItems", "Table", "Domain", "Axis"]
+            for word in abstract_keywords:
+                if concept_name.endswith(word):
+                    return False
+            return True
+        return False
+
+    def sufficientContext(self, concept_name, context):
+        """
+        True if the given context dictionary contains all the information
+        needed to provide full context for the named concept -- sufficient
+        time period information (duration/instant), sufficient axes to place
+        the fact within its table, etc.
+        Otherwise, raises an exception explaining what is wrong.
+        """
+        # Refactor to put this logic into the Concept?
+        # make the Context into an object instead of a dictionary?
+        # do Context arguments as **kwargs ?
+        metadata = self.ts.concept_info(concept_name)
+        if metadata.period_type == "duration":
+            if not "duration" in context:
+                raise Exception("Missing required duration in {} context".format(
+                    concept_name))
+
+            # a valid duration is either "forever" or {"start", "end"}
+            duration = context["duration"]
+            valid = False
+            if duration == "forever":
+                valid = True
+            if "start" in duration and "end" in duration:
+                valid = True
+            if not valid:
+                raise Exception("Invalid duration in {} context".format(
+                    concept_name))
+            # TODO check isinstance(duration["start"], datetime)
+
+        if metadata.period_type == "instant":
+            if not "instant" in context:
+                raise Exception("Missing required instant in {} context".format(
+                    concept_name))
+
+        # If we got this far, we know the time period is OK. Now check the
+        # required axes, if this concept is on a table:
+        table = self.getTableForConcept(concept_name)
+        if table is not None:
+            for axis in table.axes():
+                if not axis in context:
+                    raise Exception("Missing required {} axis for {}".format(
+                        axis, concept_name))
+                # Check that the value given for the axis is valid!
+                # (How do we do that?)
+        # TODO check that we haven't given any EXTRA axes that the table
+        # DOESN'T want?
+
+        return True
+
+
+    def set(self, concept, value, context=None):
+        """
+        (Placeholder) Adds a fact to the document. The concept and the context
+        together identify the fact to set, and the value will be stored for
+        that fact.
+        If concept and context are identical to a previous call, the old fact
+        will be overwritten. Otherwise, a new fact is created.
+        """
+        # TODO should also take unit and decimals as arguments? Or should those
+        # be given as properties of context?
+        if not concept in self._all_allowed_concepts:
+            raise Exception("{} is not allowed in the {} entrypoint".format(
+                concept, self.entrypoint_name))
+        if not self.canWriteConcept(concept):
+            raise Exception("{} is not a writeable concept".format(concept))
+
+        # If context is None, use a default context. (A few concepts
+        # won't need any other context information beyond this.)
+
+        if not self.sufficientContext(concept, context):
+            raise Exception("Insufficient context given for {}".format(concept))
+
+        concept_ancestors = self.all_my_concepts[concept].getAncestors()
+        concept_metadata = self.ts.concept_info(concept)
+        table = self.getTableForConcept(concept)
+
+        # complain if value is invalid for concept
+        # complain if context is needed and not present
+        # complain if context has wrong unit
+        # complain if context has wrong duration/instant type
+        # add to facts
+
+        # figure out the data structure for facts that can be keyed on
+        # context as well as concept.  Probably need to copy over the logic
+        # from py-xbrl-generator that turns context values into a context ID.
+        self.facts[concept] = value
+
+        # concept_metadata properties:
+        #x.period_type
+        #x.nillable
+        #x.id
+        #x.name
+        #x.substitution_group
+        #x.type_name
+        #x.period_independent
+        # Which will be useful for validation.
+
+
+
+    def get(self, concept, context=None):
+        """
+        (Placeholder) Returns the value of a fact previously set. The concept
+        and context together identify the fact to read.
+        """
+        # look up the facts we have
+        # (context not needed if we only have one fact for this concept)
+        # complain if no value for concept
+        # complain if context needed and not provided
+        #
+        return self.facts[concept]
+
+    def isValid(self):
+        """
+        (Placeholder) Returns true if all of the facts in the document validate.
+        i.e. they have allowed data types, allowed units, anything that needs
+        to be in a table has all the required axis values to identify its place
+        in that table, etc.
+        """
+        return True
+
+    def isComplete(self):
+        """
+        (Placeholder) Returns true if no required facts are missing, i.e. if
+        there is a value for all concepts with nillable=False
+        """
+        return True
+
