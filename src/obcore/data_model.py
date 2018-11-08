@@ -23,12 +23,44 @@ class Hypercube(object):
     def __init__(self, table_name, axis_names):
         self._table_name = table_name
         self._axis_names = axis_names
+        self._line_items = []
 
     def name(self):
         return self._table_name
 
     def axes(self):
         return self._axis_names
+
+    def addLineItem(self, line_item_name):
+        self._line_items = line_item_name
+
+    def hasLineItem(self, line_item_name):
+        return line_item_name in self._line_items
+
+class Concept(object):
+    def __init__(self, concept_name):
+        self.name = concept_name
+        self.parent = None
+        self.children = []
+
+    def setParent(self, new_parent):
+        self.parent = new_parent
+        if not self in self.parent.children:
+            self.parent.children.append(self)
+
+    def addChild(self, new_child):
+        if not new_child in self.children:
+            self.children.append(new_child)
+        new_child.parent = self
+
+    def getAncestors(self):
+        # returns a list of concept's parent, concept's parent's parent, etc.
+        ancestors = []
+        curr = self
+        while curr.parent is not None:
+            ancestors.append(curr.parent)
+            curr = curr.parent
+        return ancestors
 
 
 class Entrypoint(object):
@@ -51,7 +83,7 @@ class Entrypoint(object):
         and axes/dimensions.
         """
         self.ts = TaxonomySemantic()
-
+        self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}."\
                                 .format(entrypoint_name))
@@ -67,9 +99,10 @@ class Entrypoint(object):
         # Get the relationships (this comes from solar_taxonomy/documents/
         #  <entrypoint>/<entrypoint><version>_def.xml)
         self.relations = self.ts.relationships_ep(entrypoint_name)
-        # Search through the relationships to find all of the tables and
-        # their axes:
+        # Search through the relationships to find all of the tables, their
+        # axes, and parent/child relationships between concepts:
         self._find_tables()
+        self._find_parents()
 
 
     def allowedConcepts(self):
@@ -78,11 +111,11 @@ class Entrypoint(object):
     def _find_tables(self):
         """
         Uses relations to find all of the tables (hypercubes) allowed in
-        the document, and the axes for each one.
+        the document, and the axes and lineitems for each one.
         """
         # When there's an arcrole of "hypercube-dimensions", the "from"
         # is a hypercube/table, and the "to" is an axis.
-        self._tables = []
+        self._tables = {}
         axes = {}
         for relation in self.relations:
             if relation['role'] == 'hypercube-dimension':
@@ -92,10 +125,38 @@ class Entrypoint(object):
                     axes[table_name] = []
                 axes[table_name].append(axis_name)
         for table_name in axes:
-            self._tables.append( Hypercube( table_name, axes[table_name] ))
+            self._tables[table_name] = Hypercube( table_name, axes[table_name] )
 
-    def getTables(self):
-        return self._tables
+        # If there's an arcrole of "all" then the "from" is a LineItems
+        # and the "to" is the table?  I think?
+        for relation in self.relations:
+            if relation['role'] == 'all':
+                line_item = relation['from']
+                table_name = relation['to']
+                table = self._tables[table_name]
+                table.addLineItem(line_item)
+
+
+    def _find_parents(self):
+        # Put the concepts into a tree based on domain-member
+        # relations.
+        all_my_concepts = {}
+        for relation in self.relations:
+            if relation['role'] == 'domain-member':
+                parent = relation['from']
+                child = relation['to']
+                if not parent in all_my_concepts:
+                    all_my_concepts[parent] = Concept(parent)
+                if not child in all_my_concepts:
+                    all_my_concepts[child] = Concept(child)
+                all_my_concepts[parent].addChild(all_my_concepts[child])
+        self.all_my_concepts = all_my_concepts
+
+    def getTableNames(self):
+        return self._tables.keys()
+
+    def getTable(self, table_name):
+        return self._tables[table_name]
 
     def _identify_relations(self, concept_name):
         # Development method for listing all relationships for debugging
@@ -107,6 +168,30 @@ class Entrypoint(object):
         for x in to_me:
             print( "{} -> {} -> {}".format(x['from'], x['role'], concept_name))
 
+    def getTableForConcept(self, concept_name):
+        """
+        Given a concept_name, returns the table (Hypercube object) which
+        that concept belongs inside of, or None if there's no match.
+        """
+        if not concept_name in self._all_allowed_concepts:
+            raise Exception("{} is not an allowed concept for {}".format(
+                concept_name, self.entrypoint_name))
+
+        # We know that a concept belongs in a table because the concept
+        # is a descendant of a LineItem that has a relationship to the
+        # table.
+        if not concept_name in self.all_my_concepts:
+            return None
+        ancestors = self.all_my_concepts[concept_name].getAncestors()
+        for ancestor in ancestors:
+            if "LineItem" in ancestor.name:
+                for table in self._tables.values():
+                    if table.hasLineItem(ancestor.name):
+                        return table
+        return None
+
+    def canWriteConcept(self, concept_name):
+        return concept_name in self.all_my_concepts:
 
     def set(self, concept, value, context=None):
         """
@@ -116,6 +201,16 @@ class Entrypoint(object):
         If concept and context are identical to a previous call, the old fact
         will be overwritten. Otherwise, a new fact is created.
         """
+        if not concept in self._all_allowed_concepts:
+            raise Exception("{} is not allowed in the {} entrypoint".format(
+                concept, self.entrypoint_name))
+        if not self.canWriteConcept(concept):
+            raise Exception("{} is not a writeable concept".format(concept))
+
+        concept_ancestors = self.all_my_concepts.getAncestors()
+        concept_metadata = self.ts.concept_info(concept)
+        table = self.getTableForConcept(concept)
+
         # If context is None, use a default context. (A few concepts
         # won't need any other context information beyond this.)
         # complain if value is invalid for concept
@@ -124,9 +219,7 @@ class Entrypoint(object):
         # complain if context has wrong duration/instant type
         # add to facts
 
-        # We can look up a concept name like this:
-        # x = self.ts.concept_info('solar:BatteryRating')
-        # this gives me properties like:
+        # concept_metadata properties:
         #x.period_type
         #x.nillable
         #x.id
@@ -136,7 +229,7 @@ class Entrypoint(object):
         #x.period_independent
         # Which will be useful for validation.
 
-        pass
+
 
     def get(self, concept, context=None):
         """
