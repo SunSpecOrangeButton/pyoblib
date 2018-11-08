@@ -20,5 +20,5 @@
 # remove .. from the path.  This will require coding changes to find the
 # correct placement of solar-taxonomy.
 
-export PYTHONPATH=`pwd`/src/obcore
-pyinstaller --add-data ../solar-taxonomy:../solar-taxonomy --clean --onefile src/obcli/cli.py
+export PYTHONPATH=`pwd`/oblib
+pyinstaller --add-data ../solar-taxonomy:../solar-taxonomy --clean --onefile scripts/cli/cli.py
