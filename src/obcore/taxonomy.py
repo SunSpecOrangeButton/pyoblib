@@ -17,8 +17,6 @@ import taxonomy_types
 import taxonomy_units
 import taxonomy_misc
 
-SOLAR_TAXONOMY_DIR = "solar-taxonomy"
-
 
 class Element(object):
     """
