@@ -102,10 +102,10 @@ class Entrypoint(object):
         # purposes. Do not use in production.
         from_me = [r for r in self.relations if r['from'] == concept_name]
         for x in from_me:
-            print "{} -> {} -> {}".format(concept_name, x['role'], x['to'])
+            print( "{} -> {} -> {}".format(concept_name, x['role'], x['to']))
         to_me = [r for r in self.relations if r['to'] == concept_name]
         for x in to_me:
-            print "{} -> {} -> {}".format(x['from'], x['role'], concept_name)
+            print( "{} -> {} -> {}".format(x['from'], x['role'], concept_name))
 
 
     def set(self, concept, value, context=None):
