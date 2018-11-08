@@ -1,6 +1,6 @@
 # Orange Button Core Library
 
-The Orange Button Core library contains source code that may be used by other Orange Button code.  By definition funcitonality in this library should be consumable by multiple other Orange Button projects.  If functionality is only usable in a single isntance it should be placed in another project.
+The Orange Button Core library contains source code that may be used by other Orange Button code.  By definition funcitonality in this library should be consumable by multiple other Orange Button projects.  If functionality is only usable in a single instance it should be placed in another project.
 
 Documentation (API interface) is here: [link](https://github.com/SunSpecOrangeButton/core/tree/master/docs)
 
