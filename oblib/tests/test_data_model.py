@@ -39,14 +39,16 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # and each table should have a correct list of axes, as defined by
         # the taxonomy for CutSheets:
         tables = doc.getTableNames()
-        self.assertItemsEqual(tables, ["solar:InverterPowerLevelTable",
+        self.assertCountEqual(tables, ["solar:InverterPowerLevelTable",
                                        "solar:CutSheetDetailsTable"])
-        self.assertItemsEqual(doc.getTable("solar:InverterPowerLevelTable").axes(),
+        self.assertCountEqual(doc.getTable("solar:InverterPowerLevelTable").axes(),
                              ["solar:ProductIdentifierAxis",
                               "solar:InverterPowerLevelPercentAxis"])
-        self.assertItemsEqual(doc.getTable("solar:CutSheetDetailsTable").axes(),
+        self.assertCountEqual(doc.getTable("solar:CutSheetDetailsTable").axes(),
                               ["solar:ProductIdentifierAxis",
                                "solar:TestConditionAxis"])
+        # assertCountEqual is the new name for what was previously
+        # assertItemsEqual. assertItemsEqual is unsupported in Python 3.
 
     def test_get_table_for_concept(self):
         doc = Entrypoint("CutSheet")
