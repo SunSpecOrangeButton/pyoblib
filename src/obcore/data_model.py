@@ -213,10 +213,8 @@ class Entrypoint(object):
         needed to provide full context for the named concept -- sufficient
         time period information (duration/instant), sufficient axes to place
         the fact within its table, etc.
+        Otherwise, raises an exception explaining what is wrong.
         """
-        # should this return false or should it raise exception?
-        # the good thing about raising exception is it tells us exactly
-        # what's wrong.
         # Refactor to put this logic into the Concept?
         # make the Context into an object instead of a dictionary?
         # do Context arguments as **kwargs ?
