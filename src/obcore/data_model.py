@@ -209,12 +209,15 @@ class Entrypoint(object):
         """
         True if the given context dictionary contains all the information
         needed to provide full context for the named concept -- sufficient
-        timeframe information (duration/instant), sufficient axes to place
+        time period information (duration/instant), sufficient axes to place
         the fact within its table, etc.
         """
         # should this return false or should it raise exception?
         # the good thing about raising exception is it tells us exactly
         # what's wrong.
+        # Refactor to put this logic into the Concept?
+        # make the Context into an object instead of a dictionary?
+        # do Context arguments as **kwargs ?
         metadata = self.ts.concept_info(concept_name)
         if metadata.period_type == "duration":
             if not "duration" in context:
@@ -233,9 +236,17 @@ class Entrypoint(object):
         if metadata.period_type == "instant":
             if not "instant" in context:
                 return False
-        # Refactor to put this logic into the Concept?
-        # make the Context into an object instead of a dictionary?
-        # do Context arguments as **kwargs ?
+
+        # If we got this far, we know the time period is OK. Now check the
+        # required axes, if this concept is on a table:
+        table = self.getTableForConcept(concept_name)
+        if table is not None:
+            for axis in table.axes():
+                if not axis in context:
+                    return False
+        # TODO check that we haven't given any EXTRA axes that the table
+        # DOESN'T want?
+
         return True
 
 
@@ -253,12 +264,16 @@ class Entrypoint(object):
         if not self.canWriteConcept(concept):
             raise Exception("{} is not a writeable concept".format(concept))
 
+        # If context is None, use a default context. (A few concepts
+        # won't need any other context information beyond this.)
+
+        if not self.sufficientContext(concept, context):
+            raise Exception("Insufficient context given for {}".format(concept))
+
         concept_ancestors = self.all_my_concepts[concept].getAncestors()
         concept_metadata = self.ts.concept_info(concept)
         table = self.getTableForConcept(concept)
 
-        # If context is None, use a default context. (A few concepts
-        # won't need any other context information beyond this.)
         # complain if value is invalid for concept
         # complain if context is needed and not present
         # complain if context has wrong unit

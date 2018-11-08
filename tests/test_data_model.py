@@ -80,7 +80,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertFalse( doc.canWriteConcept('solar:ProductIdentifierAxis'))
         self.assertTrue( doc.canWriteConcept('solar:ProductIdentifier'))
 
-    def test_sufficient_context_timeframe(self):
+    def test_sufficient_context(self):
         doc = Entrypoint("CutSheet")
 
         # in order to set a concept value, sufficient context must be
@@ -91,22 +91,85 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # solar:DeviceCost has period_type instant
         # so it requires a context with an instant. A context without an instant
         # should be insufficient:
-        self.assertFalse( doc.sufficientContext("solar:DeviceCost", {}) )
+        noTimeContext = {"solar:ProductIdentifierAxis": "placeholder",
+                         "solar:TestConditionAxis": "placeholder"}
+        instantContext = {"solar:ProductIdentifierAxis": "placeholder",
+                          "solar:TestConditionAxis": "placeholder",
+                          "instant": datetime.now() }
+        durationContext = {"solar:ProductIdentifierAxis": "placeholder",
+                           "solar:TestConditionAxis": "placeholder",
+                           "duration": "forever" }
+
+        self.assertFalse( doc.sufficientContext("solar:DeviceCost",
+                                                noTimeContext) )
         self.assertTrue( doc.sufficientContext("solar:DeviceCost",
-                                               {"instant": datetime.now() }))
+                                                instantContext))
         # A context with a duration instead of an instant should also be
         # rejected:
         self.assertFalse( doc.sufficientContext("solar:DeviceCost",
-                                               {"duration": "forever" }))
+                                                durationContext))
 
 
         # solar:ModuleNameplateCapacity has period_type duration. A context
         # without a duration should be insufficient:
         self.assertFalse( doc.sufficientContext("solar:ModuleNameplateCapacity",
-                                                {}) )
+                                                noTimeContext))
         # A context with an instant instead of a duration should also be
         # rejected:
         self.assertFalse( doc.sufficientContext("solar:ModuleNameplateCapacity",
-                                               {"instant": datetime.now() }))
+                                               instantContext))
         self.assertTrue( doc.sufficientContext("solar:ModuleNameplateCapacity",
-                                               {"duration": "forever" }))
+                                               durationContext))
+
+
+    def test_sufficient_context_axes(self):
+        doc = Entrypoint("CutSheet")
+
+        # The context must also provide all of the axes needed to place the
+        # fact within the right table.
+
+        # DeviceCost is on the CutSheetDetailsTable so it needs a value
+        # for ProductIdentifierAxis and TestConditionAxis.
+        self.assertFalse( doc.sufficientContext("solar:DeviceCost", {}) )
+
+        context = {"instant": datetime.now(),
+                   "solar:ProductIdentifierAxis": "placeholder",
+                   "solar:TestConditionAxis": "placeholder"}
+        self.assertTrue( doc.sufficientContext("solar:DeviceCost", context))
+
+        badContext = {"instant": datetime.now(),
+                      "solar:TestConditionAxis": "placeholder"}
+        self.assertFalse( doc.sufficientContext("solar:DeviceCost", badContext))
+
+        badContext = {"instant": datetime.now(),
+                      "solar:ProductIdentifierAxis": "placeholder"}
+        self.assertFalse( doc.sufficientContext("solar:DeviceCost", badContext))
+
+
+        # How do we know what are valid values for ProductIdentifierAxis and
+        # TestConditionAxis?  (I think they are meant to be UUIDs.)
+
+        # Note: Campbell wants to go back and create an "identifier" type and
+        # use that (not the name). then we can write a validator that any field
+        # with the identifier type needs to have a UUID.
+
+        # Note: TestConditionAxis is part of the following relationships:
+        # solar:TestConditionAxis -> dimension-domain -> solar:TestConditionDomain
+        # solar:TestConditionAxis -> dimension-default -> solar:TestConditionDomain
+        # i wonder what that "dimension-default" means
+
+        #'solar:InverterOutputRatedPowerAC' is on the 'solar:InverterPowerLevelTable' which requires axes: [u'solar:ProductIdentifierAxis', u'solar:InverterPowerLevelPercentAxis']. it's a duration.
+        concept = 'solar:InverterOutputRatedPowerAC'
+        context = {"duration": "forever",
+                   "solar:ProductIdentifierAxis": "placeholder",
+                   "solar:InverterPowerLevelPercentAxis": "placeholder"}
+        self.assertTrue( doc.sufficientContext(concept, context))
+
+        badContext = {"instant": datetime.now(),
+                      "solar:InverterPowerLevelPercentAxis": "placeholder"}
+        self.assertFalse( doc.sufficientContext(concept, badContext))
+
+        badContext = {"instant": datetime.now(),
+                      "solar:ProductIdentifierAxis": "placeholder"}
+        self.assertFalse( doc.sufficientContext(concept, badContext))
+
