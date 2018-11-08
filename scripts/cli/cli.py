@@ -108,6 +108,21 @@ def list_concepts(args):
         print("Not found")
 
 
+def list_relationships(args):
+    relationships = tax.semantic.relationships_ep(args.ep)
+    print('%19s %78s %78s %5s' %
+         ("Role", "From", "To", "Order"))
+    print('%0.19s %0.78s %0.78s %0.5s' %
+         (DASHES, DASHES, DASHES, DASHES))
+ 
+    if relationships is not None:
+        for r in relationships:
+            print('%19s %78s %78s %5s' %
+              (r['role'], r['from'], r['to'], r['order']))    
+    else:
+        print("Not found")
+
+
 def list_type_enums(args):
     enums = tax.types.type_enum(args.type_name)
     if enums is not None:
@@ -243,6 +258,12 @@ list_concepts_parser = subparsers.add_parser('list-concepts',
 list_concepts_parser.set_defaults(command='list_concepts')
 list_concepts_parser.add_argument('ep', action='store',
                                   help='The entry point to list concepts for')
+
+list_relationships_parser = subparsers.add_parser('list-relationships',
+                                             help='List relationships in an Orange Button Entry Point')
+list_relationships_parser.set_defaults(command='list_relationships')
+list_relationships_parser.add_argument('ep', action='store',
+                                  help='The entry point to list relationships for')
 
 list_types_parser = subparsers.add_parser('list-type-enums',
                                           help='List enumerations in an Orange Button Type')
