@@ -91,3 +91,12 @@ class Taxonomy(object):
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
         self.misc = taxonomy_misc.TaxonomyMisc()
+
+
+# Accessor for singleton Taxonomy object:
+m_singletonTaxonomy = None
+def getTaxonomy():
+    global m_singletonTaxonomy
+    if m_singletonTaxonomy is None:
+        m_singletonTaxonomy = Taxonomy()
+    return m_singletonTaxonomy

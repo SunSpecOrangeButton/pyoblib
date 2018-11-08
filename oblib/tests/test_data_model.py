@@ -15,12 +15,12 @@
 import unittest
 from data_model import Entrypoint
 from datetime import datetime
-from taxonomy_semantic import TaxonomySemantic
+from taxonomy import getTaxonomy
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
     def setUp(self):
-        self.taxonomySemantic = TaxonomySemantic()
+        self.taxonomy = getTaxonomy()
 
     def tearDown(self):
         pass
@@ -39,7 +39,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
 
     def test_instantiate_empty_entrypoint(self):
-        doc = Entrypoint("CutSheet", self.taxonomySemantic)
+        doc = Entrypoint("CutSheet", self.taxonomy)
 
         # The newly initialized CutSheet should have a correct list of
         # allowable concepts as defined by the taxonomy for CutSheets:
@@ -66,7 +66,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           "solar:TestConditionAxis"])
 
     def test_get_table_for_concept(self):
-        doc = Entrypoint("CutSheet", self.taxonomySemantic)
+        doc = Entrypoint("CutSheet", self.taxonomy)
         # The CutSheet instance should know that RevenueMeterFrequency
         # is a concept that belongs in the CutSheetDetailsTable
         table = doc.getTableForConcept("solar:RevenueMeterFrequency")
@@ -82,7 +82,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
 
     def test_can_write_concept(self):
-        doc = Entrypoint("CutSheet", self.taxonomySemantic)
+        doc = Entrypoint("CutSheet", self.taxonomy)
 
         # Not every concept is writable. For instance, we shouldn't be able
         # to write a value for an Abstract concept, a LineItem group, an Axis,
@@ -98,7 +98,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertTrue( doc.canWriteConcept('solar:ProductIdentifier'))
 
     def test_sufficient_context(self):
-        doc = Entrypoint("CutSheet", self.taxonomySemantic)
+        doc = Entrypoint("CutSheet", self.taxonomy)
 
         # in order to set a concept value, sufficient context must be
         # provided. what is sufficient context varies by concept.
@@ -140,7 +140,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
 
     def test_sufficient_context_axes(self):
-        doc = Entrypoint("CutSheet", self.taxonomySemantic)
+        doc = Entrypoint("CutSheet", self.taxonomy)
 
         # The context must also provide all of the axes needed to place the
         # fact within the right table.
@@ -195,7 +195,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
     def test_set_and_get(self):
         # Tests the case where .set() is called correctly. Verify the
         # data is stored and can be retrieved using .get().
-        doc = Entrypoint("CutSheet", self.taxonomySemantic)
+        doc = Entrypoint("CutSheet", self.taxonomy)
 
         # Write a TypeOfDevice and a DeviceCost:
 

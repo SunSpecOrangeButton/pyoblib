@@ -70,7 +70,7 @@ class Entrypoint(object):
     and from particular physical file format (or database schema) will
     be handled elsewhere.
     """
-    def __init__(self, entrypoint_name, taxonomy_semantic):
+    def __init__(self, entrypoint_name, taxonomy):
         """
         Initializes an empty instance of a document corresponding to the named
         entrypoint. entrypoint_name is a string that must match an entry point in
@@ -82,7 +82,7 @@ class Entrypoint(object):
         taxonomy_semantic should be the global singleton TaxonomySemantic
         object.
         """
-        self.ts = taxonomy_semantic
+        self.ts = taxonomy.semantic
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}."\
