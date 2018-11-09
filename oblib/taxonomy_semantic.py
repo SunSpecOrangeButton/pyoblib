@@ -262,10 +262,14 @@ class TaxonomySemantic(object):
     def relationships_ep(self, endpoint):
         """
         Returns a list of all relationshiops in an end point
+        Returns an empty list if the concept exists but has no relationships
         """
 
-        if endpoint in self._relationships:
-            return self._relationships[endpoint]
+        if endpoint in self._concepts:
+            if endpoint in self._relationships:
+                return self._relationships[endpoint]
+            else:
+                return []
         else:
             return None
 
