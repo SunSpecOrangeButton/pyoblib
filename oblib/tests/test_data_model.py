@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from data_model import Entrypoint
+from data_model import Entrypoint, Context
 from datetime import datetime
 from taxonomy import getTaxonomy
 
@@ -97,7 +97,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertFalse( doc.canWriteConcept('solar:ProductIdentifierAxis'))
         self.assertTrue( doc.canWriteConcept('solar:ProductIdentifier'))
 
-    def test_sufficient_context(self):
+    def test_sufficient_context_instant_vs_duration(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
 
         # in order to set a concept value, sufficient context must be
@@ -105,20 +105,21 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # in general the context must provide the correct time information
         # (either duration or instant)
 
+        # We shouldn't even be able to instantiate a context with no time info:
+        with self.assertRaises(Exception):
+            noTimeContext = Context(ProductIdentifierAxis = "placeholder",
+                                    TestConditionAxis= "placeholder")
+
         # solar:DeviceCost has period_type instant
         # so it requires a context with an instant. A context without an instant
         # should be insufficient:
-        noTimeContext = {"solar:ProductIdentifierAxis": "placeholder",
-                         "solar:TestConditionAxis": "placeholder"}
-        instantContext = {"solar:ProductIdentifierAxis": "placeholder",
-                          "solar:TestConditionAxis": "placeholder",
-                          "instant": datetime.now() }
-        durationContext = {"solar:ProductIdentifierAxis": "placeholder",
-                           "solar:TestConditionAxis": "placeholder",
-                           "duration": "forever" }
+        instantContext = Context(ProductIdentifierAxis = "placeholder",
+                                 TestConditionAxis = "placeholder",
+                                 instant = datetime.now())
+        durationContext = Context(ProductIdentifierAxis = "placeholder",
+                           TestConditionAxis = "placeholder",
+                           duration = "forever")
 
-        with self.assertRaises(Exception):
-            doc.sufficientContext("solar:DeviceCost", noTimeContext)
         self.assertTrue( doc.sufficientContext("solar:DeviceCost",
                                                 instantContext))
         # A context with a duration instead of an instant should also be
@@ -126,11 +127,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         with self.assertRaises(Exception):
             doc.sufficientContext("solar:DeviceCost", durationContext)
 
-
-        # solar:ModuleNameplateCapacity has period_type duration. A context
-        # without a duration should be insufficient:
-        with self.assertRaises(Exception):
-            doc.sufficientContext("solar:ModuleNameplateCapacity", noTimeContext)
+        # solar:ModuleNameplateCapacity has period_type duration.
         # A context with an instant instead of a duration should also be
         # rejected:
         with self.assertRaises(Exception):
@@ -150,18 +147,18 @@ class TestDataModelEntrypoint(unittest.TestCase):
         with self.assertRaises(Exception):
             doc.sufficientContext("solar:DeviceCost", {})
 
-        context = {"instant": datetime.now(),
-                   "solar:ProductIdentifierAxis": "placeholder",
-                   "solar:TestConditionAxis": "placeholder"}
+        context = Context(instant = datetime.now(),
+                          ProductIdentifierAxis = "placeholder",
+                          TestConditionAxis = "placeholder")
         self.assertTrue( doc.sufficientContext("solar:DeviceCost", context) )
 
-        badContext = {"instant": datetime.now(),
-                      "solar:TestConditionAxis": "placeholder"}
+        badContext = Context(instant = datetime.now(),
+                             TestConditionAxis = "placeholder")
         with self.assertRaises(Exception):
             doc.sufficientContext("solar:DeviceCost", badContext)
 
-        badContext = {"instant": datetime.now(),
-                      "solar:ProductIdentifierAxis": "placeholder"}
+        badContext = Context(instant = datetime.now(),
+                             ProductIdentifierAxis = "placeholder")
         with self.assertRaises(Exception):
             doc.sufficientContext("solar:DeviceCost", badContext)
 
@@ -176,41 +173,65 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         #'solar:InverterOutputRatedPowerAC' is on the 'solar:InverterPowerLevelTable' which requires axes: [u'solar:ProductIdentifierAxis', u'solar:InverterPowerLevelPercentAxis']. it's a duration.
         concept = 'solar:InverterOutputRatedPowerAC'
-        context = {"duration": "forever",
-                   "solar:ProductIdentifierAxis": "placeholder",
-                   "solar:InverterPowerLevelPercentAxis": "placeholder"}
+        context = Context(duration = "forever",
+                          ProductIdentifierAxis = "placeholder",
+                          InverterPowerLevelPercentAxis = "placeholder")
         self.assertTrue( doc.sufficientContext(concept, context))
 
-        badContext = {"instant": datetime.now(),
-                      "solar:InverterPowerLevelPercentAxis": "placeholder"}
+        badContext = Context(instant = datetime.now(),
+                             InverterPowerLevelPercentAxis = "placeholder")
         with self.assertRaises(Exception):
             doc.sufficientContext(concept, badContext)
 
-        badContext = {"instant": datetime.now(),
-                      "solar:ProductIdentifierAxis": "placeholder"}
+        badContext = Context(instant = datetime.now(),
+                             ProductIdentifierAxis = "placeholder")
         with self.assertRaises(Exception):
             doc.sufficientContext(concept, badContext)
 
 
-    def test_set_and_get(self):
-        # Tests the case where .set() is called correctly. Verify the
-        # data is stored and can be retrieved using .get().
+    def test_set_separate_dimension_args(self):
+        # Tests the case where .set() is called correctly.  Use the
+        # way of calling .set() where we pass in every dimension
+        # separately. Verify the data is stored and can be retrieved
+        # using .get().
         doc = Entrypoint("CutSheet", self.taxonomy)
 
         # Write a TypeOfDevice and a DeviceCost:
 
         doc.set("solar:TypeOfDevice", "Module",
-                    {"duration": "forever",
-                     "solar:ProductIdentifierAxis": "placeholder",
-                     "solar:TestConditionAxis": "placeholder"})
+                duration="forever",
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis = "placeholder",
+                )
         doc.set("solar:DeviceCost", 100,
-                    {"instant": datetime.now(),
-                     "solar:ProductIdentifierAxis": "placeholder",
-                     "solar:TestConditionAxis": "placeholder"})
+                instant= datetime.now(),
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "placeholder",
+                unit="dollars")
 
         self.assertEqual( doc.get("solar:TypeOfDevice", {}), "Module")
         self.assertEqual( doc.get("solar:DeviceCost", {}), 100)
         # TODO: DeviceCost should require units
+
+    def test_set_context_arg(self):
+        # Tests the case where .set() is called correctly, using
+        # the way of calling .set() where we pass in a Context
+        # object. Verify the data is stored and can be retrieved
+        # using .get().
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        ctx = Context(duration="forever",
+                      entity="JUPITER",
+                      ProductIdentifierAxis= "placeholder",
+                      TestConditionAxis = "placeholder")
+        doc.set("solar:TypeOfDevice", "Module", context=ctx)
+
+        ctx = Context(instant= datetime.now(),
+                      entity="JUPITER",
+                      ProductIdentifierAxis= "placeholder",
+                      TestConditionAxis = "placeholder")
+        doc.set("solar:DeviceCost", 100, context=ctx, unit="dollars")
+
+
 
     def test_set_raises_exception(self):
         # Tests the case where .set() is called incorrectly. It should
