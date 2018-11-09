@@ -12,14 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import identifier
-import model
-import taxonomy
-import taxonomy_semantic
-import taxonomy_types
-import taxonomy_units
-import taxonomy_misc
-import validator
-
-__all__ = ['identifier', 'model', 'taxonomy', 'taxonomy_semantic', 'taxonomy_types', 'taxonomy_units',
-           'taxonomy_misc', 'validator']
+SOLAR_TAXONOMY_DIR = "solar-taxonomy"

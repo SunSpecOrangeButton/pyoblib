@@ -1,5 +1,3 @@
-#! /bin/bash
-
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,33 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This uses pdoc to create text based documentation.  It is very basic
-# and it likely  could be replaced with an HTML based documentation
-# generator.  To run this script "pip install pdoc" must be issued first.
+import identifier
+import data_model
+import taxonomy
+import taxonomy_semantic
+import taxonomy_types
+import taxonomy_units
+import taxonomy_misc
+import validator
 
-export PYTHONPATH=`pwd`/oblib
-
-# pdoc --html --overwrite --html-dir=out src
-# cp -r out/oblib docs/oblib
-
-pdoc /oblib/identifier.py
-echo
-echo
-
-pdoc /oblib/taxonomy.py
-echo
-echo
-
-pdoc /oblib/taxonomy_semantic.py
-echo
-echo
-
-pdoc /oblib/taxonomy_types.py
-echo
-echo
-
-pdoc /oblib/taxonomy_units.py
-echo
-echo
-
-pdoc /oblib/taxonomy_misc.py
+__all__ = ['identifier', 'data_model', 'taxonomy', 'taxonomy_semantic', 'taxonomy_types', 'taxonomy_units',
+           'taxonomy_misc', 'validator']

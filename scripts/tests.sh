@@ -16,7 +16,7 @@
 
 echo Testing
 
-export PYTHONPATH=`pwd`/src/obcore:`pwd`/tests
+export PYTHONPATH=`pwd`/oblib:`pwd`/oblib/tests
 
 EXITVAL=0
 
@@ -45,6 +45,10 @@ python -m unittest test_taxonomy_units || {
 }
 
 python -m unittest test_validator || {
+    EXITVAL=1
+}
+
+python -m unittest test_data_model || {
     EXITVAL=1
 }
 
