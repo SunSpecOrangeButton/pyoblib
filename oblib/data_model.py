@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from taxonomy_semantic import TaxonomySemantic
-
 
 class Hypercube(object):
     """
@@ -36,6 +34,30 @@ class Hypercube(object):
 
     def hasLineItem(self, line_item_name):
         return line_item_name in self._line_items
+
+class Context(object):
+    def __init__(self, **kwargs):
+        # kwargs must provide exactly one of instant or duration
+        if "instant" in kwargs and "duration" in kwargs:
+            raise Exception("Context given both instant and duration")
+        if (not "instant" in kwargs) and (not "duration" in kwargs):
+            raise Exception("Context not given either instant or duration")
+        if "instant" in kwargs:
+            self.instant = kwargs.pop("instant")
+        if "duration" in kwargs:
+            self.duration = kwargs.pop("duration")
+        if "entity" in kwargs:
+            self.entity = kwargs.pop("entity")
+        # anything that's not instant/duration or entity must be an axis
+        self.axes = {}
+        for keyword in kwargs:
+            if not keyword.endswith("Axis"):
+                # TODO in the future we should use metadata to identify
+                # what's an axis, not just look for the string "Axis".
+                raise Exception("Context given invalid keyword {}".format(keyword))
+            qualified_name = "solar:" + keyword
+            self.axes[qualified_name] = kwargs[keyword]
+
 
 class Concept(object):
     def __init__(self, concept_name):
@@ -72,7 +94,7 @@ class Entrypoint(object):
     and from particular physical file format (or database schema) will
     be handled elsewhere.
     """
-    def __init__(self, entrypoint_name):
+    def __init__(self, entrypoint_name, taxonomy):
         """
         Initializes an empty instance of a document corresponding to the named
         entrypoint. entrypoint_name is a string that must match an entry point in
@@ -81,8 +103,10 @@ class Entrypoint(object):
         Looks up the relationships between concepts for this entry point from
         the taxonomy to know the hierarchical relationship of concepts, tables,
         and axes/dimensions.
+        taxonomy_semantic should be the global singleton TaxonomySemantic
+        object.
         """
-        self.ts = TaxonomySemantic()
+        self.ts = taxonomy.semantic
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}."\
@@ -209,7 +233,7 @@ class Entrypoint(object):
 
     def sufficientContext(self, concept_name, context):
         """
-        True if the given context dictionary contains all the information
+        True if the given Context object contains all the information
         needed to provide full context for the named concept -- sufficient
         time period information (duration/instant), sufficient axes to place
         the fact within its table, etc.
@@ -220,36 +244,37 @@ class Entrypoint(object):
         # do Context arguments as **kwargs ?
         metadata = self.ts.concept_info(concept_name)
         if metadata.period_type == "duration":
-            if not "duration" in context:
+            if not context.duration:
                 raise Exception("Missing required duration in {} context".format(
                     concept_name))
 
             # a valid duration is either "forever" or {"start", "end"}
-            duration = context["duration"]
             valid = False
-            if duration == "forever":
+            if context.duration == "forever":
                 valid = True
-            if "start" in duration and "end" in duration:
+            if "start" in context.duration and "end" in context.duration:
+                # TODO check isinstance(duration["start"], datetime)
                 valid = True
             if not valid:
                 raise Exception("Invalid duration in {} context".format(
                     concept_name))
-            # TODO check isinstance(duration["start"], datetime)
+
 
         if metadata.period_type == "instant":
-            if not "instant" in context:
+            if not context.instant:
                 raise Exception("Missing required instant in {} context".format(
                     concept_name))
+                # TODO check isinstance(instant, datetime)
 
         # If we got this far, we know the time period is OK. Now check the
         # required axes, if this concept is on a table:
         table = self.getTableForConcept(concept_name)
         if table is not None:
             for axis in table.axes():
-                if not axis in context:
+                if not axis in context.axes:
                     raise Exception("Missing required {} axis for {}".format(
                         axis, concept_name))
-                # Check that the value given for the axis is valid!
+                # Check that the value given of context.axes[axis] is valid!
                 # (How do we do that?)
         # TODO check that we haven't given any EXTRA axes that the table
         # DOESN'T want?
@@ -257,24 +282,46 @@ class Entrypoint(object):
         return True
 
 
-    def set(self, concept, value, context=None):
+    def set(self, concept, value, **kwargs):
         """
         (Placeholder) Adds a fact to the document. The concept and the context
         together identify the fact to set, and the value will be stored for
         that fact.
         If concept and context are identical to a previous call, the old fact
         will be overwritten. Otherwise, a new fact is created.
+        acceptable keyword args:
+        unit = <unit name>
+        precision = <number of places past the decimal pt>(for decimal values only)
+        context = a Context object
+
+        can be supplied as separate keyword args instead of context object:
+        duration = "forever" or {"start": <date>, "end": <date>}
+        instant = <date>
+        entity = <entity name>
+        *Axis = <value>  (the name of any Axis in a table in this entrypoint)
         """
-        # TODO should also take unit and decimals as arguments? Or should those
-        # be given as properties of context?
+
+        if "unit" in kwargs:
+            unit = kwargs.pop("unit")
+        if "precision" in kwargs:
+            precision = kwargs.pop("precision")
+
         if not concept in self._all_allowed_concepts:
             raise Exception("{} is not allowed in the {} entrypoint".format(
                 concept, self.entrypoint_name))
         if not self.canWriteConcept(concept):
             raise Exception("{} is not a writeable concept".format(concept))
 
-        # If context is None, use a default context. (A few concepts
-        # won't need any other context information beyond this.)
+        if "context" in kwargs:
+            context = kwargs.pop("context")
+        elif len(kwargs.keys()) > 0:
+            # turn the remaining keyword args into a Context object -- this
+            # is just syntactic sugar to make this method easier to call.
+            context = Context(**kwargs)
+        else:
+            context = None
+            # TODO:
+            # In this case, use the default context if one has been set.
 
         if not self.sufficientContext(concept, context):
             raise Exception("Insufficient context given for {}".format(concept))
