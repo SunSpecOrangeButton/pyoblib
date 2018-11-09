@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,7 +24,7 @@ import taxonomy
 #
 
 INFO = """
-This the CLI for the Orange Button Core libary.  Information is available at the following URL's:
+This the CLI for the Orange Button Core library.  Information is available at the following URL's:
 
 Orange Button Overview: https://sunspec.org/orange-button-initiative/
 Orange Button GitHUb: https://github.com/SunSpecOrangeButton
@@ -89,7 +89,7 @@ def list_unit_info(args):
 def list_ep_concepts_info(args):
     concepts = tax.semantic.concepts_info_ep(args.ep)
     print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-          ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substution Group", "Type",
+          ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
            "Per Type"))
     print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
           (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
@@ -226,7 +226,7 @@ validate_identifier_parser = subparsers.add_parser('validate-identifier',
                                                    help='Validate an Orange Button Identifier')
 validate_identifier_parser.set_defaults(command='validate_identifier')
 validate_identifier_parser.add_argument('identifier', action='store',
-                                        help='The identifer to validate')
+                                        help='The identifier to validate')
 
 version_parser = subparsers.add_parser('version', help='CLI Version')
 version_parser.set_defaults(command='version')

@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -45,7 +45,7 @@ class TaxonomyTypes(object):
     """
     Represents Taxonomy Types and allows lookup of enumerated values for each Taxonomy Type.
 
-    Plese note that in the implementation of this class the variable name "type" is never
+    Please note that in the implementation of this class the variable name "type" is never
     used although "_type" and "types" are in order to avoid confusion with the python
     "type" builtin.
     """

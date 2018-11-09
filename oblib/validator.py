@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,11 +21,11 @@ import sys
 #  1) Currently Python types (int, bool, str) are supported for values.
 #     However there is a second case where the inputs are always strings.
 #     For instance the string "37" would be valid for xbrli:integerItemType
-#     whie "Arf" woudld not be.
+#     while "Arf" would not be.
 #  2) There is a much larger number of  basic xbrli types that should be
 #     included beyond boolean, string, and integer.
 #  3) XBRL types that are derived from the basic types should also be
-#     implmented.  This will require the entire Taxonomy class (not just
+#     implemented.  This will require the entire Taxonomy class (not just
 #     the stripped down Taxonomy class shipped in the ZIP file).
 #  4) In all likelihood end users will wish to receive more information on
 #     what caused the error condition as opposed to simply receiving False.
