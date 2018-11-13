@@ -296,7 +296,18 @@ class TaxonomySemantic(object):
         if data in self._concepts:
             ci = []
             for concept in self._concepts[data]:
-                ci.append(self._elements[concept])
+                if concept in self._elements:
+                    ci.append(self._elements[concept])
+                else:
+                    # TODO: This case is not correctly understood.  Here are some samples that are not found:
+                    # Warning, concept not found: solar:MeterRatingAccuracy_1
+                    # Warning, concept not found: solar:MeterRevenueGrade_1
+                    # Warning, concept not found: solar:MeterBidirectional_1
+                    # Warning, concept not found: solar:RevenueMeterPowerFactor_1
+                    # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
+                    # This case should be understood and handled correctly as opposed to just printing a warning message.
+                    #print("Warning, concept not found:", concept)
+                    pass
             return ci
         else:
             return None

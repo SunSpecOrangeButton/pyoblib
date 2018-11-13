@@ -41,7 +41,7 @@ if getattr(sys, 'frozen', False):
     os.chdir(sys._MEIPASS)
 
 tax = taxonomy.Taxonomy()
-
+csv = False
 
 def info(args):
     print(INFO)
@@ -87,16 +87,25 @@ def list_unit_info(args):
 
 
 def list_ep_concepts_info(args):
-    concepts = tax.semantic.concepts_info_ep(args.ep)
-    print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-          ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substution Group", "Type",
-           "Per Type"))
-    print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
-          (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
-    for c in concepts:
+
+    if csv:
+        concepts = tax.semantic.concepts_info_ep(args.ep)
+        print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
+        for c in concepts:
+                print('%s, %s, %s, %s, %s, %s, %s, %s' %
+                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
+                c.substitution_group, c.type_name, c.period_type))
+    else:
+        concepts = tax.semantic.concepts_info_ep(args.ep)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-              (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-               c.substitution_group, c.type_name, c.period_type))
+                ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
+                "Per Type"))
+        print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
+                (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
+        for c in concepts:
+                print('%85s %80s %8s %8s %10s %20s %28s %8s' %
+                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
+                c.substitution_group, c.type_name, c.period_type))
 
 
 def list_concepts(args):
@@ -110,17 +119,25 @@ def list_concepts(args):
 
 def list_relationships(args):
     relationships = tax.semantic.relationships_ep(args.ep)
-    print('%19s %78s %78s %5s' %
-         ("Role", "From", "To", "Order"))
-    print('%0.19s %0.78s %0.78s %0.5s' %
-         (DASHES, DASHES, DASHES, DASHES))
- 
-    if relationships is not None:
-        for r in relationships:
-            print('%19s %78s %78s %5s' %
-              (r['role'], r['from'], r['to'], r['order']))    
+
+    if csv:
+        print("Role, From, To, Order")
+        if relationships is not None:
+            for r in relationships:
+                print('%s, %s, %s, %s' %
+                       (r['role'], r['from'], r['to'], r['order']))    
     else:
-        print("Not found")
+        print('%19s %78s %78s %5s' %
+                ("Role", "From", "To", "Order"))
+        print('%0.19s %0.78s %0.78s %0.5s' %
+                (DASHES, DASHES, DASHES, DASHES))
+        
+        if relationships is not None:
+            for r in relationships:
+                print('%19s %78s %78s %5s' %
+                       (r['role'], r['from'], r['to'], r['order']))    
+        else:
+            print("Not found")
 
 
 def list_type_enums(args):
@@ -153,18 +170,29 @@ def list_units(args):
 
 
 def list_units_details(args):
-    print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %15s' %
-          ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
-           "Status", "Ver Dt", "Definition"))
-    print('%0.6s %0.10s %0.40s %0.35s %0.16s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
-          (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
-    for unit_id in tax.units.units():
-        unit = tax.units.unit(unit_id)
-        print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
-              (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
-               unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
-               unit.status, unit.definition))
+    if csv:      
+        print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
+ 
+        for unit_id in tax.units.units():
+                unit = tax.units.unit(unit_id)
+                print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
+                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                       unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
+                       unit.status, unit.definition))
+    else:
+        print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %15s' %
+                ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
+                "Status", "Ver Dt", "Definition"))
+        print('%0.6s %0.10s %0.40s %0.35s %0.16s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
+                (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
+
+        for unit_id in tax.units.units():
+                unit = tax.units.unit(unit_id)
+                print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
+                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                       unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
+                       unit.status, unit.definition))
 
 
 def validate_concept(args):
@@ -213,6 +241,7 @@ def version(args):
 
 
 parser = argparse.ArgumentParser(description='Orange Button Core Library CLI')
+parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
 subparsers = parser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
@@ -344,6 +373,9 @@ validate_unit_parser.add_argument('generic_unit', action='store',
                                   help='The Unit to validate')
 
 args = parser.parse_args()
+
+if args.csv:
+    csv = True
 
 if not hasattr(args, 'command'):
     print('A command must be specified')
