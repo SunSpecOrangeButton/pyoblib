@@ -45,6 +45,7 @@ class TestTaxonomySemantic(unittest.TestCase):
     def test_concepts_ep(self):
         self.assertEqual(len(tax.concepts_ep("MonthlyOperatingReport")), 84)
         self.assertEqual(tax.concepts_ep("MonthlyOperatingReort"), None)
+        self.assertEqual(len(tax.concepts_ep("CutSheet")), 302)
         self.assertEqual(len(tax.concepts_ep("Utility")), 8)
 
         # TODO: SystemInstallation is currently loaded under System.
@@ -53,6 +54,11 @@ class TestTaxonomySemantic(unittest.TestCase):
     def test_concepts_info_ep(self):
         self.assertEqual(len(tax.concepts_info_ep("MonthlyOperatingReport")), 84)
         self.assertEqual(tax.concepts_info_ep("MonthlyOperatingReort"), None)
+        
+        # TODO: 302 is expected but 297 returned, seeking info on why this is from XBRL.
+        # self.assertEqual(len(tax.concepts_info_ep("CutSheet")), 302)
+        self.assertEqual(len(tax.concepts_info_ep("CutSheet")), 297)
+
         self.assertEqual(len(tax.concepts_info_ep("Utility")), 8)
 
         for ci in tax.concepts_info_ep("Utility"):

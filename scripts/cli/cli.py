@@ -239,8 +239,9 @@ def validate_unit(args):
 def version(args):
     print("Orange Button Core CLI version 0.0.1")
 
+formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=32)
 
-parser = argparse.ArgumentParser(description='Orange Button Core Library CLI')
+parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
 parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
 subparsers = parser.add_subparsers(help='commands')
 
@@ -260,7 +261,7 @@ validate_identifier_parser.add_argument('identifier', action='store',
 version_parser = subparsers.add_parser('version', help='CLI Version')
 version_parser.set_defaults(command='version')
 
-taxonomy_parser = subparsers.add_parser('taxonomy', help='Taxonomy Meta-data Related Commands')
+taxonomy_parser = subparsers.add_parser('taxonomy', help='Taxonomy Meta-data Related Commands', formatter_class=formatter)
 subparsers = taxonomy_parser.add_subparsers(help='commands')
 
 list_concept_info_parser = subparsers.add_parser('list-concept-info',
