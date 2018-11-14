@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -267,7 +267,11 @@ class TaxonomySemantic(object):
 
         if endpoint in self._concepts:
             if endpoint in self._relationships:
+<<<<<<< HEAD
                 return self._relationships[endpoint]                
+=======
+                return self._relationships[endpoint]
+>>>>>>> ad5f7d49e070dd592f86afcf2c21222ef9894d12
             else:
                 return []
         else:
