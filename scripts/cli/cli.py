@@ -87,7 +87,6 @@ def list_unit_info(args):
 
 
 def list_ep_concepts_info(args):
-<<<<<<< HEAD
 
     if csv:
         concepts = tax.semantic.concepts_info_ep(args.ep)
@@ -98,15 +97,6 @@ def list_ep_concepts_info(args):
                 c.substitution_group, c.type_name, c.period_type))
     else:
         concepts = tax.semantic.concepts_info_ep(args.ep)
-=======
-    concepts = tax.semantic.concepts_info_ep(args.ep)
-    print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-          ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
-           "Per Type"))
-    print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
-          (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
-    for c in concepts:
->>>>>>> ad5f7d49e070dd592f86afcf2c21222ef9894d12
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
                 ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
                 "Per Type"))
@@ -129,7 +119,6 @@ def list_concepts(args):
 
 def list_relationships(args):
     relationships = tax.semantic.relationships_ep(args.ep)
-<<<<<<< HEAD
 
     if csv:
         print("Role, From, To, Order")
@@ -149,19 +138,6 @@ def list_relationships(args):
                        (r['role'], r['from'], r['to'], r['order']))    
         else:
             print("Not found")
-=======
-    print('%19s %78s %78s %5s' %
-         ("Role", "From", "To", "Order"))
-    print('%0.19s %0.78s %0.78s %0.5s' %
-         (DASHES, DASHES, DASHES, DASHES))
- 
-    if relationships is not None:
-        for r in relationships:
-            print('%19s %78s %78s %5s' %
-              (r['role'], r['from'], r['to'], r['order']))    
-    else:
-        print("Not found")
->>>>>>> ad5f7d49e070dd592f86afcf2c21222ef9894d12
 
 
 def list_type_enums(args):

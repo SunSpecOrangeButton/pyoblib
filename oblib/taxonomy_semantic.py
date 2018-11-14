@@ -267,11 +267,7 @@ class TaxonomySemantic(object):
 
         if endpoint in self._concepts:
             if endpoint in self._relationships:
-<<<<<<< HEAD
-                return self._relationships[endpoint]                
-=======
                 return self._relationships[endpoint]
->>>>>>> ad5f7d49e070dd592f86afcf2c21222ef9894d12
             else:
                 return []
         else:

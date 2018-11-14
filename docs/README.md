@@ -19,11 +19,7 @@ Taxonomy returns an in memory representation of the Solar Taxonomy XSD (availabl
 
 Usage
 -----------------
-<<<<<<< HEAD
 A series of shell scripts are availalable to assist with development, packaging, etc....   Their state is preliminary but they can be used to get started.
-=======
-A series of shell scripts are available to assist with development, packaging, etc....   Their state is preliminary but they can be used to get started.
->>>>>>> ad5f7d49e070dd592f86afcf2c21222ef9894d12
 
 * cli.sh: Runs the CLI before it is packaged.
 * dist-cli.sh: Packages the CLI into a single file executable.
