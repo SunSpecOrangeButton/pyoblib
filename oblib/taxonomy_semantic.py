@@ -147,6 +147,9 @@ class TaxonomySemantic(object):
         elements.update(self._load_elements_file(os.path.join(
                 constants.SOLAR_TAXONOMY_DIR, "external",
                 "us-gaap-2017-01-31.xsd")))
+        elements.update(self._load_elements_file(os.path.join(
+                constants.SOLAR_TAXONOMY_DIR, "external",
+                "dei-2018-01-31.xsd")))
         return elements
 
     def elements(self):
@@ -259,15 +262,15 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def relationships_ep(self, endpoint):
+    def relationships_ep(self, entry_point):
         """
-        Returns a list of all relationshiops in an end point
+        Returns a list of all relationshiops in an entry point
         Returns an empty list if the concept exists but has no relationships
         """
 
-        if endpoint in self._concepts:
-            if endpoint in self._relationships:
-                return self._relationships[endpoint]
+        if entry_point in self._concepts:
+            if entry_point in self._relationships:
+                return self._relationships[entry_point]
             else:
                 return []
         else:
@@ -286,7 +289,10 @@ class TaxonomySemantic(object):
                     break
         if not found:
             return None
-        return self._elements[concept]
+        if concept in self._elements:
+            return self._elements[concept]
+        else:
+            return None
 
     def concepts_info_ep(self, data):
         """

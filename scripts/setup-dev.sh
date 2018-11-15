@@ -17,4 +17,5 @@
 git clone https://github.com/SunSpecOrangeButton/solar-taxonomy.git
 mkdir solar-taxonomy/external
 curl http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd > solar-taxonomy/external/us-gaap-2017-01-31.xsd
+curl https://xbrl.sec.gov/dei/2018/dei-2018-01-31.xsd > solar-taxonomy/external/dei-2018-01-31.xsd
 curl https://www.xbrl.org/utr/utr.xml > solar-taxonomy/external/utr.xml
