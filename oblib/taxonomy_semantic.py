@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -262,15 +262,15 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def relationships_ep(self, endpoint):
+    def relationships_ep(self, entry_point):
         """
-        Returns a list of all relationshiops in an end point
+        Returns a list of all relationshiops in an entry point
         Returns an empty list if the concept exists but has no relationships
         """
 
-        if endpoint in self._concepts:
-            if endpoint in self._relationships:
-                return self._relationships[endpoint]                
+        if entry_point in self._concepts:
+            if entry_point in self._relationships:
+                return self._relationships[entry_point]
             else:
                 return []
         else:

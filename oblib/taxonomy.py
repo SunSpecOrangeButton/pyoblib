@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -91,3 +91,12 @@ class Taxonomy(object):
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
         self.misc = taxonomy_misc.TaxonomyMisc()
+
+
+# Accessor for singleton Taxonomy object:
+m_singletonTaxonomy = None
+def getTaxonomy():
+    global m_singletonTaxonomy
+    if m_singletonTaxonomy is None:
+        m_singletonTaxonomy = Taxonomy()
+    return m_singletonTaxonomy
