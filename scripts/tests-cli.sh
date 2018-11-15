@@ -49,6 +49,9 @@ python scripts/cli/cli.py taxonomy list-units || {
 python scripts/cli/cli.py taxonomy list-units-details || {
     EXITVAL=1
 }
+python scripts/cli/cli.py --csv taxonomy list-units-details || {
+    EXITVAL=1
+}
 python scripts/cli/cli.py taxonomy list-unit-info rad || {
     EXITVAL=1
 }
@@ -94,10 +97,25 @@ python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || 
 python scripts/cli/cli.py taxonomy list-concept-info solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
+python scripts/cli/cli.py --csv taxonomy list-concepts-info MonthlyOperatingReport || {
+    EXITVAL=1
+}
 python scripts/cli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py taxonomy list-relationships MonthlyOperatingReport || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py --csv taxonomy list-relationships MonthlyOperatingReport || {
     EXITVAL=1
 }
 
