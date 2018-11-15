@@ -147,6 +147,9 @@ class TaxonomySemantic(object):
         elements.update(self._load_elements_file(os.path.join(
                 constants.SOLAR_TAXONOMY_DIR, "external",
                 "us-gaap-2017-01-31.xsd")))
+        elements.update(self._load_elements_file(os.path.join(
+                constants.SOLAR_TAXONOMY_DIR, "external",
+                "dei-2018-01-31.xsd")))
         return elements
 
     def elements(self):
@@ -286,7 +289,10 @@ class TaxonomySemantic(object):
                     break
         if not found:
             return None
-        return self._elements[concept]
+        if concept in self._elements:
+            return self._elements[concept]
+        else:
+            return None
 
     def concepts_info_ep(self, data):
         """

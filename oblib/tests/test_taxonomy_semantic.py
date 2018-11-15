@@ -33,6 +33,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.period_type, "duration")
 
         ci = tax.concept_info("solar:ACDisconnectSwitchMember")
+        self.assertIsNotNone(ci)
         self.assertTrue(ci.abstract)
         self.assertEqual(ci.id, "solar:ACDisconnectSwitchMember")
         self.assertEqual(ci.name, "ACDisconnectSwitchMember")
@@ -40,6 +41,17 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.period_independent, "0")
         self.assertEqual(ci.substitution_group, "xbrli:item")
         self.assertEqual(ci.type_name, "nonnum:domainItemType")
+        self.assertEqual(ci.period_type, "duration")
+
+        ci = tax.concept_info("dei:LegalEntityIdentifier")
+        self.assertIsNotNone(ci)
+        self.assertFalse(ci.abstract)
+        self.assertEqual(ci.id, "dei:LegalEntityIdentifier")
+        self.assertEqual(ci.name, "LegalEntityIdentifier")
+        self.assertTrue(ci.nillable)
+        self.assertEqual(ci.period_independent, None)
+        self.assertEqual(ci.substitution_group, "xbrli:item")
+        self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
         self.assertEqual(ci.period_type, "duration")
 
     def test_concepts_ep(self):
@@ -77,11 +89,13 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertTrue(tax.validate_concept("solar:EnvironmentalImpactReportExpirationDate"))
         self.assertFalse(tax.validate_concept("solar:EnvironmentalImpactReportExirationDate"))
         self.assertTrue(tax.validate_concept("solar:AdvisorInvoicesCounterparties"))
+        self.assertTrue(tax.validate_concept("dei:LegalEntityIdentifier"))
 
     def test_concept_value(self):
         self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")))
         self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicaionPlan", "Arff")))
         self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37)))
+        self.assertEqual(1, len(tax.validate_concept_value("dei:LegalEntityIdentifier", "5493006MHB84DD0ZWV18")))
 
         # TODO: Once the validator is fully working test a large number of cases.
 
