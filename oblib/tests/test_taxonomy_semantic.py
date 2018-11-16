@@ -104,3 +104,15 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertFalse(tax.validate_ep("AssetMnager"))
         self.assertTrue(tax.validate_ep("MonthlyOperatingReport"))
         self.assertFalse(tax.validate_ep("MonthlyOperatingRepot"))
+
+    def test_unrequired_concepts_removed(self):
+        """
+        In order to save memory concepts that are not required should be removed from memory after the taxonomy
+        is loaded.  This primarily occurs in the us-gaap and dea namespaces since they are not always used
+        by the solar namespace.  Thus these tests prove that certain concepts are gone.
+        """
+
+        self.assertFalse("dei:EntityReportingCurrencyISOCode" in tax._elements)
+        self.assertFalse("dei:BusinessContactMember" in tax._elements)
+        self.assertFalse("us-gaap:TimeSharingTransactionsAllowanceForUncollectibleAccountsOnReceivablesSoldWithRecourse" in tax._elements)
+        self.assertFalse("us-gaap:TreasuryStockValueAcquiredCostMethod" in tax._elements)
