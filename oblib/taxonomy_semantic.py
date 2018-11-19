@@ -132,6 +132,7 @@ class TaxonomySemantic(object):
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
         self._relationships = self._load_relationships()
+        self._reduce_memory_footprint()
 
     def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
@@ -151,12 +152,6 @@ class TaxonomySemantic(object):
                 constants.SOLAR_TAXONOMY_DIR, "external",
                 "dei-2018-01-31.xsd")))
         return elements
-
-    def elements(self):
-        """
-        Returns a map of elements.
-        """
-        return self._elements
 
     def _load_concepts_file(self, pathname):
         tax = _TaxonomySemanticHandler()
@@ -209,6 +204,37 @@ class TaxonomySemantic(object):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
         return relationships
+
+    def _reduce_memory_footprint(self):
+        """
+        This reduces the memory footprint post load by removing unused data.
+        During loading of the elements unused elements may be loaded in the us-gaap and dei
+        namespaces.  A new elements list can be created that does not contain them.  Although
+        there is no other known cases of unused memory if any are found they should be addressed.
+        """
+
+        # Create a list of elements in use and set them all to False
+        elements_in_use = {}
+        for e in self._elements:
+            elements_in_use[e] = False
+        
+        # Find all elements loaded by the taxonomy in the concepts object and set them to True
+        for key in self._concepts:
+            for c in self._concepts[key]:
+                elements_in_use[c] = True
+        
+        # Create a new elements list and only add the elements that are in use.
+        ne = {}
+        for e in self._elements:
+            if elements_in_use[e]:
+                ne[e] = self._elements[e]
+        self._elements = ne     
+
+    def elements(self):
+        """
+        Returns a map of elements.
+        """
+        return self._elements
 
 
     def validate_concept(self, concept):

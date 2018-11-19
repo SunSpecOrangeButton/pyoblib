@@ -4,86 +4,59 @@ The Orange Button Python library contains core source code that may be used by o
 
 Documentation (API interface) is here: [link](https://github.com/SunSpecOrangeButton/pyoblib/tree/master/docs)
 
-
 NOTE: At this point in time the Core library is being setup and is in development.  It may be possible to use some of its functionality although it is likely to see significant regular changes in SDK signatures.
-
-The rest of this read me file is in template form at this point in time.  It will be updated in the near future.
 
 ## Getting Started
 
-Temporary Instructions:
+### Prerequisites
 
-A series of shell scripts are availalable to assist with development, packaging, etc...   Their state is preliminary but they can be used to get started.
+Development requires Python 2.7.x or 3.3 - 3.6.  The recommended version is Python 3.6.  Python 3.7 has not been tested yet however it is likely to be compatbile.
+
+### Installing
+
+A series of Bash (Mac/Linux) shell scripts are availalable to assist with development, packaging, etc...   Their state is preliminary but they can be used to get started.
 
 * cli.sh: Runs the CLI before it is packaged.
 * dist-cli.sh: Packages the CLI into a single file executable.
 * docs.sh: Creates the documentation (currently requires some manual work).
 * setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
-* tests-cli.sh Runs the CLI test suite.
 * tests.sh Runs the python tests.
+* tests-cli.sh Runs the CLI test suite.
 
 All scripts must be run from the root core directory (i.e. "scripts/tests.sh" is the correct usage).  Run "scripts/setup-dev.sh" before usage of other scripts.
 
-Long Term this project is being updated so that its procedures mimic the successful [pvlib](https://github.com/pvlib/pvlib-python) project.  This way many of the configuration files and lessons learned by the pvlib team can be levereaged.  At this point in time many of the scripts listed above
-may no longer be necessary and may be deprecated.
+Usage on Windows is a future feature (feel free to add).  It should be possible to use on Windows with manual setup at this point in time.
 
-### NOTE: THE REST OF THIS FILE IS STILL IN THE FORMAT OF THE TEMPLATE
-
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
-
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
+Long Term this project is being updated so that its procedures mimic the successful [pvlib](https://github.com/pvlib/pvlib-python) project.  This way many of the configuration files and lessons learned by the pvlib team can be levereaged.  At this point in time many of the scripts listed above may no longer be necessary and may be deprecated.
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+In order to run the tests run:
+
+* tests.sh Runs the python tests.
+* tests-cli.sh Runs the CLI test suite.
+
+Upon a pull request Travis will also operate all of the test cases.
 
 ### Break down into end to end tests
 
-Explain what these tests test and why
+All public member functions should have a corresponding test located in a test file in oblib/tests with "test_" being prefixed before the function name.  Whenever a new function or method is written please write a test.  Also whenever an issue is identified add additional tests so that the issue can be fixed and the issue will not re-occur.  Private member function tests are optional although in some cases they may be needed to fix issues.
 
-```
-Give an example
-```
+The CLI tests only test that the CLI completes and returns exit status 0 (success).  The CLI tests do not test the functionality of the CLI.  This should be sufficient since the functionality is already covered in the Python Test cases.
 
 ### And coding style tests
 
-Explain what these tests test and why
+The project style guide is [PEP8](https://www.python.org/dev/peps/pep-0008/).  Flake8 is a useful tool to test whether the PEP8 standard has been met (although this has not been automated, nor has a flake8 configuration file been established yet).
 
-```
-Give an example
-```
+Another useful resource is the [Google Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) which has additional details about writing coding above and beyond what is available in pep8.
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+The future intent is to deploy to PyPl.  This is not implemented yet.  PyInstaller is used to build a working CLI.
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+Other than Python and several Python libraries there is no frameworks in use by design.
 
 ## Contributing
 
@@ -91,13 +64,11 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Versioning
 
-For the versions available, see the [releases on this repository](https://github.com/SunSpecOrangeButton/template-application/releases).
+Versioning will be established when this reaches its first release.  At this point in time this is a development release.
 
 ## Authors
 
-* **Author Name** - *Initial work* - [GitHubUser](https://github.com/GitHubUserLink)
-
-See also the list of [contributors](https://github.com/SunSpecOrangeButton/template-application/contributors) who participated in this project.
+See the list of [contributors](https://github.com/SunSpecOrangeButton/pyoblib/graphs/contributors) who participated in this project.
 
 ## License
 
@@ -105,7 +76,7 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LIC
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* The Orange Button Specification was built by several organizations.  For more information see ADD LINK
+* The procedures and infrastructure for this libary are based upon pvlib.  For more information see William F. Holmgren, Clifford W. Hansen, and Mark A. Mikofski. "pvlib python: a python package for modeling solar energy systems." Journal of Open Source Software, 3(29), 884, (2018). https://doi.org/10.21105/joss.00884
+
 
