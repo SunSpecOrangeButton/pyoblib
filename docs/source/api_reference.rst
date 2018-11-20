@@ -1,40 +1,12 @@
-Overview
------------------
+==============
+ API Reference
+==============
 
-Currently the source code contains:
 
-* Identifier
-* Taxonomy
+:mod:`oblib.identifier` --- Orange Button Identifiers
+======================================================
 
-Identifier Design
------------------
-Identifier is a single module that allows generation and validation of Orange Button Identifiers (currently UUID's).
-
-Taxonomy Design
------------------
-Taxonomy returns an in memory representation of the Solar Taxonomy XSD (available at [solar-taxonomy](https://github.com/SunSpecOrangeButton/solar-taxonomy)
-
-![
-](Taxonomy.png)
-
-Usage
------------------
-A series of shell scripts are available to assist with development, packaging, etc....   Their state is preliminary but they can be used to get started.
-
-* cli.sh: Runs the CLI before it is packaged.
-* dist-cli.sh: Packages the CLI into a single file executable.
-* docs.sh: Creates the documentation (currently requires some manual work).
-* setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
-* tests-cli.sh Runs the CLI test suite.
-* tests.sh Runs the python tests.
-
-All scripts must be run from the root core directory (i.e. "scripts/tests.sh" is the correct usage).  Run "scripts/setup-dev.sh" before usage of other scripts.
-
-API
------------------
-
-Module identifier
------------------
+Identifier is a single module that allows generation and validation of Orange Button Identifiers (UUID's).
 
 Variables
 ---------
@@ -49,8 +21,15 @@ validate(inp)
     Validates that a particular string is either a valid UUID or not a valid UUID.
 
 
-Module taxonomy
----------------
+:mod:`oblib.taxonomy` --- Orange Button Taxonomy Representation
+===============================================================
+
+Taxonomy returns an in memory representation of the Solar Taxonomy XSD (available at
+`solar-taxonomy <https://github.com/SunSpecOrangeButton/solar-taxonomy>`_ ).
+
+.. figure:: taxonomy.png
+   :scale: 75 %
+   :alt: taxonomy structure
 
 Variables
 ---------
@@ -58,7 +37,7 @@ SOLAR_TAXONOMY_DIR
 
 Classes
 -------
-Element 
+Element
     Element is used to model a data element within a Taxonomy Concept.
 
     Ancestors (in MRO)
@@ -88,7 +67,7 @@ Element
     -------
     __init__(self)
 
-Taxonomy 
+Taxonomy
     Parent class for Taxonomy.  Use this to load and access all elements
     of the Taxonomy simultaneously.  Generally speaking this supplies
     a single import location and is better than loading just a portion
@@ -113,7 +92,7 @@ Taxonomy
     -------
     __init__(self)
 
-Unit 
+Unit
     Unit holds the definition of a Unit from the Unit Registry.
 
     Ancestors (in MRO)
@@ -150,12 +129,12 @@ Unit
     __init__(self)
 
 
-Module taxonomy_semantic
-------------------------
+:mod:`oblib.taxonomy_semantic` --- Orange Button Taxonomy Semantic
+==================================================================
 
 Classes
 -------
-TaxonomySemantic 
+TaxonomySemantic
     Ancestors (in MRO)
     ------------------
     taxonomy_semantic.TaxonomySemantic
@@ -187,12 +166,12 @@ TaxonomySemantic
         Validates if an end point type is present in the Taxonomy
 
 
-Module taxonomy_types
----------------------
+:mod:`oblib.taxonomy_types` --- Orange Button Taxonomy Types
+=============================================================
 
 Classes
 -------
-TaxonomyTypes 
+TaxonomyTypes
     Represents Taxonomy Types and allows lookup of enumerated values for each Taxonomy Type.
 
     Plese note that in the implementation of this class the variable name "type" is never
@@ -218,12 +197,12 @@ TaxonomyTypes
         Validates that a type is in the taxonomy.
 
 
-Module taxonomy_units
----------------------
+:mod:`oblib.taxonomy_units` --- Orange Button Taxonomy Units
+============================================================
 
 Classes
 -------
-TaxonomyUnits 
+TaxonomyUnits
     Represents Taxonomy Units and allows lookup of enumerated values for each Taxonomy Unit.
 
     Ancestors (in MRO)
@@ -245,12 +224,12 @@ TaxonomyUnits
         Validates that a unit is in the taxonomy based on its id.
 
 
-Module taxonomy_misc
---------------------
+:mod:`oblib.taxonomy_misc` --- Orange Button Taxonomy Miscellaneous
+===================================================================
 
 Classes
 -------
-TaxonomyMisc 
+TaxonomyMisc
     Represents Miscellaneous Taxonomy Objects that is not covered in the
     other classes.  Generally speaking these are rarely used.
 

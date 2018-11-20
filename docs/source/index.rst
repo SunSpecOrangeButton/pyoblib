@@ -1,9 +1,9 @@
 Welcome to pyoblib's documentation!
 ===================================
 
-pyoblib simplifies working with SunSpec Orange Button data by providing
-capabilities to work with the taxonomy. This project is being actively
-developed and is not yet ready for use production use.
+The Orange Button Python Library, also called, pyoblib, provides functions to interact and work with the
+SunSpec Orange Button Taxonomy and provides capabilities that simplify working with Orange Button data.
+This project is being actively developed and is not yet ready for production use.
 
 .. only: not latex
 
@@ -12,7 +12,8 @@ developed and is not yet ready for use production use.
 .. toctree::
    :maxdepth: 1
    
-   features
+   overview
+   api_reference
 
 
 

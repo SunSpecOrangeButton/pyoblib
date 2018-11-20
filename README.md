@@ -2,19 +2,19 @@
 
 The Orange Button Python library contains core source code that may be used by other Orange Button code.  By definition functionality in this library should be consumable by multiple other Orange Button projects.  If functionality is only usable in a single instance it should be placed in another project.
 
-Documentation (API interface) is here: [link](https://github.com/SunSpecOrangeButton/pyoblib/tree/master/docs)
+Full Documentation can be found at [Read the Docs](https://pyoblib.readthedocs.io/en/latest/).
 
 NOTE: At this point in time the Core library is being setup and is in development.  It may be possible to use some of its functionality although it is likely to see significant regular changes in SDK signatures.
 
 ## Getting Started
 
-### Prerequisites
+### Requirements
 
-Development requires Python 2.7.x or 3.3 - 3.6.  The recommended version is Python 3.6.  Python 3.7 has not been tested yet however it is likely to be compatbile.
+Python 2.7, 3.3 - 3.6.  The recommended version is Python 3.6.
 
-### Installing
+### Installation
 
-A series of Bash (Mac/Linux) shell scripts are availalable to assist with development, packaging, etc...   Their state is preliminary but they can be used to get started.
+A series of Bash (Mac/Linux) shell scripts are available to assist with development and packaging. Their state is preliminary but they can be used to get started.
 
 * cli.sh: Runs the CLI before it is packaged.
 * dist-cli.sh: Packages the CLI into a single file executable.
@@ -77,6 +77,6 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LIC
 ## Acknowledgments
 
 * The Orange Button Specification was built by several organizations.  For more information see ADD LINK
-* The procedures and infrastructure for this libary are based upon pvlib.  For more information see William F. Holmgren, Clifford W. Hansen, and Mark A. Mikofski. "pvlib python: a python package for modeling solar energy systems." Journal of Open Source Software, 3(29), 884, (2018). https://doi.org/10.21105/joss.00884
+* The procedures and infrastructure for this library are based upon pvlib.  For more information see William F. Holmgren, Clifford W. Hansen, and Mark A. Mikofski. "pvlib python: a python package for modeling solar energy systems." Journal of Open Source Software, 3(29), 884, (2018). https://doi.org/10.21105/joss.00884
 
 
