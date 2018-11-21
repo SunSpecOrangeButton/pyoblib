@@ -90,7 +90,9 @@ class Taxonomy(object):
         self.semantic = taxonomy_semantic.TaxonomySemantic()
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
-        self.misc = taxonomy_misc.TaxonomyMisc()
+        self.numeric_types = taxonomy_misc.TaxonomyNumericTypes()
+        self.generic_roles = taxonomy_misc.TaxonomyGenericRoles()
+        self.ref_parts = taxonomy_misc.TaxonomyRefParts()
 
 
 # Accessor for singleton Taxonomy object:
