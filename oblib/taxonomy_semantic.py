@@ -15,9 +15,10 @@
 import os
 import xml.sax
 
-import taxonomy
-import validator
 import constants
+import taxonomy
+import util
+import validator
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -36,10 +37,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
             element = taxonomy.Element()
             for item in attrs.items():
                 if item[0] == "abstract":
-                    if item[1] == "false":
-                        element.abstact = False
-                    else:
-                        element.abstract = True
+                    element.abstract = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "id":
                     # Turn the first underscore (only the first) into
                     # a colon. For example, the concept named
@@ -51,18 +49,15 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "name":
                     element.name = item[1]
                 elif item[0] == "nillable":
-                    if item[1] == "false":
-                        element.nillable = False
-                    else:
-                        element.nillable = True
+                    element.nillable = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "solar:periodIndependent":
-                    element.period_independent = item[1]
+                    element.period_independent = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "substitutionGroup":
-                    element.substitution_group = item[1]
+                    element.substitution_group = taxonomy.SubstitutionGroup(item[1])
                 elif item[0] == "type":
                     element.type_name = item[1]
                 elif item[0] == "xbrli:periodType":
-                    element.period_type = item[1]
+                    element.period_type = taxonomy.PeriodType(item[1])
             self._elements[element.id] = element
 
     def elements(self):

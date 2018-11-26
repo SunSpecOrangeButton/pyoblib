@@ -14,9 +14,9 @@
 
 import xml.sax
 
-import taxonomy
 import constants
-
+import taxonomy
+import util
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """
@@ -51,17 +51,17 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "itemType":
             self._curr.item_type = self._content
         elif name == "itemTypeDate":
-            self._curr.item_type_date = self._content
+            self._curr.item_type_date = util.convert_taxonomy_date(self._content)
         elif name == "symbol":
             self._curr.symbol = self._content
         elif name == "definition":
             self._curr.definition = self._content
         elif name == "baseStandard":
-            self._curr.base_standard = self._content
+            self._curr.base_standard = taxonomy.BaseStandard(self._content)
         elif name == "status":
-            self._curr.status = self._content
+            self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
-            self._curr.version_date = self._content
+            self._curr.version_date = util.convert_taxonomy_date(self._content)
 
     def units(self):
         return self._units

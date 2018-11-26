@@ -12,10 +12,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 import taxonomy_semantic
 import taxonomy_types
 import taxonomy_units
 import taxonomy_misc
+
+
+class SubstitutionGroup(enum.Enum):
+    """
+    Legal values for substitution groups.
+    """
+
+    item = "xbrli:item"
+    dimension = "xbrldt:dimensionItem"
+    hypercube = "xbrldt:hypercubeItem"
+
+
+class PeriodType(enum.Enum):
+    """
+    Legal values for period types.
+    """
+
+    duration = "duration"
+    instant = "instant"
+
+
+class BaseStandard(enum.Enum):
+    """
+    Legal values for base standards.
+    """
+
+    customary = "Customary"
+    iso4217 = "ISO4217"
+    non_si = "Non-SI"
+    si = "SI"
+    xbrl = "XBRL"
+
+
+class UnitStatus(enum.Enum):
+    """
+    Legal values for unit registry entry statuses.  Please note that this is referred to as just
+    status (as opposed to unitStatus) in the actual entries but the name has been expanded here
+    since status is extremely generic.
+    """
+
+    rec = "REC"
+    cr = "CR"
 
 
 class Element(object):
