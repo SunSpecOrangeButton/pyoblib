@@ -36,6 +36,8 @@ class _ElementsHandler(xml.sax.ContentHandler):
         if name == "xs:element":
             element = taxonomy.Element()
             for item in attrs.items():
+
+                # Note: str() are included around items for Python 2.7 only.
                 if item[0] == "abstract":
                     element.abstract = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "id":
@@ -45,9 +47,9 @@ class _ElementsHandler(xml.sax.ContentHandler):
                     # in the id field as
                     # solar_InverterPowerLevel10PercentMember_1. We want
                     # to replace the first underscore but not the second.
-                    element.id = item[1].replace("_", ":", 1)
+                    element.id = str(item[1].replace("_", ":", 1))
                 elif item[0] == "name":
-                    element.name = item[1]
+                    element.name = str(item[1])
                 elif item[0] == "nillable":
                     element.nillable = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "solar:periodIndependent":
@@ -55,7 +57,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "substitutionGroup":
                     element.substitution_group = taxonomy.SubstitutionGroup(item[1])
                 elif item[0] == "type":
-                    element.type_name = item[1]
+                    element.type_name = str(item[1])
                 elif item[0] == "xbrli:periodType":
                     element.period_type = taxonomy.PeriodType(item[1])
             self._elements[element.id] = element

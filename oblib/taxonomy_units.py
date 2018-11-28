@@ -41,21 +41,22 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         self._content = content
 
     def endElement(self, name):
+        # Note: str() are included around items for Python 2.7 only.
         if name == "unitId":
-            self._curr.unit_id = self._content
+            self._curr.unit_id = str(self._content)
             self._units[self._content] = self._curr
         elif name == "unitName":
-            self._curr.unit_name = self._content
+            self._curr.unit_name = str(self._content)
         elif name == "nsUnit":
-            self._curr.ns_unit = self._content
+            self._curr.ns_unit = str(self._content)
         elif name == "itemType":
-            self._curr.item_type = self._content
+            self._curr.item_type = str(self._content)
         elif name == "itemTypeDate":
             self._curr.item_type_date = util.convert_taxonomy_date(self._content)
         elif name == "symbol":
-            self._curr.symbol = self._content
+            self._curr.symbol = str(self._content)
         elif name == "definition":
-            self._curr.definition = self._content
+            self._curr.definition = str(self._content)
         elif name == "baseStandard":
             self._curr.base_standard = taxonomy.BaseStandard(self._content)
         elif name == "status":
