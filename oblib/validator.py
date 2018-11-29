@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Validation functions."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,8 +31,9 @@ import sys
 #     what caused the error condition as opposed to simply receiving False.
 #     This may require a different function signature.
 
-def validate_concept_value(concept, value):
 
+def validate_concept_value(concept, value):
+    """Validate a concept."""
     errors = []
     # If null check if nillable is ok and return
     if value is None and not concept.nillable:
@@ -46,8 +47,8 @@ def validate_concept_value(concept, value):
         if found_method is not None:
             errors += found_method(value, concept)
 
-    # Check identifiers.  This is based upon the name of the field containing the word Identifier
-    # in it.
+    # Check identifiers.  This is based upon the name of the field containing
+    # the word Identifier in it.
     if concept.id.find("Identifier") != -1:
         if identifier.validate(value) is False:
             errors += ["'{}' is not valid identifier.".format(concept.id)]
@@ -57,7 +58,7 @@ def validate_concept_value(concept, value):
 
 
 def get_validator_method_name(type_name):
-
+    """Return the validator for a type."""
     # Check if type nillable and not string
     if type_name is None and type(type_name) is not str:
         return type_name
@@ -69,9 +70,11 @@ def get_validator_method_name(type_name):
 
 
 # validators implementation
-# TODO: could be moved to other file and loaded and even loading custom validator files
+# TODO: could be moved to other file and loaded and even loading custom
+# validator files
 
 def xbrli_boolean_item_type_validator(value, concept):
+    """XBRLI boolean validator."""
     errors = []
     if type(value) is str:
         if value.lower() not in ['true', 'false']:
@@ -82,6 +85,7 @@ def xbrli_boolean_item_type_validator(value, concept):
 
 
 def xbrli_string_item_type_validator(value, concept):
+    """XBRLI string validator."""
     errors = []
     if type(value).__name__ not in ["str", "unicode"]:
         errors += ["'{}' is not a valid string value.".format(value)]
@@ -89,6 +93,7 @@ def xbrli_string_item_type_validator(value, concept):
 
 
 def xbrli_integer_item_type_validator(value, concept):
+    """XBRLI int validator."""
     errors = []
     if type(value) is str:
         try:

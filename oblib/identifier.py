@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Handles Orange Button identifiers."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
 import re
 import uuid
 
-REG_EX = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+REG_EX = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]\
+          {3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+
 
 def identifier():
-    """
-    Returns valid UUID for Orange Button identifiers
-    """
-    return  str(uuid.uuid4())
+    """Return valid UUID for Orange Button identifiers."""
+    return str(uuid.uuid4())
+
 
 def validate(inp):
-    """
-    Validates that a particular string is either a valid UUID or not a valid UUID.
-    """
+    """Validate a UUID string."""
     return re.search(REG_EX, inp, re.IGNORECASE) is not None

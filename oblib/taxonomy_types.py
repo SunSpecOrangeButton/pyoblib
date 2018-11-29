@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Taxonomy types."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ import constants
 
 
 class _TaxonomyTypesHandler(xml.sax.ContentHandler):
-    """
-    Loads Taxonomy Types from the solar types xsd file.
-    """
+    """Loads Taxonomy Types from the solar types xsd file."""
 
     def __init__(self):
         self._types = {}
@@ -43,14 +41,18 @@ class _TaxonomyTypesHandler(xml.sax.ContentHandler):
 
 class TaxonomyTypes(object):
     """
-    Represents Taxonomy Types and allows lookup of enumerated values for each Taxonomy Type.
+    Represents Taxonomy Types.
 
-    Please note that in the implementation of this class the variable name "type" is never
-    used although "_type" and "types" are in order to avoid confusion with the python
-    "type" builtin.
+    Represents Taxonomy Types and allows lookup of enumerated values
+    for each Taxonomy Type.
+
+    Please note that in the implementation of this class the variable name
+    "type" is never used although "_type" and "types" are in order to avoid
+    confusion with the python "type" builtin.
     """
 
     def __init__(self):
+        """Constructor."""
         self._types = self._load_types()
 
     def _load_types_file(self, pathname):
@@ -68,17 +70,11 @@ class TaxonomyTypes(object):
         return types
 
     def types(self):
-        """
-        Returns a map and sublists of all types.
-        """
-
+        """Return a map and sublists of all types."""
         return self._types
 
     def validate_type(self, type_name):
-        """
-        Validates that a type is in the taxonomy.
-        """
-
+        """Validate that a type is in the taxonomy."""
         if type_name in self._types:
             return True
         else:
@@ -86,9 +82,11 @@ class TaxonomyTypes(object):
 
     def type_enum(self, type_name):
         """
-        Returns an enumeration given a type or None if the type does not exist in the taxonomy.
-        """
+        Get type enumeration.
 
+        Return an enumeration given a type or None if the type does not exist
+        in the taxonomy.
+        """
         if type_name in self._types:
             return self._types[type_name]
         else:
