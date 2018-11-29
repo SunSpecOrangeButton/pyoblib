@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Semantic taxonomy classes."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,12 +22,14 @@ import constants
 
 class _ElementsHandler(xml.sax.ContentHandler):
     """
-    Reads the files in solar-taxonomy/core/*.xsd
+    Reads the files in solar-taxonomy/core/*.xsd .
+
     This extracts the metadata for each concept name, such as the datatype
     of the concept, whether it's nillable, etc.
     As a SAX parser, it streams the XML, and startElement() is called
     once for each element in the file.
     """
+
     def __init__(self):
         self._elements = {}
 
@@ -71,14 +73,15 @@ class _ElementsHandler(xml.sax.ContentHandler):
 
 class _TaxonomySemanticHandler(xml.sax.ContentHandler):
     """
-    Reads the files in solar-taxonomy/documents/<document name>/*_pre.xml
+    Reads the files in solar-taxonomy/documents/<document name>/*_pre.xml .
+
     This extracts the list of concept names from the presentation file.
     As a SAX parser,it streams the XML, and startElement() is called
     once for each XML element in the file.
     """
+
     def __init__(self):
         self._concepts = []
-
 
     def startElement(self, name, attrs):
         if name == "loc":
@@ -91,23 +94,28 @@ class _TaxonomySemanticHandler(xml.sax.ContentHandler):
         return self._concepts
 
 
-
 class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
     """
-    Reads the files in solar-taxonomy/documents/<document name>/*_def.xml
+    Reads the files in solar-taxonomy/documents/<document name>/*_def.xml .
+
     This extracts the relationships between the concepts, such as when one
     concept is a parent of another, when a concept belongs to a hypercube,
     etc.
     As a SAX parser,it streams the XML, and startElement() is called
     once for each XML element in the file.
     """
+
     def __init__(self):
         self._relationships = []
 
-
     def startElement(self, name, attrs):
         if name == "definitionArc":
-            relationship = {"role": None, "from": None, "to": None, "order": None}
+            relationship = {
+                "role": None,
+                "from": None,
+                "to": None,
+                "order": None
+            }
             for item in attrs.items():
                 if item[0] == "xlink:arcrole":
                     relationship['role'] = item[1].split("/")[-1]
@@ -127,8 +135,10 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
 
 
 class TaxonomySemantic(object):
+    """Manage taxonomy elements and concepts."""
 
     def __init__(self):
+        """Constructor."""
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
         self._relationships = self._load_relationships()
@@ -143,14 +153,14 @@ class TaxonomySemantic(object):
 
     def _load_elements(self):
         elements = self._load_elements_file(os.path.join(
-                constants.SOLAR_TAXONOMY_DIR, "core",
-                "solar_2018-03-31_r01.xsd"))
+            constants.SOLAR_TAXONOMY_DIR, "core",
+            "solar_2018-03-31_r01.xsd"))
         elements.update(self._load_elements_file(os.path.join(
-                constants.SOLAR_TAXONOMY_DIR, "external",
-                "us-gaap-2017-01-31.xsd")))
+            constants.SOLAR_TAXONOMY_DIR, "external",
+            "us-gaap-2017-01-31.xsd")))
         elements.update(self._load_elements_file(os.path.join(
-                constants.SOLAR_TAXONOMY_DIR, "external",
-                "dei-2018-01-31.xsd")))
+            constants.SOLAR_TAXONOMY_DIR, "external",
+            "dei-2018-01-31.xsd")))
         return elements
 
     def _load_concepts_file(self, pathname):
@@ -161,12 +171,11 @@ class TaxonomySemantic(object):
         return tax.concepts()
 
     def _load_concepts(self):
-        """
-        Returns a dict of available concepts
-        """
-        # TODO: Better understand the relationship of "def" vs. "pre" xml files.  Using pre seems
-        # to load a more accurate representation of the taxonomy but this was found via trial and
-        # error as opposed to a scientific methodology.
+        """Return a dict of available concepts."""
+        # TODO: Better understand the relationship of "def" vs. "pre" xml
+        # files. Using pre seems to load a more accurate representation
+        # of the taxonomy but this was found via trial and error as opposed
+        # to a scientific methodology.
         concepts = {}
         for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "data")):
@@ -176,8 +185,8 @@ class TaxonomySemantic(object):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                            os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                         "data", dirname, filename))
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                     "data", dirname, filename))
         for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "documents")):
             for filename in os.listdir(
@@ -186,8 +195,8 @@ class TaxonomySemantic(object):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                            os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                         "documents", dirname, filename))
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                     "documents", dirname, filename))
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -199,7 +208,8 @@ class TaxonomySemantic(object):
 
     def _load_relationships(self):
         relationships = {}
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "documents")):
             for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
@@ -207,41 +217,37 @@ class TaxonomySemantic(object):
 
     def _reduce_memory_footprint(self):
         """
-        This reduces the memory footprint post load by removing unused data.
-        During loading of the elements unused elements may be loaded in the us-gaap and dei
-        namespaces.  A new elements list can be created that does not contain them.  Although
-        there is no other known cases of unused memory if any are found they should be addressed.
-        """
+        Reduce the memory footprint post load by removing unused data.
 
+        During loading of the elements unused elements may be loaded in the
+        us-gaap and dei namespaces.  A new elements list can be created that
+        does not contain them.  Although there is no other known cases of
+        unused memory if any are found they should be addressed.
+        """
         # Create a list of elements in use and set them all to False
         elements_in_use = {}
         for e in self._elements:
             elements_in_use[e] = False
-        
-        # Find all elements loaded by the taxonomy in the concepts object and set them to True
+
+        # Find all elements loaded by the taxonomy in the concepts object and
+        # set them to True
         for key in self._concepts:
             for c in self._concepts[key]:
                 elements_in_use[c] = True
-        
+
         # Create a new elements list and only add the elements that are in use.
         ne = {}
         for e in self._elements:
             if elements_in_use[e]:
                 ne[e] = self._elements[e]
-        self._elements = ne     
+        self._elements = ne
 
     def elements(self):
-        """
-        Returns a map of elements.
-        """
+        """Return a map of elements."""
         return self._elements
 
-
     def validate_concept(self, concept):
-        """
-        Validates if a concept is present in the Taxonomy
-        """
-
+        """Validate if a concept is present in the Taxonomy."""
         found = False
         for c in self._concepts:
             for cc in self._concepts[c]:
@@ -252,7 +258,10 @@ class TaxonomySemantic(object):
 
     def validate_concept_value(self, concept, value):
         """
-        Validates if a concept is present in the Taxonomy and that its value is legal.
+        Validate a concept.
+
+        Validates whether a concept is present in the Taxonomy and if
+        its value is legal.
         """
         # Check presence
         found = False
@@ -269,20 +278,14 @@ class TaxonomySemantic(object):
         return validator.validate_concept_value(concept_info, value)
 
     def validate_ep(self, data):
-        """
-        Validates if an end point type is present in the Taxonomy
-        """
-
+        """Validate if an end point type is present in the Taxonomy."""
         if data in self._concepts:
             return True
         else:
             return False
 
     def concepts_ep(self, data):
-        """
-        Returns a list of all concepts in an end point
-        """
-
+        """Return a list of all concepts in an end point."""
         if data in self._concepts:
             return self._concepts[data]
         else:
@@ -290,10 +293,10 @@ class TaxonomySemantic(object):
 
     def relationships_ep(self, entry_point):
         """
-        Returns a list of all relationshiops in an entry point
-        Returns an empty list if the concept exists but has no relationships
-        """
+        Return a list of all relationships in an entry point.
 
+        Returns an empty list if the concept exists but has no relationships.
+        """
         if entry_point in self._concepts:
             if entry_point in self._relationships:
                 return self._relationships[entry_point]
@@ -303,10 +306,7 @@ class TaxonomySemantic(object):
             return None
 
     def concept_info(self, concept):
-        """
-        Returns information on a single concept.
-        """
-
+        """Return information on a single concept."""
         found = False
         for c in self._concepts:
             for cc in self._concepts[c]:
@@ -322,23 +322,26 @@ class TaxonomySemantic(object):
 
     def concepts_info_ep(self, data):
         """
-        Returns a list of all concepts and their attributes in an end point
-        """
+        Return concepts from an endpoints.
 
+        Return a list of all concepts and their attributes in an end point.
+        """
         if data in self._concepts:
             ci = []
             for concept in self._concepts[data]:
                 if concept in self._elements:
                     ci.append(self._elements[concept])
                 else:
-                    # TODO: This case is not correctly understood.  Here are some samples that are not found:
+                    # TODO: This case is not correctly understood.
+                    # Here are some samples that are not found:
                     # Warning, concept not found: solar:MeterRatingAccuracy_1
                     # Warning, concept not found: solar:MeterRevenueGrade_1
                     # Warning, concept not found: solar:MeterBidirectional_1
                     # Warning, concept not found: solar:RevenueMeterPowerFactor_1
                     # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                    # This case should be understood and handled correctly as opposed to just printing a warning message.
-                    #print("Warning, concept not found:", concept)
+                    # This case should be understood and handled correctly as
+                    # opposed to just printing a warning message.
+                    # print("Warning, concept not found:", concept)
                     pass
             return ci
         else:
