@@ -22,6 +22,7 @@ import util
 import os
 import sys
 
+
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Units from the units type registry file."""
 
