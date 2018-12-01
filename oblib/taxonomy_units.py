@@ -17,6 +17,7 @@ import xml.sax
 import taxonomy
 import constants
 import os
+import sys
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Units from the units type registry file."""
@@ -81,8 +82,13 @@ class TaxonomyUnits(object):
         tax = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        with open(fn, 'r', encoding='utf8', errors='ignore') as infile:
-            parser.parse(infile)
+        if sys.version_info[0] < 3:
+            # python 2.x
+            with open(fn, 'r') as infile:
+                parser.parse(infile)
+        else:
+            with open(fn, 'r', encoding='utf8', errors='ignore') as infile:
+                parser.parse(infile)
         return tax.units()
 
     def _load_units(self):
