@@ -81,7 +81,8 @@ class TaxonomyUnits(object):
         tax = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(fn))
+        with open(fn, 'r', encoding='utf8', errors='ignore') as infile:
+            parser.parse(infile)
         return tax.units()
 
     def _load_units(self):
