@@ -16,7 +16,8 @@ import xml.sax
 
 import taxonomy
 import constants
-
+import os
+import sys
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Units from the units type registry file."""
@@ -81,11 +82,19 @@ class TaxonomyUnits(object):
         tax = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
+        if sys.version_info[0] < 3:
+            # python 2.x
+            with open(fn, 'r') as infile:
+                parser.parse(infile)
+        else:
+            with open(fn, 'r', encoding='utf8', errors='ignore') as infile:
+                parser.parse(infile)
         return tax.units()
 
     def _load_units(self):
-        units = self._load_units_file("/external/utr.xml")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "external")
+        filename = "utr.xml"
+        units = self._load_units_file(os.path.join(pathname, filename))
         return units
 
     def units(self):
