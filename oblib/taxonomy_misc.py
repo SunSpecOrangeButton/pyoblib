@@ -85,14 +85,10 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
 
 class TaxonomyNumericTypes(object):
     """
-<<<<<<< HEAD
-    Represents Numeric Types portion of the taxonomy.  Generally speaking this is rarely used.
-=======
     Represents Miscellaneous Taxonomy Objects.
 
     Represents objects that are not covered in the
     other classes.  Generally speaking these are rarely used.
->>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
     """
 
     def __init__(self):
@@ -155,29 +151,13 @@ class TaxonomyGenericRoles(object):
                     pathname, filename))
         return generic_roles
 
-<<<<<<< HEAD
     def generic_roles(self):
-        """
-        A list of generic roles
-        """
-
+        """A list of generic roles."""
         return self._generic_roles
 
     def validate_generic_role(self, generic_role):
-        """
-        Check if a generic role is valid.
-        """
-
+        """Check if a generic role is valid."""
         if generic_role in self._generic_roles:
-=======
-    def numeric_types(self):
-        """A list of numeric types."""
-        return self._numeric_types
-
-    def validate_numeric_type(self, numeric_type):
-        """Check if a numeric type is valid."""
-        if numeric_type in self._numeric_types:
->>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
             return True
         else:
             return False
@@ -216,17 +196,4 @@ class TaxonomyRefParts(object):
             return True
         else:
             return False
-<<<<<<< HEAD
-=======
 
-    def generic_roles(self):
-        """A list of generic roles."""
-        return self._generic_roles
-
-    def validate_generic_role(self, generic_role):
-        """Check if a generic role is valid."""
-        if generic_role in self._generic_roles:
-            return True
-        else:
-            return False
->>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
