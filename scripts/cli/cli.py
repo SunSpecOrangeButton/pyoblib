@@ -150,17 +150,17 @@ def list_type_enums(args):
 
 
 def list_numeric_types(args):
-    for numeric_type in tax.misc.numeric_types():
+    for numeric_type in tax.numeric_types.numeric_types():
         print(numeric_type)
 
 
 def list_ref_parts(args):
-    for ref_part in tax.misc.ref_parts():
+    for ref_part in tax.ref_parts.ref_parts():
         print(ref_part)
 
 
 def list_generic_roles(args):
-    for generic_role in tax.misc.generic_roles():
+    for generic_role in tax.generic_roles.generic_roles():
         print(generic_role)
 
 
@@ -221,15 +221,15 @@ def validate_type(args):
 
 
 def validate_numeric_type(args):
-    print("Valid:", tax.misc.validate_numeric_type(args.numeric_type))
+    print("Valid:", tax.numeric_types.validate_numeric_type(args.numeric_type))
 
 
 def validate_ref_part(args):
-    print("Valid:", tax.misc.validate_ref_part(args.ref_part))
+    print("Valid:", tax.ref_parts.validate_ref_part(args.ref_part))
 
 
 def validate_generic_role(args):
-    print("Valid:", tax.misc.validate_generic_role(args.generic_role))
+    print("Valid:", tax.generic_roles.validate_generic_role(args.generic_role))
 
 
 def validate_unit(args):

@@ -5,3 +5,6 @@ solar-taxonomy
 
 # Build files from docs
 docs/build/
+
+# Created by MacOS
+.DS_Store

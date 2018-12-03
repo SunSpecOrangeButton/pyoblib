@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import taxonomy
+
 
 class Hypercube(object):
     """
@@ -274,7 +276,7 @@ class Entrypoint(object):
         # do Context arguments as **kwargs ?
 
         metadata = self.ts.concept_info(concept_name)
-        if metadata.period_type == "duration":
+        if metadata.period_type == taxonomy.PeriodType.duration:
             if not context.duration:
                 raise Exception("Missing required duration in {} context".format(
                     concept_name))
@@ -290,7 +292,8 @@ class Entrypoint(object):
                 raise Exception("Invalid duration in {} context".format(
                     concept_name))
 
-        if metadata.period_type == "instant":
+
+        if metadata.period_type == taxonomy.PeriodType.instant:
             if not context.instant:
                 raise Exception("Missing required instant in {} context".format(
                     concept_name))

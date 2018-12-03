@@ -76,7 +76,8 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LIC
 
 ## Acknowledgments
 
-* The Orange Button Specification was built by several organizations.  For more information see ADD LINK
-* The procedures and infrastructure for this library are based upon pvlib.  For more information see William F. Holmgren, Clifford W. Hansen, and Mark A. Mikofski. "pvlib python: a python package for modeling solar energy systems." Journal of Open Source Software, 3(29), 884, (2018). https://doi.org/10.21105/joss.00884
+* The Orange Button Specification was built by several organizations in the [Orange Button Implementors Network](https://sunspec.org/thank-signing-orange-button-implementor/) with guidance by [XBRL US](https://xbrl.us/home/about/).
+* Orange Button GitHub and tool accounts are supplied by [Sunspec Alliance](https://sunspec.org/sunspec-about/).
+* The procedures and infrastructure for this library are based upon pvlib.  For more information see William F. Holmgren, Clifford W. Hansen, and Mark A. Mikofski. "pvlib python: a python package for modeling solar energy systems." Journal of Open Source Software, 3(29), 884, (2018). [https://doi.org/10.21105/joss.00884](https://doi.org/10.21105/joss.00884)
 
 
