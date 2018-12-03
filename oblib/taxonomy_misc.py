@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Miscellaneous taxonomy functions."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,18 +19,23 @@ import constants
 
 
 #
+<<<<<<< HEAD
 # Note: All miscellaneous taxonomy files are covered except for solar-ref-roles which has only one
 # entry # (which happens to have the value "standard").  This file will not be covered 
 # programmatically in the initial release of pyoblib.
+=======
+# TODO: All taxonomy files are covered except for solar-ref-roles which
+# has only one entry.
+# It could be included for completeness.
+>>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
 #
 
 
 class _TaxonomyNumericHandler(xml.sax.ContentHandler):
-    """
-    Loads Taxonomy Numeric Types from the numeric us xsd file.
-    """
+    """Loads Taxonomy Numeric Types from the numeric us xsd file."""
 
     def __init__(self):
+        """Numeric handler constructor."""
         self._numeric_types = []
 
     def startElement(self, name, attrs):
@@ -44,11 +49,10 @@ class _TaxonomyNumericHandler(xml.sax.ContentHandler):
 
 
 class _TaxonomyRefPartsHandler(xml.sax.ContentHandler):
-    """
-    Loads Taxonomy Ref Parts from the numeric us xsd file.
-    """
+    """Loads Taxonomy Ref Parts from the numeric us xsd file."""
 
     def __init__(self):
+        """Ref parts constructor."""
         self._ref_parts = []
 
     def startElement(self, name, attrs):
@@ -62,11 +66,10 @@ class _TaxonomyRefPartsHandler(xml.sax.ContentHandler):
 
 
 class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
-    """
-    Loads Taxonomy Generic Roles from the generic roles xsd file.
-    """
+    """Loads Taxonomy Generic Roles from the generic roles xsd file."""
 
     def __init__(self):
+        """Generic role handler constructor."""
         self._generic_roles = []
         self._process = False
 
@@ -88,10 +91,18 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
 
 class TaxonomyNumericTypes(object):
     """
+<<<<<<< HEAD
     Represents Numeric Types portion of the taxonomy.  Generally speaking this is rarely used.
+=======
+    Represents Miscellaneous Taxonomy Objects.
+
+    Represents objects that are not covered in the
+    other classes.  Generally speaking these are rarely used.
+>>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
     """
 
     def __init__(self):
+        """Misc object constructor."""
         self._numeric_types = self._load_numeric_types()
 
     def _load_numeric_types_file(self, pathname):
@@ -106,7 +117,7 @@ class TaxonomyNumericTypes(object):
         for filename in os.listdir(pathname):
             if 'numeric' in filename:
                 numeric_types = self._load_numeric_types_file(os.path.join(
-                        pathname, filename))
+                    pathname, filename))
         return numeric_types
 
     def numeric_types(self):
@@ -147,9 +158,10 @@ class TaxonomyGenericRoles(object):
         for filename in os.listdir(pathname):
             if 'gen-roles' in filename:
                 generic_roles = self._load_generic_roles_file(os.path.join(
-                        pathname, filename))
+                    pathname, filename))
         return generic_roles
 
+<<<<<<< HEAD
     def generic_roles(self):
         """
         A list of generic roles
@@ -163,6 +175,15 @@ class TaxonomyGenericRoles(object):
         """
 
         if generic_role in self._generic_roles:
+=======
+    def numeric_types(self):
+        """A list of numeric types."""
+        return self._numeric_types
+
+    def validate_numeric_type(self, numeric_type):
+        """Check if a numeric type is valid."""
+        if numeric_type in self._numeric_types:
+>>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
             return True
         else:
             return False
@@ -192,18 +213,26 @@ class TaxonomyRefParts(object):
         return ref_parts
 
     def ref_parts(self):
-        """
-        A list of ref parts.
-        """
-
+        """A list of ref parts."""
         return self._ref_parts
 
     def validate_ref_part(self, ref_part):
-        """
-        Check if a ref part is valid.
-        """
-
+        """Check if a ref part is valid."""
         if ref_part in self._ref_parts:
             return True
         else:
             return False
+<<<<<<< HEAD
+=======
+
+    def generic_roles(self):
+        """A list of generic roles."""
+        return self._generic_roles
+
+    def validate_generic_role(self, generic_role):
+        """Check if a generic role is valid."""
+        if generic_role in self._generic_roles:
+            return True
+        else:
+            return False
+>>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70

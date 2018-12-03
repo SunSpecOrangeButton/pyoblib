@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Taxonomy units."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 import xml.sax
 
 import constants
+<<<<<<< HEAD
 import taxonomy
 import util
+=======
+import os
+import sys
+>>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
-    """
-    Loads Taxonomy Units from the units type registry file.
-    """
+    """Loads Taxonomy Units from the units type registry file."""
 
     def __init__(self):
         self._units = {}
@@ -70,35 +73,41 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
 
 class TaxonomyUnits(object):
     """
-    Represents Taxonomy Units and allows lookup of enumerated values for each Taxonomy Unit.
+    Represents Taxonomy Units.
+
+    Represents Taxonomy Units and allows lookup of enumerated values for
+    each Taxonomy Unit.
     """
 
     def __init__(self):
+        """Constructor."""
         self._units = self._load_units()
 
     def _load_units_file(self, fn):
         tax = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(constants.SOLAR_TAXONOMY_DIR + fn))
+        if sys.version_info[0] < 3:
+            # python 2.x
+            with open(fn, 'r') as infile:
+                parser.parse(infile)
+        else:
+            with open(fn, 'r', encoding='utf8', errors='ignore') as infile:
+                parser.parse(infile)
         return tax.units()
 
     def _load_units(self):
-        units = self._load_units_file("/external/utr.xml")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "external")
+        filename = "utr.xml"
+        units = self._load_units_file(os.path.join(pathname, filename))
         return units
 
     def units(self):
-        """
-        Returns a map and sublists of all units.
-        """
-
+        """Return a map and sublists of all units."""
         return self._units
 
     def validate_unit(self, unit_id):
-        """
-        Validates that a unit is in the taxonomy based on its id.
-        """
-
+        """Validate that a unit is in the taxonomy based on its id."""
         if unit_id in self._units:
             return True
         else:
@@ -106,9 +115,11 @@ class TaxonomyUnits(object):
 
     def unit(self, unit_id):
         """
-        Returns an unit given a unit_id or None if the type does not exist in the taxonomy.
-        """
+        Return a unit.
 
+        Returns an unit given a unit_id or None if the type does not
+        exist in the taxonomy.
+        """
         if unit_id in self._units:
             return self._units[unit_id]
         else:

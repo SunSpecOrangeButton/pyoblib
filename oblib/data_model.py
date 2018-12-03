@@ -1,4 +1,4 @@
-# Copyright 2018 Jonathan Xia
+"""Orange Button data model."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,32 +17,44 @@ import taxonomy
 
 class Hypercube(object):
     """
+    Hypercube placeholder.
+
     (Currently a placeholder) a data structure to represent a table
     (aka a Hypercube) within a document.
     """
+
     def __init__(self, table_name, axis_names):
+        """Hypercube cnstructor."""
         self._table_name = table_name
         self._axis_names = axis_names
         self._line_items = []
 
     def name(self):
+        """Return table name."""
         return self._table_name
 
     def axes(self):
+        """Return axes names."""
         return self._axis_names
 
     def addLineItem(self, line_item_name):
+        """Add a line item."""
         self._line_items = line_item_name
 
     def hasLineItem(self, line_item_name):
+        """Check if hypercube contains a line item."""
         return line_item_name in self._line_items
 
+
 class Context(object):
+    """Handles data model context."""
+
     def __init__(self, **kwargs):
+        """Context constructor."""
         # kwargs must provide exactly one of instant or duration
         if "instant" in kwargs and "duration" in kwargs:
             raise Exception("Context given both instant and duration")
-        if (not "instant" in kwargs) and (not "duration" in kwargs):
+        if ("instant" not in kwargs) and ("duration" not in kwargs):
             raise Exception("Context not given either instant or duration")
         if "instant" in kwargs:
             self.instant = kwargs.pop("instant")
@@ -62,23 +74,28 @@ class Context(object):
 
 
 class Concept(object):
+    """Handles Orange Button concepts."""
+
     def __init__(self, concept_name):
+        """Concept constructor."""
         self.name = concept_name
         self.parent = None
         self.children = []
 
     def setParent(self, new_parent):
+        """Set a concept parent."""
         self.parent = new_parent
-        if not self in self.parent.children:
+        if self not in self.parent.children:
             self.parent.children.append(self)
 
     def addChild(self, new_child):
-        if not new_child in self.children:
+        """Add a child concept."""
+        if new_child not in self.children:
             self.children.append(new_child)
         new_child.parent = self
 
     def getAncestors(self):
-        # returns a list of concept's parent, concept's parent's parent, etc.
+        """Return a concepts parent and other ancestors."""
         ancestors = []
         curr = self
         while curr.parent is not None:
@@ -89,6 +106,8 @@ class Concept(object):
 
 class Entrypoint(object):
     """
+    Data structure representing an entrypoint.
+
     A data structure representing an orange button document
     from a particular entrypoint -- for example, an MOR.
     This class's representation of the data is format-agnostic, it just
@@ -96,12 +115,15 @@ class Entrypoint(object):
     and from particular physical file format (or database schema) will
     be handled elsewhere.
     """
+
     def __init__(self, entrypoint_name, taxonomy):
         """
+        Initialize an entrypoint.
+
         Initializes an empty instance of a document corresponding to the named
-        entrypoint. entrypoint_name is a string that must match an entry point in
-        the taxonomy. Looks up the list of concepts for this entry point from
-        the taxonomy to know what concepts are allowed in the document.
+        entrypoint. entrypoint_name is a string that must match an entry point
+        in the taxonomy. Looks up the list of concepts for this entry point
+        from the taxonomy to know what concepts are allowed in the document.
         Looks up the relationships between concepts for this entry point from
         the taxonomy to know the hierarchical relationship of concepts, tables,
         and axes/dimensions.
@@ -111,8 +133,7 @@ class Entrypoint(object):
         self.ts = taxonomy.semantic
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
-            raise Exception("There is no Orange Button entrypoint named {}."\
-                                .format(entrypoint_name))
+            raise Exception("There is no Orange Button entrypoint named {}.".format(entrypoint_name))
 
         # This gives me the list of every concept that could ever be
         # included in the document.
@@ -132,28 +153,31 @@ class Entrypoint(object):
 
         self.facts = {}
 
-
     def allowedConcepts(self):
+        """Return all allowed concepts."""
         return self._all_allowed_concepts
 
     def _find_tables(self):
         """
-        Uses relations to find all of the tables (hypercubes) allowed in
+        Find tables.
+
+        Use relations to find all of the tables (hypercubes) allowed in
         the document, and the axes and lineitems for each one.
         """
         # When there's an arcrole of "hypercube-dimensions", the "from"
         # is a hypercube/table, and the "to" is an axis.
+
         self._tables = {}
         axes = {}
         for relation in self.relations:
             if relation['role'] == 'hypercube-dimension':
                 table_name = relation['from']
                 axis_name = relation['to']
-                if not table_name in axes:
+                if table_name not in axes:
                     axes[table_name] = []
                 axes[table_name].append(axis_name)
         for table_name in axes:
-            self._tables[table_name] = Hypercube( table_name, axes[table_name] )
+            self._tables[table_name] = Hypercube(table_name, axes[table_name])
 
         # If there's an arcrole of "all" then the "from" is a LineItems
         # and the "to" is the table?  I think?
@@ -164,10 +188,8 @@ class Entrypoint(object):
                 table = self._tables[table_name]
                 table.addLineItem(line_item)
 
-
     def _find_parents(self):
-        # Put the concepts into a tree based on domain-member
-        # relations.
+        """Put the concepts into a tree based on domain-member relations."""
         all_my_concepts = {}
         for relation in self.relations:
             if relation['role'] == 'domain-member':
@@ -181,9 +203,11 @@ class Entrypoint(object):
         self.all_my_concepts = all_my_concepts
 
     def getTableNames(self):
+        """Return table names."""
         return self._tables.keys()
 
     def getTable(self, table_name):
+        """Return a given table."""
         return self._tables[table_name]
 
     def _identify_relations(self, concept_name):
@@ -191,24 +215,26 @@ class Entrypoint(object):
         # purposes. Do not use in production.
         from_me = [r for r in self.relations if r['from'] == concept_name]
         for x in from_me:
-            print( "{} -> {} -> {}".format(concept_name, x['role'], x['to']))
+            print("{} -> {} -> {}".format(concept_name, x['role'], x['to']))
         to_me = [r for r in self.relations if r['to'] == concept_name]
         for x in to_me:
-            print( "{} -> {} -> {}".format(x['from'], x['role'], concept_name))
+            print("{} -> {} -> {}".format(x['from'], x['role'], concept_name))
 
     def getTableForConcept(self, concept_name):
         """
+        Returns the table for a concept.
+
         Given a concept_name, returns the table (Hypercube object) which
         that concept belongs inside of, or None if there's no match.
         """
-        if not concept_name in self._all_allowed_concepts:
+        if concept_name not in self._all_allowed_concepts:
             raise Exception("{} is not an allowed concept for {}".format(
                 concept_name, self.entrypoint_name))
 
         # We know that a concept belongs in a table because the concept
         # is a descendant of a LineItem that has a relationship to the
         # table.
-        if not concept_name in self.all_my_concepts:
+        if concept_name not in self.all_my_concepts:
             return None
         ancestors = self.all_my_concepts[concept_name].getAncestors()
         for ancestor in ancestors:
@@ -220,6 +246,8 @@ class Entrypoint(object):
 
     def canWriteConcept(self, concept_name):
         """
+        Return whether a concept is writable.
+
         Returns True if concept_name is a writeable concept within this
         document. False for concepts not in this document or concepts that
         are only abstract parents of writeable concepts. e.g. you can't
@@ -235,6 +263,8 @@ class Entrypoint(object):
 
     def sufficientContext(self, concept_name, context):
         """
+        Return whether a context object has sufficient information.
+
         True if the given Context object contains all the information
         needed to provide full context for the named concept -- sufficient
         time period information (duration/instant), sufficient axes to place
@@ -244,6 +274,7 @@ class Entrypoint(object):
         # Refactor to put this logic into the Concept?
         # make the Context into an object instead of a dictionary?
         # do Context arguments as **kwargs ?
+
         metadata = self.ts.concept_info(concept_name)
         if metadata.period_type == taxonomy.PeriodType.duration:
             if not context.duration:
@@ -261,8 +292,12 @@ class Entrypoint(object):
                 raise Exception("Invalid duration in {} context".format(
                     concept_name))
 
+<<<<<<< HEAD
 
         if metadata.period_type == taxonomy.PeriodType.instant:
+=======
+        if metadata.period_type == "instant":
+>>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
             if not context.instant:
                 raise Exception("Missing required instant in {} context".format(
                     concept_name))
@@ -273,7 +308,7 @@ class Entrypoint(object):
         table = self.getTableForConcept(concept_name)
         if table is not None:
             for axis in table.axes():
-                if not axis in context.axes:
+                if axis not in context.axes:
                     raise Exception("Missing required {} axis for {}".format(
                         axis, concept_name))
                 # Check that the value given of context.axes[axis] is valid!
@@ -283,9 +318,10 @@ class Entrypoint(object):
 
         return True
 
-
     def set(self, concept, value, **kwargs):
         """
+        Fact placeholder.
+
         (Placeholder) Adds a fact to the document. The concept and the context
         together identify the fact to set, and the value will be stored for
         that fact.
@@ -302,13 +338,12 @@ class Entrypoint(object):
         entity = <entity name>
         *Axis = <value>  (the name of any Axis in a table in this entrypoint)
         """
-
         if "unit" in kwargs:
             unit = kwargs.pop("unit")
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
-        if not concept in self._all_allowed_concepts:
+        if concept not in self._all_allowed_concepts:
             raise Exception("{} is not allowed in the {} entrypoint".format(
                 concept, self.entrypoint_name))
         if not self.canWriteConcept(concept):
@@ -326,7 +361,7 @@ class Entrypoint(object):
             # In this case, use the default context if one has been set.
 
         if not self.sufficientContext(concept, context):
-            raise Exception("Insufficient context given for {}".format(concept))
+            raise Exception("Insufficient context for {}".format(concept))
 
         concept_ancestors = self.all_my_concepts[concept].getAncestors()
         concept_metadata = self.ts.concept_info(concept)
@@ -344,21 +379,20 @@ class Entrypoint(object):
         self.facts[concept] = value
 
         # concept_metadata properties:
-        #x.period_type
-        #x.nillable
-        #x.id
-        #x.name
-        #x.substitution_group
-        #x.type_name
-        #x.period_independent
+        # x.period_type
+        # x.nillable
+        # x.id
+        # x.name
+        # x.substitution_group
+        # x.type_name
+        # x.period_independent
         # Which will be useful for validation.
-
-
 
     def get(self, concept, context=None):
         """
-        (Placeholder) Returns the value of a fact previously set. The concept
-        and context together identify the fact to read.
+        (Placeholder) Returns the value of a fact previously set.
+
+        The concept and context together identify the fact to read.
         """
         # look up the facts we have
         # (context not needed if we only have one fact for this concept)
@@ -369,7 +403,9 @@ class Entrypoint(object):
 
     def isValid(self):
         """
-        (Placeholder) Returns true if all of the facts in the document validate.
+        (Placeholder).
+
+        Returns true if all of the facts in the document validate.
         i.e. they have allowed data types, allowed units, anything that needs
         to be in a table has all the required axis values to identify its place
         in that table, etc.
@@ -378,8 +414,9 @@ class Entrypoint(object):
 
     def isComplete(self):
         """
+        (Placeholder).
+
         (Placeholder) Returns true if no required facts are missing, i.e. if
         there is a value for all concepts with nillable=False
         """
         return True
-
