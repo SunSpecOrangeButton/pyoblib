@@ -292,12 +292,8 @@ class Entrypoint(object):
                 raise Exception("Invalid duration in {} context".format(
                     concept_name))
 
-<<<<<<< HEAD
 
         if metadata.period_type == taxonomy.PeriodType.instant:
-=======
-        if metadata.period_type == "instant":
->>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
             if not context.instant:
                 raise Exception("Missing required instant in {} context".format(
                     concept_name))

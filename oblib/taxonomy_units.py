@@ -15,13 +15,10 @@
 import xml.sax
 
 import constants
-<<<<<<< HEAD
 import taxonomy
 import util
-=======
 import os
 import sys
->>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Units from the units type registry file."""

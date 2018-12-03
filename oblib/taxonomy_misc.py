@@ -19,15 +19,9 @@ import constants
 
 
 #
-<<<<<<< HEAD
 # Note: All miscellaneous taxonomy files are covered except for solar-ref-roles which has only one
 # entry # (which happens to have the value "standard").  This file will not be covered 
 # programmatically in the initial release of pyoblib.
-=======
-# TODO: All taxonomy files are covered except for solar-ref-roles which
-# has only one entry.
-# It could be included for completeness.
->>>>>>> 0330fc421e8a5ff007163b677be4ef81bebc5a70
 #
 
 
