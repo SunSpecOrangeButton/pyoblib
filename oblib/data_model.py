@@ -21,7 +21,10 @@ class Hypercube(object):
     def __init__(self, table_name, axis_names):
         self._table_name = table_name
         self._axis_names = axis_names
-        self._line_items = []
+        self._allowed_line_items = []
+        # self.contexts stores a list of contexts that have been populated within
+        # this table instance.
+        self.contexts = []
 
     def name(self):
         return self._table_name
@@ -30,10 +33,66 @@ class Hypercube(object):
         return self._axis_names
 
     def addLineItem(self, line_item_name):
-        self._line_items = line_item_name
+        """
+        line_item_name is a string naming a concept. Call this function to tell
+        the hypercube that the named concept is an allowable line item within
+        this table.
+        """
+        self._allowed_line_items.append(line_item_name)
 
     def hasLineItem(self, line_item_name):
-        return line_item_name in self._line_items
+        return line_item_name in self._allowed_line_items
+
+    def get_or_create_context(self, **kwargs):
+        """
+        Either creates and stores a new context or returns an already
+        existing one matching kwargs.
+        """
+        # If we already made a context for this, return its ID.
+        # Otherwise, create a context, store it, and return new context ID.
+        for context in self.contexts:
+            if context.equals_args(**kwargs):
+                return context
+        new_context = Context(**kwargs)
+        # For the ID, just use "HypercubeName_serialNumber":
+        new_id = "%s_%d" % (self._table_name, len(self.contexts))
+        new_context.set_id(new_id)
+        self.contexts.append(new_context)
+        return new_context
+
+    def store_context(self, new_context):
+        # If we already have an equal context, re-use that one instead of creating
+        # another. Otherwise, assign the new context an ID within this table.
+        for context in self.contexts:
+            if context.equals_context(new_context):
+                return context
+        # For the ID, just use "HypercubeName_serialNumber":
+        new_id = "%s_%d" % (self._table_name, len(self.contexts))
+        new_context.set_id(new_id)
+        self.contexts.append(new_context)
+        return new_context
+
+    def lookup_context(self, old_context):
+        for context in self.contexts:
+            if context.equals_context(old_context):
+                return context
+        return None
+
+    def toXML(self):
+        return [context.toXML() for context in self.contexts]
+
+    #def getNamespace(self):
+    #    return self.namespace
+
+    #def isTypedDimension(self, dimensionName):
+    #    return (dimensionName in self.typedDimensionDomains)
+
+    #def getDomain(self, dimensionName):
+    #    return self.typedDimensionDomains[dimensionName]
+
+    # to
+
+    
 
 class Context(object):
     def __init__(self, **kwargs):
@@ -58,7 +117,115 @@ class Context(object):
             qualified_name = "solar:" + keyword
             self.axes[qualified_name] = kwargs[keyword]
 
+    def equals_args(self, **kwargs):
+        """
+        Returns true if the given keyword arguments match those of this instance.
+        False if any one differs.
+        """
+        if "entity" in kwargs:
+            new_entity = kwargs.pop("entity")
+            if new_entity != self.entity:
+                return False
+        elif hasattr(self, "entity"):
+            return False
 
+        if "instant" in kwargs:
+            new_instant = kwargs.pop("instant")
+            if new_instant != self.instant:
+                return False
+        elif hasattr(self, "instant"):
+            return False
+
+        if "duration" in kwargs:
+            new_duration = kwargs.pop("duration")
+            if new_duration != self.duration:
+                # TODO does this work if they're tuples of (start, end) ?
+                return False
+        elif hasattr(self, "duration"):
+            return False
+
+        for axis_name, axis_value in self.axes.items():
+            unqualified_axis_name = axis_name.replace("solar:", "")
+            if not unqualified_axis_name in kwargs:
+                return False
+            new_axis_val = kwargs.pop(unqualified_axis_name)
+            if new_axis_val != axis_value:
+                return False
+
+        if len(kwargs) > 0:
+            # extra kwargs were given that don't match anything in this context
+            return False
+
+        return True
+
+    def equals_context(self, other_context):
+        if hasattr(other_context, "entity") and hasattr(self, "entity"):
+            if other_context.entity != self.entity:
+                return False
+        elif hasattr(other_context, "entity") or hasattr(self, "entity"):
+            return False
+
+        if hasattr(other_context, "instant") and hasattr(self, "instant"):
+            if other_context.instant != self.instant:
+                return False
+        elif hasattr(self, "instant") or hasattr(self, "instant"):
+            return False
+
+        if hasattr(other_context, "duration") and hasattr(self, "duration"):
+            if other_context.duration != self.duration:
+                # TODO does this work if they're tuples of (start, end) ?
+                return False
+        elif hasattr(other_context, "duration") or hasattr(self, "duration"):
+            return False
+
+        for axis_name, axis_value in self.axes.items():
+            if not axis_name in other_context.axes:
+                return False
+            if axis_value != other_context.axes[axis_name]:
+                return False
+
+        for axis_name in other_context.axes:
+            if not axis_name in self.axes:
+                # extra axes in other context not present in this one:
+                return False
+
+        return True
+
+    def set_id(self, new_id):
+        self._id = new_id
+
+    def get_id(self):
+        return self._id
+
+    # def toXML(self):
+    # def toJSON(self):
+
+
+class Fact(object):
+    """
+    Represents an XBRL Fact, linked to a context, that can be exported
+    as either XML or JSON.
+    """
+    def __init__(self, concept, context, units, value, decimals=2):
+        """
+        Concept is the field name - it must match the schema definition.
+        Context is a reference to this fact's parent Context object.
+        Units is a string naming the unit, for example "kWh"
+        Value is a string, integer, or float
+        Decimals is used only for float types, it is the number of
+        digits 
+        """
+        # in case of xml the context ID will be rendered in the fact tag.
+        # in case of json the contexts' attributes will be copied to the
+        # fact's aspects.
+        self.concept = concept
+        self.value = value
+        self.context = context
+        self.units = units
+        self.decimals = decimals
+    # def toXML(self):
+    # def toJSON(self):
+        
 class Concept(object):
     def __init__(self, concept_name):
         self.name = concept_name
@@ -239,9 +406,7 @@ class Entrypoint(object):
         the fact within its table, etc.
         Otherwise, raises an exception explaining what is wrong.
         """
-        # Refactor to put this logic into the Concept?
-        # make the Context into an object instead of a dictionary?
-        # do Context arguments as **kwargs ?
+        # TODO Refactor to put this logic into the Concept?
         metadata = self.ts.concept_info(concept_name)
         if metadata.period_type == "duration":
             if not context.duration:
@@ -303,6 +468,8 @@ class Entrypoint(object):
 
         if "unit" in kwargs:
             unit = kwargs.pop("unit")
+        else:
+            unit = "None"
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
@@ -326,8 +493,9 @@ class Entrypoint(object):
         if not self.sufficientContext(concept, context):
             raise Exception("Insufficient context given for {}".format(concept))
 
-        concept_ancestors = self.all_my_concepts[concept].getAncestors()
-        concept_metadata = self.ts.concept_info(concept)
+        # TODO move these two to the Concept class?
+        # concept_ancestors = self.all_my_concepts[concept].getAncestors()
+        # concept_metadata = self.ts.concept_info(concept)
         table = self.getTableForConcept(concept)
 
         # complain if value is invalid for concept
@@ -336,10 +504,20 @@ class Entrypoint(object):
         # complain if context has wrong duration/instant type
         # add to facts
 
-        # figure out the data structure for facts that can be keyed on
-        # context as well as concept.  Probably need to copy over the logic
-        # from py-xbrl-generator that turns context values into a context ID.
-        self.facts[concept] = value
+        context = table.store_context(context) # dedupes, assigns ID
+
+        f = Fact(concept, context, unit, value)
+        # TODO pass in decimals? Fact expects decimals and "precision" is slightly different
+
+        # self.facts is nested dict keyed first on table then on context ID
+        # and finally on concept:
+        if not table.name() in self.facts:
+            self.facts[table.name()] = {}
+        if not context.get_id() in self.facts[table.name()]:
+            self.facts[table.name()][context.get_id()] = {}
+        # TODO simplify above with defaultdict
+        
+        self.facts[table.name()][context.get_id()][concept] = f
 
         # concept_metadata properties:
         #x.period_type
@@ -355,15 +533,26 @@ class Entrypoint(object):
 
     def get(self, concept, context=None):
         """
-        (Placeholder) Returns the value of a fact previously set. The concept
+        Returns the value of a fact previously set. The concept
         and context together identify the fact to read.
         """
         # look up the facts we have
-        # (context not needed if we only have one fact for this concept)
         # complain if no value for concept
-        # complain if context needed and not provided
-        #
-        return self.facts[concept]
+        # complain if context needed and not providedd
+
+        # TODO support case where no context passed in?  (use default
+        # context I guess?)
+
+        # TODO support getting by kwargs instead of getting by context?
+
+        table = self.getTableForConcept(concept)
+        context = table.lookup_context(context)
+        if table.name() in self.facts:
+            if context.get_id() in self.facts[table.name()]:
+                if concept in self.facts[table.name()][context.get_id()]:
+                    return self.facts[table.name()][context.get_id()][concept]
+        return None
+    
 
     def isValid(self):
         """

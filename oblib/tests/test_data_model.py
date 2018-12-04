@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from data_model import Entrypoint, Context
+from data_model import Entrypoint, Context, Hypercube
 from datetime import datetime
 from taxonomy import getTaxonomy
 
@@ -203,14 +203,23 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis = "placeholder",
                 )
+        now = datetime.now()
         doc.set("solar:DeviceCost", 100,
-                instant= datetime.now(),
+                instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "placeholder",
                 unit="dollars")
 
-        self.assertEqual( doc.get("solar:TypeOfDevice", {}), "Module")
-        self.assertEqual( doc.get("solar:DeviceCost", {}), 100)
+        typeFact = doc.get("solar:TypeOfDevice",
+                        Context(duration="forever",
+                                ProductIdentifierAxis= "placeholder",
+                                TestConditionAxis = "placeholder"))
+        self.assertEqual( typeFact.value,  "Module")
+        costFact = doc.get("solar:DeviceCost",
+                           Context(instant = now,
+                                ProductIdentifierAxis= "placeholder",
+                                TestConditionAxis = "placeholder"))
+        self.assertEqual( costFact.value, 100)
         # TODO: DeviceCost should require units
 
     def test_set_context_arg(self):
@@ -232,12 +241,62 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc.set("solar:DeviceCost", 100, context=ctx, unit="dollars")
 
 
-
     def test_set_raises_exception(self):
         # Tests the case where .set() is called incorrectly. It should
         # raise exceptions if required information is missing.
+        doc = Entrypoint("CutSheet", self.taxonomy)
         with self.assertRaises(Exception):
             doc.set("solar:TypeOfDevice", "Module", {})
 
         with self.assertRaises(Exception):
             doc.set("solar:DeviceCost", 100, {})
+
+    def test_hypercube_store_context(self):
+        table = Hypercube("solar:InverterPowerLevelTable",
+                          ["solar:ProductIdentifierAxis",
+                           "solar:InverterPowerLevelPercentAxis"])
+
+        c1 = table.get_or_create_context(duration = "forever",
+                                         entity = "JUPITER",
+                                         ProductIdentifierAxis = "ABCD",
+                                         InverterPowerLevelPercentAxis = 50)
+        self.assertEqual(c1.get_id(), "solar:InverterPowerLevelTable_0")
+        c2 = table.get_or_create_context(duration = "forever",
+                                         entity = "JUPITER",
+                                         ProductIdentifierAxis = "ABCD",
+                                         InverterPowerLevelPercentAxis = 50) # Same
+        self.assertIs(c1, c2)
+        c3 = table.get_or_create_context(duration = "forever",
+                                         entity = "JUPITER",
+                                         ProductIdentifierAxis = "ABCD",
+                                         InverterPowerLevelPercentAxis = 75) # Different
+        self.assertIsNot(c1, c3)
+
+
+    def test_facts_stored_with_context(self):
+        # Test we can store 2 facts of the same concept but with different
+        # contexts, and pull them both back out.
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        concept = "solar:InverterCutSheetNotes"
+
+        ctx_jan = Context(duration={"start": datetime(year=2018, month=1, day=1),
+                                   "end": datetime(year=2018, month=2, day=1)},
+                          entity="JUPITER",
+                          ProductIdentifierAxis= "placeholder",
+                          TestConditionAxis = "placeholder")
+        ctx_feb = Context(duration={"start": datetime(year=2018, month=2, day=1),
+                                   "end": datetime(year=2018, month=3, day=1)},
+                          entity="JUPITER",
+                          ProductIdentifierAxis= "placeholder",
+                          TestConditionAxis = "placeholder")
+    
+        doc.set(concept, "Jan Value", context=ctx_jan)
+        doc.set(concept, "Feb Value", context=ctx_feb)
+
+        jan_fact = doc.get(concept, context=ctx_jan)
+        feb_fact = doc.get(concept, context=ctx_feb)
+
+        self.assertEqual(jan_fact.value, "Jan Value")
+        self.assertEqual(feb_fact.value, "Feb Value")
+                
+    # TODO test getting with a mismatching context, should give None.
