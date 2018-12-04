@@ -16,6 +16,8 @@ import unittest
 from data_model import Entrypoint, Context, Hypercube
 from datetime import datetime
 from taxonomy import getTaxonomy
+from lxml import etree
+import json
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -256,20 +258,20 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           ["solar:ProductIdentifierAxis",
                            "solar:InverterPowerLevelPercentAxis"])
 
-        c1 = table.get_or_create_context(duration = "forever",
+        c1 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
                                          ProductIdentifierAxis = "ABCD",
-                                         InverterPowerLevelPercentAxis = 50)
+                                         InverterPowerLevelPercentAxis = 50))
         self.assertEqual(c1.get_id(), "solar:InverterPowerLevelTable_0")
-        c2 = table.get_or_create_context(duration = "forever",
+        c2 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
                                          ProductIdentifierAxis = "ABCD",
-                                         InverterPowerLevelPercentAxis = 50) # Same
+                                         InverterPowerLevelPercentAxis = 50)) # Same
         self.assertIs(c1, c2)
-        c3 = table.get_or_create_context(duration = "forever",
+        c3 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
                                          ProductIdentifierAxis = "ABCD",
-                                         InverterPowerLevelPercentAxis = 75) # Different
+                                         InverterPowerLevelPercentAxis = 75)) # Different
         self.assertIsNot(c1, c3)
 
 
@@ -300,3 +302,96 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(feb_fact.value, "Feb Value")
                 
     # TODO test getting with a mismatching context, should give None.
+
+    def test_conversion_to_xml(self):
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        doc.set("solar:TypeOfDevice", "Module",
+                entity="JUPITER",
+                duration="forever",
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis = "placeholder",
+                )
+        now = datetime.now()
+        doc.set("solar:DeviceCost", 100,
+                entity="JUPITER",
+                instant= now,
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "placeholder",
+                unit="dollars")
+        xml = doc.toXMLString()
+
+        root = etree.fromstring(xml)
+
+        self.assertEqual( len(root.getchildren()), 5)
+        # top-level xml should have child <link:schemaRef> and then the other children are contexts and facts
+        schemaRef = root.getchildren()[0]
+        self.assertEqual( schemaRef.tag, "{http://www.xbrl.org/2003/linkbase}schemaRef" )
+        
+        contexts = root.findall('{http://www.xbrl.org/2003/instance}context')
+        self.assertEqual(len(contexts), 2)
+
+        # Expect to see two facts solar:DeviceCost and solar:TypeOfDevice,
+        # each containing text of the fact value
+        costFact = root.find('{http://xbrl.us/Solar/v1.2/2018-03-31/solar}DeviceCost')
+        typeFact = root.find('{http://xbrl.us/Solar/v1.2/2018-03-31/solar}TypeOfDevice')
+        self.assertEqual(costFact.text, "100")
+        self.assertEqual(typeFact.text, "Module")
+        # They should have contextRef and unitRef attributes:
+        self.assertEqual(typeFact.attrib['unitRef'], "None")
+        self.assertEqual(typeFact.attrib['contextRef'], "solar:CutSheetDetailsTable_0")
+            
+        self.assertEqual(costFact.attrib['unitRef'], "dollars")
+        self.assertEqual(costFact.attrib['contextRef'], "solar:CutSheetDetailsTable_1")
+
+        
+        # expect to see 2 contexts with id "solar:CutSheetDetailsTable_0" and "solar:CutSheetDetailsTable_1"
+        # both should have entity tag containing identifier containing text JUPITER
+        # both should have segment containing xbrldi:explicitMember dimension="<axis name>" containing text placeholder
+        # one should have period containing <forever/> other should have period containing <instant> containing today's date.
+
+
+
+
+    def test_conversion_to_json(self):
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        doc.set("solar:TypeOfDevice", "Module",
+                entity="JUPITER",
+                duration="forever",
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis = "placeholder",
+                )
+        now = datetime.now()
+        doc.set("solar:DeviceCost", 100,
+                entity="JUPITER",
+                instant= now,
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "placeholder",
+                unit="dollars")
+        jsonstring = doc.toJSONString()
+
+        root = json.loads(jsonstring)
+
+        # should have 2 facts:
+        self.assertEqual( len(root['facts']), 2)
+
+        # each should have expected 'value' and 'aspects':
+        typeFact = root['facts'][1]
+        self.assertEqual(typeFact['value'], 'Module')
+        
+        self.assertEqual(typeFact['aspects']['xbrl:concept'], 'solar:TypeOfDevice')
+        self.assertEqual(typeFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
+        self.assertEqual(typeFact['aspects']['solar:TestConditionAxis'], 'placeholder')
+        self.assertEqual(typeFact['aspects']['xbrl:entity'], 'JUPITER')
+        self.assertEqual(typeFact['aspects']['xbrl:period'], 'forever')
+        self.assertEqual(typeFact['aspects']['xbrl:unit'], 'None')
+
+
+        costFact = root['facts'][0]
+        self.assertEqual(costFact['value'], '100')
+        self.assertEqual(costFact['aspects']['xbrl:concept'], 'solar:DeviceCost')
+        self.assertEqual(costFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
+        self.assertEqual(costFact['aspects']['solar:TestConditionAxis'], 'placeholder')
+        self.assertEqual(costFact['aspects']['xbrl:entity'], 'JUPITER')
+        self.assertEqual(costFact['aspects']['xbrl:instant'], now.strftime("%Y-%m-%d"))
+        self.assertEqual(costFact['aspects']['xbrl:unit'], 'dollars')
+

@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import xml.etree.ElementTree
+from xml.etree.ElementTree import Element, SubElement
+import datetime
+import json
 
 class Hypercube(object):
     """
@@ -43,24 +47,12 @@ class Hypercube(object):
     def hasLineItem(self, line_item_name):
         return line_item_name in self._allowed_line_items
 
-    def get_or_create_context(self, **kwargs):
+    def store_context(self, new_context):
         """
         Either creates and stores a new context or returns an already
         existing one matching kwargs.
         """
-        # If we already made a context for this, return its ID.
-        # Otherwise, create a context, store it, and return new context ID.
-        for context in self.contexts:
-            if context.equals_args(**kwargs):
-                return context
-        new_context = Context(**kwargs)
-        # For the ID, just use "HypercubeName_serialNumber":
-        new_id = "%s_%d" % (self._table_name, len(self.contexts))
-        new_context.set_id(new_id)
-        self.contexts.append(new_context)
-        return new_context
 
-    def store_context(self, new_context):
         # If we already have an equal context, re-use that one instead of creating
         # another. Otherwise, assign the new context an ID within this table.
         for context in self.contexts:
@@ -68,7 +60,7 @@ class Hypercube(object):
                 return context
         # For the ID, just use "HypercubeName_serialNumber":
         new_id = "%s_%d" % (self._table_name, len(self.contexts))
-        new_context.set_id(new_id)
+        new_context.set_id(self, new_id)
         self.contexts.append(new_context)
         return new_context
 
@@ -81,21 +73,23 @@ class Hypercube(object):
     def toXML(self):
         return [context.toXML() for context in self.contexts]
 
-    #def getNamespace(self):
-    #    return self.namespace
+    def isTypedDimension(self, dimensionName):
+        # return (dimensionName in self.typedDimensionDomains)
+        return False
 
-    #def isTypedDimension(self, dimensionName):
-    #    return (dimensionName in self.typedDimensionDomains)
+    def getDomain(self, dimensionName):
+        # this should be: self.ts.concept_info('solar:ProductIdentifierAxis').typed_domain_ref
+        # return self.typedDimensionDomains[dimensionName]
+        return ""
 
-    #def getDomain(self, dimensionName):
-    #    return self.typedDimensionDomains[dimensionName]
-
-    # to
-
-    
 
 class Context(object):
+    """
+    """
     def __init__(self, **kwargs):
+        self.instant = None
+        self.duration = None
+        self.entity = None
         # kwargs must provide exactly one of instant or duration
         if "instant" in kwargs and "duration" in kwargs:
             raise Exception("Context given both instant and duration")
@@ -117,65 +111,21 @@ class Context(object):
             qualified_name = "solar:" + keyword
             self.axes[qualified_name] = kwargs[keyword]
 
-    def equals_args(self, **kwargs):
-        """
-        Returns true if the given keyword arguments match those of this instance.
-        False if any one differs.
-        """
-        if "entity" in kwargs:
-            new_entity = kwargs.pop("entity")
-            if new_entity != self.entity:
-                return False
-        elif hasattr(self, "entity"):
-            return False
+        # TODO store a reference to my parent hypercube?
+        self.id_scheme = "http://xbrl.org/entity/identification/scheme" #???
 
-        if "instant" in kwargs:
-            new_instant = kwargs.pop("instant")
-            if new_instant != self.instant:
-                return False
-        elif hasattr(self, "instant"):
-            return False
-
-        if "duration" in kwargs:
-            new_duration = kwargs.pop("duration")
-            if new_duration != self.duration:
-                # TODO does this work if they're tuples of (start, end) ?
-                return False
-        elif hasattr(self, "duration"):
-            return False
-
-        for axis_name, axis_value in self.axes.items():
-            unqualified_axis_name = axis_name.replace("solar:", "")
-            if not unqualified_axis_name in kwargs:
-                return False
-            new_axis_val = kwargs.pop(unqualified_axis_name)
-            if new_axis_val != axis_value:
-                return False
-
-        if len(kwargs) > 0:
-            # extra kwargs were given that don't match anything in this context
-            return False
-
-        return True
+    def set_cube(self, hypercube):
+        self.hypercube = hypercube
 
     def equals_context(self, other_context):
-        if hasattr(other_context, "entity") and hasattr(self, "entity"):
-            if other_context.entity != self.entity:
-                return False
-        elif hasattr(other_context, "entity") or hasattr(self, "entity"):
+        if other_context.entity != self.entity:
             return False
 
-        if hasattr(other_context, "instant") and hasattr(self, "instant"):
-            if other_context.instant != self.instant:
-                return False
-        elif hasattr(self, "instant") or hasattr(self, "instant"):
+        if other_context.instant != self.instant:
             return False
 
-        if hasattr(other_context, "duration") and hasattr(self, "duration"):
-            if other_context.duration != self.duration:
-                # TODO does this work if they're tuples of (start, end) ?
-                return False
-        elif hasattr(other_context, "duration") or hasattr(self, "duration"):
+        if other_context.duration != self.duration:
+            # TODO does this work if they're tuples of (start, end) ?
             return False
 
         for axis_name, axis_value in self.axes.items():
@@ -191,14 +141,86 @@ class Context(object):
 
         return True
 
-    def set_id(self, new_id):
+    def set_id(self, hypercube, new_id):
+        self.hypercube = hypercube
         self._id = new_id
 
     def get_id(self):
         return self._id
 
-    # def toXML(self):
-    # def toJSON(self):
+    def toXML(self):
+        # if neither prod_month nor instant is provided, then period will
+        # be "forever"
+        context = Element("context", attrib={"id": self.get_id()})
+        entity = SubElement(context, "entity")
+        identifier = SubElement(entity, "identifier",
+                                attrib={"scheme": self.id_scheme})
+        identifier.text = self.entity
+
+        # Period (instant or duration):
+        period = SubElement(context, "period")
+
+        if self.duration == "forever":
+            forever = SubElement(period, "forever")
+        elif self.duration is not None:
+            startDate = SubElement(period, "startDate")
+            startDate.text = self.duration[0].strftime("%Y-%m-%d")
+            endDate = SubElement(period, "endDate")
+            endDate.text = self.duration[1].strftime("%Y-%m-%d")
+        elif self.instant is not None:
+            instant_elem = SubElement(period, "instant")
+            instant_elem.text = self.instant.strftime("%Y-%m-%d")
+
+
+        # Extra dimensions:
+        if len(self.axes) > 0:
+            segmentElem = SubElement(entity, "segment")
+
+        for dimension in self.axes:
+            # First figure out if dimension is typed or untyped:
+
+            if self.hypercube.isTypedDimension(dimension):
+                typedMember = SubElement(
+                    segmentElem, "xbrldi:typedMember",
+                    attrib = {"dimension": dimension})
+                domainElem = self.hypercube.getDomain(dimension)
+                domain = SubElement(typedMember, domainElem)
+                domain.text = str(self.axes[dimension])
+
+            else:
+                # if it's not one of the above, then it's an explicit dimension:
+                explicit = SubElement(segmentElem, "xbrldi:explicitMember", attrib={
+                    "dimension": dimension
+                    })
+                explicit.text = str(self.axes[dimension])
+        return context
+
+    def toJSON(self):
+        """
+        Returns context's entity, period, and extra dimensions as JSON dictionary
+        object.
+        """
+        aspects = {"xbrl:entity": self.entity}
+        if self.duration == "forever":
+            aspects["xbrl:period"] = "forever" # TODO is this right syntax???
+        elif self.duration is not None:
+            aspects["xbrl:periodStart"] = self.duration[0].strftime("%Y-%m-%d")
+            aspects["xbrl:periodEnd"] = self.duration[1].strftime("%Y-%m-%d")
+        elif self.instant is not None:
+            aspects["xbrl:instant"] = self.instant.strftime("%Y-%m-%d")
+            # TODO is this the right syntax???
+
+        for dimension in self.axes:
+            # TODO is there a difference in how typed axes vs explicit axes
+            # are represented in JSON?
+            if self.hypercube.isTypedDimension(dimension):
+            #if dimension in self.typedDimensionDomains:
+                value_str = self.axes[dimension]
+            else:
+                value_str = self.axes[dimension]
+            aspects[dimension] = value_str
+
+        return aspects
 
 
 class Fact(object):
@@ -223,14 +245,67 @@ class Fact(object):
         self.context = context
         self.units = units
         self.decimals = decimals
-    # def toXML(self):
-    # def toJSON(self):
-        
+
+    def toXML(self):
+        """
+        Return the Fact as an XML element.
+        """
+        attribs = {"contextRef": self.context.get_id()}
+        if self.units is not None:
+            attribs["unitRef"] = self.units
+            if self.units == "pure" or self.units == "degrees":
+                attribs["decimals"] = "0"
+            else:
+                attribs["decimals"] = str(self.decimals)
+        elem = Element(self.concept, attrib=attribs)
+        if self.units == "pure":
+            elem.text = "%d" % self.value
+        else:
+            elem.text = str(self.value)
+        return elem
+
+
+    def toJSON(self):
+        """
+        Return the Fact as a JSON dictionary object
+        """
+        aspects = self.context.toJSON()
+        aspects["xbrl:concept"] = self.concept
+        if self.units is not None:
+            aspects["xbrl:unit"] = self.units
+
+        if isinstance( self.value, datetime.datetime):
+            value_str = self.value.strftime("%Y-%m-%d")
+        else:
+            value_str = str(self.value)
+        return { "aspects": aspects,
+                 "value": value_str}
+
+
 class Concept(object):
+    """
+    Currently only used as nodes in a tree data structure to keep track of which
+    concepts are parents/children of other concepts in the schema hierarchy.
+    """
     def __init__(self, concept_name):
         self.name = concept_name
         self.parent = None
         self.children = []
+
+        # Some info we might want this class to store about its concept:
+        # concept_ancestors = EntryPoint.all_my_concepts[concept].getAncestors()
+        # concept_metadata = EntryPoint.ts.concept_info(concept)
+
+        # concept_metadata properties:
+        #x.period_type
+        #x.nillable
+        #x.id
+        #x.name
+        #x.substitution_group
+        #x.type_name
+        #x.period_independent
+        # Which will be useful for validation.
+
 
     def setParent(self, new_parent):
         self.parent = new_parent
@@ -296,6 +371,17 @@ class Entrypoint(object):
         self._find_parents()
 
         self.facts = {}
+        self.namespaces = {
+            "xmlns": "http://www.xbrl.org/2003/instance",
+            "xmlns:link": "http://www.xbrl.org/2003/linkbase",
+            "xmlns:xlink": "http://www.w3.org/1999/xlink",
+            "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "xmlns:units": "http://www.xbrl.org/2009/utr",
+            "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
+            "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+        }
+        self.taxonomy = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
+
 
 
     def allowedConcepts(self):
@@ -310,6 +396,7 @@ class Entrypoint(object):
         # is a hypercube/table, and the "to" is an axis.
         self._tables = {}
         axes = {}
+        # TODO move more of this logic to Hypercube constructor.
         for relation in self.relations:
             if relation['role'] == 'hypercube-dimension':
                 table_name = relation['from']
@@ -318,6 +405,9 @@ class Entrypoint(object):
                     axes[table_name] = []
                 axes[table_name].append(axis_name)
         for table_name in axes:
+            # TODO let's initialize a Concept instance for each axis,
+            # pass those instances to the Hypercube instead of just
+            # their names.
             self._tables[table_name] = Hypercube( table_name, axes[table_name] )
 
         # If there's an arcrole of "all" then the "from" is a LineItems
@@ -493,9 +583,6 @@ class Entrypoint(object):
         if not self.sufficientContext(concept, context):
             raise Exception("Insufficient context given for {}".format(concept))
 
-        # TODO move these two to the Concept class?
-        # concept_ancestors = self.all_my_concepts[concept].getAncestors()
-        # concept_metadata = self.ts.concept_info(concept)
         table = self.getTableForConcept(concept)
 
         # complain if value is invalid for concept
@@ -518,16 +605,8 @@ class Entrypoint(object):
         # TODO simplify above with defaultdict
         
         self.facts[table.name()][context.get_id()][concept] = f
-
-        # concept_metadata properties:
-        #x.period_type
-        #x.nillable
-        #x.id
-        #x.name
-        #x.substitution_group
-        #x.type_name
-        #x.period_independent
-        # Which will be useful for validation.
+        # Or: we could keep facts in a flat list, and get() could look them
+        # up by getting context from hypercube and getting fact from context
 
 
 
@@ -552,7 +631,92 @@ class Entrypoint(object):
                 if concept in self.facts[table.name()][context.get_id()]:
                     return self.facts[table.name()][context.get_id()][concept]
         return None
-    
+
+    def get_facts(self):
+        # return flattened list of facts
+        all_facts = []
+        for table_dict in self.facts.values():
+            for context_dict in table_dict.values():
+                for fact in context_dict.values():
+                    all_facts.append(fact)
+        return all_facts
+
+
+    def toXMLTag(self):
+        # The root element:
+        xbrl = Element("xbrl", attrib = self.namespaces)
+
+        # Add "link:schemaRef" for the taxonomy that goes with this document:
+        link = SubElement(xbrl, "link:schemaRef",
+                          attrib = {"xlink:href": self.taxonomy,
+                                    "xlink:type": "simple"})
+
+        # Add a context tag for each context we want to reference:
+        for hypercube in self._tables.values():
+            tags = hypercube.toXML()
+            for tag in tags:
+                xbrl.append(tag)
+
+        # TODO support units:
+        #for unit in self.get_required_units():
+        #    # Add a unit tag defining each unit we want to reference:
+        #    xbrl.append(self.makeUnitTag(unit))
+
+        for fact in self.get_facts():
+            xbrl.append( fact.toXML() )
+
+        return xbrl
+
+    def toXML(self, filename):
+        """
+        Exports XBRL as XML to the given filename.
+        """
+        xbrl = self.toXMLTag()
+        tree = xml.etree.ElementTree.ElementTree(xbrl)
+        # Apparently every XML file should start with this, which ElementTree
+        # doesn't do:
+        # <?xml version="1.0" encoding="utf-8"?>
+        tree.write(filename)
+
+    def toXMLString(self):
+        """
+        Returns XBRL as an XML string
+        """
+        xbrl = self.toXMLTag()
+        return xml.etree.ElementTree.tostring(xbrl).decode()
+
+
+    def toJSON(self, filename):
+        """
+        Exports XBRL as JSON to the given filename.
+        """
+
+        outfile = open(filename, "w")
+        outfile.write(self.toJSONString())
+        outfile.close()
+
+    def toJSONString(self):
+        """
+        Returns XBRL as a JSON string
+        """
+        masterJsonObj = {
+            "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
+            "prefixes": self.namespaces,
+            "dtsReferences": [],
+            "facts": []
+            }
+
+        masterJsonObj["dtsReferences"].append({
+            "type": "schema",
+            "href": self.taxonomy
+        })
+
+        facts = self.get_facts()
+
+        for fact in facts:
+            masterJsonObj["facts"].append( fact.toJSON() )
+        return json.dumps(masterJsonObj)
+
 
     def isValid(self):
         """
