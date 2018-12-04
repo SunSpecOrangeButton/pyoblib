@@ -131,6 +131,7 @@ class Entrypoint(object):
         object.
         """
         self.ts = taxonomy.semantic
+        self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}.".format(entrypoint_name))
@@ -334,8 +335,9 @@ class Entrypoint(object):
         entity = <entity name>
         *Axis = <value>  (the name of any Axis in a table in this entrypoint)
         """
-        if "unit" in kwargs:
-            unit = kwargs.pop("unit")
+        if "unit_name" in kwargs:
+            unit_name = kwargs.pop("unit_name")
+            valid_unit_name = self.tu.validate_unit("unit_name", unit_name)
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 

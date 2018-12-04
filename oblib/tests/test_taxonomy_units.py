@@ -27,12 +27,18 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertEqual(len(tax.units()), 296)
 
     def test_validate_unit(self):
-        self.assertTrue(tax.validate_unit("acre"))
-        self.assertTrue(tax.validate_unit("oz"))
-        self.assertTrue(tax.validate_unit("rad"))
-        self.assertFalse(tax.validate_unit("acrre"))
-        self.assertFalse(tax.validate_unit("ozz"))
-        self.assertFalse(tax.validate_unit("rrad"))
+        self.assertTrue(tax.validate_unit("unit_id", "acre"))
+        self.assertTrue(tax.validate_unit("unit_id", "oz"))
+        self.assertTrue(tax.validate_unit("unit_id", "rad"))
+        self.assertFalse(tax.validate_unit("unit_id", "acrre"))
+        self.assertFalse(tax.validate_unit("unit_id", "ozz"))
+        self.assertFalse(tax.validate_unit("unit_id", "rrad"))
+        self.assertTrue(tax.validate_unit("unit_name", "Acre"))
+        self.assertTrue(tax.validate_unit("unit_name", "Ounce"))
+        self.assertTrue(tax.validate_unit("unit_name", "Radian"))
+        self.assertFalse(tax.validate_unit("unit_name", "acrre"))
+        self.assertFalse(tax.validate_unit("unit_name", "ozz"))
+        self.assertFalse(tax.validate_unit("unit_name", "rrad"))
 
     def test_unit(self):
         unit = tax.unit("VAh")
