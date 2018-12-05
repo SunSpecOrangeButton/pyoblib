@@ -207,7 +207,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= datetime.now(),
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "placeholder",
-                unit_id="dollars")
+                unit_name="dollars")
 
         self.assertEqual( doc.get("solar:TypeOfDevice", {}), "Module")
         self.assertEqual( doc.get("solar:DeviceCost", {}), 100)
@@ -229,7 +229,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
                       TestConditionAxis = "placeholder")
-        doc.set("solar:DeviceCost", 100, context=ctx, unit_id="dollars")
+        doc.set("solar:DeviceCost", 100, context=ctx, unit_name="dollars")
 
 
 
