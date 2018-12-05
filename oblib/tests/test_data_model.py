@@ -210,7 +210,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="dollars")
+                unit="USD")
 
         typeFact = doc.get("solar:TypeOfDevice",
                         Context(duration="forever",
@@ -241,7 +241,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
                       TestConditionAxis = "solar:StandardTestConditionMember")
-        doc.set("solar:DeviceCost", 100, context=ctx, unit="dollars")
+        doc.set("solar:DeviceCost", 100, context=ctx, unit="USD")
 
         # Get the data bacK:
         typeFact = doc.get("solar:TypeOfDevice",
@@ -331,13 +331,13 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="dollars")
+                unit="USD")
         xml = doc.toXMLString()
-
         root = etree.fromstring(xml)
 
-        self.assertEqual( len(root.getchildren()), 5)
-        # top-level xml should have child <link:schemaRef> and then the other children are contexts and facts
+
+        self.assertEqual( len(root.getchildren()), 6)
+        # top-level xml should have child <link:schemaRef>, one <unit>, two <context>s and two <fact>s.
         schemaRef = root.getchildren()[0]
         self.assertEqual( schemaRef.tag, "{http://www.xbrl.org/2003/linkbase}schemaRef" )
 
@@ -377,7 +377,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
             tag = period.getchildren()[0].tag
             self.assertTrue(tag == "{http://www.xbrl.org/2003/instance}instant" or\
                             tag == "{http://www.xbrl.org/2003/instance}forever")
-            
+
+        # Expect one unit tag with id=USD containing <measure>units:USD</measure>
+        unit_tag = root.findall("{http://www.xbrl.org/2003/instance}unit")
+        self.assertEqual(len(unit_tag), 1)
+        self.assertEqual(unit_tag[0].attrib["id"], "USD")
+        self.assertEqual(unit_tag[0].getchildren()[0].text, "units:USD")
 
         # Expect to see two facts solar:DeviceCost and solar:TypeOfDevice,
         # each containing text of the fact value
@@ -385,12 +390,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         typeFact = root.find('{http://xbrl.us/Solar/v1.2/2018-03-31/solar}TypeOfDevice')
         self.assertEqual(costFact.text, "100")
         self.assertEqual(typeFact.text, "Module")
-        # They should have contextRef and unitRef attributes:
-        self.assertEqual(typeFact.attrib['unitRef'], "None")
+        # They should have contextRef and (in the case of cost) unitRef attributes:
         self.assertEqual(typeFact.attrib['contextRef'], "solar:CutSheetDetailsTable_0")
-            
-        self.assertEqual(costFact.attrib['unitRef'], "dollars")
+        self.assertEqual(costFact.attrib['unitRef'], "USD")
         self.assertEqual(costFact.attrib['contextRef'], "solar:CutSheetDetailsTable_1")
+        # TODO should TypeOfDevice have unitRef = "None" or should it not have a unitRef?
+        # i'm assuming the latter.
 
 
     def test_conversion_to_json(self):
@@ -407,7 +412,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="dollars")
+                unit="USD")
         jsonstring = doc.toJSONString()
 
         root = json.loads(jsonstring)
@@ -425,8 +430,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
                              "solar:StandardTestConditionMember")
         self.assertEqual(typeFact['aspects']['xbrl:entity'], 'JUPITER')
         self.assertEqual(typeFact['aspects']['xbrl:period'], 'forever')
-        self.assertEqual(typeFact['aspects']['xbrl:unit'], 'None')
-
+        # TODO if there's no unit is it correct to write 'xbrl:unit':'None' or to leave out
+        # xbrl:unit?  Currently assuming we leave it out:
+        self.assertNotIn("xbrl:unit", typeFact["aspects"])
 
         costFact = root['facts'][0]
         self.assertEqual(costFact['value'], '100')
@@ -436,7 +442,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                              "solar:StandardTestConditionMember")
         self.assertEqual(costFact['aspects']['xbrl:entity'], 'JUPITER')
         self.assertEqual(costFact['aspects']['xbrl:instant'], now.strftime("%Y-%m-%d"))
-        self.assertEqual(costFact['aspects']['xbrl:unit'], 'dollars')
+        self.assertEqual(costFact['aspects']['xbrl:unit'], 'USD')
 
 
     def test_concepts_load_metadata(self):
@@ -515,3 +521,87 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # filled in from the defaults.
         pass
 
+    def test_reject_missing_or_invalid_units(self):
+        # issue #28
+        # -- reject attempt to set a fact if it doesn't have a unit and the unit is required
+        # -- reject attempt to set a fact using a unit name that doesn't match taxonomy
+        # -- reject attempt to set a fact using a unit that is the wrong type
+        now = datetime.now()
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        with self.assertRaises(Exception):
+            # Unit is required but not provided, so this should fail:
+            doc.set("solar:DeviceCost", 100,
+                entity="JUPITER",
+                instant= now,
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember")
+
+        with self.assertRaises(Exception):
+            # Zorkmids is not a real unit, so this should fail:
+            doc.set("solar:DeviceCost", 100,
+                entity="JUPITER",
+                instant= now,
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember",
+                unit="zorkmids")
+
+        with self.assertRaises(Exception):
+            # kWh is a real unit but the wrong type, so this should fail:
+            doc.set("solar:DeviceCost", 100,
+                entity="JUPITER",
+                instant= now,
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember",
+                unit="kWh")
+
+        # USD is a valid unit, so this should succeed:
+        doc.set("solar:DeviceCost", 100,
+                entity="JUPITER",
+                instant= now,
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember",
+                unit="USD")
+
+    def test_valid_unit_method(self):
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        # Basic data types:
+        self.assertTrue( doc.validUnit("solar:TrackerNumberOfControllers", None)) # pure integer
+        self.assertTrue( doc.validUnit("solar:TransformerStyle", None)) # string
+        self.assertTrue( doc.validUnit("solar:TransformerDesignFactor", None)) # decimal
+        self.assertTrue( doc.validUnit("solar:MeterRevenueGrade", None)) # boolean
+
+        # Advanced data types:
+        self.assertTrue( doc.validUnit("solar:DeviceCost", "USD")) # xbrli:monetaryItemType
+        self.assertTrue( doc.validUnit("solar:CutSheetDocumentLink", None)) #:xbrlianyURIItemType
+        self.assertTrue( doc.validUnit("solar:CECListingDate", None)) #xbrli:dateItemType
+        self.assertTrue( doc.validUnit("solar:InverterHarmonicsTheshold", None)) #num:percentItemType
+
+        # Physics data types:
+        self.assertTrue( doc.validUnit("solar:RevenueMeterFrequency", "Hz")) #num-us:frequencyItemType
+        self.assertTrue( doc.validUnit("solar:InverterWidth", "cm")) #:num:lengthItemType
+        self.assertTrue( doc.validUnit("solar:BatteryRating", "kW")) #:num:powerItemType
+        self.assertTrue( doc.validUnit("solar:InverterInputMaximumOperatingCurrentDC", "A")) #:num-us:electricCurrentItemType
+        self.assertTrue( doc.validUnit("solar:InverterInputMaximumVoltageDC", "V")) #:num-us:voltageItemType
+        self.assertTrue( doc.validUnit("solar:InverterOperatingTemperatureRangeMaximum", "Cel")) #:num-us:temperatureItemType
+        # self.assertTrue( doc.validUnit("solar:TrackerStowWindSpeed:num-us:speedItemType", "???"))
+        self.assertTrue( doc.validUnit("solar:OrientationMaximumTrackerRotationLimit", "Degree")) #:num-us:planeAngleItemType
+
+        # solar-specific data types (Defined in a document we don't have:
+        # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"
+        # namespace="http://xbrl.us/dtr/type/solar-types"
+        # schemaLocation="solar-types-2018-03-31.xsd"/>
+
+        self.assertTrue( doc.validUnit("solar:TrackerStyle", None)) #solar-types:trackerItemType
+        self.assertTrue( doc.validUnit("solar:BatteryStyle", None)) #solar-types:batteryChemistryItemType
+        self.assertTrue( doc.validUnit("solar:TypeOfDevice", None)) #solar-types:deviceItemType
+
+
+    def test_units_written_to_xml_correctly(self):
+        # TODO
+        pass
+
+    def test_units_written_to_json_correctly(self):
+        # TODO
+        pass
+
+                                    

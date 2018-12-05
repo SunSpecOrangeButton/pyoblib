@@ -320,7 +320,7 @@ class Fact(object):
     Represents an XBRL Fact, linked to a context, that can be exported
     as either XML or JSON.
     """
-    def __init__(self, concept, context, units, value, decimals=2):
+    def __init__(self, concept, context, unit, value, decimals=2):
         """
         Concept is the field name - it must match the schema definition.
         Context is a reference to this fact's parent Context object.
@@ -335,7 +335,7 @@ class Fact(object):
         self.concept = concept
         self.value = value
         self.context = context
-        self.units = units
+        self.unit = unit
         self.decimals = decimals
 
     def toXML(self):
@@ -343,14 +343,16 @@ class Fact(object):
         Return the Fact as an XML element.
         """
         attribs = {"contextRef": self.context.get_id()}
-        if self.units is not None:
-            attribs["unitRef"] = self.units
-            if self.units == "pure" or self.units == "degrees":
+        # TODO the "pure" part is probably wrong now.
+        # also the self.unit may not be correct unitRef? not sure
+        if self.unit is not None:
+            attribs["unitRef"] = self.unit
+            if self.unit == "pure" or self.unit == "degrees":
                 attribs["decimals"] = "0"
             else:
                 attribs["decimals"] = str(self.decimals)
         elem = Element(self.concept, attrib=attribs)
-        if self.units == "pure":
+        if self.unit == "pure":
             elem.text = "%d" % self.value
         else:
             elem.text = str(self.value)
@@ -363,8 +365,8 @@ class Fact(object):
         """
         aspects = self.context.toJSON()
         aspects["xbrl:concept"] = self.concept
-        if self.units is not None:
-            aspects["xbrl:unit"] = self.units
+        if self.unit is not None:
+            aspects["xbrl:unit"] = self.unit
 
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%d")
@@ -448,6 +450,7 @@ class Entrypoint(object):
         object.
         """
         self.ts = taxonomy.semantic
+        self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}."\
@@ -458,7 +461,12 @@ class Entrypoint(object):
 
         self._all_my_concepts = {}
         for concept_name in self.ts.concepts_ep(entrypoint_name):
+            if concept_name.endswith("_1"):
+                # There are a bunch of duplicate concept names that all end in "_1"
+                # that raise an exception if we try to query them.
+                continue
             self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+
 
         # Get the relationships (this comes from solar_taxonomy/documents/
         #  <entrypoint>/<entrypoint><version>_def.xml)
@@ -507,6 +515,9 @@ class Entrypoint(object):
             if relation['role'] == 'domain-member':
                 parent_name = relation['from']
                 child_name = relation['to']
+                if parent_name.endswith("_1") or child_name.endswith("_1"):
+                    # These are the duplicate concept names and are unwanted
+                    continue
                 parent = self.getConceptByName(parent_name)
                 child = self.getConceptByName(child_name)
                 parent.addChild(child)
@@ -606,10 +617,55 @@ class Entrypoint(object):
 
         return True
 
+    def validUnit(self, concept, unit_id):
+        # TODO Refactor to move this logic inold to the Concept class?
+
+        unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
+                         "xbrli:decimalItemType", "xbrli:booleanItemType",
+                         "xbrli:dateItemType", "num:percentItemType",
+                         "xbrli:anyURIItemType"]
+        # There is type-checking we can do for these unitless types but we'll handle
+        # it elsewhere
+        
+        required_type = self.getConceptByName(concept).getMetadata("type_name")
+        if required_type in unitlessTypes:
+            if unit_id is None:
+                return True
+            else:
+                raise Exception("Unit {} given for unitless concept {} ({})".format(
+                    unit_id, concept, required_type))
+
+        if required_type.startswith("solar-types:"):
+            print("I don't know how to validate {} yet, skipping for now".format(required_type))
+            return True
+
+        # TODO what other required_types might we get here?
+
+        if unit_id is None:
+            raise Exception("No unit given for concept {}, requires type {}".format(
+                concept, required_type))
+
+        unit = self.tu.unit(unit_id)
+        if unit is None:
+            raise Exception("There is no unit ID={} in the taxonomy.".format(unit_id))
+
+        # TODO: utr.xml has unqualified type names, e.g. "frequencyItemType" and we're looking
+        # for a qualified type name e.g. "num-us:frequencyItemType". Should we assume that if
+        # it matches the part after the colon, then it's a match? Or do we need to validate the
+        # fully-qualified name?
+        if required_type.split(":")[-1] == unit.item_type:
+            return True
+        else:
+            # TODO raise here?
+            return False
+        # Unit has fields: unit_id, unit_name, ns_unit, item_type,
+        # item_type_date, symbol, definition, base_standard, status, version_date
+
+
 
     def set(self, concept, value, **kwargs):
         """
-        (Placeholder) Adds a fact to the document. The concept and the context
+        Adds a fact to the document. The concept and the context
         together identify the fact to set, and the value will be stored for
         that fact.
         If concept and context are identical to a previous call, the old fact
@@ -629,7 +685,7 @@ class Entrypoint(object):
         if "unit" in kwargs:
             unit = kwargs.pop("unit")
         else:
-            unit = "None"
+            unit = None
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
@@ -650,13 +706,13 @@ class Entrypoint(object):
         if not self.sufficientContext(concept, context):
             raise Exception("Insufficient context given for {}".format(concept))
 
+        # Check unit type:
+        if not self.validUnit(concept, unit):
+            raise Exception("{} is an invalid unit type for {}".format(unit, concept))
+        
+        # TODO check datatype of given value against concept
+        
         table = self.getTableForConcept(concept)
-
-        # complain if value is invalid for concept
-        # complain if context is needed and not present
-        # complain if context has wrong unit
-        # complain if context has wrong duration/instant type
-        # add to facts
 
         context = table.store_context(context) # dedupes, assigns ID
 
@@ -707,6 +763,19 @@ class Entrypoint(object):
                 for fact in context_dict.values():
                     all_facts.append(fact)
         return all_facts
+    
+    def _makeUnitTag(self, unit_id):
+        """
+        Return an XML tag for a unit (such as kw, kwh, etc). Fact tags can
+        reference this unit tag.
+        """
+        # See http://www.xbrl.org/utr/utr.xml
+        unit = Element("unit", attrib={"id": unit_id})
+        measure = SubElement(unit, "measure")
+        measure.text = "units:{}".format(unit_id)
+        # because http://www.xbrl.org/2009/utr is included as xmlns:units
+
+        return unit
 
 
     def toXMLTag(self):
@@ -724,10 +793,12 @@ class Entrypoint(object):
             for tag in tags:
                 xbrl.append(tag)
 
-        # TODO support units:
-        #for unit in self.get_required_units():
-        #    # Add a unit tag defining each unit we want to reference:
-        #    xbrl.append(self.makeUnitTag(unit))
+        facts = self.get_facts()
+        required_units = set([fact.unit for fact in self.get_facts() \
+                              if fact.unit is not None])
+        for unit in required_units:
+            # Add a unit tag defining each unit we want to reference:
+            xbrl.append(self._makeUnitTag(unit))
 
         for fact in self.get_facts():
             xbrl.append( fact.toXML() )
