@@ -337,7 +337,7 @@ class Entrypoint(object):
         """
         if "unit_name" in kwargs:
             unit_name = kwargs.pop("unit_name")
-            valid_unit_name = self.tu.validate_unit("unit_name", unit_name)
+            valid_unit_name = self.tu.validate_unit(unit_name=unit_name)
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 

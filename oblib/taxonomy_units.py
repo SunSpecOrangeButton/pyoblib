@@ -113,8 +113,8 @@ class TaxonomyUnits(object):
             return unit_id in self._units
         elif "unit_name" in kwargs:
             unit_name = kwargs.pop("unit_name")
-            valid_names = [self._units()[k].unit_name for k in
-                           self._units().keys()]
+            valid_names = [self._units[k].unit_name for k in
+                           self._units.keys()]
             return unit_name in valid_names
         else:
             return False
