@@ -19,9 +19,9 @@ import constants
 
 
 #
-# TODO: All taxonomy files are covered except for solar-ref-roles which
-# has only one entry.
-# It could be included for completeness.
+# Note: All miscellaneous taxonomy files are covered except for solar-ref-roles which has only one
+# entry # (which happens to have the value "standard").  This file will not be covered 
+# programmatically in the initial release of pyoblib.
 #
 
 
@@ -83,7 +83,7 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
         return self._generic_roles
 
 
-class TaxonomyMisc(object):
+class TaxonomyNumericTypes(object):
     """
     Represents Miscellaneous Taxonomy Objects.
 
@@ -94,8 +94,6 @@ class TaxonomyMisc(object):
     def __init__(self):
         """Misc object constructor."""
         self._numeric_types = self._load_numeric_types()
-        self._generic_roles = self._load_generic_roles()
-        self._ref_parts = self._load_ref_parts()
 
     def _load_numeric_types_file(self, pathname):
         tax = _TaxonomyNumericHandler()
@@ -112,20 +110,31 @@ class TaxonomyMisc(object):
                     pathname, filename))
         return numeric_types
 
-    def _load_ref_parts_file(self, pathname):
-        tax = _TaxonomyRefPartsHandler()
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
-        parser.parse(open(pathname))
-        return tax.ref_parts()
+    def numeric_types(self):
+        """
+        A list of numeric types.
+        """
 
-    def _load_ref_parts(self):
-        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
-        for filename in os.listdir(pathname):
-            if 'ref-parts' in filename:
-                ref_parts = self._load_ref_parts_file(os.path.join(pathname,
-                                                                   filename))
-        return ref_parts
+        return self._numeric_types
+
+    def validate_numeric_type(self, numeric_type):
+        """
+        Check if a numeric type is valid.
+        """
+
+        if numeric_type in self._numeric_types:
+            return True
+        else:
+            return False
+
+
+class TaxonomyGenericRoles(object):
+    """
+    Represents Generic Roles portion of the taxonomy.  Generally speaking this is rarely used.
+    """
+
+    def __init__(self):
+        self._generic_roles = self._load_generic_roles()
 
     def _load_generic_roles_file(self, pathname):
         tax = _TaxonomyGenericRolesHandler()
@@ -142,16 +151,40 @@ class TaxonomyMisc(object):
                     pathname, filename))
         return generic_roles
 
-    def numeric_types(self):
-        """A list of numeric types."""
-        return self._numeric_types
+    def generic_roles(self):
+        """A list of generic roles."""
+        return self._generic_roles
 
-    def validate_numeric_type(self, numeric_type):
-        """Check if a numeric type is valid."""
-        if numeric_type in self._numeric_types:
+    def validate_generic_role(self, generic_role):
+        """Check if a generic role is valid."""
+        if generic_role in self._generic_roles:
             return True
         else:
             return False
+
+
+class TaxonomyRefParts(object):
+    """
+    Represents the Referential Parts portion of the Taxonomy.  Generally speaking this is rarely used.
+    """
+
+    def __init__(self):
+        self._ref_parts = self._load_ref_parts()
+
+    def _load_ref_parts_file(self, pathname):
+        tax = _TaxonomyRefPartsHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(tax)
+        parser.parse(open(pathname))
+        return tax.ref_parts()
+
+    def _load_ref_parts(self):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
+            if 'ref-parts' in filename:
+                ref_parts = self._load_ref_parts_file(os.path.join(pathname,
+                                                                   filename))
+        return ref_parts
 
     def ref_parts(self):
         """A list of ref parts."""
@@ -164,13 +197,3 @@ class TaxonomyMisc(object):
         else:
             return False
 
-    def generic_roles(self):
-        """A list of generic roles."""
-        return self._generic_roles
-
-    def validate_generic_role(self, generic_role):
-        """Check if a generic role is valid."""
-        if generic_role in self._generic_roles:
-            return True
-        else:
-            return False

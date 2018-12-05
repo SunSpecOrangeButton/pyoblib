@@ -12,10 +12,54 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 import taxonomy_semantic
 import taxonomy_types
 import taxonomy_units
 import taxonomy_misc
+
+
+class SubstitutionGroup(enum.Enum):
+    """
+    Legal values for substitution groups.
+    """
+
+    item = "xbrli:item"
+    dimension = "xbrldt:dimensionItem"
+    hypercube = "xbrldt:hypercubeItem"
+
+
+class PeriodType(enum.Enum):
+    """
+    Legal values for period types.
+    """
+
+    duration = "duration"
+    instant = "instant"
+
+
+class BaseStandard(enum.Enum):
+    """
+    Legal values for base standards.
+    """
+
+    customary = "Customary"
+    iso4217 = "ISO4217"
+    non_si = "Non-SI"
+    si = "SI"
+    xbrl = "XBRL"
+
+
+class UnitStatus(enum.Enum):
+    """
+    Legal values for unit registry entry statuses.  Please note that this is referred to as just
+    status (as opposed to unitStatus) in the actual entries but the name has been expanded here
+    since status is extremely generic.
+    """
+
+    rec = "REC"
+    cr = "CR"
 
 
 class Element(object):
@@ -77,6 +121,9 @@ class Unit(object):
             "," + str(self.version_date) + \
             "}"
 
+    def to_dict(self):
+        """Convert Unit to dict."""
+        return vars(self)
 
 class Taxonomy(object):
     """
@@ -93,7 +140,9 @@ class Taxonomy(object):
         self.semantic = taxonomy_semantic.TaxonomySemantic()
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
-        self.misc = taxonomy_misc.TaxonomyMisc()
+        self.numeric_types = taxonomy_misc.TaxonomyNumericTypes()
+        self.generic_roles = taxonomy_misc.TaxonomyGenericRoles()
+        self.ref_parts = taxonomy_misc.TaxonomyRefParts()
 
 
 # Accessor for singleton Taxonomy object:
