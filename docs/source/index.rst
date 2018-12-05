@@ -13,8 +13,11 @@ This project is being actively developed and is not yet ready for production use
    :maxdepth: 1
    
    overview
-   api
    api_reference
+   api
+   oblib
+   oblib.tests
+   modules
 
 Indices and tables
 ==================
