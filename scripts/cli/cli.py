@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,7 +24,7 @@ import taxonomy
 #
 
 INFO = """
-This the CLI for the Orange Button Core libary.  Information is available at the following URL's:
+This the CLI for the Orange Button Core library.  Information is available at the following URL's:
 
 Orange Button Overview: https://sunspec.org/orange-button-initiative/
 Orange Button GitHUb: https://github.com/SunSpecOrangeButton
@@ -41,7 +41,7 @@ if getattr(sys, 'frozen', False):
     os.chdir(sys._MEIPASS)
 
 tax = taxonomy.Taxonomy()
-
+csv = False
 
 def info(args):
     print(INFO)
@@ -87,16 +87,25 @@ def list_unit_info(args):
 
 
 def list_ep_concepts_info(args):
-    concepts = tax.semantic.concepts_info_ep(args.ep)
-    print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-          ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substution Group", "Type",
-           "Per Type"))
-    print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
-          (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
-    for c in concepts:
+
+    if csv:
+        concepts = tax.semantic.concepts_info_ep(args.ep)
+        print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
+        for c in concepts:
+                print('%s, %s, %s, %s, %s, %s, %s, %s' %
+                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
+                c.substitution_group, c.type_name, c.period_type))
+    else:
+        concepts = tax.semantic.concepts_info_ep(args.ep)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-              (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-               c.substitution_group, c.type_name, c.period_type))
+                ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
+                "Per Type"))
+        print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
+                (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
+        for c in concepts:
+                print('%85s %80s %8s %8s %10s %20s %28s %8s' %
+                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
+                c.substitution_group, c.type_name, c.period_type))
 
 
 def list_concepts(args):
@@ -110,17 +119,25 @@ def list_concepts(args):
 
 def list_relationships(args):
     relationships = tax.semantic.relationships_ep(args.ep)
-    print('%19s %78s %78s %5s' %
-         ("Role", "From", "To", "Order"))
-    print('%0.19s %0.78s %0.78s %0.5s' %
-         (DASHES, DASHES, DASHES, DASHES))
- 
-    if relationships is not None:
-        for r in relationships:
-            print('%19s %78s %78s %5s' %
-              (r['role'], r['from'], r['to'], r['order']))    
+
+    if csv:
+        print("Role, From, To, Order")
+        if relationships is not None:
+            for r in relationships:
+                print('%s, %s, %s, %s' %
+                       (r['role'], r['from'], r['to'], r['order']))    
     else:
-        print("Not found")
+        print('%19s %78s %78s %5s' %
+                ("Role", "From", "To", "Order"))
+        print('%0.19s %0.78s %0.78s %0.5s' %
+                (DASHES, DASHES, DASHES, DASHES))
+        
+        if relationships is not None:
+            for r in relationships:
+                print('%19s %78s %78s %5s' %
+                       (r['role'], r['from'], r['to'], r['order']))    
+        else:
+            print("Not found")
 
 
 def list_type_enums(args):
@@ -133,17 +150,17 @@ def list_type_enums(args):
 
 
 def list_numeric_types(args):
-    for numeric_type in tax.misc.numeric_types():
+    for numeric_type in tax.numeric_types.numeric_types():
         print(numeric_type)
 
 
 def list_ref_parts(args):
-    for ref_part in tax.misc.ref_parts():
+    for ref_part in tax.ref_parts.ref_parts():
         print(ref_part)
 
 
 def list_generic_roles(args):
-    for generic_role in tax.misc.generic_roles():
+    for generic_role in tax.generic_roles.generic_roles():
         print(generic_role)
 
 
@@ -153,18 +170,29 @@ def list_units(args):
 
 
 def list_units_details(args):
-    print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %15s' %
-          ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
-           "Status", "Ver Dt", "Definition"))
-    print('%0.6s %0.10s %0.40s %0.35s %0.16s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
-          (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
-    for unit_id in tax.units.units():
-        unit = tax.units.unit(unit_id)
-        print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
-              (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
-               unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
-               unit.status, unit.definition))
+    if csv:      
+        print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
+ 
+        for unit_id in tax.units.units():
+                unit = tax.units.unit(unit_id)
+                print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
+                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                       unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
+                       unit.status, unit.definition))
+    else:
+        print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %15s' %
+                ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
+                "Status", "Ver Dt", "Definition"))
+        print('%0.6s %0.10s %0.40s %0.35s %0.16s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
+                (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
+
+        for unit_id in tax.units.units():
+                unit = tax.units.unit(unit_id)
+                print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
+                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                       unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
+                       unit.status, unit.definition))
 
 
 def validate_concept(args):
@@ -193,15 +221,15 @@ def validate_type(args):
 
 
 def validate_numeric_type(args):
-    print("Valid:", tax.misc.validate_numeric_type(args.numeric_type))
+    print("Valid:", tax.numeric_types.validate_numeric_type(args.numeric_type))
 
 
 def validate_ref_part(args):
-    print("Valid:", tax.misc.validate_ref_part(args.ref_part))
+    print("Valid:", tax.ref_parts.validate_ref_part(args.ref_part))
 
 
 def validate_generic_role(args):
-    print("Valid:", tax.misc.validate_generic_role(args.generic_role))
+    print("Valid:", tax.generic_roles.validate_generic_role(args.generic_role))
 
 
 def validate_unit(args):
@@ -211,8 +239,10 @@ def validate_unit(args):
 def version(args):
     print("Orange Button Core CLI version 0.0.1")
 
+formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=32)
 
-parser = argparse.ArgumentParser(description='Orange Button Core Library CLI')
+parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
+parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
 subparsers = parser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
@@ -226,12 +256,12 @@ validate_identifier_parser = subparsers.add_parser('validate-identifier',
                                                    help='Validate an Orange Button Identifier')
 validate_identifier_parser.set_defaults(command='validate_identifier')
 validate_identifier_parser.add_argument('identifier', action='store',
-                                        help='The identifer to validate')
+                                        help='The identifier to validate')
 
 version_parser = subparsers.add_parser('version', help='CLI Version')
 version_parser.set_defaults(command='version')
 
-taxonomy_parser = subparsers.add_parser('taxonomy', help='Taxonomy Meta-data Related Commands')
+taxonomy_parser = subparsers.add_parser('taxonomy', help='Taxonomy Meta-data Related Commands', formatter_class=formatter)
 subparsers = taxonomy_parser.add_subparsers(help='commands')
 
 list_concept_info_parser = subparsers.add_parser('list-concept-info',
@@ -344,6 +374,9 @@ validate_unit_parser.add_argument('generic_unit', action='store',
                                   help='The Unit to validate')
 
 args = parser.parse_args()
+
+if args.csv:
+    csv = True
 
 if not hasattr(args, 'command'):
     print('A command must be specified')

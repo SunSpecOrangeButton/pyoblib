@@ -1,7 +1,7 @@
-# Copyright 2018 Wells Fargo
+"""Initializes Orange Button package."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,5 +21,6 @@ import taxonomy_units
 import taxonomy_misc
 import validator
 
-__all__ = ['identifier', 'data_model', 'taxonomy', 'taxonomy_semantic', 'taxonomy_types', 'taxonomy_units',
+__all__ = ['identifier', 'data_model', 'taxonomy', 'taxonomy_semantic',
+           'taxonomy_types', 'taxonomy_units',
            'taxonomy_misc', 'validator']

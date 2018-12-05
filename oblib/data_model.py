@@ -1,7 +1,7 @@
-# Copyright 2018 Jonathan Xia
+"""Orange Button data model."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,6 +16,7 @@ import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
+from taxonomy import PeriodType
 
 
 class Axis(object):
@@ -46,6 +47,7 @@ class Hypercube(object):
         Creates a table instance with an empty list of Contexts. Figures out
         the axes and allowed line items using the relationships from the EntryPoint.
         """
+
         self._table_name = table_name
         # self._axes is a dictionary where key is the axis name and value is the
         # axis Concept instance.
@@ -91,6 +93,7 @@ class Hypercube(object):
         
 
     def name(self):
+        """Return table name."""
         return self._table_name
 
     def axes(self):
@@ -178,8 +181,30 @@ class Hypercube(object):
 
 class Context(object):
     """
+    Represents the context for one or more facts. The context tells us
+    when the fact applies, who is the entity reporting the fact, and also
+    provides values for all of the table axes (aka Dimensions) needed to place
+    the fact within a table (aka Hypercube). A fact cannot be reported without
+    a context.
     """
     def __init__(self, **kwargs):
+        """
+        Keyword arguments accepted to constructor are:
+        instant -- a period of instant type (e.g. a single datetime)
+        duration -- a period of duration type: either a mini dictionary
+                    with {"start": <date>, "end": <date>} fields, OR
+                     the special string "forever"
+        entity -- name of the entity making the report (e.g. business or other
+                  enterprise)
+        All other arguments aside from the above will be assumed to be the
+        names of Axes. For example, an argument of:
+        InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember'
+        indicates that the context is going into a Hypercube that has an
+        InverterPowerLevelPercentAxis, and for this context the value of that axis
+        is to be 'solar:InverterPowerLevel50PercentMember'
+        (i.e. this context describes the case where the inverter power level is 50%)
+        EITHER instant OR duration (not both) is required.
+        """
         self.instant = None
         self.duration = None
         self.entity = None
@@ -384,6 +409,7 @@ class Concept(object):
     Also stores concept metadata derived from the schema.
     """
     def __init__(self, taxonomy_semantic, concept_name):
+        """Concept constructor."""
         self.name = concept_name
         self.parent = None
         self.children = []
@@ -409,17 +435,19 @@ class Concept(object):
         return getattr( self.metadata, field_name, None)
 
     def setParent(self, new_parent):
+        """Set a concept parent."""
         self.parent = new_parent
-        if not self in self.parent.children:
+        if self not in self.parent.children:
             self.parent.children.append(self)
 
     def addChild(self, new_child):
-        if not new_child in self.children:
+        """Add a child concept."""
+        if new_child not in self.children:
             self.children.append(new_child)
         new_child.parent = self
 
     def getAncestors(self):
-        # returns a list of concept's parent, concept's parent's parent, etc.
+        """Return a concepts parent and other ancestors."""
         ancestors = []
         curr = self
         while curr.parent is not None:
@@ -430,6 +458,8 @@ class Concept(object):
 
 class Entrypoint(object):
     """
+    Data structure representing an entrypoint.
+
     A data structure representing an orange button document
     from a particular entrypoint -- for example, an MOR.
     This class's representation of the data is format-agnostic, it just
@@ -439,10 +469,12 @@ class Entrypoint(object):
     """
     def __init__(self, entrypoint_name, taxonomy):
         """
+        Initialize an entrypoint.
+
         Initializes an empty instance of a document corresponding to the named
-        entrypoint. entrypoint_name is a string that must match an entry point in
-        the taxonomy. Looks up the list of concepts for this entry point from
-        the taxonomy to know what concepts are allowed in the document.
+        entrypoint. entrypoint_name is a string that must match an entry point
+        in the taxonomy. Looks up the list of concepts for this entry point
+        from the taxonomy to know what concepts are allowed in the document.
         Looks up the relationships between concepts for this entry point from
         the taxonomy to know the hierarchical relationship of concepts, tables,
         and axes/dimensions.
@@ -453,8 +485,7 @@ class Entrypoint(object):
         self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
-            raise Exception("There is no Orange Button entrypoint named {}."\
-                                .format(entrypoint_name))
+            raise Exception("There is no Orange Button entrypoint named {}.".format(entrypoint_name))
 
         # This gives me the list of every concept that could ever be
         # included in the document.
@@ -466,7 +497,6 @@ class Entrypoint(object):
                 # that raise an exception if we try to query them.
                 continue
             self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
-
 
         # Get the relationships (this comes from solar_taxonomy/documents/
         #  <entrypoint>/<entrypoint><version>_def.xml)
@@ -486,17 +516,19 @@ class Entrypoint(object):
             "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
             "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
         }
-        self.taxonomy = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
+        self.taxonomy_name = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
 
 
     def _initialize_tables(self):
         """
-        Uses relations to find all of the tables (hypercubes) allowed in
+        Find tables.
+
+        Use relations to find all of the tables (hypercubes) allowed in
         the document, and the axes and lineitems for each one.
         """
         # When there's an arcrole of "hypercube-dimensions", the "from"
         # is a hypercube/table, and the "to" is an axis. Use these
-        # relationships to find all of the hypercube
+        # relationships to find all hypercube names.
         self._tables = {}
         all_table_names = set([])
         for relation in self.relations:
@@ -509,6 +541,7 @@ class Entrypoint(object):
 
 
     def _initialize_parents(self):
+        """Put the concepts into a tree based on domain-member relations."""
         # Put the concepts into a tree based on domain-member
         # relations.
         for relation in self.relations:
@@ -526,9 +559,11 @@ class Entrypoint(object):
         return self._all_my_concepts[concept_name]
 
     def getTableNames(self):
+        """Return table names."""
         return self._tables.keys()
 
     def getTable(self, table_name):
+        """Return a given table."""
         return self._tables[table_name]
 
     def _identify_relations(self, concept_name):
@@ -536,17 +571,19 @@ class Entrypoint(object):
         # purposes. Do not use in production.
         from_me = [r for r in self.relations if r['from'] == concept_name]
         for x in from_me:
-            print( "{} -> {} -> {}".format(concept_name, x['role'], x['to']))
+            print("{} -> {} -> {}".format(concept_name, x['role'], x['to']))
         to_me = [r for r in self.relations if r['to'] == concept_name]
         for x in to_me:
-            print( "{} -> {} -> {}".format(x['from'], x['role'], concept_name))
+            print("{} -> {} -> {}".format(x['from'], x['role'], concept_name))
 
     def getTableForConcept(self, concept_name):
         """
+        Returns the table for a concept.
+
         Given a concept_name, returns the table (Hypercube object) which
         that concept belongs inside of, or None if there's no match.
         """
-        if not concept_name in self._all_my_concepts:
+        if concept_name not in self._all_my_concepts:
             raise Exception("{} is not an allowed concept for {}".format(
                 concept_name, self.entrypoint_name))
         # We know that a concept belongs in a table because the concept
@@ -562,6 +599,8 @@ class Entrypoint(object):
 
     def canWriteConcept(self, concept_name):
         """
+        Return whether a concept is writable.
+
         Returns True if concept_name is a writeable concept within this
         document. False for concepts not in this document or concepts that
         are only abstract parents of writeable concepts. e.g. you can't
@@ -586,7 +625,7 @@ class Entrypoint(object):
         # TODO Refactor to put this logic into the Concept?
         period_type = self.getConceptByName(concept_name).getMetadata("period_type")
 
-        if period_type == "duration":
+        if PeriodType(period_type) == PeriodType.duration:
             if not context.duration:
                 raise Exception("Missing required duration in {} context".format(
                     concept_name))
@@ -603,7 +642,7 @@ class Entrypoint(object):
                     concept_name))
 
 
-        if period_type == "instant":
+        if PeriodType(period_type) == PeriodType.instant:
             if not context.instant:
                 raise Exception("Missing required instant in {} context".format(
                     concept_name))
@@ -618,7 +657,7 @@ class Entrypoint(object):
         return True
 
     def validUnit(self, concept, unit_id):
-        # TODO Refactor to move this logic inold to the Concept class?
+        # TODO Refactor to move this logic into the Concept class?
 
         unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
                          "xbrli:decimalItemType", "xbrli:booleanItemType",
@@ -704,7 +743,7 @@ class Entrypoint(object):
             # In this case, use the default context if one has been set.
 
         if not self.sufficientContext(concept, context):
-            raise Exception("Insufficient context given for {}".format(concept))
+            raise Exception("Insufficient context for {}".format(concept))
 
         # Check unit type:
         if not self.validUnit(concept, unit):
@@ -730,7 +769,6 @@ class Entrypoint(object):
         self.facts[table.name()][context.get_id()][concept] = f
         # Or: we could keep facts in a flat list, and get() could look them
         # up by getting context from hypercube and getting fact from context
-
 
 
     def get(self, concept, context=None):
@@ -784,7 +822,7 @@ class Entrypoint(object):
 
         # Add "link:schemaRef" for the taxonomy that goes with this document:
         link = SubElement(xbrl, "link:schemaRef",
-                          attrib = {"xlink:href": self.taxonomy,
+                          attrib = {"xlink:href": self.taxonomy_name,
                                     "xlink:type": "simple"})
 
         # Add a context tag for each context we want to reference:
@@ -846,7 +884,7 @@ class Entrypoint(object):
 
         masterJsonObj["dtsReferences"].append({
             "type": "schema",
-            "href": self.taxonomy
+            "href": self.taxonomy_name
         })
 
         facts = self.get_facts()
@@ -858,7 +896,9 @@ class Entrypoint(object):
 
     def isValid(self):
         """
-        (Placeholder) Returns true if all of the facts in the document validate.
+        (Placeholder).
+
+        Returns true if all of the facts in the document validate.
         i.e. they have allowed data types, allowed units, anything that needs
         to be in a table has all the required axis values to identify its place
         in that table, etc.
@@ -867,8 +907,9 @@ class Entrypoint(object):
 
     def isComplete(self):
         """
+        (Placeholder).
+
         (Placeholder) Returns true if no required facts are missing, i.e. if
         there is a value for all concepts with nillable=False
         """
         return True
-

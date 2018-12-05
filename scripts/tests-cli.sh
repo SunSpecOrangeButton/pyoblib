@@ -3,7 +3,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -47,6 +47,9 @@ python scripts/cli/cli.py taxonomy list-units || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy list-units-details || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py --csv taxonomy list-units-details || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy list-unit-info rad || {
@@ -94,10 +97,25 @@ python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || 
 python scripts/cli/cli.py taxonomy list-concept-info solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
+python scripts/cli/cli.py --csv taxonomy list-concepts-info MonthlyOperatingReport || {
+    EXITVAL=1
+}
 python scripts/cli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py taxonomy list-relationships MonthlyOperatingReport || {
+    EXITVAL=1
+}
+python scripts/cli/cli.py --csv taxonomy list-relationships MonthlyOperatingReport || {
     EXITVAL=1
 }
 

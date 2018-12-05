@@ -1,7 +1,7 @@
 # Copyright 2018 Wells Fargo
 
 # Licensed under the Apache License, Version 2.0 (the "License");
-# pyou may not use this file except in compliance with the License.
+# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
 #    http://www.apache.org/licenses/LICENSE-2.0
@@ -34,4 +34,6 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(tax.semantic, taxonomy_semantic.TaxonomySemantic)
         self.assertIsInstance(tax.types, taxonomy_types.TaxonomyTypes)
         self.assertIsInstance(tax.units, taxonomy_units.TaxonomyUnits)
-        self.assertIsInstance(tax.misc, taxonomy_misc.TaxonomyMisc)
+        self.assertIsInstance(tax.numeric_types, taxonomy_misc.TaxonomyNumericTypes)
+        self.assertIsInstance(tax.generic_roles, taxonomy_misc.TaxonomyGenericRoles)
+        self.assertIsInstance(tax.ref_parts, taxonomy_misc.TaxonomyRefParts)
