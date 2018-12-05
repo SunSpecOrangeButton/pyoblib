@@ -44,12 +44,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = Entrypoint("CutSheet", self.taxonomy)
 
         # The newly initialized CutSheet should have a correct list of
-        # allowable concepts as defined by the taxonomy for CutSheets:
-        concepts = doc.allowedConcepts()
+        # allowable concepts as defined by the taxonomy for CutSheets.
+
         # TypeOfDevice is allowed in CutSheets:
-        self.assertIn('solar:TypeOfDevice', concepts)
+        self.assertTrue(doc.canWriteConcept('solar:TypeOfDevice'))
         # AppraisalCounterparties is not allowed in CutSheets:
-        self.assertNotIn('solar:AppraisalCounterparties', concepts)
+        self.assertFalse(doc.canWriteConcept('solar:AppraisalCounterparties'))
 
         # The newly initialized CutSheet should have a correct list of tables
         # and each table should have a correct list of axes, as defined by
@@ -82,7 +82,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         table = doc.getTableForConcept("solar:CutSheetDetailsTable")
         self.assertIsNone(table)
 
-
     def test_can_write_concept(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
 
@@ -110,16 +109,16 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # We shouldn't even be able to instantiate a context with no time info:
         with self.assertRaises(Exception):
             noTimeContext = Context(ProductIdentifierAxis = "placeholder",
-                                    TestConditionAxis= "placeholder")
+                                    TestConditionAxis= "solar:StandardTestConditionMember")
 
         # solar:DeviceCost has period_type instant
         # so it requires a context with an instant. A context without an instant
         # should be insufficient:
         instantContext = Context(ProductIdentifierAxis = "placeholder",
-                                 TestConditionAxis = "placeholder",
+                                 TestConditionAxis = "solar:StandardTestConditionMember",
                                  instant = datetime.now())
         durationContext = Context(ProductIdentifierAxis = "placeholder",
-                           TestConditionAxis = "placeholder",
+                           TestConditionAxis = "solar:StandardTestConditionMember",
                            duration = "forever")
 
         self.assertTrue( doc.sufficientContext("solar:DeviceCost",
@@ -151,11 +150,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         context = Context(instant = datetime.now(),
                           ProductIdentifierAxis = "placeholder",
-                          TestConditionAxis = "placeholder")
+                          TestConditionAxis = "solar:StandardTestConditionMember")
         self.assertTrue( doc.sufficientContext("solar:DeviceCost", context) )
 
         badContext = Context(instant = datetime.now(),
-                             TestConditionAxis = "placeholder")
+                             TestConditionAxis = "solar:StandardTestConditionMember")
         with self.assertRaises(Exception):
             doc.sufficientContext("solar:DeviceCost", badContext)
 
@@ -177,11 +176,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         concept = 'solar:InverterOutputRatedPowerAC'
         context = Context(duration = "forever",
                           ProductIdentifierAxis = "placeholder",
-                          InverterPowerLevelPercentAxis = "placeholder")
+                          InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
+
         self.assertTrue( doc.sufficientContext(concept, context))
 
         badContext = Context(instant = datetime.now(),
-                             InverterPowerLevelPercentAxis = "placeholder")
+                             InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
         with self.assertRaises(Exception):
             doc.sufficientContext(concept, badContext)
 
@@ -203,24 +203,24 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc.set("solar:TypeOfDevice", "Module",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis = "placeholder",
+                TestConditionAxis = "solar:StandardTestConditionMember"
                 )
         now = datetime.now()
         doc.set("solar:DeviceCost", 100,
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember",
                 unit="dollars")
 
         typeFact = doc.get("solar:TypeOfDevice",
                         Context(duration="forever",
                                 ProductIdentifierAxis= "placeholder",
-                                TestConditionAxis = "placeholder"))
+                                TestConditionAxis = "solar:StandardTestConditionMember"))
         self.assertEqual( typeFact.value,  "Module")
         costFact = doc.get("solar:DeviceCost",
                            Context(instant = now,
                                 ProductIdentifierAxis= "placeholder",
-                                TestConditionAxis = "placeholder"))
+                                TestConditionAxis = "solar:StandardTestConditionMember"))
         self.assertEqual( costFact.value, 100)
         # TODO: DeviceCost should require units
 
@@ -233,14 +233,29 @@ class TestDataModelEntrypoint(unittest.TestCase):
         ctx = Context(duration="forever",
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
-                      TestConditionAxis = "placeholder")
+                      TestConditionAxis = "solar:StandardTestConditionMember")
         doc.set("solar:TypeOfDevice", "Module", context=ctx)
 
-        ctx = Context(instant= datetime.now(),
+        now = datetime.now(),
+        ctx = Context(instant= now,
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
-                      TestConditionAxis = "placeholder")
+                      TestConditionAxis = "solar:StandardTestConditionMember")
         doc.set("solar:DeviceCost", 100, context=ctx, unit="dollars")
+
+        # Get the data bacK:
+        typeFact = doc.get("solar:TypeOfDevice",
+                        Context(duration="forever",
+                                entity="JUPITER",
+                                ProductIdentifierAxis= "placeholder",
+                                TestConditionAxis = "solar:StandardTestConditionMember"))
+        self.assertEqual( typeFact.value,  "Module")
+        costFact = doc.get("solar:DeviceCost",
+                           Context(instant = now,
+                                entity="JUPITER",
+                                ProductIdentifierAxis= "placeholder",
+                                TestConditionAxis = "solar:StandardTestConditionMember"))
+        self.assertEqual( costFact.value, 100)
 
 
     def test_set_raises_exception(self):
@@ -254,24 +269,23 @@ class TestDataModelEntrypoint(unittest.TestCase):
             doc.set("solar:DeviceCost", 100, {})
 
     def test_hypercube_store_context(self):
-        table = Hypercube("solar:InverterPowerLevelTable",
-                          ["solar:ProductIdentifierAxis",
-                           "solar:InverterPowerLevelPercentAxis"])
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        table = doc.getTable("solar:InverterPowerLevelTable")
 
         c1 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
                                          ProductIdentifierAxis = "ABCD",
-                                         InverterPowerLevelPercentAxis = 50))
+                                         InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember'))
         self.assertEqual(c1.get_id(), "solar:InverterPowerLevelTable_0")
         c2 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
                                          ProductIdentifierAxis = "ABCD",
-                                         InverterPowerLevelPercentAxis = 50)) # Same
+                                         InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember')) # Same
         self.assertIs(c1, c2)
         c3 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
                                          ProductIdentifierAxis = "ABCD",
-                                         InverterPowerLevelPercentAxis = 75)) # Different
+                                         InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel75PercentMember')) # Different
         self.assertIsNot(c1, c3)
 
 
@@ -285,12 +299,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                    "end": datetime(year=2018, month=2, day=1)},
                           entity="JUPITER",
                           ProductIdentifierAxis= "placeholder",
-                          TestConditionAxis = "placeholder")
+                          TestConditionAxis = "solar:StandardTestConditionMember")
         ctx_feb = Context(duration={"start": datetime(year=2018, month=2, day=1),
                                    "end": datetime(year=2018, month=3, day=1)},
                           entity="JUPITER",
                           ProductIdentifierAxis= "placeholder",
-                          TestConditionAxis = "placeholder")
+                          TestConditionAxis = "solar:StandardTestConditionMember")
     
         doc.set(concept, "Jan Value", context=ctx_jan)
         doc.set(concept, "Feb Value", context=ctx_feb)
@@ -309,14 +323,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis = "placeholder",
+                TestConditionAxis = "solar:StandardTestConditionMember"
                 )
         now = datetime.now()
         doc.set("solar:DeviceCost", 100,
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember",
                 unit="dollars")
         xml = doc.toXMLString()
 
@@ -326,9 +340,44 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # top-level xml should have child <link:schemaRef> and then the other children are contexts and facts
         schemaRef = root.getchildren()[0]
         self.assertEqual( schemaRef.tag, "{http://www.xbrl.org/2003/linkbase}schemaRef" )
-        
+
+        # expect to see 2 contexts with id "solar:CutSheetDetailsTable_0" and "solar:CutSheetDetailsTable_1"
         contexts = root.findall('{http://www.xbrl.org/2003/instance}context')
         self.assertEqual(len(contexts), 2)
+        for context in contexts:
+            # both should have entity tag containing identifier containing text JUPITER
+            self.assertTrue( context.attrib["id"] == 'solar:CutSheetDetailsTable_0' or \
+                             context.attrib["id"] == 'solar:CutSheetDetailsTable_1' )
+
+            entity = context.find("{http://www.xbrl.org/2003/instance}entity")
+            identifier = entity.find("{http://www.xbrl.org/2003/instance}identifier")
+            self.assertEqual(identifier.text, "JUPITER")
+            
+            # both should have segment containing xbrldi:explicitMember dimension="<axis name>"
+            # containing text "placeholder"
+            # (wait i have segment inside of entity?  is that correct?)
+            segment = entity.find("{http://www.xbrl.org/2003/instance}segment")
+
+            axes = segment.findall("{http://xbrl.org/2006/xbrldi}typedMember")
+            # Failing because some of them are now typedMember TODO XXX
+            axis_names = [x.attrib["dimension"] for x in axes]
+
+            self.assertItemsEqual(axis_names, ['solar:ProductIdentifierAxis',
+                                               'solar:TestConditionAxis'])
+            for axis in axes:
+                if axis.attrib["dimension"] == 'solar:ProductIdentifierAxis':
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ProductIdentifierDomain")
+                    self.assertEqual(axis.getchildren()[0].text, "placeholder")
+                elif axis.attrib["dimension"] == 'solar:TestConditionsAxis':
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}TestConditionDomain")
+                    self.assertEqual(axis.getchildren()[0].text, "solar:StandardTestConditionMember")
+
+            # one should have period containing <forever/> other should have period containing <instant> containing today's date.
+            period = context.find("{http://www.xbrl.org/2003/instance}period")
+            tag = period.getchildren()[0].tag
+            self.assertTrue(tag == "{http://www.xbrl.org/2003/instance}instant" or\
+                            tag == "{http://www.xbrl.org/2003/instance}forever")
+            
 
         # Expect to see two facts solar:DeviceCost and solar:TypeOfDevice,
         # each containing text of the fact value
@@ -343,14 +392,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(costFact.attrib['unitRef'], "dollars")
         self.assertEqual(costFact.attrib['contextRef'], "solar:CutSheetDetailsTable_1")
 
-        
-        # expect to see 2 contexts with id "solar:CutSheetDetailsTable_0" and "solar:CutSheetDetailsTable_1"
-        # both should have entity tag containing identifier containing text JUPITER
-        # both should have segment containing xbrldi:explicitMember dimension="<axis name>" containing text placeholder
-        # one should have period containing <forever/> other should have period containing <instant> containing today's date.
-
-
-
 
     def test_conversion_to_json(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
@@ -358,14 +399,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis = "placeholder",
+                TestConditionAxis = "solar:StandardTestConditionMember",
                 )
         now = datetime.now()
         doc.set("solar:DeviceCost", 100,
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember",
                 unit="dollars")
         jsonstring = doc.toJSONString()
 
@@ -380,7 +421,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         
         self.assertEqual(typeFact['aspects']['xbrl:concept'], 'solar:TypeOfDevice')
         self.assertEqual(typeFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
-        self.assertEqual(typeFact['aspects']['solar:TestConditionAxis'], 'placeholder')
+        self.assertEqual(typeFact['aspects']['solar:TestConditionAxis'],
+                             "solar:StandardTestConditionMember")
         self.assertEqual(typeFact['aspects']['xbrl:entity'], 'JUPITER')
         self.assertEqual(typeFact['aspects']['xbrl:period'], 'forever')
         self.assertEqual(typeFact['aspects']['xbrl:unit'], 'None')
@@ -390,8 +432,86 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(costFact['value'], '100')
         self.assertEqual(costFact['aspects']['xbrl:concept'], 'solar:DeviceCost')
         self.assertEqual(costFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
-        self.assertEqual(costFact['aspects']['solar:TestConditionAxis'], 'placeholder')
+        self.assertEqual(costFact['aspects']['solar:TestConditionAxis'],
+                             "solar:StandardTestConditionMember")
         self.assertEqual(costFact['aspects']['xbrl:entity'], 'JUPITER')
         self.assertEqual(costFact['aspects']['xbrl:instant'], now.strftime("%Y-%m-%d"))
         self.assertEqual(costFact['aspects']['xbrl:unit'], 'dollars')
+
+
+    def test_concepts_load_metadata(self):
+        doc = Entrypoint("CutSheet", self.taxonomy)
+
+        frequency = doc.getConceptByName("solar:RevenueMeterFrequency")
+        device = doc.getConceptByName("solar:TypeOfDevice")
+
+        # Metadata such as period-type, type-name, and nillable should be available
+        # on the concept objects:
+        self.assertEqual(frequency.getMetadata("period_type"), "duration")
+        self.assertEqual(frequency.getMetadata("type_name"), "num-us:frequencyItemType")
+        self.assertEqual(frequency.getMetadata("nillable"), True)
+
+        self.assertEqual(device.getMetadata("period_type"), "duration")
+        self.assertEqual(device.getMetadata("type_name"), "solar-types:deviceItemType")
+        self.assertEqual(device.getMetadata("nillable"), True)
+
+        # Parents and children should be correct:
+        self.assertEqual(device.parent.name, 'solar:CutSheetDetailsLineItems')
+        self.assertEqual(frequency.parent.name, 'solar:ProductIdentifierMeterAbstract')
+        self.assertEqual(len(device.children), 0)
+        self.assertEqual(len(frequency.children), 0)
+
+
+    def test_hypercube_can_identify_axis_domains(self):
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        table = doc.getTable("solar:CutSheetDetailsTable")
+
+        domain = table.getDomain("solar:ProductIdentifierAxis")
+        self.assertEqual(domain, "solar:ProductIdentifierDomain")
+
+        domain = table.getDomain("solar:TestConditionAxis")
+        self.assertEqual(domain, "solar:TestConditionDomain")
+
+        # TODO add a test for an axis that is explicit and not domain-based
+
+
+    def test_hypercube_rejects_out_of_domain_axis_values(self):
+        # Try passing in something as a value for TestConditionAxis that is not
+        # one of the enumerated Members; it should be rejected:
+
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        table = doc.getTable("solar:CutSheetDetailsTable")
+
+        self.assertTrue( table.axisValueWithinDomain("solar:TestConditionAxis",
+                                                     "solar:StandardTestConditionMember") )
+
+        self.assertFalse( table.axisValueWithinDomain("solar:TestConditionAxis",
+                                                     "solar:InverterPowerLevel100PercentMember"))
+
+        concept = 'solar:InverterOutputRatedPowerAC'
+        context = Context(duration = "forever",
+                          ProductIdentifierAxis = "placeholder",
+                          InverterPowerLevelPercentAxis = 'solar:StandardTestConditionMember')
+        # not a valid value for InverterPowerLevelPercentAxis
+        with self.assertRaises(Exception):
+            doc.sufficientContext(concept, context)
+
+
+    def test_concepts_can_type_check(self):
+        # TODO try passing in wrong data type to a typed concept!
+        pass
+        
+
+    def test_hypercube_rejects_context_with_unwanted_axes(self):
+        # TODO test that giving a context an *extra* axis that is invalid for the table
+        # causes it to be rejected as well.
+        pass
+
+    def test_set_default_context_values(self):
+        # TODO test setting default values, for example something like:
+        # doc.setDefaultContext({"entity": "JUPITER",
+        #                        "TestConditionAxis": "StandardTestConditionMember"})
+        # and then any time we create a context without any of those values, it gets them
+        # filled in from the defaults.
+        pass
 

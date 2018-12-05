@@ -17,32 +17,84 @@ from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
 
+
+class Axis(object):
+    """
+    A table axis. A concept with some extra stuff.
+    """
+    def __init__(self, concept):
+        self.concept = concept
+        self.domain = None
+        self.domainMembers = []
+
+
 class Hypercube(object):
     """
-    (Currently a placeholder) a data structure to represent a table
-    (aka a Hypercube) within a document.
+    Data structure representing a table (aka a Hypercube) within a document.
+    The constructor uses the taxonomy to figure out what axes the table has,
+    what line items are allowed within the table, what are the domains of
+    each axis, etc. The constructed table is still empty until it is populated
+    by storing Context objects, which act as keys to locate facts within the
+    table.
     """
-    def __init__(self, table_name, axis_names):
+    def __init__(self, entry_point, table_name):
+        """
+        entry_point is a reference to the EntryPoint document instance this table
+        belongs to.
+        table_name is the name of this table within the solar taxonomy, for
+        example: "solar:ProductIdentifierTable".
+        Creates a table instance with an empty list of Contexts. Figures out
+        the axes and allowed line items using the relationships from the EntryPoint.
+        """
         self._table_name = table_name
-        self._axis_names = axis_names
+        # self._axes is a dictionary where key is the axis name and value is the
+        # axis Concept instance.
+        self._axes = {}
         self._allowed_line_items = []
         # self.contexts stores a list of contexts that have been populated within
         # this table instance.
         self.contexts = []
 
+        relationships = entry_point.relations
+        # Use the relationships to find the names of my axes:
+        for relation in relationships:
+            if relation['role'] == 'hypercube-dimension':
+                if relation['from'] == self._table_name:
+                    axis_name = relation['to']
+                    if not axis_name in self._axes:
+                        concept = entry_point.getConceptByName(axis_name)
+                        self._axes[axis_name] = Axis(concept)
+
+        # If there's an arcrole of "all" then the "from" is a LineItems
+        # and the "to" is the table?  I think?
+        for relation in relationships:
+            if relation['role'] == 'all':
+                if relation['to'] == self._table_name:
+                    line_item = relation['from']
+                    if not self.hasLineItem(line_item):
+                        self._allowed_line_items.append(line_item)
+
+        # If there's dimension-domain or domain-member relationships for any
+        # of my axes, extract that information as well:
+        for relation in relationships:
+            if relation['role'] == 'dimension-domain':
+                if relation['from'] in self._axes:
+                    domain = relation['to']
+                    self._axes[ relation['from'] ].domain = domain
+
+        for relation in relationships:
+            if relation['role'] == 'domain-member':
+                for axis in self._axes.values():
+                    if axis.domain == relation['from']:
+                        member = relation['to']
+                        axis.domainMembers.append( member )
+        
+
     def name(self):
         return self._table_name
 
     def axes(self):
-        return self._axis_names
-
-    def addLineItem(self, line_item_name):
-        """
-        line_item_name is a string naming a concept. Call this function to tell
-        the hypercube that the named concept is an allowable line item within
-        this table.
-        """
-        self._allowed_line_items.append(line_item_name)
+        return self._axes.keys()
 
     def hasLineItem(self, line_item_name):
         return line_item_name in self._allowed_line_items
@@ -74,13 +126,54 @@ class Hypercube(object):
         return [context.toXML() for context in self.contexts]
 
     def isTypedDimension(self, dimensionName):
-        # return (dimensionName in self.typedDimensionDomains)
-        return False
+        # if not present, reutrn None? or throw exception?
+        return self.getDomain(dimensionName) is not None
 
     def getDomain(self, dimensionName):
-        # this should be: self.ts.concept_info('solar:ProductIdentifierAxis').typed_domain_ref
-        # return self.typedDimensionDomains[dimensionName]
-        return ""
+        axis = self._axes[dimensionName]
+        if axis.domain is not None:
+            return axis.domain
+        
+        concept = self._axes[dimensionName].concept
+        domain_ref = concept.getMetadata("typed_domain_ref")
+        
+        if domain_ref is not None:
+            # The typed_domain_ref metadata property will contain something like
+            #    "#solar_ProductIdentifierDomain"  which is actually an internal link
+            # to an ID inside the taxonomy XML document. I am making the assumption here
+            # that it can be easily translated to an actual domain name by just replacing
+            # "#solar_" with "solar": but a better approach would be to look up the element
+            # matching the ID and read the name from that element.
+            return domain_ref.replace("#solar_", "solar:")
+        return None
+
+    def axisValueWithinDomain(self, dimensionName, dimensionValue):
+        # TODO make this a method of the Axis object?
+        axis = self._axes[dimensionName]
+        if axis.domain is not None:
+            return dimensionValue in axis.domainMembers
+        return False
+
+    def sufficientContext(self, context):
+        for axis_name in self._axes:
+            if not axis_name in context.axes:
+                raise Exception("Missing required {} axis for table {}".format(
+                    axis_name, self._table_name))
+
+            # Check that the value is not outside the domain, for domain-based axes:
+            # (How do we do that?)
+            axis = self._axes[axis_name]
+            if axis.domain is not None:
+                axis_value = context.axes[axis_name]
+                if not axis_value in axis.domainMembers:
+                    raise Exception("{} is not a valid value for the axis {}.".format(
+                        axis_value, axis_name))
+
+        for axis_name in context.axes:
+            if not axis_name in self._axes:
+                raise Exception("{} is not a valid axis for table {}.".format(
+                    axis_name, self._table_name))
+
 
 
 class Context(object):
@@ -111,11 +204,7 @@ class Context(object):
             qualified_name = "solar:" + keyword
             self.axes[qualified_name] = kwargs[keyword]
 
-        # TODO store a reference to my parent hypercube?
         self.id_scheme = "http://xbrl.org/entity/identification/scheme" #???
-
-    def set_cube(self, hypercube):
-        self.hypercube = hypercube
 
     def equals_context(self, other_context):
         if other_context.entity != self.entity:
@@ -142,6 +231,9 @@ class Context(object):
         return True
 
     def set_id(self, hypercube, new_id):
+        """
+        Adds this context to a hypercub
+        """
         self.hypercube = hypercube
         self._id = new_id
 
@@ -284,18 +376,23 @@ class Fact(object):
 
 class Concept(object):
     """
-    Currently only used as nodes in a tree data structure to keep track of which
-    concepts are parents/children of other concepts in the schema hierarchy.
+    Represents metadata about concepts and their relationships:
+    instances of this class are nodes in a tree data structure to keep track
+    of which concepts are parents/children of other concepts in the schema hierarchy.
+    Also stores concept metadata derived from the schema.
     """
-    def __init__(self, concept_name):
+    def __init__(self, taxonomy_semantic, concept_name):
         self.name = concept_name
         self.parent = None
         self.children = []
 
-        # Some info we might want this class to store about its concept:
-        # concept_ancestors = EntryPoint.all_my_concepts[concept].getAncestors()
-        # concept_metadata = EntryPoint.ts.concept_info(concept)
+        try:
+            self.metadata = taxonomy_semantic.concept_info(concept_name)
+        except KeyError, e:
+            print("Warning: no metadata found for {}".format(concept_name))
 
+
+    def getMetadata(self, field_name):
         # concept_metadata properties:
         #x.period_type
         #x.nillable
@@ -304,8 +401,10 @@ class Concept(object):
         #x.substitution_group
         #x.type_name
         #x.period_independent
+        # and sometimes:
+        # x.typed_domain_ref
         # Which will be useful for validation.
-
+        return getattr( self.metadata, field_name, None)
 
     def setParent(self, new_parent):
         self.parent = new_parent
@@ -357,25 +456,24 @@ class Entrypoint(object):
         # This gives me the list of every concept that could ever be
         # included in the document.
 
-        self._all_allowed_concepts = self.ts.concepts_ep(entrypoint_name)
-
-        # ts.concepts_info_ep(entrypoint_name)  # fails on
-        # u'solar:MeterRatingAccuracy:1'
+        self._all_my_concepts = {}
+        for concept_name in self.ts.concepts_ep(entrypoint_name):
+            self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
 
         # Get the relationships (this comes from solar_taxonomy/documents/
         #  <entrypoint>/<entrypoint><version>_def.xml)
         self.relations = self.ts.relationships_ep(entrypoint_name)
         # Search through the relationships to find all of the tables, their
         # axes, and parent/child relationships between concepts:
-        self._find_tables()
-        self._find_parents()
+        self._initialize_parents()
+        self._initialize_tables()
 
         self.facts = {}
         self.namespaces = {
             "xmlns": "http://www.xbrl.org/2003/instance",
             "xmlns:link": "http://www.xbrl.org/2003/linkbase",
             "xmlns:xlink": "http://www.w3.org/1999/xlink",
-            "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
             "xmlns:units": "http://www.xbrl.org/2009/utr",
             "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
             "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
@@ -383,57 +481,38 @@ class Entrypoint(object):
         self.taxonomy = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
 
 
-
-    def allowedConcepts(self):
-        return self._all_allowed_concepts
-
-    def _find_tables(self):
+    def _initialize_tables(self):
         """
         Uses relations to find all of the tables (hypercubes) allowed in
         the document, and the axes and lineitems for each one.
         """
         # When there's an arcrole of "hypercube-dimensions", the "from"
-        # is a hypercube/table, and the "to" is an axis.
+        # is a hypercube/table, and the "to" is an axis. Use these
+        # relationships to find all of the hypercube
         self._tables = {}
-        axes = {}
-        # TODO move more of this logic to Hypercube constructor.
+        all_table_names = set([])
         for relation in self.relations:
             if relation['role'] == 'hypercube-dimension':
                 table_name = relation['from']
-                axis_name = relation['to']
-                if not table_name in axes:
-                    axes[table_name] = []
-                axes[table_name].append(axis_name)
-        for table_name in axes:
-            # TODO let's initialize a Concept instance for each axis,
-            # pass those instances to the Hypercube instead of just
-            # their names.
-            self._tables[table_name] = Hypercube( table_name, axes[table_name] )
+                all_table_names.add(table_name)
 
-        # If there's an arcrole of "all" then the "from" is a LineItems
-        # and the "to" is the table?  I think?
-        for relation in self.relations:
-            if relation['role'] == 'all':
-                line_item = relation['from']
-                table_name = relation['to']
-                table = self._tables[table_name]
-                table.addLineItem(line_item)
+        for table_name in all_table_names:
+            self._tables[table_name] = Hypercube(self, table_name)
 
 
-    def _find_parents(self):
+    def _initialize_parents(self):
         # Put the concepts into a tree based on domain-member
         # relations.
-        all_my_concepts = {}
         for relation in self.relations:
             if relation['role'] == 'domain-member':
-                parent = relation['from']
-                child = relation['to']
-                if not parent in all_my_concepts:
-                    all_my_concepts[parent] = Concept(parent)
-                if not child in all_my_concepts:
-                    all_my_concepts[child] = Concept(child)
-                all_my_concepts[parent].addChild(all_my_concepts[child])
-        self.all_my_concepts = all_my_concepts
+                parent_name = relation['from']
+                child_name = relation['to']
+                parent = self.getConceptByName(parent_name)
+                child = self.getConceptByName(child_name)
+                parent.addChild(child)
+
+    def getConceptByName(self, concept_name):
+        return self._all_my_concepts[concept_name]
 
     def getTableNames(self):
         return self._tables.keys()
@@ -456,16 +535,13 @@ class Entrypoint(object):
         Given a concept_name, returns the table (Hypercube object) which
         that concept belongs inside of, or None if there's no match.
         """
-        if not concept_name in self._all_allowed_concepts:
+        if not concept_name in self._all_my_concepts:
             raise Exception("{} is not an allowed concept for {}".format(
                 concept_name, self.entrypoint_name))
-
         # We know that a concept belongs in a table because the concept
         # is a descendant of a LineItem that has a relationship to the
         # table.
-        if not concept_name in self.all_my_concepts:
-            return None
-        ancestors = self.all_my_concepts[concept_name].getAncestors()
+        ancestors = self._all_my_concepts[concept_name].getAncestors()
         for ancestor in ancestors:
             if "LineItem" in ancestor.name:
                 for table in self._tables.values():
@@ -480,7 +556,7 @@ class Entrypoint(object):
         are only abstract parents of writeable concepts. e.g. you can't
         write a value to an "Abstract" or a "LineItem".
         """
-        if concept_name in self.all_my_concepts:
+        if concept_name in self._all_my_concepts:
             abstract_keywords = ["Abstract", "LineItems", "Table", "Domain", "Axis"]
             for word in abstract_keywords:
                 if concept_name.endswith(word):
@@ -497,8 +573,9 @@ class Entrypoint(object):
         Otherwise, raises an exception explaining what is wrong.
         """
         # TODO Refactor to put this logic into the Concept?
-        metadata = self.ts.concept_info(concept_name)
-        if metadata.period_type == "duration":
+        period_type = self.getConceptByName(concept_name).getMetadata("period_type")
+
+        if period_type == "duration":
             if not context.duration:
                 raise Exception("Missing required duration in {} context".format(
                     concept_name))
@@ -515,7 +592,7 @@ class Entrypoint(object):
                     concept_name))
 
 
-        if metadata.period_type == "instant":
+        if period_type == "instant":
             if not context.instant:
                 raise Exception("Missing required instant in {} context".format(
                     concept_name))
@@ -525,14 +602,7 @@ class Entrypoint(object):
         # required axes, if this concept is on a table:
         table = self.getTableForConcept(concept_name)
         if table is not None:
-            for axis in table.axes():
-                if not axis in context.axes:
-                    raise Exception("Missing required {} axis for {}".format(
-                        axis, concept_name))
-                # Check that the value given of context.axes[axis] is valid!
-                # (How do we do that?)
-        # TODO check that we haven't given any EXTRA axes that the table
-        # DOESN'T want?
+            table.sufficientContext(context)
 
         return True
 
@@ -563,9 +633,6 @@ class Entrypoint(object):
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
-        if not concept in self._all_allowed_concepts:
-            raise Exception("{} is not allowed in the {} entrypoint".format(
-                concept, self.entrypoint_name))
         if not self.canWriteConcept(concept):
             raise Exception("{} is not a writeable concept".format(concept))
 
