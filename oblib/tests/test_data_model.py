@@ -14,7 +14,7 @@
 
 import unittest
 from data_model import Entrypoint, Context, Hypercube
-from datetime import datetime
+from datetime import datetime, date
 from taxonomy import getTaxonomy
 from lxml import etree
 import json
@@ -359,7 +359,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
             segment = entity.find("{http://www.xbrl.org/2003/instance}segment")
 
             axes = segment.findall("{http://xbrl.org/2006/xbrldi}typedMember")
-            # Failing because some of them are now typedMember TODO XXX
             axis_names = [x.attrib["dimension"] for x in axes]
 
             self.assertItemsEqual(axis_names, ['solar:ProductIdentifierAxis',
@@ -573,20 +572,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertTrue( doc.valid_unit("solar:TypeOfDevice", None)) #solar-types:deviceItemType
 
 
-    def test_validate_values_for_enumerated_solar_data_types(self):
-        # solar-specific data types (Defined in a document we don't have:
-        # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"
-        # namespace="http://xbrl.us/dtr/type/solar-types"
-        # schemaLocation="solar-types-2018-03-31.xsd"/>
-
-        # OK we have that document but we don't load it?
-
-        # in solar-types-2018-03-31.xsd there is a <complexType tag name="deviceItemType">
-        # has <simpleContent> which has <restriction> which hasa bunch of <xs:enumeration>
-        # each of which has a value like "ModuleMember", "OptimizerMember", etc.
-        pass
-
-
     def test_concepts_can_type_check(self):
         # Try passing in wrong data type to a typed concept:
         doc = Entrypoint("CutSheet", self.taxonomy)
@@ -640,14 +625,104 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
 
     def test_hypercube_rejects_context_with_unwanted_axes(self):
-        # TODO test that giving a context an *extra* axis that is invalid for the table
+        # Test that giving a context an *extra* axis that is invalid for the table
         # causes it to be rejected as well.
-        pass
+        doc = Entrypoint("CutSheet", self.taxonomy)
+
+        twoAxisContext = Context(ProductIdentifierAxis = "placeholder",
+                                 TestConditionAxis = "solar:StandardTestConditionMember",
+                                 instant = datetime.now())
+        self.assertTrue( doc.sufficient_context("solar:DeviceCost",
+                                                twoAxisContext))
+
+        threeAxisContext = Context(
+            ProductIdentifierAxis = "placeholder",
+            InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember',
+            TestConditionAxis = "solar:StandardTestConditionMember",
+            instant = datetime.now())
+        # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
+        # but the table that holds DeviceCost doesn't want this axis:
+        with self.assertRaises(Exception):
+            doc.sufficient_context("solar:DeviceCost", threeAxisContext)
+
 
     def test_set_default_context_values(self):
-        # TODO test setting default values, for example something like:
-        # doc.setDefaultContext({"entity": "JUPITER",
-        #                        "TestConditionAxis": "StandardTestConditionMember"})
-        # and then any time we create a context without any of those values, it gets them
-        # filled in from the defaults.
+        # Test setting default values, for example something like:
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               "instant": now,
+                               "duration": "forever"
+                               })
+        # Could also support setting default unit, even though that's not part of context:
+        
+        
+        # If we set a fact that wants an instant context, it should use 'now':
+        doc.set("solar:DeviceCost", "100", unit="USD", ProductIdentifierAxis = "placeholder")
+        # This would normally raise an exception because it's missing instant, entity, and
+        # TestConditionAxis. But we set defaults for those, so they should be filled in:
+        fact = doc.get("solar:DeviceCost", Context(
+            ProductIdentifierAxis = "placeholder",
+            TestConditionAxis = "solar:StandardTestConditionMember",
+            entity = "JUPITER",
+            instant = now))
+        self.assertEqual(fact.value, "100")
+        self.assertEqual(fact.unit, "USD")
+        self.assertEqual(fact.context.entity, "JUPITER")
+        self.assertEqual(fact.context.instant, now)
+
+        # TODO test method of calling set() where we pass in Context object.
+
+        # If we set a fact that wants a duration context, it should use jan 1 - jan 31:
+        doc.set("solar:ModuleNameplateCapacity", "0.3", unit="W",
+                 ProductIdentifierAxis = "placeholder")
+        # Would normally raise an exception because missing duration, entity, and
+        # TestConditionAxis. But we set defaults for those, so they should be filled in:
+        fact = doc.get("solar:ModuleNameplateCapacity", Context(
+            ProductIdentifierAxis = "placeholder",
+            TestConditionAxis = "solar:StandardTestConditionMember",
+            entity = "JUPITER",
+            duration = "forever"))
+        self.assertEqual(fact.value, "0.3")
+        self.assertEqual(fact.unit, "W")
+        self.assertEqual(fact.context.entity, "JUPITER")
+        self.assertEqual(fact.context.duration, "forever")
+        
+
+        # Try setting ALL the fields in set_default_context and then pass in NO context fields,
+        # that should work too:
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               "instant": now,
+                               "solar:ProductIdentifierAxis": "placeholder"
+                               })
+        doc.set("solar:DeviceCost", "99", unit="USD")
+        fact = doc.get("solar:DeviceCost", Context(
+            ProductIdentifierAxis = "placeholder",
+            TestConditionAxis = "solar:StandardTestConditionMember",
+            entity = "JUPITER",
+            instant = now))
+        self.assertEqual(fact.value, "99")
+
+
+    # TODO try a test where we give somethign a duration like:
+    #  {"start": date(year=2018,month=1,day=1),
+    #   "end": date(year=2018,month=1,day=31)}
+    # and then look up the fact and make sure it has that start and end date.
+        
+
+    def test_validate_values_for_enumerated_solar_data_types(self):
+        # solar-specific data types (Defined in a document we don't have:
+        # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"
+        # namespace="http://xbrl.us/dtr/type/solar-types"
+        # schemaLocation="solar-types-2018-03-31.xsd"/>
+
+        # OK we have that document but we don't load it?
+
+        # in solar-types-2018-03-31.xsd there is a <complexType tag name="deviceItemType">
+        # has <simpleContent> which has <restriction> which hasa bunch of <xs:enumeration>
+        # each of which has a value like "ModuleMember", "OptimizerMember", etc.
         pass
+
+

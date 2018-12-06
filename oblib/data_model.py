@@ -267,7 +267,9 @@ class Context(object):
                 # TODO in the future we should use metadata to identify
                 # what's an axis, not just look for the string "Axis".
                 raise Exception("Context given invalid keyword {}".format(keyword))
-            qualified_name = "solar:" + keyword
+            qualified_name = keyword
+            if not qualified_name.startswith("solar:"):
+                qualified_name = "solar:" + keyword
             self.axes[qualified_name] = kwargs[keyword]
 
         self.id_scheme = "http://xbrl.org/entity/identification/scheme" #???
@@ -533,17 +535,33 @@ class Concept(object):
                 return False
             else:
                 return True
+        if myType == "xbrli:monetaryItemType":
+            # TODO I assume this is the same as decimalItemType except that it
+            # also requires a unit (units are validated elsewhere). Is this
+            # correct?
+            try:
+                value = float( value )
+            except ValueError, e:
+                return False
+            else:
+                return True
         if myType == "xbrli:dateItemType":
             # TODO also return true if it's a string that can be parsed into
             # a date according to a standard pattern?
             return isinstance( myType, datetime.date)
         if myType == "num:percentItemType":
-            # TODO
+            # TODO Look up what is expected -- does this want 0.01 - 0.99 or
+            # does it want 1 - 99  or does it want "1%" - "99%" ?
             return True
         if myType == "xbrli:anyURIItemType":
-            # TODO
+            # TODO there's probably a validation method in urllib or something
+            # that we can import here.
             return True
         print("Warning: i don't know how to validate " + myType)
+
+        # TODO add validation for complex types.  Most types in the num:
+        # namespace will be decimals that expect units. Most types in
+        # the solar-types: namespace will be enumerated string types.
         return True
 
 
@@ -609,6 +627,7 @@ class Entrypoint(object):
             "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
         }
         self.taxonomy_name = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
+        self._default_context = {}
 
 
     def _initialize_tables(self):
@@ -836,19 +855,26 @@ class Entrypoint(object):
 
         if not self.can_write_concept(concept_name):
             raise Exception("{} is not a writeable concept".format(concept_name))
+        concept = self.get_concept_by_name(concept_name)
 
         if "context" in kwargs:
             context = kwargs.pop("context")
         elif len(kwargs.keys()) > 0:
             # turn the remaining keyword args into a Context object -- this
             # is just syntactic sugar to make this method easier to call.
+            period = concept.get_metadata("period_type")
+            if period not in kwargs and period in self._default_context:
+                kwargs[period] = self._default_context[period]
             context = Context(**kwargs)
         else:
             context = None
             # TODO:
             # In this case, use the default context if one has been set.
 
-        concept = self.get_concept_by_name(concept_name)
+        # Use default values, if any have been set, to fill in missing fields of context:
+        if len(self._default_context) > 0:
+            context = self._fill_in_context_from_defaults(context, concept)
+
         if not self.sufficient_context(concept_name, context):
             raise Exception("Insufficient context for {}".format(concept_name))
 
@@ -895,6 +921,13 @@ class Entrypoint(object):
 
         # TODO support getting by kwargs instead of getting by context?
 
+        # TODO if only some fields of the context are given, try matching
+        # on just those fields and disregarding the rest -- e.g. if no
+        # period is given, return a fact that matches the other fields, whatever
+        # its duration is?
+
+        # TODO a function that returns multiple, i.e. all facts for given
+        # concept regardless of context, or vice versa.
         table = self.get_table_for_concept(concept)
         context = table.lookup_context(context)
         if table.name() in self.facts:
@@ -1010,6 +1043,39 @@ class Entrypoint(object):
             masterJsonObj["facts"].append( fact.to_JSON() )
         return json.dumps(masterJsonObj)
 
+    def set_default_context(self, dictionary):
+        """
+        """
+        self._default_context = dictionary.copy()
+
+    def _fill_in_context_from_defaults(self, context, concept):
+        """
+        """
+        period = concept.get_metadata("period_type") # "instant" or "duration"
+        if context is None:
+            # Create context from default entity and default period:
+            context_args = {}
+            if period in self._default_context:
+                context_args[period] = self._default_context[period]
+            if "entity" in self._default_context:
+                context_args["entity"] = self._default_context["entity"]
+            context = Context(**self._default_context)
+
+        else:
+            # If entity or period is missing, fill in from defaults:
+            if context.entity is None and "entity" in self._default_context:
+                context.entity = self._default_context["entity"]
+
+            if getattr(context, period, None) is None and period in self._default_context:
+                setattr( context, period, self._default_context["period"] )
+
+        # If any axis that the table wants is missing, fill in axis from defaults:
+        table = self.get_table_for_concept(concept.name)
+        if table is not None:
+            for axis_name in table.axes():
+                if axis_name in self._default_context and axis_name not in context.axes:
+                    context.axes[axis_name] = self._default_context[axis_name]
+        return context
 
     def is_valid(self):
         """
