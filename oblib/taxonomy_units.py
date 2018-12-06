@@ -41,7 +41,7 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         self._content = content
 
     def endElement(self, name):
-        
+
         if name == "unitId":
             self._curr.unit_id = self._content
             self._units[self._content] = self._curr
@@ -89,7 +89,7 @@ class TaxonomyUnits(object):
             with open(fn, 'r') as infile:
                 parser.parse(infile)
         else:
-            with open(fn, 'r', encoding='utf8', errors='ignore') as infile:
+            with open(fn, 'r', encoding='utf8') as infile:
                 parser.parse(infile)
         return tax.units()
 
@@ -103,10 +103,19 @@ class TaxonomyUnits(object):
         """Return a map and sublists of all units."""
         return self._units
 
-    def validate_unit(self, unit_id):
-        """Validate that a unit is in the taxonomy based on its id."""
-        if unit_id in self._units:
-            return True
+    def validate_unit(self, **kwargs):
+        """
+        Validate that a unit is in the taxonomy based on its unit_id or
+        unit_name.
+        """
+        if "unit_id" in kwargs:
+            unit_id = kwargs.pop("unit_id")
+            return unit_id in self._units
+        elif "unit_name" in kwargs:
+            unit_name = kwargs.pop("unit_name")
+            valid_names = [self._units[k].unit_name for k in
+                           self._units.keys()]
+            return unit_name in valid_names
         else:
             return False
 
@@ -114,7 +123,7 @@ class TaxonomyUnits(object):
         """
         Return a unit.
 
-        Returns an unit given a unit_id or None if the type does not
+        Returns an unit given a unit_id or None if unit_id does not
         exist in the taxonomy.
         """
         if unit_id in self._units:
