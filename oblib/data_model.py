@@ -64,7 +64,7 @@ class Hypercube(object):
                 if relation['from'] == self._table_name:
                     axis_name = relation['to']
                     if not axis_name in self._axes:
-                        concept = entry_point.getConceptByName(axis_name)
+                        concept = entry_point.get_concept_by_name(axis_name)
                         self._axes[axis_name] = Axis(concept)
 
         # If there's an arcrole of "all" then the "from" is a LineItems
@@ -73,7 +73,7 @@ class Hypercube(object):
             if relation['role'] == 'all':
                 if relation['to'] == self._table_name:
                     line_item = relation['from']
-                    if not self.hasLineItem(line_item):
+                    if not self.has_line_item(line_item):
                         self._allowed_line_items.append(line_item)
 
         # If there's dimension-domain or domain-member relationships for any
@@ -97,19 +97,25 @@ class Hypercube(object):
         return self._table_name
 
     def axes(self):
+        """Return a list of strings which are the names of the table's axes."""
         return self._axes.keys()
 
-    def hasLineItem(self, line_item_name):
+    def has_line_item(self, line_item_name):
+        """
+        Return True if the given line_item_name (a string naming a concept) is
+        can be stored in this table.
+        """
         return line_item_name in self._allowed_line_items
 
     def store_context(self, new_context):
         """
-        Either creates and stores a new context or returns an already
-        existing one matching kwargs.
+        new_context must be a Context object.
+        If there is a matching Context stored in the table already, returns
+        that one and makes no change to the table.
+        Otherwise, a unique ID is assigned to the new context and it's stored.
+        Either way, it returns a Context object with an ID and the returned
+        context is the one that should be used.
         """
-
-        # If we already have an equal context, re-use that one instead of creating
-        # another. Otherwise, assign the new context an ID within this table.
         for context in self.contexts:
             if context.equals_context(new_context):
                 return context
@@ -120,25 +126,42 @@ class Hypercube(object):
         return new_context
 
     def lookup_context(self, old_context):
+        """
+        old_context: a Context object.
+        If there is a matching Context stored in the table already, returns
+        that one; otherwise returns None.
+        """
         for context in self.contexts:
             if context.equals_context(old_context):
                 return context
         return None
 
-    def toXML(self):
-        return [context.toXML() for context in self.contexts]
+    def to_XML(self):
+        """
+        Returns a list of XML tags representing all the contexts in the table,
+        ready to be added to an ElementTree.
+        """
+        return [context.to_XML() for context in self.contexts]
 
-    def isTypedDimension(self, dimensionName):
+    def is_typed_dimension(self, dimensionName):
+        """
+        Returns True if the dimensionName (a string) is a dimension with a defined
+        domain, as opposed to an explicit dimension.
+        """
         # if not present, reutrn None? or throw exception?
-        return self.getDomain(dimensionName) is not None
+        return self.get_domain(dimensionName) is not None
 
-    def getDomain(self, dimensionName):
+    def get_domain(self, dimensionName):
+        """
+        Gets the domain name (the name of a Concept) corresponding to the named
+        dimension, if that dimension is a typed dimension; otherwise returns None.
+        """
         axis = self._axes[dimensionName]
         if axis.domain is not None:
             return axis.domain
         
         concept = self._axes[dimensionName].concept
-        domain_ref = concept.getMetadata("typed_domain_ref")
+        domain_ref = concept.get_metadata("typed_domain_ref")
         
         if domain_ref is not None:
             # The typed_domain_ref metadata property will contain something like
@@ -150,25 +173,43 @@ class Hypercube(object):
             return domain_ref.replace("#solar_", "solar:")
         return None
 
-    def axisValueWithinDomain(self, dimensionName, dimensionValue):
+    def axis_value_within_domain(self, dimensionName, dimensionValue):
+        """
+        dimensionName: a string naming one of the dimensions of this table.
+        dimensionValue: a string containing a proposed value for that dimension
+        returns True if the given value is allowed in the given dimension, False
+        otherwise.
+        """
         # TODO make this a method of the Axis object?
         axis = self._axes[dimensionName]
-        if axis.domain is not None:
-            return dimensionValue in axis.domainMembers
-        return False
+        if len(axis.domainMembers) == 0:
+            # If this is a domain axis but not an enumerated domain axis, then for
+            # now we'll allow anything. For example, ProductIdentifierAxis has
+            # ProductIdentiferDomain but the value is not restricted to an enumerated
+            # type.  TODO: in the future is there more validation we can do on this
+            # kind of axis?
+            return True
 
-    def sufficientContext(self, context):
+        return dimensionValue in axis.domainMembers
+
+    def sufficient_context(self, context):
+        """
+        context: a Context object
+        returns True if the given context provides valid values for all axes required
+        to store it in this table. Raises an exception if any axis is missing, or
+        has an out-of-bound value, or if an axis is given that doesn't belong in
+        this table.
+        """
         for axis_name in self._axes:
             if not axis_name in context.axes:
                 raise Exception("Missing required {} axis for table {}".format(
                     axis_name, self._table_name))
 
             # Check that the value is not outside the domain, for domain-based axes:
-            # (How do we do that?)
             axis = self._axes[axis_name]
-            if axis.domain is not None:
+            if self.is_typed_dimension(axis_name):
                 axis_value = context.axes[axis_name]
-                if not axis_value in axis.domainMembers:
+                if not self.axis_value_within_domain(axis_name, axis_value):
                     raise Exception("{} is not a valid value for the axis {}.".format(
                         axis_value, axis_name))
 
@@ -265,7 +306,7 @@ class Context(object):
     def get_id(self):
         return self._id
 
-    def toXML(self):
+    def to_XML(self):
         # if neither prod_month nor instant is provided, then period will
         # be "forever"
         context = Element("context", attrib={"id": self.get_id()})
@@ -296,11 +337,11 @@ class Context(object):
         for dimension in self.axes:
             # First figure out if dimension is typed or untyped:
 
-            if self.hypercube.isTypedDimension(dimension):
+            if self.hypercube.is_typed_dimension(dimension):
                 typedMember = SubElement(
                     segmentElem, "xbrldi:typedMember",
                     attrib = {"dimension": dimension})
-                domainElem = self.hypercube.getDomain(dimension)
+                domainElem = self.hypercube.get_domain(dimension)
                 domain = SubElement(typedMember, domainElem)
                 domain.text = str(self.axes[dimension])
 
@@ -312,7 +353,7 @@ class Context(object):
                 explicit.text = str(self.axes[dimension])
         return context
 
-    def toJSON(self):
+    def to_JSON(self):
         """
         Returns context's entity, period, and extra dimensions as JSON dictionary
         object.
@@ -330,7 +371,7 @@ class Context(object):
         for dimension in self.axes:
             # TODO is there a difference in how typed axes vs explicit axes
             # are represented in JSON?
-            if self.hypercube.isTypedDimension(dimension):
+            if self.hypercube.is_typed_dimension(dimension):
             #if dimension in self.typedDimensionDomains:
                 value_str = self.axes[dimension]
             else:
@@ -342,8 +383,9 @@ class Context(object):
 
 class Fact(object):
     """
-    Represents an XBRL Fact, linked to a context, that can be exported
-    as either XML or JSON.
+    Represents a single XBRL Fact, linked to a context, that can be exported
+    as either XML or JSON. A Fact provides a value for a certain concept within
+    a certain context, and can optionally provide units and a precision.
     """
     def __init__(self, concept, context, unit, value, decimals=2):
         """
@@ -363,7 +405,7 @@ class Fact(object):
         self.unit = unit
         self.decimals = decimals
 
-    def toXML(self):
+    def to_XML(self):
         """
         Return the Fact as an XML element.
         """
@@ -384,11 +426,11 @@ class Fact(object):
         return elem
 
 
-    def toJSON(self):
+    def to_JSON(self):
         """
         Return the Fact as a JSON dictionary object
         """
-        aspects = self.context.toJSON()
+        aspects = self.context.to_JSON()
         aspects["xbrl:concept"] = self.concept
         if self.unit is not None:
             aspects["xbrl:unit"] = self.unit
@@ -420,34 +462,36 @@ class Concept(object):
             print("Warning: no metadata found for {}".format(concept_name))
 
 
-    def getMetadata(self, field_name):
-        # concept_metadata properties:
-        #x.period_type
-        #x.nillable
-        #x.id
-        #x.name
-        #x.substitution_group
-        #x.type_name
-        #x.period_independent
-        # and sometimes:
-        # x.typed_domain_ref
-        # Which will be useful for validation.
+    def get_metadata(self, field_name):
+        """
+        Returns the concept metadata value for the named field, or None if there
+        is no value for that field. Accepted field_names are:
+        'period_type'
+        'nillable'
+        'id'
+        'name'
+        'substitution_group'
+        'type_name'
+        'period_independent'
+        'typed_domain_ref' (only present for dimension concepts)
+        """
         return getattr( self.metadata, field_name, None)
 
-    def setParent(self, new_parent):
+    def set_parent(self, new_parent):
         """Set a concept parent."""
         self.parent = new_parent
         if self not in self.parent.children:
             self.parent.children.append(self)
 
-    def addChild(self, new_child):
+    def add_child(self, new_child):
         """Add a child concept."""
         if new_child not in self.children:
             self.children.append(new_child)
         new_child.parent = self
 
-    def getAncestors(self):
-        """Return a concepts parent and other ancestors."""
+    def get_ancestors(self):
+        """Returns a flat list of Concept instances, including the concept's
+        parent, its parent's parent, etc. recursively up to the root of the tree."""
         ancestors = []
         curr = self
         while curr.parent is not None:
@@ -551,19 +595,28 @@ class Entrypoint(object):
                 if parent_name.endswith("_1") or child_name.endswith("_1"):
                     # These are the duplicate concept names and are unwanted
                     continue
-                parent = self.getConceptByName(parent_name)
-                child = self.getConceptByName(child_name)
-                parent.addChild(child)
+                parent = self.get_concept_by_name(parent_name)
+                child = self.get_concept_by_name(child_name)
+                parent.add_child(child)
 
-    def getConceptByName(self, concept_name):
+    def get_concept_by_name(self, concept_name):
+        """
+        Returns the Concept instance object matching given concept_name string.
+        """
         return self._all_my_concepts[concept_name]
 
-    def getTableNames(self):
-        """Return table names."""
+    def get_table_names(self):
+        """
+        Returns a list of strings identifying all tables that can be included
+        in this document.
+        """
         return self._tables.keys()
 
-    def getTable(self, table_name):
-        """Return a given table."""
+    def get_table(self, table_name):
+        """
+        Returns the Table instance matching the given table_name string, if it
+        is present in this document.
+        """
         return self._tables[table_name]
 
     def _identify_relations(self, concept_name):
@@ -576,7 +629,7 @@ class Entrypoint(object):
         for x in to_me:
             print("{} -> {} -> {}".format(x['from'], x['role'], concept_name))
 
-    def getTableForConcept(self, concept_name):
+    def get_table_for_concept(self, concept_name):
         """
         Returns the table for a concept.
 
@@ -589,15 +642,15 @@ class Entrypoint(object):
         # We know that a concept belongs in a table because the concept
         # is a descendant of a LineItem that has a relationship to the
         # table.
-        ancestors = self._all_my_concepts[concept_name].getAncestors()
+        ancestors = self._all_my_concepts[concept_name].get_ancestors()
         for ancestor in ancestors:
             if "LineItem" in ancestor.name:
                 for table in self._tables.values():
-                    if table.hasLineItem(ancestor.name):
+                    if table.has_line_item(ancestor.name):
                         return table
         return None
 
-    def canWriteConcept(self, concept_name):
+    def can_write_concept(self, concept_name):
         """
         Return whether a concept is writable.
 
@@ -614,7 +667,7 @@ class Entrypoint(object):
             return True
         return False
 
-    def sufficientContext(self, concept_name, context):
+    def sufficient_context(self, concept_name, context):
         """
         True if the given Context object contains all the information
         needed to provide full context for the named concept -- sufficient
@@ -623,7 +676,7 @@ class Entrypoint(object):
         Otherwise, raises an exception explaining what is wrong.
         """
         # TODO Refactor to put this logic into the Concept?
-        period_type = self.getConceptByName(concept_name).getMetadata("period_type")
+        period_type = self.get_concept_by_name(concept_name).get_metadata("period_type")
 
         if PeriodType(period_type) == PeriodType.duration:
             if not context.duration:
@@ -650,13 +703,13 @@ class Entrypoint(object):
 
         # If we got this far, we know the time period is OK. Now check the
         # required axes, if this concept is on a table:
-        table = self.getTableForConcept(concept_name)
+        table = self.get_table_for_concept(concept_name)
         if table is not None:
-            table.sufficientContext(context)
+            table.sufficient_context(context)
 
         return True
 
-    def validUnit(self, concept, unit_id):
+    def valid_unit(self, concept, unit_id):
         # TODO Refactor to move this logic into the Concept class?
 
         unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
@@ -666,7 +719,7 @@ class Entrypoint(object):
         # There is type-checking we can do for these unitless types but we'll handle
         # it elsewhere
         
-        required_type = self.getConceptByName(concept).getMetadata("type_name")
+        required_type = self.get_concept_by_name(concept).get_metadata("type_name")
         if required_type in unitlessTypes:
             if unit_id is None:
                 return True
@@ -728,7 +781,7 @@ class Entrypoint(object):
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
-        if not self.canWriteConcept(concept):
+        if not self.can_write_concept(concept):
             raise Exception("{} is not a writeable concept".format(concept))
 
         if "context" in kwargs:
@@ -742,16 +795,16 @@ class Entrypoint(object):
             # TODO:
             # In this case, use the default context if one has been set.
 
-        if not self.sufficientContext(concept, context):
+        if not self.sufficient_context(concept, context):
             raise Exception("Insufficient context for {}".format(concept))
 
         # Check unit type:
-        if not self.validUnit(concept, unit):
+        if not self.valid_unit(concept, unit):
             raise Exception("{} is an invalid unit type for {}".format(unit, concept))
         
         # TODO check datatype of given value against concept
         
-        table = self.getTableForConcept(concept)
+        table = self.get_table_for_concept(concept)
 
         context = table.store_context(context) # dedupes, assigns ID
 
@@ -785,7 +838,7 @@ class Entrypoint(object):
 
         # TODO support getting by kwargs instead of getting by context?
 
-        table = self.getTableForConcept(concept)
+        table = self.get_table_for_concept(concept)
         context = table.lookup_context(context)
         if table.name() in self.facts:
             if context.get_id() in self.facts[table.name()]:
@@ -794,7 +847,10 @@ class Entrypoint(object):
         return None
 
     def get_facts(self):
-        # return flattened list of facts
+        """
+        Returns a flattened list of Fact instances -- all of the facts that
+        have been set in this document so far.
+        """
         all_facts = []
         for table_dict in self.facts.values():
             for context_dict in table_dict.values():
@@ -802,7 +858,7 @@ class Entrypoint(object):
                     all_facts.append(fact)
         return all_facts
     
-    def _makeUnitTag(self, unit_id):
+    def _make_unit_tag(self, unit_id):
         """
         Return an XML tag for a unit (such as kw, kwh, etc). Fact tags can
         reference this unit tag.
@@ -816,7 +872,11 @@ class Entrypoint(object):
         return unit
 
 
-    def toXMLTag(self):
+    def to_XML_tag(self):
+        """
+        Returns an XML tag which is the root of an XML tree representing
+        the entire document contents (all contexts, units, and facts) in XML form.
+        """
         # The root element:
         xbrl = Element("xbrl", attrib = self.namespaces)
 
@@ -827,7 +887,7 @@ class Entrypoint(object):
 
         # Add a context tag for each context we want to reference:
         for hypercube in self._tables.values():
-            tags = hypercube.toXML()
+            tags = hypercube.to_XML()
             for tag in tags:
                 xbrl.append(tag)
 
@@ -836,42 +896,42 @@ class Entrypoint(object):
                               if fact.unit is not None])
         for unit in required_units:
             # Add a unit tag defining each unit we want to reference:
-            xbrl.append(self._makeUnitTag(unit))
+            xbrl.append(self._make_unit_tag(unit))
 
         for fact in self.get_facts():
-            xbrl.append( fact.toXML() )
+            xbrl.append( fact.to_XML() )
 
         return xbrl
 
-    def toXML(self, filename):
+    def to_XML(self, filename):
         """
         Exports XBRL as XML to the given filename.
         """
-        xbrl = self.toXMLTag()
+        xbrl = self.to_XML_tag()
         tree = xml.etree.ElementTree.ElementTree(xbrl)
         # Apparently every XML file should start with this, which ElementTree
         # doesn't do:
         # <?xml version="1.0" encoding="utf-8"?>
         tree.write(filename)
 
-    def toXMLString(self):
+    def to_XML_string(self):
         """
         Returns XBRL as an XML string
         """
-        xbrl = self.toXMLTag()
+        xbrl = self.to_XML_tag()
         return xml.etree.ElementTree.tostring(xbrl).decode()
 
 
-    def toJSON(self, filename):
+    def to_JSON(self, filename):
         """
         Exports XBRL as JSON to the given filename.
         """
 
         outfile = open(filename, "w")
-        outfile.write(self.toJSONString())
+        outfile.write(self.to_JSON_string())
         outfile.close()
 
-    def toJSONString(self):
+    def to_JSON_string(self):
         """
         Returns XBRL as a JSON string
         """
@@ -890,11 +950,11 @@ class Entrypoint(object):
         facts = self.get_facts()
 
         for fact in facts:
-            masterJsonObj["facts"].append( fact.toJSON() )
+            masterJsonObj["facts"].append( fact.to_JSON() )
         return json.dumps(masterJsonObj)
 
 
-    def isValid(self):
+    def is_valid(self):
         """
         (Placeholder).
 
@@ -905,7 +965,7 @@ class Entrypoint(object):
         """
         return True
 
-    def isComplete(self):
+    def is_complete(self):
         """
         (Placeholder).
 

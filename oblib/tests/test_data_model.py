@@ -47,23 +47,23 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # allowable concepts as defined by the taxonomy for CutSheets.
 
         # TypeOfDevice is allowed in CutSheets:
-        self.assertTrue(doc.canWriteConcept('solar:TypeOfDevice'))
+        self.assertTrue(doc.can_write_concept('solar:TypeOfDevice'))
         # AppraisalCounterparties is not allowed in CutSheets:
-        self.assertFalse(doc.canWriteConcept('solar:AppraisalCounterparties'))
+        self.assertFalse(doc.can_write_concept('solar:AppraisalCounterparties'))
 
         # The newly initialized CutSheet should have a correct list of tables
         # and each table should have a correct list of axes, as defined by
         # the taxonomy for CutSheets:
-        tables = doc.getTableNames()
+        tables = doc.get_table_names()
         self._check_arrays_equivalent(tables,
                                       ["solar:InverterPowerLevelTable",
                                        "solar:CutSheetDetailsTable"])
         self._check_arrays_equivalent(
-            doc.getTable("solar:InverterPowerLevelTable").axes(),
+            doc.get_table("solar:InverterPowerLevelTable").axes(),
                          ["solar:ProductIdentifierAxis",
                           "solar:InverterPowerLevelPercentAxis"])
         self._check_arrays_equivalent(
-            doc.getTable("solar:CutSheetDetailsTable").axes(),
+            doc.get_table("solar:CutSheetDetailsTable").axes(),
                          ["solar:ProductIdentifierAxis",
                           "solar:TestConditionAxis"])
 
@@ -71,15 +71,15 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = Entrypoint("CutSheet", self.taxonomy)
         # The CutSheet instance should know that RevenueMeterFrequency
         # is a concept that belongs in the CutSheetDetailsTable
-        table = doc.getTableForConcept("solar:RevenueMeterFrequency")
+        table = doc.get_table_for_concept("solar:RevenueMeterFrequency")
         self.assertEqual(table.name(), "solar:CutSheetDetailsTable")
 
-        table = doc.getTableForConcept("solar:InverterEfficiencyAtVmaxPercent")
+        table = doc.get_table_for_concept("solar:InverterEfficiencyAtVmaxPercent")
         self.assertEqual(table.name(), "solar:InverterPowerLevelTable")
 
         # but if we ask for something that is not a line item concept,
-        # getTableForConcept should return None:
-        table = doc.getTableForConcept("solar:CutSheetDetailsTable")
+        # get_table_for_concept should return None:
+        table = doc.get_table_for_concept("solar:CutSheetDetailsTable")
         self.assertIsNone(table)
 
     def test_can_write_concept(self):
@@ -88,15 +88,15 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Not every concept is writable. For instance, we shouldn't be able
         # to write a value for an Abstract concept, a LineItem group, an Axis,
         # a Domain, etc. even though those are part of this entrypoint.
-        self.assertFalse( doc.canWriteConcept('solar:ProductIdentifierModuleAbstract'))
-        self.assertTrue( doc.canWriteConcept('solar:TypeOfDevice'))
-        self.assertFalse( doc.canWriteConcept('solar:CutSheetDetailsLineItems'))
+        self.assertFalse( doc.can_write_concept('solar:ProductIdentifierModuleAbstract'))
+        self.assertTrue( doc.can_write_concept('solar:TypeOfDevice'))
+        self.assertFalse( doc.can_write_concept('solar:CutSheetDetailsLineItems'))
 
-        self.assertFalse( doc.canWriteConcept('solar:CutSheetDetailsTable'))
-        self.assertFalse( doc.canWriteConcept('solar:TestConditionDomain'))
+        self.assertFalse( doc.can_write_concept('solar:CutSheetDetailsTable'))
+        self.assertFalse( doc.can_write_concept('solar:TestConditionDomain'))
 
-        self.assertFalse( doc.canWriteConcept('solar:ProductIdentifierAxis'))
-        self.assertTrue( doc.canWriteConcept('solar:ProductIdentifier'))
+        self.assertFalse( doc.can_write_concept('solar:ProductIdentifierAxis'))
+        self.assertTrue( doc.can_write_concept('solar:ProductIdentifier'))
 
     def test_sufficient_context_instant_vs_duration(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
@@ -121,19 +121,19 @@ class TestDataModelEntrypoint(unittest.TestCase):
                            TestConditionAxis = "solar:StandardTestConditionMember",
                            duration = "forever")
 
-        self.assertTrue( doc.sufficientContext("solar:DeviceCost",
+        self.assertTrue( doc.sufficient_context("solar:DeviceCost",
                                                 instantContext))
         # A context with a duration instead of an instant should also be
         # rejected:
         with self.assertRaises(Exception):
-            doc.sufficientContext("solar:DeviceCost", durationContext)
+            doc.sufficient_context("solar:DeviceCost", durationContext)
 
         # solar:ModuleNameplateCapacity has period_type duration.
         # A context with an instant instead of a duration should also be
         # rejected:
         with self.assertRaises(Exception):
-            doc.sufficientContext("solar:ModuleNameplateCapacity", instantContext)
-        self.assertTrue( doc.sufficientContext("solar:ModuleNameplateCapacity",
+            doc.sufficient_context("solar:ModuleNameplateCapacity", instantContext)
+        self.assertTrue( doc.sufficient_context("solar:ModuleNameplateCapacity",
                                                durationContext))
 
 
@@ -146,22 +146,22 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # DeviceCost is on the CutSheetDetailsTable so it needs a value
         # for ProductIdentifierAxis and TestConditionAxis.
         with self.assertRaises(Exception):
-            doc.sufficientContext("solar:DeviceCost", {})
+            doc.sufficient_context("solar:DeviceCost", {})
 
         context = Context(instant = datetime.now(),
                           ProductIdentifierAxis = "placeholder",
                           TestConditionAxis = "solar:StandardTestConditionMember")
-        self.assertTrue( doc.sufficientContext("solar:DeviceCost", context) )
+        self.assertTrue( doc.sufficient_context("solar:DeviceCost", context) )
 
         badContext = Context(instant = datetime.now(),
                              TestConditionAxis = "solar:StandardTestConditionMember")
         with self.assertRaises(Exception):
-            doc.sufficientContext("solar:DeviceCost", badContext)
+            doc.sufficient_context("solar:DeviceCost", badContext)
 
         badContext = Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
         with self.assertRaises(Exception):
-            doc.sufficientContext("solar:DeviceCost", badContext)
+            doc.sufficient_context("solar:DeviceCost", badContext)
 
 
         # How do we know what are valid values for ProductIdentifierAxis and
@@ -178,17 +178,17 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           ProductIdentifierAxis = "placeholder",
                           InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
 
-        self.assertTrue( doc.sufficientContext(concept, context))
+        self.assertTrue( doc.sufficient_context(concept, context))
 
         badContext = Context(instant = datetime.now(),
                              InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
         with self.assertRaises(Exception):
-            doc.sufficientContext(concept, badContext)
+            doc.sufficient_context(concept, badContext)
 
         badContext = Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
         with self.assertRaises(Exception):
-            doc.sufficientContext(concept, badContext)
+            doc.sufficient_context(concept, badContext)
 
 
     def test_set_separate_dimension_args(self):
@@ -270,7 +270,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     def test_hypercube_store_context(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
-        table = doc.getTable("solar:InverterPowerLevelTable")
+        table = doc.get_table("solar:InverterPowerLevelTable")
 
         c1 = table.store_context(Context(duration = "forever",
                                          entity = "JUPITER",
@@ -332,7 +332,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
                 unit="USD")
-        xml = doc.toXMLString()
+        xml = doc.to_XML_string()
         root = etree.fromstring(xml)
 
 
@@ -413,7 +413,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
                 unit="USD")
-        jsonstring = doc.toJSONString()
+        jsonstring = doc.to_JSON_string()
 
         root = json.loads(jsonstring)
 
@@ -448,18 +448,18 @@ class TestDataModelEntrypoint(unittest.TestCase):
     def test_concepts_load_metadata(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
 
-        frequency = doc.getConceptByName("solar:RevenueMeterFrequency")
-        device = doc.getConceptByName("solar:TypeOfDevice")
+        frequency = doc.get_concept_by_name("solar:RevenueMeterFrequency")
+        device = doc.get_concept_by_name("solar:TypeOfDevice")
 
         # Metadata such as period-type, type-name, and nillable should be available
         # on the concept objects:
-        self.assertEqual(frequency.getMetadata("period_type"), "duration")
-        self.assertEqual(frequency.getMetadata("type_name"), "num-us:frequencyItemType")
-        self.assertEqual(frequency.getMetadata("nillable"), True)
+        self.assertEqual(frequency.get_metadata("period_type"), "duration")
+        self.assertEqual(frequency.get_metadata("type_name"), "num-us:frequencyItemType")
+        self.assertEqual(frequency.get_metadata("nillable"), True)
 
-        self.assertEqual(device.getMetadata("period_type"), "duration")
-        self.assertEqual(device.getMetadata("type_name"), "solar-types:deviceItemType")
-        self.assertEqual(device.getMetadata("nillable"), True)
+        self.assertEqual(device.get_metadata("period_type"), "duration")
+        self.assertEqual(device.get_metadata("type_name"), "solar-types:deviceItemType")
+        self.assertEqual(device.get_metadata("nillable"), True)
 
         # Parents and children should be correct:
         self.assertEqual(device.parent.name, 'solar:CutSheetDetailsLineItems')
@@ -470,12 +470,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     def test_hypercube_can_identify_axis_domains(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
-        table = doc.getTable("solar:CutSheetDetailsTable")
+        table = doc.get_table("solar:CutSheetDetailsTable")
 
-        domain = table.getDomain("solar:ProductIdentifierAxis")
+        domain = table.get_domain("solar:ProductIdentifierAxis")
         self.assertEqual(domain, "solar:ProductIdentifierDomain")
 
-        domain = table.getDomain("solar:TestConditionAxis")
+        domain = table.get_domain("solar:TestConditionAxis")
         self.assertEqual(domain, "solar:TestConditionDomain")
 
         # TODO add a test for an axis that is explicit and not domain-based
@@ -486,12 +486,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # one of the enumerated Members; it should be rejected:
 
         doc = Entrypoint("CutSheet", self.taxonomy)
-        table = doc.getTable("solar:CutSheetDetailsTable")
+        table = doc.get_table("solar:CutSheetDetailsTable")
 
-        self.assertTrue( table.axisValueWithinDomain("solar:TestConditionAxis",
+        self.assertTrue( table.axis_value_within_domain("solar:TestConditionAxis",
                                                      "solar:StandardTestConditionMember") )
 
-        self.assertFalse( table.axisValueWithinDomain("solar:TestConditionAxis",
+        self.assertFalse( table.axis_value_within_domain("solar:TestConditionAxis",
                                                      "solar:InverterPowerLevel100PercentMember"))
 
         concept = 'solar:InverterOutputRatedPowerAC'
@@ -500,7 +500,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           InverterPowerLevelPercentAxis = 'solar:StandardTestConditionMember')
         # not a valid value for InverterPowerLevelPercentAxis
         with self.assertRaises(Exception):
-            doc.sufficientContext(concept, context)
+            doc.sufficient_context(concept, context)
 
 
     def test_concepts_can_type_check(self):
@@ -565,35 +565,35 @@ class TestDataModelEntrypoint(unittest.TestCase):
     def test_valid_unit_method(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
         # Basic data types:
-        self.assertTrue( doc.validUnit("solar:TrackerNumberOfControllers", None)) # pure integer
-        self.assertTrue( doc.validUnit("solar:TransformerStyle", None)) # string
-        self.assertTrue( doc.validUnit("solar:TransformerDesignFactor", None)) # decimal
-        self.assertTrue( doc.validUnit("solar:MeterRevenueGrade", None)) # boolean
+        self.assertTrue( doc.valid_unit("solar:TrackerNumberOfControllers", None)) # pure integer
+        self.assertTrue( doc.valid_unit("solar:TransformerStyle", None)) # string
+        self.assertTrue( doc.valid_unit("solar:TransformerDesignFactor", None)) # decimal
+        self.assertTrue( doc.valid_unit("solar:MeterRevenueGrade", None)) # boolean
 
         # Advanced data types:
-        self.assertTrue( doc.validUnit("solar:DeviceCost", "USD")) # xbrli:monetaryItemType
-        self.assertTrue( doc.validUnit("solar:CutSheetDocumentLink", None)) #:xbrlianyURIItemType
-        self.assertTrue( doc.validUnit("solar:CECListingDate", None)) #xbrli:dateItemType
-        self.assertTrue( doc.validUnit("solar:InverterHarmonicsTheshold", None)) #num:percentItemType
+        self.assertTrue( doc.valid_unit("solar:DeviceCost", "USD")) # xbrli:monetaryItemType
+        self.assertTrue( doc.valid_unit("solar:CutSheetDocumentLink", None)) #:xbrlianyURIItemType
+        self.assertTrue( doc.valid_unit("solar:CECListingDate", None)) #xbrli:dateItemType
+        self.assertTrue( doc.valid_unit("solar:InverterHarmonicsTheshold", None)) #num:percentItemType
 
         # Physics data types:
-        self.assertTrue( doc.validUnit("solar:RevenueMeterFrequency", "Hz")) #num-us:frequencyItemType
-        self.assertTrue( doc.validUnit("solar:InverterWidth", "cm")) #:num:lengthItemType
-        self.assertTrue( doc.validUnit("solar:BatteryRating", "kW")) #:num:powerItemType
-        self.assertTrue( doc.validUnit("solar:InverterInputMaximumOperatingCurrentDC", "A")) #:num-us:electricCurrentItemType
-        self.assertTrue( doc.validUnit("solar:InverterInputMaximumVoltageDC", "V")) #:num-us:voltageItemType
-        self.assertTrue( doc.validUnit("solar:InverterOperatingTemperatureRangeMaximum", "Cel")) #:num-us:temperatureItemType
-        # self.assertTrue( doc.validUnit("solar:TrackerStowWindSpeed:num-us:speedItemType", "???"))
-        self.assertTrue( doc.validUnit("solar:OrientationMaximumTrackerRotationLimit", "Degree")) #:num-us:planeAngleItemType
+        self.assertTrue( doc.valid_unit("solar:RevenueMeterFrequency", "Hz")) #num-us:frequencyItemType
+        self.assertTrue( doc.valid_unit("solar:InverterWidth", "cm")) #:num:lengthItemType
+        self.assertTrue( doc.valid_unit("solar:BatteryRating", "kW")) #:num:powerItemType
+        self.assertTrue( doc.valid_unit("solar:InverterInputMaximumOperatingCurrentDC", "A")) #:num-us:electricCurrentItemType
+        self.assertTrue( doc.valid_unit("solar:InverterInputMaximumVoltageDC", "V")) #:num-us:voltageItemType
+        self.assertTrue( doc.valid_unit("solar:InverterOperatingTemperatureRangeMaximum", "Cel")) #:num-us:temperatureItemType
+        # self.assertTrue( doc.valid_unit("solar:TrackerStowWindSpeed:num-us:speedItemType", "???"))
+        self.assertTrue( doc.valid_unit("solar:OrientationMaximumTrackerRotationLimit", "Degree")) #:num-us:planeAngleItemType
 
         # solar-specific data types (Defined in a document we don't have:
         # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"
         # namespace="http://xbrl.us/dtr/type/solar-types"
         # schemaLocation="solar-types-2018-03-31.xsd"/>
 
-        self.assertTrue( doc.validUnit("solar:TrackerStyle", None)) #solar-types:trackerItemType
-        self.assertTrue( doc.validUnit("solar:BatteryStyle", None)) #solar-types:batteryChemistryItemType
-        self.assertTrue( doc.validUnit("solar:TypeOfDevice", None)) #solar-types:deviceItemType
+        self.assertTrue( doc.valid_unit("solar:TrackerStyle", None)) #solar-types:trackerItemType
+        self.assertTrue( doc.valid_unit("solar:BatteryStyle", None)) #solar-types:batteryChemistryItemType
+        self.assertTrue( doc.valid_unit("solar:TypeOfDevice", None)) #solar-types:deviceItemType
 
 
     def test_units_written_to_xml_correctly(self):
