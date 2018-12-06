@@ -499,6 +499,54 @@ class Concept(object):
             curr = curr.parent
         return ancestors
 
+    def validate_datatype(self, value):
+        """
+        True if the given value matches the expected type of this concept.
+        e.g. integer, string, decimal, boolean, or complex enumerated type.
+        False otherwise.
+        """
+        myType = self.get_metadata("type_name")
+        if myType == "xbrli:integerItemType":
+            if isinstance(value, int):
+                return True
+            elif isinstance(value, str) or isinstance(value, unicode):
+                try:
+                    value = int( value )
+                except ValueError, e:
+                    return False
+                else:
+                    return True
+            return False
+        if myType == "xbrli:stringItemType":
+            return isinstance( value, str) or isinstance( value, unicode)
+        if myType == "xbrli:booleanItemType":
+            if isinstance( value, bool):
+                return True
+            if value in ["true", "false", "True", "False"]:
+                return True
+            return False
+        
+        if myType == "xbrli:decimalItemType":
+            try:
+                value = float( value )
+            except ValueError, e:
+                return False
+            else:
+                return True
+        if myType == "xbrli:dateItemType":
+            # TODO also return true if it's a string that can be parsed into
+            # a date according to a standard pattern?
+            return isinstance( myType, datetime.date)
+        if myType == "num:percentItemType":
+            # TODO
+            return True
+        if myType == "xbrli:anyURIItemType":
+            # TODO
+            return True
+        print("Warning: i don't know how to validate " + myType)
+        return True
+
+
 
 class Entrypoint(object):
     """
@@ -586,8 +634,6 @@ class Entrypoint(object):
 
     def _initialize_parents(self):
         """Put the concepts into a tree based on domain-member relations."""
-        # Put the concepts into a tree based on domain-member
-        # relations.
         for relation in self.relations:
             if relation['role'] == 'domain-member':
                 parent_name = relation['from']
@@ -644,11 +690,18 @@ class Entrypoint(object):
         # table.
         ancestors = self._all_my_concepts[concept_name].get_ancestors()
         for ancestor in ancestors:
-            if "LineItem" in ancestor.name:
+            if "LineItem" in ancestor.name: # maybe not????
                 for table in self._tables.values():
                     if table.has_line_item(ancestor.name):
                         return table
         return None
+
+    def get_all_writable_concepts(self):
+        """
+        Return list of strings naming all concepts that can be written to this
+        document.
+        """
+        return [c for c in self._all_my_concepts if self.can_write_concept(c)]
 
     def can_write_concept(self, concept_name):
         """
@@ -755,12 +808,12 @@ class Entrypoint(object):
 
 
 
-    def set(self, concept, value, **kwargs):
+    def set(self, concept_name, value, **kwargs):
         """
-        Adds a fact to the document. The concept and the context
+        Adds a fact to the document. The concept_name and the context
         together identify the fact to set, and the value will be stored for
         that fact.
-        If concept and context are identical to a previous call, the old fact
+        If concept_name and context are identical to a previous call, the old fact
         will be overwritten. Otherwise, a new fact is created.
         acceptable keyword args:
         unit = <unit name>
@@ -781,8 +834,8 @@ class Entrypoint(object):
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
-        if not self.can_write_concept(concept):
-            raise Exception("{} is not a writeable concept".format(concept))
+        if not self.can_write_concept(concept_name):
+            raise Exception("{} is not a writeable concept".format(concept_name))
 
         if "context" in kwargs:
             context = kwargs.pop("context")
@@ -795,20 +848,24 @@ class Entrypoint(object):
             # TODO:
             # In this case, use the default context if one has been set.
 
-        if not self.sufficient_context(concept, context):
-            raise Exception("Insufficient context for {}".format(concept))
+        concept = self.get_concept_by_name(concept_name)
+        if not self.sufficient_context(concept_name, context):
+            raise Exception("Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self.valid_unit(concept, unit):
-            raise Exception("{} is an invalid unit type for {}".format(unit, concept))
+        if not self.valid_unit(concept_name, unit):
+            raise Exception("{} is an invalid unit type for {}".format(unit, concept_name))
         
-        # TODO check datatype of given value against concept
+        # check datatype of given value against concept
+        if not concept.validate_datatype(value):
+            raise Exception("{} is the wrong datatype for {}".format(value, concept_name))
         
-        table = self.get_table_for_concept(concept)
-
+        table = self.get_table_for_concept(concept_name)
+        if table is None:
+            raise Exception("No table found for storing concept {}".format(concept_name))
         context = table.store_context(context) # dedupes, assigns ID
 
-        f = Fact(concept, context, unit, value)
+        f = Fact(concept_name, context, unit, value)
         # TODO pass in decimals? Fact expects decimals and "precision" is slightly different
 
         # self.facts is nested dict keyed first on table then on context ID
@@ -819,7 +876,7 @@ class Entrypoint(object):
             self.facts[table.name()][context.get_id()] = {}
         # TODO simplify above with defaultdict
         
-        self.facts[table.name()][context.get_id()][concept] = f
+        self.facts[table.name()][context.get_id()][concept_name] = f
         # Or: we could keep facts in a flat list, and get() could look them
         # up by getting context from hypercube and getting fact from context
 

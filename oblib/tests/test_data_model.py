@@ -200,7 +200,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Write a TypeOfDevice and a DeviceCost:
 
-        doc.set("solar:TypeOfDevice", "Module",
+        doc.set("solar:TypeOfDevice", "ModuleMember",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis = "solar:StandardTestConditionMember"
@@ -216,7 +216,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                         Context(duration="forever",
                                 ProductIdentifierAxis= "placeholder",
                                 TestConditionAxis = "solar:StandardTestConditionMember"))
-        self.assertEqual( typeFact.value,  "Module")
+        self.assertEqual( typeFact.value,  "ModuleMember")
         costFact = doc.get("solar:DeviceCost",
                            Context(instant = now,
                                 ProductIdentifierAxis= "placeholder",
@@ -234,7 +234,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
                       TestConditionAxis = "solar:StandardTestConditionMember")
-        doc.set("solar:TypeOfDevice", "Module", context=ctx)
+        doc.set("solar:TypeOfDevice", "ModuleMember", context=ctx)
 
         now = datetime.now(),
         ctx = Context(instant= now,
@@ -249,7 +249,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                 entity="JUPITER",
                                 ProductIdentifierAxis= "placeholder",
                                 TestConditionAxis = "solar:StandardTestConditionMember"))
-        self.assertEqual( typeFact.value,  "Module")
+        self.assertEqual( typeFact.value,  "ModuleMember")
         costFact = doc.get("solar:DeviceCost",
                            Context(instant = now,
                                 entity="JUPITER",
@@ -263,7 +263,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # raise exceptions if required information is missing.
         doc = Entrypoint("CutSheet", self.taxonomy)
         with self.assertRaises(Exception):
-            doc.set("solar:TypeOfDevice", "Module", {})
+            doc.set("solar:TypeOfDevice", "ModuleMember", {})
 
         with self.assertRaises(Exception):
             doc.set("solar:DeviceCost", 100, {})
@@ -319,7 +319,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     def test_conversion_to_xml(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
-        doc.set("solar:TypeOfDevice", "Module",
+        doc.set("solar:TypeOfDevice", "ModuleMember",
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
@@ -389,7 +389,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         costFact = root.find('{http://xbrl.us/Solar/v1.2/2018-03-31/solar}DeviceCost')
         typeFact = root.find('{http://xbrl.us/Solar/v1.2/2018-03-31/solar}TypeOfDevice')
         self.assertEqual(costFact.text, "100")
-        self.assertEqual(typeFact.text, "Module")
+        self.assertEqual(typeFact.text, "ModuleMember")
         # They should have contextRef and (in the case of cost) unitRef attributes:
         self.assertEqual(typeFact.attrib['contextRef'], "solar:CutSheetDetailsTable_0")
         self.assertEqual(costFact.attrib['unitRef'], "USD")
@@ -400,7 +400,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     def test_conversion_to_json(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
-        doc.set("solar:TypeOfDevice", "Module",
+        doc.set("solar:TypeOfDevice", "ModuleMember",
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
@@ -422,7 +422,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # each should have expected 'value' and 'aspects':
         typeFact = root['facts'][1]
-        self.assertEqual(typeFact['value'], 'Module')
+        self.assertEqual(typeFact['value'], "ModuleMember")
         
         self.assertEqual(typeFact['aspects']['xbrl:concept'], 'solar:TypeOfDevice')
         self.assertEqual(typeFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
@@ -503,24 +503,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
             doc.sufficient_context(concept, context)
 
 
-    def test_concepts_can_type_check(self):
-        # TODO try passing in wrong data type to a typed concept!
-        pass
-        
-
-    def test_hypercube_rejects_context_with_unwanted_axes(self):
-        # TODO test that giving a context an *extra* axis that is invalid for the table
-        # causes it to be rejected as well.
-        pass
-
-    def test_set_default_context_values(self):
-        # TODO test setting default values, for example something like:
-        # doc.setDefaultContext({"entity": "JUPITER",
-        #                        "TestConditionAxis": "StandardTestConditionMember"})
-        # and then any time we create a context without any of those values, it gets them
-        # filled in from the defaults.
-        pass
-
     def test_reject_missing_or_invalid_units(self):
         # issue #28
         # -- reject attempt to set a fact if it doesn't have a unit and the unit is required
@@ -585,23 +567,87 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertTrue( doc.valid_unit("solar:InverterOperatingTemperatureRangeMaximum", "Cel")) #:num-us:temperatureItemType
         # self.assertTrue( doc.valid_unit("solar:TrackerStowWindSpeed:num-us:speedItemType", "???"))
         self.assertTrue( doc.valid_unit("solar:OrientationMaximumTrackerRotationLimit", "Degree")) #:num-us:planeAngleItemType
-
-        # solar-specific data types (Defined in a document we don't have:
-        # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"
-        # namespace="http://xbrl.us/dtr/type/solar-types"
-        # schemaLocation="solar-types-2018-03-31.xsd"/>
-
+        
         self.assertTrue( doc.valid_unit("solar:TrackerStyle", None)) #solar-types:trackerItemType
         self.assertTrue( doc.valid_unit("solar:BatteryStyle", None)) #solar-types:batteryChemistryItemType
         self.assertTrue( doc.valid_unit("solar:TypeOfDevice", None)) #solar-types:deviceItemType
 
 
-    def test_units_written_to_xml_correctly(self):
-        # TODO
+    def test_validate_values_for_enumerated_solar_data_types(self):
+        # solar-specific data types (Defined in a document we don't have:
+        # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"
+        # namespace="http://xbrl.us/dtr/type/solar-types"
+        # schemaLocation="solar-types-2018-03-31.xsd"/>
+
+        # OK we have that document but we don't load it?
+
+        # in solar-types-2018-03-31.xsd there is a <complexType tag name="deviceItemType">
+        # has <simpleContent> which has <restriction> which hasa bunch of <xs:enumeration>
+        # each of which has a value like "ModuleMember", "OptimizerMember", etc.
         pass
 
-    def test_units_written_to_json_correctly(self):
-        # TODO
+
+    def test_concepts_can_type_check(self):
+        # Try passing in wrong data type to a typed concept:
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        concept = doc.get_concept_by_name("solar:TrackerNumberOfControllers") # integer
+        self.assertTrue(concept.validate_datatype("3"))
+        self.assertFalse(concept.validate_datatype("3.5"))
+        self.assertFalse(concept.validate_datatype("a few"))
+
+        concept = doc.get_concept_by_name("solar:TransformerStyle") # string
+        self.assertTrue(concept.validate_datatype("Autobot"))
+        self.assertTrue(concept.validate_datatype("Decepticon"))
+        self.assertFalse(concept.validate_datatype(99.99))
+
+        concept = doc.get_concept_by_name("solar:TransformerDesignFactor") # decimal
+        self.assertTrue(concept.validate_datatype("0.99"))
+        self.assertTrue(concept.validate_datatype("1"))
+        self.assertFalse(concept.validate_datatype("pretty good"))
+
+        concept = doc.get_concept_by_name("solar:MeterRevenueGrade") # boolean
+        self.assertTrue(concept.validate_datatype("True"))
+        self.assertTrue(concept.validate_datatype("False"))
+        self.assertTrue(concept.validate_datatype(True))
+        self.assertTrue(concept.validate_datatype(False))
+        self.assertFalse(concept.validate_datatype("yes"))
+        self.assertFalse(concept.validate_datatype("7"))
+
+    def test_reject_invalid_datatype(self):
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        with self.assertRaises(Exception):
+            # A non-integer is given, this should fail:
+            doc.set("solar:TrackerNumberOfControllers", 0.5,
+                entity="JUPITER",
+                duration="forever",
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember")
+
+        with self.assertRaises(Exception):
+            # A string that can't be parsed into an integer should fail:
+            doc.set("solar:TrackerNumberOfControllers", "abcdefg",
+                entity="JUPITER",
+                duration="forever",
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember")
+
+        # But a string that can be parsed into an integer should succeed:
+        doc.set("solar:TrackerNumberOfControllers", "2",
+                entity="JUPITER",
+                duration="forever",
+                ProductIdentifierAxis= "placeholder",
+                TestConditionAxis= "solar:StandardTestConditionMember")
+
+
+    def test_hypercube_rejects_context_with_unwanted_axes(self):
+        # TODO test that giving a context an *extra* axis that is invalid for the table
+        # causes it to be rejected as well.
         pass
 
-                                    
+    def test_set_default_context_values(self):
+        # TODO test setting default values, for example something like:
+        # doc.setDefaultContext({"entity": "JUPITER",
+        #                        "TestConditionAxis": "StandardTestConditionMember"})
+        # and then any time we create a context without any of those values, it gets them
+        # filled in from the defaults.
+        pass
