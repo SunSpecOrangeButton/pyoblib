@@ -18,6 +18,7 @@ import datetime
 import json
 from taxonomy import PeriodType
 
+UNTABLE = "NON_TABLE_CONCEPTS"
 
 class Axis(object):
     """
@@ -548,7 +549,7 @@ class Concept(object):
         if myType == "xbrli:dateItemType":
             # TODO also return true if it's a string that can be parsed into
             # a date according to a standard pattern?
-            return isinstance( myType, datetime.date)
+            return isinstance( value, datetime.date)
         if myType == "num:percentItemType":
             # TODO Look up what is expected -- does this want 0.01 - 0.99 or
             # does it want 1 - 99  or does it want "1%" - "99%" ?
@@ -713,7 +714,12 @@ class Entrypoint(object):
                 for table in self._tables.values():
                     if table.has_line_item(ancestor.name):
                         return table
-        return None
+
+        print "Warning: no table for {}, writing it to default table".format(concept_name)
+        # kind of a hack here -- make a placeholder table with no axes for the non-table concepts
+        if not UNTABLE in self._tables:
+            self._tables[UNTABLE] = Hypercube(self, UNTABLE)
+        return self._tables[UNTABLE]
 
     def get_all_writable_concepts(self):
         """
@@ -868,8 +874,6 @@ class Entrypoint(object):
             context = Context(**kwargs)
         else:
             context = None
-            # TODO:
-            # In this case, use the default context if one has been set.
 
         # Use default values, if any have been set, to fill in missing fields of context:
         if len(self._default_context) > 0:
@@ -887,8 +891,6 @@ class Entrypoint(object):
             raise Exception("{} is the wrong datatype for {}".format(value, concept_name))
         
         table = self.get_table_for_concept(concept_name)
-        if table is None:
-            raise Exception("No table found for storing concept {}".format(concept_name))
         context = table.store_context(context) # dedupes, assigns ID
 
         f = Fact(concept_name, context, unit, value)
@@ -1045,11 +1047,22 @@ class Entrypoint(object):
 
     def set_default_context(self, dictionary):
         """
+        Dictionary can have keys: "entity", "instant", "duration", and also
+        axes.
+        Sets these values as the defaults for this document. These values
+        are used to fill in any fields that are missing from any contexts
+        passed into set(). For example, if you set the "entity" as a default
+        on the document, then after that you can leave "entity" out of your
+        contexts and the default entity will be used.
         """
         self._default_context = dictionary.copy()
 
     def _fill_in_context_from_defaults(self, context, concept):
         """
+        context: None, or a Context object that may be missing some fields
+        concept: a Concept object (used to determine what fields are required)
+        Returns a Context object that has had all its required fields filled in
+        from the default context (see set_default_context()) if possible.
         """
         period = concept.get_metadata("period_type") # "instant" or "duration"
         if context is None:

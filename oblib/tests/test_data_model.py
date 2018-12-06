@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-from data_model import Entrypoint, Context, Hypercube
+from data_model import Entrypoint, Context, Hypercube, UNTABLE
 from datetime import datetime, date
 from taxonomy import getTaxonomy
 from lxml import etree
@@ -78,9 +78,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(table.name(), "solar:InverterPowerLevelTable")
 
         # but if we ask for something that is not a line item concept,
-        # get_table_for_concept should return None:
+        # we should get back the non-table:
         table = doc.get_table_for_concept("solar:CutSheetDetailsTable")
-        self.assertIsNone(table)
+        self.assertEqual(table.name(), UNTABLE)
 
     def test_can_write_concept(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
@@ -706,6 +706,22 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(fact.value, "99")
 
 
+    def test_tableless_facts(self):
+        # Some entry points, like MonthlyOperatingReport, seem to have concepts
+        # in them that are not part of any table:
+        doc = Entrypoint("MonthlyOperatingReport", self.taxonomy)
+
+        doc.set("solar:MonthlyOperatingReportEffectiveDate",
+                date(year=2018,month=6,day=1),
+                entity = "JUPITER",
+                duration="forever")
+
+        fact = doc.get("solar:MonthlyOperatingReportEffectiveDate",
+                       Context(entity = "JUPITER",
+                               duration="forever"))
+
+        self.assertEqual(fact.value, date(year=2018,month=6,day=1))
+
     # TODO try a test where we give somethign a duration like:
     #  {"start": date(year=2018,month=1,day=1),
     #   "end": date(year=2018,month=1,day=31)}
@@ -724,5 +740,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # has <simpleContent> which has <restriction> which hasa bunch of <xs:enumeration>
         # each of which has a value like "ModuleMember", "OptimizerMember", etc.
         pass
+
 
 
