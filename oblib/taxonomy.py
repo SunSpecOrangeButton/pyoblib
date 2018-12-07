@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+"""Handles Orange button taxonomy."""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,18 +12,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 import taxonomy_semantic
 import taxonomy_types
 import taxonomy_units
 import taxonomy_misc
 
 
-class Element(object):
+class SubstitutionGroup(enum.Enum):
     """
-    Element is used to model a data element within a Taxonomy Concept.
+    Legal values for substitution groups.
     """
 
+    item = "xbrli:item"
+    dimension = "xbrldt:dimensionItem"
+    hypercube = "xbrldt:hypercubeItem"
+
+
+class PeriodType(enum.Enum):
+    """
+    Legal values for period types.
+    """
+
+    duration = "duration"
+    instant = "instant"
+
+
+class BaseStandard(enum.Enum):
+    """
+    Legal values for base standards.
+    """
+
+    customary = "Customary"
+    iso4217 = "ISO4217"
+    non_si = "Non-SI"
+    si = "SI"
+    xbrl = "XBRL"
+
+
+class UnitStatus(enum.Enum):
+    """
+    Legal values for unit registry entry statuses.  Please note that this is referred to as just
+    status (as opposed to unitStatus) in the actual entries but the name has been expanded here
+    since status is extremely generic.
+    """
+
+    rec = "REC"
+    cr = "CR"
+
+
+class Element(object):
+    """Element is used to model a data element within a Taxonomy Concept."""
+
     def __init__(self):
+        """Element constructor."""
         self.abstract = None
         self.id = None
         self.name = None
@@ -34,6 +77,7 @@ class Element(object):
         self.period_type = None
 
     def __repr__(self):
+        """Return a printable representation of an element."""
         return "{" + str(self.abstract) + \
             "," + str(self.id) + \
             "," + str(self.name) + \
@@ -46,11 +90,10 @@ class Element(object):
 
 
 class Unit(object):
-    """
-    Unit holds the definition of a Unit from the Unit Registry.
-    """
+    """Unit holds the definition of a Unit from the Unit Registry."""
 
     def __init__(self):
+        """Unit constructor."""
         self.id = None
         self.unit_id = None
         self.unit_name = None
@@ -64,6 +107,7 @@ class Unit(object):
         self.version_date = None
 
     def __repr__(self):
+        """Return a printable representation of a unit."""
         return "{" + str(self.id) + \
             "," + str(self.unit_id) + \
             "," + str(self.unit_name) + \
@@ -77,25 +121,36 @@ class Unit(object):
             "," + str(self.version_date) + \
             "}"
 
+    def to_dict(self):
+        """Convert Unit to dict."""
+        return vars(self)
 
 class Taxonomy(object):
     """
-    Parent class for Taxonomy.  Use this to load and access all elements
+    Parent class for Taxonomy.
+
+    Use this to load and access all elements
     of the Taxonomy simultaneously.  Generally speaking this supplies
     a single import location and is better than loading just a portion
     of the Taxonomy unless there is a specific need to save memory.
     """
 
     def __init__(self):
+        """Taxonomy constructor."""
         self.semantic = taxonomy_semantic.TaxonomySemantic()
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
-        self.misc = taxonomy_misc.TaxonomyMisc()
+        self.numeric_types = taxonomy_misc.TaxonomyNumericTypes()
+        self.generic_roles = taxonomy_misc.TaxonomyGenericRoles()
+        self.ref_parts = taxonomy_misc.TaxonomyRefParts()
 
 
 # Accessor for singleton Taxonomy object:
 m_singletonTaxonomy = None
+
+
 def getTaxonomy():
+    """Return the taxonomy."""
     global m_singletonTaxonomy
     if m_singletonTaxonomy is None:
         m_singletonTaxonomy = Taxonomy()

@@ -1,4 +1,16 @@
+# Bytecode Files
 __pycache__
 *.py[cod]
 *$py.class
+
+# OB Taxonomy Files
 solar-taxonomy
+
+# Build files from docs
+docs/build/
+
+# OS Generated Files
+.DS_Store
+
+# IDE Config Files
+.idea

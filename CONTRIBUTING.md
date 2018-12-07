@@ -27,7 +27,7 @@ Responsibilities
 
 # Your First Contribution
 
-Unsure where to begin contributing to Orange Button Core?  Please enquire on our Slack Channel.
+Unsure where to begin contributing to Orange Button Core?  Please enquire on our [Slack Channel](https://orange-button.slack.com/).
 
 # Getting started
 
@@ -45,7 +45,7 @@ Please use GitHub Issues for all bug reports.
 Please use the [Orange Button Slack Channel](https://orange-button.slack.com/) to suggest features and enhancements at this point in time.  At a future date a more formal process may be adopted.
 
 # Code review process
-All code is subject to a peer review.  The process is TBD at this point in time and more information will be made available at a future date.
-
+All code is subject to a peer review.  When a pull request is submitted one person with collobaration status must review the code before merging.  They will also verify that a contributors agreement is no file before approving the request.
+  
 # Community
 The [Orange Button Slack Channel](https://orange-button.slack.com/) is the best online resource for discussions regarding Orange Button Core.  You are also invited to join regular developer meetings (just ask to be invited on the Slack Channel) that occur.
