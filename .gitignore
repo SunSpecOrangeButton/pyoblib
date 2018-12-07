@@ -14,3 +14,7 @@ docs/build/
 
 # IDE Config Files
 .idea
+
+# Coverage reports
+.coverage
+

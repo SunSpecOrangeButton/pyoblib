@@ -17,4 +17,4 @@
 
 export PYTHONPATH=`pwd`/oblib
 
-pytest
+pytest --cov=oblib
