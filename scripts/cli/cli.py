@@ -129,29 +129,17 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-<<<<<<< HEAD
-                       (r['role'], r['from'], r['to'], r['order']))    
-=======
                        (r['role'], r['from'], r['to'], r['order']))
->>>>>>> eb0a9cc8a506743d85c51744bcccdeac8ce7cfa3
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
         print('%0.19s %0.78s %0.78s %0.5s' %
                 (DASHES, DASHES, DASHES, DASHES))
-<<<<<<< HEAD
-        
-        if relationships is not None:
-            for r in relationships:
-                print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
-=======
 
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
                        (r['role'], r['from'], r['to'], r['order']))
->>>>>>> eb0a9cc8a506743d85c51744bcccdeac8ce7cfa3
         else:
             print("Not found")
 
