@@ -86,6 +86,10 @@ def list_unit_info(args):
         print("Not found")
 
 
+def list_ep(args):
+    for ep in tax.semantic.entry_points():
+        print(ep)
+
 def list_ep_concepts_info(args):
 
     if csv:
@@ -282,6 +286,9 @@ list_concepts_info_parser = subparsers.add_parser(
 list_concepts_info_parser.set_defaults(command='list_ep_concepts_info')
 list_concepts_info_parser.add_argument('ep', action='store',
                                        help='The entry point to list concepts for')
+
+list_ep_parser = subparsers.add_parser('list-ep', help='List Orange Button Entry Points')
+list_ep_parser.set_defaults(command='list_ep')
 
 list_concepts_parser = subparsers.add_parser('list-concepts',
                                              help='List concepts in an Orange Button Entry Point')

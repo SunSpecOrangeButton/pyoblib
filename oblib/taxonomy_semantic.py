@@ -251,7 +251,7 @@ class TaxonomySemantic(object):
 
     def concepts_ep(self, data):
         """
-        Returns a list of all concepts in an end point
+        Returns a list of all concepts in an entry point
         """
 
         if data in self._concepts:
@@ -259,19 +259,26 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def relationships_ep(self, endpoint):
+    def relationships_ep(self, entry_point):
         """
-        Returns a list of all relationshiops in an end point
+        Returns a list of all relationships in an entry point
         Returns an empty list if the concept exists but has no relationships
         """
 
-        if endpoint in self._concepts:
-            if endpoint in self._relationships:
-                return self._relationships[endpoint]
+        if entry_point in self._concepts:
+            if entry_point in self._relationships:
+                return self._relationships[entry_point]
             else:
                 return []
         else:
             return None
+
+    def entry_points(self):
+        """
+        Returns a list of all entry points (data, documents, and processes) in the Taxonomy.
+        """
+    
+        return list(self._concepts)
 
     def concept_info(self, concept):
         """
@@ -306,7 +313,7 @@ class TaxonomySemantic(object):
                     # Warning, concept not found: solar:RevenueMeterPowerFactor_1
                     # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
                     # This case should be understood and handled correctly as opposed to just printing a warning message.
-                    #print("Warning, concept not found:", concept)
+                    print("Warning, concept not found:", concept)
                     pass
             return ci
         else:

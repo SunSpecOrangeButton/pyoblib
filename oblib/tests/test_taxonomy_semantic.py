@@ -64,8 +64,11 @@ class TestTaxonomySemantic(unittest.TestCase):
         for ci in tax.concepts_info_ep("Utility"):
             self.assertEqual(ci, tax.concept_info(ci.id))
 
-    def elements(self):
+    def test_elements(self):
         self.assertIsNotNone(tax.elements())
+
+    def test_entry_points(self):
+        self.assertEqual(len(tax.entry_points()), 158)
 
     def test_relationships_ep(self):
         self.assertIsNone(tax.relationships_ep("Arggh"))
