@@ -41,11 +41,6 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         self._content = content
 
     def endElement(self, name):
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> 18972523822ab9dc3a33ab260766ff0b68efc16d
         if name == "unitId":
             self._curr.unit_id = self._content
             self._units[self._content] = self._curr
