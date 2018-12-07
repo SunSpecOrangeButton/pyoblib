@@ -125,17 +125,17 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
+                       (r['role'], r['from'], r['to'], r['order']))
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
         print('%0.19s %0.78s %0.78s %0.5s' %
                 (DASHES, DASHES, DASHES, DASHES))
-        
+
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
+                       (r['role'], r['from'], r['to'], r['order']))
         else:
             print("Not found")
 
@@ -171,9 +171,9 @@ def list_units(args):
 
 def list_units_details(args):
 
-    if csv:      
+    if csv:
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
- 
+
         for unit_id in tax.units.units():
                 unit = tax.units.unit(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
@@ -233,7 +233,7 @@ def validate_generic_role(args):
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.validate_unit(args.generic_unit))
+    print("Valid:", tax.units.validate_unit(unit_id=args.generic_unit))
 
 
 def version(args):

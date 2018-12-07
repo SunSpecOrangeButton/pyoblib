@@ -210,7 +210,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="USD")
+                unit_name="USD")
 
         typeFact = doc.get("solar:TypeOfDevice",
                         Context(duration="forever",
@@ -222,7 +222,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                 ProductIdentifierAxis= "placeholder",
                                 TestConditionAxis = "solar:StandardTestConditionMember"))
         self.assertEqual( costFact.value, 100)
-        # TODO: DeviceCost should require units
+        self.assertEqual( costFact.unit, "USD")
 
     def test_set_context_arg(self):
         # Tests the case where .set() is called correctly, using
@@ -241,7 +241,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
                       TestConditionAxis = "solar:StandardTestConditionMember")
-        doc.set("solar:DeviceCost", 100, context=ctx, unit="USD")
+        doc.set("solar:DeviceCost", 100, context=ctx, unit_name="USD")
 
         # Get the data bacK:
         typeFact = doc.get("solar:TypeOfDevice",
@@ -331,7 +331,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="USD")
+                unit_name="USD")
         xml = doc.to_XML_string()
         root = etree.fromstring(xml)
 
@@ -411,7 +411,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="USD")
+                unit_name="USD")
         jsonstring = doc.to_JSON_string()
 
         root = json.loads(jsonstring)
@@ -524,7 +524,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="zorkmids")
+                unit_name="zorkmids")
 
         with self.assertRaises(Exception):
             # kWh is a real unit but the wrong type, so this should fail:
@@ -533,7 +533,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="kWh")
+                unit_name="kWh")
 
         # USD is a valid unit, so this should succeed:
         doc.set("solar:DeviceCost", 100,
@@ -541,7 +541,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember",
-                unit="USD")
+                unit_name="USD")
 
     def test_valid_unit_method(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
@@ -659,7 +659,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         
         
         # If we set a fact that wants an instant context, it should use 'now':
-        doc.set("solar:DeviceCost", "100", unit="USD", ProductIdentifierAxis = "placeholder")
+        doc.set("solar:DeviceCost", "100", unit_name="USD", ProductIdentifierAxis = "placeholder")
         # This would normally raise an exception because it's missing instant, entity, and
         # TestConditionAxis. But we set defaults for those, so they should be filled in:
         fact = doc.get("solar:DeviceCost", Context(
@@ -675,7 +675,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # TODO test method of calling set() where we pass in Context object.
 
         # If we set a fact that wants a duration context, it should use jan 1 - jan 31:
-        doc.set("solar:ModuleNameplateCapacity", "0.3", unit="W",
+        doc.set("solar:ModuleNameplateCapacity", "0.3", unit_name="W",
                  ProductIdentifierAxis = "placeholder")
         # Would normally raise an exception because missing duration, entity, and
         # TestConditionAxis. But we set defaults for those, so they should be filled in:
@@ -697,7 +697,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                "instant": now,
                                "solar:ProductIdentifierAxis": "placeholder"
                                })
-        doc.set("solar:DeviceCost", "99", unit="USD")
+        doc.set("solar:DeviceCost", "99", unit_name="USD")
         fact = doc.get("solar:DeviceCost", Context(
             ProductIdentifierAxis = "placeholder",
             TestConditionAxis = "solar:StandardTestConditionMember",

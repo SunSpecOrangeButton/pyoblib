@@ -841,7 +841,7 @@ class Entrypoint(object):
         If concept_name and context are identical to a previous call, the old fact
         will be overwritten. Otherwise, a new fact is created.
         acceptable keyword args:
-        unit = <unit name>
+        unit_nam = a string naming a unit
         precision = <number of places past the decimal pt>(for decimal values only)
         context = a Context object
 
@@ -852,10 +852,12 @@ class Entrypoint(object):
         *Axis = <value>  (the name of any Axis in a table in this entrypoint)
         """
 
-        if "unit" in kwargs:
-            unit = kwargs.pop("unit")
+        if "unit_name" in kwargs:
+            unit_name = kwargs.pop("unit_name")
+            valid_unit_name = self.tu.validate_unit(unit_name=unit_name)
         else:
-            unit = None
+            unit_name = None
+
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
@@ -883,8 +885,8 @@ class Entrypoint(object):
             raise Exception("Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self.valid_unit(concept_name, unit):
-            raise Exception("{} is an invalid unit type for {}".format(unit, concept_name))
+        if not self.valid_unit(concept_name, unit_name):
+            raise Exception("{} is an invalid unit type for {}".format(unit_name, concept_name))
         
         # check datatype of given value against concept
         if not concept.validate_datatype(value):
@@ -893,7 +895,7 @@ class Entrypoint(object):
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID
 
-        f = Fact(concept_name, context, unit, value)
+        f = Fact(concept_name, context, unit_name, value)
         # TODO pass in decimals? Fact expects decimals and "precision" is slightly different
 
         # self.facts is nested dict keyed first on table then on context ID

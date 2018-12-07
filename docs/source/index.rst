@@ -14,13 +14,13 @@ This project is being actively developed and is not yet ready for production use
    
    overview
    api_reference
-
-
-
+   api
+   oblib
+   oblib.tests
+   modules
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
