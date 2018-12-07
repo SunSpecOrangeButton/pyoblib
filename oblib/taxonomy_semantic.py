@@ -334,14 +334,23 @@ class TaxonomySemantic(object):
                 if concept in self._elements:
                     ci.append(self._elements[concept])
                 else:
+<<<<<<< HEAD
                     # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
+=======
+                    # TODO: This case is not correctly understood.
+>>>>>>> 18972523822ab9dc3a33ab260766ff0b68efc16d
                     # Here are some samples that are not found:
                     # Warning, concept not found: solar:MeterRatingAccuracy_1
                     # Warning, concept not found: solar:MeterRevenueGrade_1
                     # Warning, concept not found: solar:MeterBidirectional_1
                     # Warning, concept not found: solar:RevenueMeterPowerFactor_1
                     # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
+<<<<<<< HEAD
                     # This case should be understood and handled correctly as opposed to just printing a warning message.
+=======
+                    # This case should be understood and handled correctly as
+                    # opposed to just printing a warning message.
+>>>>>>> 18972523822ab9dc3a33ab260766ff0b68efc16d
                     # print("Warning, concept not found:", concept)
                     pass
             return ci
