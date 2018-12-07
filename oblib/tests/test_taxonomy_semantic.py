@@ -36,7 +36,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsInstance(ci.period_independent, bool)
         self.assertIsInstance(ci.substitution_group, taxonomy.SubstitutionGroup)
         # self.assertIsInstance(ci.type_name, str)
-        self.assertIsInstance(ci.period_type, taxonomy.PeriodType)
+        # self.assertIsInstance(ci.period_type, taxonomy.PeriodType)
 
         ci = tax.concept_info("solar:ACDisconnectSwitchMember")
         self.assertIsNotNone(ci)

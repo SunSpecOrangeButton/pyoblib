@@ -1,3 +1,13 @@
 # pyinstaller  TODO: Failing on Python 3.3 - reason unknown.  Diagnose and fix
-pdoc
-flake8
+flake8Mako==1.0.7
+Markdown==2.4.1
+MarkupSafe==1.1.0
+configparser==3.5.0
+enum34==1.1.6
+flake8==3.6.0
+lxml==4.2.5
+mccabe==0.6.1
+pdoc==0.3.2
+pycodestyle==2.4.0
+pyflakes==2.0.0
+wsgiref==0.1.2
