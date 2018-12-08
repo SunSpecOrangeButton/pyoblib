@@ -251,14 +251,14 @@ class Context(object):
         self.duration = None
         self.entity = None
         # kwargs must provide exactly one of instant or duration
-        if "instant" in kwargs and "duration" in kwargs:
+        if PeriodType.instant.value in kwargs and PeriodType.duration.value in kwargs:
             raise Exception("Context given both instant and duration")
-        if (not "instant" in kwargs) and (not "duration" in kwargs):
+        if (PeriodType.instant.value not in kwargs) and (PeriodType.duration.value not in kwargs):
             raise Exception("Context not given either instant or duration")
-        if "instant" in kwargs:
-            self.instant = kwargs.pop("instant")
-        if "duration" in kwargs:
-            self.duration = kwargs.pop("duration")
+        if PeriodType.instant.value in kwargs:
+            self.instant = kwargs.pop(PeriodType.instant.value)
+        if PeriodType.duration.value in kwargs:
+            self.duration = kwargs.pop(PeriodType.duration.value)
         if "entity" in kwargs:
             self.entity = kwargs.pop("entity")
         # anything that's not instant/duration or entity must be an axis
@@ -329,7 +329,7 @@ class Context(object):
             endDate = SubElement(period, "endDate")
             endDate.text = self.duration[1].strftime("%Y-%m-%d")
         elif self.instant is not None:
-            instant_elem = SubElement(period, "instant")
+            instant_elem = SubElement(period, PeriodType.instant.value)
             instant_elem.text = self.instant.strftime("%Y-%m-%d")
 
 
@@ -715,7 +715,7 @@ class Entrypoint(object):
                     if table.has_line_item(ancestor.name):
                         return table
 
-        print "Warning: no table for {}, writing it to default table".format(concept_name)
+        # print "Warning: no table for {}, writing it to default table".format(concept_name)
         # kind of a hack here -- make a placeholder table with no axes for the non-table concepts
         if not UNTABLE in self._tables:
             self._tables[UNTABLE] = Hypercube(self, UNTABLE)
@@ -872,7 +872,7 @@ class Entrypoint(object):
             # is just syntactic sugar to make this method easier to call.
             period = concept.get_metadata("period_type")
             if period not in kwargs and period in self._default_context:
-                kwargs[period] = self._default_context[period]
+                kwargs[period.value] = self._default_context[period]
             context = Context(**kwargs)
         else:
             context = None
@@ -1049,7 +1049,7 @@ class Entrypoint(object):
 
     def set_default_context(self, dictionary):
         """
-        Dictionary can have keys: "entity", "instant", "duration", and also
+        Dictionary can have keys: "entity", PeriodType.instant, PeriodType.duration, and also
         axes.
         Sets these values as the defaults for this document. These values
         are used to fill in any fields that are missing from any contexts
@@ -1066,23 +1066,23 @@ class Entrypoint(object):
         Returns a Context object that has had all its required fields filled in
         from the default context (see set_default_context()) if possible.
         """
-        period = concept.get_metadata("period_type") # "instant" or "duration"
+        period = concept.get_metadata("period_type") # PeriodType.instant or PeriodType.duration
         if context is None:
             # Create context from default entity and default period:
             context_args = {}
             if period in self._default_context:
-                context_args[period] = self._default_context[period]
+                context_args[period.value] = self._default_context[period]
             if "entity" in self._default_context:
                 context_args["entity"] = self._default_context["entity"]
-            context = Context(**self._default_context)
+            context = Context(**context_args)
 
         else:
             # If entity or period is missing, fill in from defaults:
             if context.entity is None and "entity" in self._default_context:
                 context.entity = self._default_context["entity"]
 
-            if getattr(context, period, None) is None and period in self._default_context:
-                setattr( context, period, self._default_context["period"] )
+            if getattr(context, period.value, None) is None and period in self._default_context:
+                setattr( context, period.value, self._default_context[period] )
 
         # If any axis that the table wants is missing, fill in axis from defaults:
         table = self.get_table_for_concept(concept.name)

@@ -18,6 +18,7 @@ from datetime import datetime, date
 from taxonomy import getTaxonomy
 from lxml import etree
 import json
+from taxonomy import PeriodType
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -452,11 +453,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Metadata such as period-type, type-name, and nillable should be available
         # on the concept objects:
-        self.assertEqual(frequency.get_metadata("period_type"), "duration")
+        self.assertEqual(frequency.get_metadata("period_type"), PeriodType.duration)
         self.assertEqual(frequency.get_metadata("type_name"), "num-us:frequencyItemType")
         self.assertEqual(frequency.get_metadata("nillable"), True)
 
-        self.assertEqual(device.get_metadata("period_type"), "duration")
+        self.assertEqual(device.get_metadata("period_type"), PeriodType.duration)
         self.assertEqual(device.get_metadata("type_name"), "solar-types:deviceItemType")
         self.assertEqual(device.get_metadata("nillable"), True)
 
@@ -652,8 +653,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         now = datetime.now()
         doc.set_default_context({"entity": "JUPITER",
                                "solar:TestConditionAxis": "solar:StandardTestConditionMember",
-                               "instant": now,
-                               "duration": "forever"
+                               PeriodType.instant: now,
+                               PeriodType.duration: "forever"
                                })
         # Could also support setting default unit, even though that's not part of context:
         
@@ -694,7 +695,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # that should work too:
         doc.set_default_context({"entity": "JUPITER",
                                "solar:TestConditionAxis": "solar:StandardTestConditionMember",
-                               "instant": now,
+                               PeriodType.instant: now,
                                "solar:ProductIdentifierAxis": "placeholder"
                                })
         doc.set("solar:DeviceCost", "99", unit_name="USD")

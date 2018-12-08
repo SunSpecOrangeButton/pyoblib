@@ -59,8 +59,8 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "type":
                     element.type_name = item[1]
                 elif item[0] == "xbrli:periodType":
-                    element.period_type = item[1]
-                    # element.period_type = taxonomy.PeriodType(item[1]) # ??
+                    #element.period_type = item[1]
+                    element.period_type = taxonomy.PeriodType(item[1])
                 elif item[0] == "xbrldt:typedDomainRef":
                     element.typed_domain_ref = item[1]
             self._elements[element.id] = element
