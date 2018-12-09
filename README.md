@@ -10,7 +10,7 @@ NOTE: At this point in time the Core library is being setup and is in developmen
 
 ### Requirements
 
-Python 2.7, 3.3 - 3.6.  The recommended version is Python 3.6.
+Python 2.7, 3.4 - 3.6.  The recommended version is Python 3.6.
 
 ### Installation
 
