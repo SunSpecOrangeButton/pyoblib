@@ -727,7 +727,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
     #  {"start": date(year=2018,month=1,day=1),
     #   "end": date(year=2018,month=1,day=31)}
     # and then look up the fact and make sure it has that start and end date.
-        
+
+    # TODO test conversion to XML and JSON when duration has start and end.
 
     def test_validate_values_for_enumerated_solar_data_types(self):
         # solar-specific data types (Defined in a document we don't have:

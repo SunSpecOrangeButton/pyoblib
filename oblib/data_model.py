@@ -325,9 +325,9 @@ class Context(object):
             forever = SubElement(period, "forever")
         elif self.duration is not None:
             startDate = SubElement(period, "startDate")
-            startDate.text = self.duration[0].strftime("%Y-%m-%d")
+            startDate.text = self.duration["start"].strftime("%Y-%m-%d")
             endDate = SubElement(period, "endDate")
-            endDate.text = self.duration[1].strftime("%Y-%m-%d")
+            endDate.text = self.duration["end"].strftime("%Y-%m-%d")
         elif self.instant is not None:
             instant_elem = SubElement(period, PeriodType.instant.value)
             instant_elem.text = self.instant.strftime("%Y-%m-%d")
@@ -365,8 +365,8 @@ class Context(object):
         if self.duration == "forever":
             aspects["xbrl:period"] = "forever" # TODO is this right syntax???
         elif self.duration is not None:
-            aspects["xbrl:periodStart"] = self.duration[0].strftime("%Y-%m-%d")
-            aspects["xbrl:periodEnd"] = self.duration[1].strftime("%Y-%m-%d")
+            aspects["xbrl:periodStart"] = self.duration["start"].strftime("%Y-%m-%d")
+            aspects["xbrl:periodEnd"] = self.duration["end"].strftime("%Y-%m-%d")
         elif self.instant is not None:
             aspects["xbrl:instant"] = self.instant.strftime("%Y-%m-%d")
             # TODO is this the right syntax???
