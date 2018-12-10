@@ -17,6 +17,7 @@ from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
 from taxonomy import PeriodType
+from six import string_types
 
 UNTABLE = "NON_TABLE_CONCEPTS"
 
@@ -512,7 +513,7 @@ class Concept(object):
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):
                 return True
-            elif isinstance(value, str) or isinstance(value, unicode):
+            elif isinstance(value, string_types):
                 try:
                     value = int( value )
                 except ValueError as e:
@@ -521,7 +522,7 @@ class Concept(object):
                     return True
             return False
         if myType == "xbrli:stringItemType":
-            return isinstance( value, str) or isinstance( value, unicode)
+            return isinstance( value, string_types )
         if myType == "xbrli:booleanItemType":
             if isinstance( value, bool):
                 return True
