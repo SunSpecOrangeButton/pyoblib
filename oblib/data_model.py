@@ -88,7 +88,7 @@ class Hypercube(object):
 
         for relation in relationships:
             if relation['role'] == 'domain-member':
-                for axis in self._axes.values():
+                for axis in list(self._axes.values()):
                     if axis.domain == relation['from']:
                         member = relation['to']
                         axis.domainMembers.append( member )
@@ -100,7 +100,7 @@ class Hypercube(object):
 
     def axes(self):
         """Return a list of strings which are the names of the table's axes."""
-        return self._axes.keys()
+        return list(self._axes.keys())
 
     def has_line_item(self, line_item_name):
         """
@@ -287,7 +287,7 @@ class Context(object):
             # TODO does this work if they're tuples of (start, end) ?
             return False
 
-        for axis_name, axis_value in self.axes.items():
+        for axis_name, axis_value in list(self.axes.items()):
             if not axis_name in other_context.axes:
                 return False
             if axis_value != other_context.axes[axis_name]:
@@ -677,7 +677,7 @@ class Entrypoint(object):
         Returns a list of strings identifying all tables that can be included
         in this document.
         """
-        return self._tables.keys()
+        return list(self._tables.keys())
 
     def get_table(self, table_name):
         """
@@ -712,7 +712,7 @@ class Entrypoint(object):
         ancestors = self._all_my_concepts[concept_name].get_ancestors()
         for ancestor in ancestors:
             if "LineItem" in ancestor.name: # maybe not????
-                for table in self._tables.values():
+                for table in list(self._tables.values()):
                     if table.has_line_item(ancestor.name):
                         return table
 
@@ -868,7 +868,7 @@ class Entrypoint(object):
 
         if "context" in kwargs:
             context = kwargs.pop("context")
-        elif len(kwargs.keys()) > 0:
+        elif len(list(kwargs.keys())) > 0:
             # turn the remaining keyword args into a Context object -- this
             # is just syntactic sugar to make this method easier to call.
             period = concept.get_metadata("period_type")
@@ -947,9 +947,9 @@ class Entrypoint(object):
         have been set in this document so far.
         """
         all_facts = []
-        for table_dict in self.facts.values():
-            for context_dict in table_dict.values():
-                for fact in context_dict.values():
+        for table_dict in list(self.facts.values()):
+            for context_dict in list(table_dict.values()):
+                for fact in list(context_dict.values()):
                     all_facts.append(fact)
         return all_facts
     
@@ -981,7 +981,7 @@ class Entrypoint(object):
                                     "xlink:type": "simple"})
 
         # Add a context tag for each context we want to reference:
-        for hypercube in self._tables.values():
+        for hypercube in list(self._tables.values()):
             tags = hypercube.to_XML()
             for tag in tags:
                 xbrl.append(tag)
