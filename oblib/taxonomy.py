@@ -121,6 +121,9 @@ class Unit(object):
             "," + str(self.version_date) + \
             "}"
 
+    def to_dict(self):
+        """Convert Unit to dict."""
+        return vars(self)
 
 class Taxonomy(object):
     """

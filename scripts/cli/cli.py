@@ -86,6 +86,10 @@ def list_unit_info(args):
         print("Not found")
 
 
+def list_ep(args):
+    for ep in tax.semantic.entry_points():
+        print(ep)
+
 def list_ep_concepts_info(args):
 
     if csv:
@@ -125,17 +129,17 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
+                       (r['role'], r['from'], r['to'], r['order']))
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
         print('%0.19s %0.78s %0.78s %0.5s' %
                 (DASHES, DASHES, DASHES, DASHES))
-        
+
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
+                       (r['role'], r['from'], r['to'], r['order']))
         else:
             print("Not found")
 
@@ -171,9 +175,9 @@ def list_units(args):
 
 def list_units_details(args):
 
-    if csv:      
+    if csv:
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
- 
+
         for unit_id in tax.units.units():
                 unit = tax.units.unit(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
@@ -233,7 +237,7 @@ def validate_generic_role(args):
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.validate_unit(args.generic_unit))
+    print("Valid:", tax.units.validate_unit(unit_id=args.generic_unit))
 
 
 def version(args):
@@ -282,6 +286,9 @@ list_concepts_info_parser = subparsers.add_parser(
 list_concepts_info_parser.set_defaults(command='list_ep_concepts_info')
 list_concepts_info_parser.add_argument('ep', action='store',
                                        help='The entry point to list concepts for')
+
+list_ep_parser = subparsers.add_parser('list-ep', help='List Orange Button Entry Points')
+list_ep_parser.set_defaults(command='list_ep')
 
 list_concepts_parser = subparsers.add_parser('list-concepts',
                                              help='List concepts in an Orange Button Entry Point')
