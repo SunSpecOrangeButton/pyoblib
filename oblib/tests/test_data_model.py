@@ -362,8 +362,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
             axes = segment.findall("{http://xbrl.org/2006/xbrldi}typedMember")
             axis_names = [x.attrib["dimension"] for x in axes]
 
-            self.assertItemsEqual(axis_names, ['solar:ProductIdentifierAxis',
-                                               'solar:TestConditionAxis'])
+            self._check_arrays_equivalent(axis_names, ['solar:ProductIdentifierAxis',
+                                                       'solar:TestConditionAxis'])
             for axis in axes:
                 if axis.attrib["dimension"] == 'solar:ProductIdentifierAxis':
                     self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ProductIdentifierDomain")
@@ -421,10 +421,10 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual( len(root['facts']), 2)
 
         # each should have expected 'value' and 'aspects':
-        typeFact = root['facts'][1]
+        typeFacts = [x for x in root['facts'] if x['aspects']['xbrl:concept'] == 'solar:TypeOfDevice']
+        self.assertEqual(len(typeFacts), 1)
+        typeFact = typeFacts[0]
         self.assertEqual(typeFact['value'], "ModuleMember")
-        
-        self.assertEqual(typeFact['aspects']['xbrl:concept'], 'solar:TypeOfDevice')
         self.assertEqual(typeFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
         self.assertEqual(typeFact['aspects']['solar:TestConditionAxis'],
                              "solar:StandardTestConditionMember")
@@ -434,9 +434,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # xbrl:unit?  Currently assuming we leave it out:
         self.assertNotIn("xbrl:unit", typeFact["aspects"])
 
-        costFact = root['facts'][0]
+        costFacts = [x for x in root['facts'] if x['aspects']['xbrl:concept'] == 'solar:DeviceCost']
+        self.assertEqual(len(costFacts), 1)
+
+        costFact = costFacts[0]
         self.assertEqual(costFact['value'], '100')
-        self.assertEqual(costFact['aspects']['xbrl:concept'], 'solar:DeviceCost')
         self.assertEqual(costFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
         self.assertEqual(costFact['aspects']['solar:TestConditionAxis'],
                              "solar:StandardTestConditionMember")
