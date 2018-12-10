@@ -461,7 +461,7 @@ class Concept(object):
 
         try:
             self.metadata = taxonomy_semantic.concept_info(concept_name)
-        except KeyError, e:
+        except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
 
 
@@ -515,7 +515,7 @@ class Concept(object):
             elif isinstance(value, str) or isinstance(value, unicode):
                 try:
                     value = int( value )
-                except ValueError, e:
+                except ValueError as e:
                     return False
                 else:
                     return True
@@ -532,7 +532,7 @@ class Concept(object):
         if myType == "xbrli:decimalItemType":
             try:
                 value = float( value )
-            except ValueError, e:
+            except ValueError as e:
                 return False
             else:
                 return True
@@ -542,7 +542,7 @@ class Concept(object):
             # correct?
             try:
                 value = float( value )
-            except ValueError, e:
+            except ValueError as e:
                 return False
             else:
                 return True
