@@ -1,3 +1,6 @@
+lxml==4.2.5
+pdoc==0.3.2
+six==1.12.0
 enum34==1.1.6
 
 # pytest
@@ -11,3 +14,4 @@ pytest-cov==2.6.0
 Sphinx==1.8.2
 sphinx-rtd-theme==0.4.2
 sphinxcontrib-websupport==1.1.0
+
