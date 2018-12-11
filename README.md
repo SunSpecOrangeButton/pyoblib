@@ -1,5 +1,9 @@
 # Orange Button Python Library (pyoblib)
 
+[![TravisCI](https://travis-ci.com/SunSpecOrangeButton/pyoblib.svg?branch=master)]( https://travis-ci.com/SunSpecOrangeButton/pyoblib)
+[![Documentation Status](https://readthedocs.org/projects/pyoblib/badge/?version=latest)](https://pyoblib.readthedocs.io/en/latest/?badge=latest)
+
+
 The Orange Button Python library contains core source code that may be used by other Orange Button code.  By definition functionality in this library should be consumable by multiple other Orange Button projects.  If functionality is only usable in a single instance it should be placed in another project.
 
 Full Documentation can be found at [Read the Docs](https://pyoblib.readthedocs.io/en/latest/).
@@ -10,7 +14,7 @@ NOTE: At this point in time the Core library is being setup and is in developmen
 
 ### Requirements
 
-Python 2.7, 3.3 - 3.6.  The recommended version is Python 3.6.
+Python 2.7, 3.4 - 3.6.  The recommended version is Python 3.6.
 
 ### Installation
 

@@ -283,7 +283,7 @@ class TaxonomySemantic(object):
             return False
 
     def concepts_ep(self, data):
-        """Return a list of all concepts in an end point."""
+        """Return a list of all concepts in an entry point."""
         if data in self._concepts:
             return self._concepts[data]
         else:
@@ -291,10 +291,10 @@ class TaxonomySemantic(object):
 
     def relationships_ep(self, entry_point):
         """
-        Return a list of all relationships in an entry point.
-
-        Returns an empty list if the concept exists but has no relationships.
+        Returns a list of all relationships in an entry point
+        Returns an empty list if the concept exists but has no relationships
         """
+
         if entry_point in self._concepts:
             if entry_point in self._relationships:
                 return self._relationships[entry_point]
@@ -302,6 +302,13 @@ class TaxonomySemantic(object):
                 return []
         else:
             return None
+
+    def entry_points(self):
+        """
+        Returns a list of all entry points (data, documents, and processes) in the Taxonomy.
+        """
+    
+        return list(self._concepts)
 
     def concept_info(self, concept):
         """Return information on a single concept."""
@@ -330,15 +337,14 @@ class TaxonomySemantic(object):
                 if concept in self._elements:
                     ci.append(self._elements[concept])
                 else:
-                    # TODO: This case is not correctly understood.
+                    # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
+                    # Remove this comment once completed.
                     # Here are some samples that are not found:
                     # Warning, concept not found: solar:MeterRatingAccuracy_1
                     # Warning, concept not found: solar:MeterRevenueGrade_1
                     # Warning, concept not found: solar:MeterBidirectional_1
                     # Warning, concept not found: solar:RevenueMeterPowerFactor_1
                     # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                    # This case should be understood and handled correctly as
-                    # opposed to just printing a warning message.
                     # print("Warning, concept not found:", concept)
                     pass
             return ci
