@@ -1,3 +1,17 @@
-# pyinstaller  TODO: Failing on Python 3.3 - reason unknown.  Diagnose and fix
-pdoc
-flake8
+lxml==4.2.5
+pdoc==0.3.2
+six==1.12.0
+enum34==1.1.6
+
+# pytest
+pytest==3.10.0
+
+# codecov
+coverage==4.5.2
+pytest-cov==2.6.0
+
+# sphinx
+Sphinx==1.8.2
+sphinx-rtd-theme==0.4.2
+sphinxcontrib-websupport==1.1.0
+

@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-TESTS_REQUIRE = ['pytest']
+TESTS_REQUIRE = ['pytest', 'pytest-cov']
 EXTRAS_REQUIRE = {
     'doc': ['sphinx', 'sphinx_rtd_theme'],
     'test': TESTS_REQUIRE

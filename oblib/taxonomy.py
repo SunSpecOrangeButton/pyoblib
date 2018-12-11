@@ -148,7 +148,6 @@ class Taxonomy(object):
 # Accessor for singleton Taxonomy object:
 m_singletonTaxonomy = None
 
-
 def getTaxonomy():
     """Return the taxonomy."""
     global m_singletonTaxonomy

@@ -12,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SOLAR_TAXONOMY_DIR = "solar-taxonomy"
+import os
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "..", "solar-taxonomy")
