@@ -17,6 +17,7 @@ import sys
 import argparse
 
 import identifier
+from parser import Parser, FileFormat
 import taxonomy
 
 #
@@ -45,6 +46,18 @@ csv = False
 
 def info(args):
     print(INFO)
+
+
+def convert(args):
+    # TODO: Add support for XML to JSON once the XML import code is completed.
+    p = Parser(tax)
+    p.convert(args.infile, args.outfile, FileFormat.JSON)
+
+
+def validate(args):
+    # TODO: Add support for XML once the XML import is completed.
+    p = Parser(tax)
+    p.validate(args.infile, FileFormat.JSON)
 
 
 def generate_identifier(args):
@@ -251,6 +264,15 @@ subparsers = parser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
 info_parser.set_defaults(command='info')
+
+convert_parser = subparsers.add_parser('convert', help='Convert XBRL files from JSON/XML to XML/JSON')
+convert_parser.set_defaults(command='convert')
+convert_parser.add_argument('infile', action='store', help='The input file')
+convert_parser.add_argument('outfile', action='store', help='The output file')
+
+validate_parser = subparsers.add_parser('validate', help='Validate XBRL JSON or XML files')
+validate_parser.set_defaults(command='validate')
+validate_parser.add_argument('infile', action='store', help='The input file')
 
 generate_identifier_parser = subparsers.add_parser('generate-identifier',
                                                    help='Generate an Orange Button Identifier')

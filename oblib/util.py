@@ -49,3 +49,10 @@ def convert_taxonomy_date(s):
         return datetime.datetime.strptime(s, "%Y-%m-%d").date()
     except ValueError:
         return None
+
+def convert_json_datetime(s):
+
+    try:
+        return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S").date()
+    except ValueError:
+        return None
