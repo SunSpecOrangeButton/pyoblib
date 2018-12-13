@@ -2,6 +2,7 @@ lxml==4.2.5
 pdoc==0.3.2
 six==1.12.0
 enum34==1.1.6
+jsondiff==1.1.2
 
 # pytest
 pytest==3.10.0
