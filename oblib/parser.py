@@ -106,7 +106,7 @@ class Parser(object):
             fact_names.append(fact["aspects"]["xbrl:concept"])
     
         # Create an entrypoint.
-        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy)
+        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
         facts = json_data["facts"]
