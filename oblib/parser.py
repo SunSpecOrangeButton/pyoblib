@@ -208,8 +208,98 @@ class Parser(object):
         entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy)
 
         # TODO: Supply implementation upon completion of prototype code.
-
+        print("WARNING: Implementation is not complete !!")
+        print("Entrypoint detected:", self._entrypoint_name(fact_names))
+        print("An empty Entrypoint is returned")
+        print("Upon completion a populated Entrypoint will be returned.")
+        
         return entrypoint
+
+        """
+        PROTOTYPE CODE:
+        This will currently crash.  It can be added to from_XML_String once it is working.  Minor
+        tweaking will be required to ensure correct operation.
+
+        # Read in units
+        units = {}
+        for unit in root.iter(nn("unit")):
+            units[unit.attrib["id"]] = unit[0].text
+
+        # Read in contexts
+        contexts = {}
+        for context in root.iter(nn("context")):
+            instant = None
+            duration = None
+            entity = None
+            start_date = None
+            end_date = None
+            axis = {}
+            for elem in context.iter():
+                if elem.tag == _xn("period"):
+                    if elem[0].tag == _xn("forever"):
+                        duration = "forever"
+                    elif elem[0].tag == _xn("startDate"):
+                        start_date = elem[0].tag.text
+                    elif elem[0].tag == _xn("endDate"):
+                        end_date = elem[0].tag.text
+                    elif elem[0].tag == _xn("instant"):
+                        instant = elem[0].text
+                elif elem.tag == _xn("entity"):
+                    for elem2 in elem.iter():
+                        if elem2.tag == _xn("identifier"):
+                            entity = elem2.text
+                        elif elem2.tag == _xn("segment"):
+                            for elem3 in elem2.iter():
+                                if elem3.tag == _xn("xbrldi:typedMember"):
+                                    for elem4 in elem3.iter():
+                                        if elem4.tag != _xn("xbrldi:typedMember"):
+                                            axis[elem3.attrib["dimension"]] = elem4.text
+
+            if duration is None and start_date is not None and end_date is not None:
+                duration = {"start": start_date, "end": end_date}
+            kwargs = {}
+            if instant is not None:
+                kwargs["instant"] = instant
+            if duration is not None:
+                kwargs["duration"] = duration
+            if entity is not None:
+                kwargs["entity"] = entity
+            if axis is not None:
+                for a in axis:
+                    # print(a)
+                    kwargs[a] = axis[a]
+            # print("=====")
+            # print(axis)
+            # print(kwargs)
+            dm_ctx = data_model.Context(**kwargs)
+            # print(dm_ctx)
+            # print("=====")
+            contexts[context.attrib["id"]] = dm_ctx
+
+        # Read all elements that are not a context or a unit:
+        for child in root:
+            if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
+                kwargs = {}
+                if "contextRef" in child.attrib:
+                    kwargs["context"] = contexts[child.attrib["contextRef"]]
+
+                tag = child.tag
+                tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
+                tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+
+                print("============")
+                print("concept_name:", tag)
+                print("value:", child.text)
+                print("kwargs", kwargs)
+                print("kwargs['context'].instant:", kwargs["context"].instant)
+                print("kwargs['context'].duration:", kwargs["context"].duration)
+                print("kwargs['context'].entity:", kwargs["context"].entity)
+                print("kwargs['context'].axes:", kwargs["context"].axes)
+                print("Calling doc.set(concept_name, value, **kwargs)")
+                doc.set(tag, child.text, 
+
+        """
 
     def from_XML(self, in_filename):
         """ 
