@@ -27,7 +27,11 @@ class FileFormat(enum.Enum):
 
 
 class Parser(object):
-    """ Parses JSON/XML input and output data """
+    """ 
+    Parses JSON/XML input and output data 
+    
+    taxonomy (Taxonomy): initialized Taxonomy.
+    """
 
     def __init__(self, taxonomy):
         """ Initializes parser """
@@ -39,6 +43,8 @@ class Parser(object):
         Returns the name of the correct entrypoint given a set of concepts from a document (JSON or XML).
         Currently assumes that a JSON/XML document contains one and only one entrypoint and raises
         an exception if this is not true.
+
+        doc_concepts (list of strings): A list of all concepts int eh input JSON/XML
 
         TODO: This is algorithm is fairly slow since it loops through all entry points which is time
         consuming for a small number of input concepts.  With this said there is not currently enough
@@ -84,7 +90,11 @@ class Parser(object):
                 return the_one
 
     def from_JSON_string(self, json_string):
-        """ Loads the Entrypoint from a JSON string into an entrypoint """
+        """ 
+        Loads the Entrypoint from a JSON string into an entrypoint
+
+        json_string (str): String containing JSON
+        """
 
         # Convert string to JSON data
         json_data = json.loads(json_string)
@@ -141,16 +151,23 @@ class Parser(object):
 
         return entrypoint
 
-    def from_JSON(self, filename):
-        """ Imports XBRL as JSON from the given filename. """
+    def from_JSON(self, in_filename):
+        """
+        Imports XBRL as JSON from the given filename.
+        
+        in_filename(str): input filename
+        """
 
-        infile = open(filename, "r")
-        s = infile.read()
-        infile.close()
+        with open(in_filename, "r") as infile: 
+            s = infile.read()
         return self.from_JSON_string(s)
 
     def from_XML_string(self, xml_string):
-        """ Loads the Entrypoint from an XML string """
+        """
+        Loads the Entrypoint from an XML string
+
+        xml_string(str): String containing XML.
+        """
 
         # Create an entrypoint.
         # TODO: Should not have to initiatilize taxonomy and Entrypoint type should not be hardcoded.
@@ -159,51 +176,81 @@ class Parser(object):
         # TODO: Supply implementation upon completion of prototype code.
         return entrypoint
 
-    def from_XML(self, filename):
-        """ Imports XBRL as XML from the given filename. """
+    def from_XML(self, in_filename):
+        """ 
+        Imports XBRL as XML from the given filename.
 
-        infile = open(filename, "r")
-        s = infile.read()
-        infile.close()
-        self.from_XML_string(s)
+        in_filename (str): output filename
+        """
+
+        with open(in_filename, "r") as infile: 
+            s = infile.read()
+        return self.from_XML_string(s)
 
     def to_JSON_string(self, entrypoint):
-        """ Returns XBRL as an JSON string given a data model entrypoint. """
+        """
+        Returns XBRL as an JSON string given a data model entrypoint.
+        
+        entrypoint (Entrypoint): entry point to export to JSON
+        """
 
         return entrypoint.to_JSON_string()
 
-    def to_JSON(self, entrypoint, filename):
-        """ Exports XBRL as JSON to the given filename given a data model entrypoint. """
+    def to_JSON(self, entrypoint, out_filename):
+        """ 
+        Exports XBRL as JSON to the given filename given a data model entrypoint. 
+
+        entrypoint (Entrypoint): entry point to export to JSON
+        out_filename (str): output filename
+        """
         
-        entrypoint.to_JSON(filename)
+        entrypoint.to_JSON(out_filename)
 
     def to_XML_string(self, entrypoint):
-        """ Returns XBRL as an XML string given a data model entrypoint. """
+        """ 
+        Returns XBRL as an XML string given a data model entrypoint.
+        
+        entrypoint (Entrypoint): entry point to export to XML
+        """
 
         return entrypoint.to_XML_string()
 
-    def to_XML(self, entrypoint, filename):
-        """ Exports XBRL as XML to the given filename given a data model entrypoint. """
+    def to_XML(self, entrypoint, out_filename):
+        """ 
+        Exports XBRL as XML to the given filename given a data model entrypoint. 
         
-        entrypoint.to_XML(filename)
+        entrypoint (Entrypoint): entry point to export to XML
+        out_filename (str): output filename
+        """
+        
+        entrypoint.to_XML(out_filename)
 
     def convert(self, in_filename, out_filename, file_format):
         """ 
         Converts and input file (in_filename) to an output file (out_filename) given an input 
         file format specified by file_format.
+
+        in_filename (str): full path to input file
+        out_filename (str): full path to output file
+        file_format (FileFormat): values are FileFormat.JSON" or FileForamt.XML"
         """
 
         if file_format == FileFormat.JSON:
             entrypoint = self.from_JSON(in_filename)
             self.to_XML(entrypoint, out_filename)
-        else:
+        elif file_format == FileFormat.XML:
             entrypoint = self.from_XML(in_filename)
             self.to_JSON(entrypoint, out_filename)
-    
+        else:
+            raise ValueError("file_format must be JSON or XML")
+
     def validate(self, in_filename, file_format):
         """
         Validates an in input file (in_filename) by loading it.  Unlike convert does not produce
         an output file.
+
+        in_filename (str): full path to input file
+        file_format (FileFormat): values are FileFormat.JSON" or FileForamt.XML"
 
         TODO: At this point in time errors part output via print statements.  Future implementation
         should actually return the conditions instead.  It also may be desirable to list the 
