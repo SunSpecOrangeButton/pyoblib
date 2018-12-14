@@ -43,21 +43,54 @@ if getattr(sys, 'frozen', False):
 
 tax = taxonomy.Taxonomy()
 csv = False
+json = False
+xml = False
+
 
 def info(args):
     print(INFO)
 
 
 def convert(args):
-    # TODO: Add support for XML to JSON once the XML import code is completed.
+
     p = Parser(tax)
-    p.convert(args.infile, args.outfile, FileFormat.JSON)
+
+    ff = None
+    if json:
+        ff = FileFormat.JSON
+    elif xml:
+        ff = FileFormat.XML
+    elif args.infile.lower().endswith(".json") and args.outfile.lower().endswith(".xml"):
+        ff = FileFormat.JSON
+    elif args.infile.lower().endswith(".xml") and args.outfile.lower().endswith(".json"):
+        ff = FileFormat.XML
+
+    if ff is None:
+        print("Unable to determine file format.  Conversion not processed.")
+        sys.exit(1)
+        
+    p.convert(args.infile, args.outfile, ff)
 
 
 def validate(args):
-    # TODO: Add support for XML once the XML import is completed.
+
     p = Parser(tax)
-    p.validate(args.infile, FileFormat.JSON)
+
+    ff = None
+    if json:
+        ff = FileFormat.JSON
+    elif xml:
+        ff = FileFormat.XML
+    elif args.infile.lower().endswith(".json"):
+        ff = FileFormat.JSON
+    elif args.infile.lower().endswith(".xml"):
+        ff = FileFormat.XML
+
+    if ff is None:
+        print("Unable to determine file format.  Conversion not processed.")
+        sys.exit(1)
+
+    p.validate(args.infile, ff)
 
 
 def generate_identifier(args):
@@ -260,6 +293,8 @@ formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=3
 
 parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
 parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
+parser.add_argument("--json", help="input format is JSON", action="store_true")
+parser.add_argument("--xml", help="input format is XML", action="store_true")
 subparsers = parser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
@@ -406,6 +441,14 @@ args = parser.parse_args()
 
 if args.csv:
     csv = True
+if args.json:
+    json = True
+if args.xml:
+    xml = True
+
+if json and xml:
+    print("--json and --xml are mutually exclusive.")
+    sys.exit(1)
 
 if not hasattr(args, 'command'):
     print('A command must be specified')
