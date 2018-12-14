@@ -579,7 +579,7 @@ class Entrypoint(object):
     and from particular physical file format (or database schema) will
     be handled elsewhere.
     """
-    def __init__(self, entrypoint_name, taxonomy):
+    def __init__(self, entrypoint_name, taxonomy, dev_validation_off=False):
         """
         Initialize an entrypoint.
 
@@ -592,10 +592,14 @@ class Entrypoint(object):
         and axes/dimensions.
         taxonomy_semantic should be the global singleton TaxonomySemantic
         object.
+
+        An optional flag ("dev_validation_off") can be set to turn validation
+        rules off during development.  This should not be used during a release.   
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
+        self._dev_validation_off = dev_validation_off
         if not self.ts.validate_ep(entrypoint_name):
             raise Exception("There is no Orange Button entrypoint named {}.".format(entrypoint_name))
 
@@ -886,11 +890,11 @@ class Entrypoint(object):
             raise Exception("Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self.valid_unit(concept_name, unit_name):
+        if not self._dev_validation_off and not self.valid_unit(concept_name, unit_name):
             raise Exception("{} is an invalid unit type for {}".format(unit_name, concept_name))
         
         # check datatype of given value against concept
-        if not concept.validate_datatype(value):
+        if not self._dev_validation_off and not concept.validate_datatype(value):
             raise Exception("{} is the wrong datatype for {}".format(value, concept_name))
         
         table = self.get_table_for_concept(concept_name)
