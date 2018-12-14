@@ -37,8 +37,8 @@ class TestParser(unittest.TestCase):
         # self.assertEqual(d, "{}")
 
     def test_xml(self):
-        entrypoint = parser.from_JSON_string(TEST_JSON)
-        out = parser.to_JSON_string(entrypoint)
+        entrypoint = parser.from_XML_string(TEST_XML)
+        out = parser.to_XML_string(entrypoint)
 
         # TODO: Add an XML diff tool and run tests on it.
 
@@ -90,4 +90,64 @@ TEST_JSON = """
     }
   ]
 }
+"""
+
+TEST_XML = """
+<xbrl
+    xmlns="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:solar="http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+    xmlns:units="http://www.xbrl.org/2009/utr"
+    xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMRLSchema-instance">
+    <link:schemaRef xlink:href="https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd" xlink:type="simple" />
+    <context id="solar:SolarArrayTable_1">
+        <entity>
+            <identifier scheme="http://xbrl.org/entity/identification/scheme">kWh Analytics</identifier>
+            <segment>
+                <xbrldi:typedMember dimension="solar:PVSystemIdentifierAxis">
+                    <solar:PVSystemIdentifierDomain>1</solar:PVSystemIdentifierDomain>
+                </xbrldi:typedMember>
+                <xbrldi:typedMember dimension="solar:SolarSubArrayIdentifierAxis">
+                    <solar:SolarSubArrayIdentifierDomain>1</solar:SolarSubArrayIdentifierDomain>
+                </xbrldi:typedMember>
+                <xbrldi:typedMember dimension="solar:EquipmentTypeAxis">
+                    <solar:EquipmentTypeDomain>solar:ModuleMember</solar:EquipmentTypeDomain>
+                </xbrldi:typedMember>
+            </segment>
+        </entity>
+        <period>
+            <instant>2018-12-14</instant>
+        </period>
+    </context>
+    <unit id="kW">
+        <measure>units:kW</measure>
+    </unit>
+    <unit id="Degree">
+        <measure>units:Degree</measure>
+    </unit>
+    <context id="solar:ProductIdentifierTable_0">
+        <entity>
+            <identifier scheme="http://xbrl.org/entity/identification/scheme">kWh Analytics</identifier>
+            <segment>
+                <xbrldi:typedMember dimension="solar:PVSystemIdentifierAxis">
+                    <solar:PVSystemIdentifierDomain>1</solar:PVSystemIdentifierDomain>
+                </xbrldi:typedMember>
+                <xbrldi:typedMember dimension="solar:ProductIdentifierAxis">
+                    <solar:ProductIdentifierDomain>Placeholder</solar:ProductIdentifierDomain>
+                </xbrldi:typedMember>
+                <xbrldi:typedMember dimension="solar:TestConditionAxis">
+                    <solar:TestConditionDomain>solar:StandardTestConditionMember</solar:TestConditionDomain>
+                </xbrldi:typedMember>
+            </segment>
+        </entity>
+        <period>
+            <forever />
+        </period>
+    </context>
+
+    <solar:InverterOutputMaximumPowerAC contextRef="solar:ProductIdentifierTable_0" decimals="2" unitRef="kW">220</solar:InverterOutputMaximumPowerAC>
+    <solar:OrientationAzimuth contextRef="solar:SolarArrayTable_1" decimals="2" unitRef="Degree">25</solar:OrientationAzimuth>
+</xbrl>
 """

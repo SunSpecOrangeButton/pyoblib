@@ -18,6 +18,29 @@ import util
 
 import enum
 import json
+import xml.etree.ElementTree as ElementTree
+import sys
+
+# The Following code is used internally by the XML parser - there is no known general usage
+# reason to leverage.  The extremely short function name is for brevity in the XML parser.
+
+_xml_ns = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
+      "link:": "{http://www.xbrl.org/2003/linkbase}",
+      "solar:": "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}",
+      "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
+      "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
+
+def _xn(s):
+    # eXpands the Namespace to be equitable to what is read in by the XML parser.
+
+    if s is None:
+        return None
+    for n in _xml_ns:
+        if n in s:
+            return s.replace(n, _xml_ns[n])
+    return "{http://www.xbrl.org/2003/instance}" + s 
+
+# End of XML parsign utility code
 
 class FileFormat(enum.Enum):
     """ Legal values for file formats. """
@@ -169,11 +192,23 @@ class Parser(object):
         xml_string(str): String containing XML.
         """
 
+        root = ElementTree.fromstring(xml_string)
+        # Read all elements that are not a context or a unit:
+        fact_names = []
+        for child in root:
+            if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
+
+                tag = child.tag
+                tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
+                tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+                fact_names.append(tag)
+
         # Create an entrypoint.
-        # TODO: Should not have to initiatilize taxonomy and Entrypoint type should not be hardcoded.
-        entrypoint = data_model.Entrypoint("CutSheet", self._taxonomy)
+        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy)
 
         # TODO: Supply implementation upon completion of prototype code.
+
         return entrypoint
 
     def from_XML(self, in_filename):
