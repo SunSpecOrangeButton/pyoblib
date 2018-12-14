@@ -44,7 +44,7 @@ class Parser(object):
         Currently assumes that a JSON/XML document contains one and only one entrypoint and raises
         an exception if this is not true.
 
-        doc_concepts (list of strings): A list of all concepts int eh input JSON/XML
+        doc_concepts (list of strings): A list of all concepts in the input JSON/XML
 
         TODO: This is algorithm is fairly slow since it loops through all entry points which is time
         consuming for a small number of input concepts.  With this said there is not currently enough
@@ -180,7 +180,7 @@ class Parser(object):
         """ 
         Imports XBRL as XML from the given filename.
 
-        in_filename (str): output filename
+        in_filename (str): input filename
         """
 
         with open(in_filename, "r") as infile: 
@@ -190,7 +190,7 @@ class Parser(object):
     def to_JSON_string(self, entrypoint):
         """
         Returns XBRL as an JSON string given a data model entrypoint.
-        
+
         entrypoint (Entrypoint): entry point to export to JSON
         """
 
