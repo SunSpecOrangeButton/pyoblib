@@ -31,12 +31,12 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertEqual(len(tax_generic_roles.generic_roles()), 5)
 
     def test_validate_numeric_types(self):
-        self.assertTrue(tax_numeric_types.validate_numeric_type("insolationItemType"))
-        self.assertTrue(tax_numeric_types.validate_numeric_type("speedItemType"))
-        self.assertTrue(tax_numeric_types.validate_numeric_type("luminousIntensityItemType"))
-        self.assertFalse(tax_numeric_types.validate_numeric_type("inslationItemType"))
-        self.assertFalse(tax_numeric_types.validate_numeric_type("speedItemTye"))
-        self.assertFalse(tax_numeric_types.validate_numeric_type("luminousIntensityIteType"))
+        self.assertTrue(tax_numeric_types.validate_numeric_type("solar:insolationItemType"))
+        self.assertTrue(tax_numeric_types.validate_numeric_type("solar:speedItemType"))
+        self.assertTrue(tax_numeric_types.validate_numeric_type("solar:luminousIntensityItemType"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("solar:inslationItemType"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("solar:speedItemTye"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("solar:luminousIntensityIteType"))
 
     def test_validate_ref_part(self):
         self.assertTrue(tax_ref_parts.validate_ref_part("Publisher"))

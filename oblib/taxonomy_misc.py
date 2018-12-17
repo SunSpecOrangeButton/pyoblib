@@ -36,7 +36,11 @@ class _TaxonomyNumericHandler(xml.sax.ContentHandler):
         if name == "complexType":
             for item in attrs.items():
                 if item[0] == "name":
-                    self._numeric_types.append(item[1])
+                    if ":" in item[1]:
+                        name = item[1]
+                    else:
+                        name = "solar:" + item[1]
+                    self._numeric_types.append(name)
 
     def numeric_types(self):
         return self._numeric_types
