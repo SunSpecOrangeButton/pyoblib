@@ -1,4 +1,4 @@
-""" Parses JSON/XML input and output data. """
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+""" Parses JSON/XML input and output data. """
+
 import data_model
 import taxonomy
 import util
 
 import enum
 import json
+
 
 class FileFormat(enum.Enum):
     """ Legal values for file formats. """
