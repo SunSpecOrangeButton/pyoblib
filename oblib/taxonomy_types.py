@@ -29,7 +29,11 @@ class _TaxonomyTypesHandler(xml.sax.ContentHandler):
             for item in attrs.items():
                 if item[0] == "name":
                     self._curr = []
-                    self._types[item[1]] = self._curr
+                    if ":" in item[1]:
+                        name = item[1]
+                    else:
+                        name = "solar:" + item[1]
+                    self._types[name] = self._curr
         elif name == "xs:enumeration":
             for item in attrs.items():
                 if item[0] == "value":
