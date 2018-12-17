@@ -17,4 +17,4 @@ sphinx-rtd-theme==0.4.2
 sphinxcontrib-websupport==1.1.0
 
 # pyinstaller
-pyinstaller=3.4
+pyinstaller==3.4
