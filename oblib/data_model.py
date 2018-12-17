@@ -384,6 +384,9 @@ class Context(object):
 
         return aspects
 
+    # TODO it would be great to read the documentation string for the concept (out of
+    #  solar_2018-03-31_r01_lab.xml) so we can get documentation string for any concept.
+
 
 class Fact(object):
     """
@@ -560,10 +563,15 @@ class Concept(object):
             # that we can import here.
             return True
         print("Warning: i don't know how to validate " + myType)
+        
 
         # TODO add validation for complex types.  Most types in the num:
-        # namespace will be decimals that expect units. Most types in
-        # the solar-types: namespace will be enumerated string types.
+        # namespace will be decimals that expect units. e.g.
+        # #num:powerItemType. We can use
+        # t.numeric_types.numeric_types() to get a list of these to compare against.
+        # Most types in
+        # the solar-types: namespace will be enumerated string types. We could use
+        # e.g. t.types.type_enum("mountingItemType") to get the valid values.
         return True
 
 
@@ -1058,7 +1066,7 @@ class Entrypoint(object):
         on the document, then after that you can leave "entity" out of your
         contexts and the default entity will be used.
         """
-        self._default_context = dictionary.copy()
+        self._default_context.update(dictionary)
 
     def _fill_in_context_from_defaults(self, context, concept):
         """
@@ -1073,6 +1081,9 @@ class Entrypoint(object):
             context_args = {}
             if period in self._default_context:
                 context_args[period.value] = self._default_context[period]
+            else:
+                raise Exception("{} needs a {}, no default set and no context given.".format(
+                    concept.name, period.value))
             if "entity" in self._default_context:
                 context_args["entity"] = self._default_context["entity"]
             context = Context(**context_args)
