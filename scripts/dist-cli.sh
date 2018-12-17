@@ -21,4 +21,7 @@
 # correct placement of solar-taxonomy.
 
 export PYTHONPATH=`pwd`/oblib
-pyinstaller --add-data ../solar-taxonomy:../solar-taxonomy --clean --onefile scripts/cli/cli.py
+export SOLAR_TAXONOMY_DIR='solar-taxonomy'
+pyinstaller --add-data solar-taxonomy:solar-taxonomy --clean --onefile scripts/cli/cli.py
+rm -rf build
+mv dist/cli dist/ob
