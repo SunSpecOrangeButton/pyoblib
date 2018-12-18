@@ -120,6 +120,8 @@ class Parser(object):
         Loads the Entrypoint from a JSON string into an entrypoint
 
         json_string (str): String containing JSON
+
+        TODO: Currently this method works in some cases but testing is incomplete
         """
 
         # Convert string to JSON data
@@ -193,9 +195,13 @@ class Parser(object):
         Loads the Entrypoint from an XML string
 
         xml_string(str): String containing XML.
+
+        TODO: Currently this method works in some cases but there are known bugs and incomplete
+        testing to work through.  See Issues for more information.
         """
 
         root = ElementTree.fromstring(xml_string)
+
         # Read all elements that are not a context or a unit:
         fact_names = []
         for child in root:
@@ -208,29 +214,16 @@ class Parser(object):
                 fact_names.append(tag)
 
         # Create an entrypoint.
-        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy)
-
-        # TODO: Supply implementation upon completion of prototype code.
-        print("WARNING: Implementation is not complete !!")
-        print("Entrypoint detected:", self._entrypoint_name(fact_names))
-        print("An empty Entrypoint is returned")
-        print("Upon completion a populated Entrypoint will be returned.")
-        
-        return entrypoint
-
-        """
-        PROTOTYPE CODE:
-        This will currently crash.  It can be added to from_XML_String once it is working.  Minor
-        tweaking will be required to ensure correct operation.
+        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy, dev_validation_off=True)
 
         # Read in units
         units = {}
-        for unit in root.iter(nn("unit")):
+        for unit in root.iter(_xn("unit")):
             units[unit.attrib["id"]] = unit[0].text
 
         # Read in contexts
         contexts = {}
-        for context in root.iter(nn("context")):
+        for context in root.iter(_xn("context")):
             instant = None
             duration = None
             entity = None
@@ -269,14 +262,8 @@ class Parser(object):
                 kwargs["entity"] = entity
             if axis is not None:
                 for a in axis:
-                    # print(a)
                     kwargs[a] = axis[a]
-            # print("=====")
-            # print(axis)
-            # print(kwargs)
             dm_ctx = data_model.Context(**kwargs)
-            # print(dm_ctx)
-            # print("=====")
             contexts[context.attrib["id"]] = dm_ctx
 
         # Read all elements that are not a context or a unit:
@@ -291,18 +278,10 @@ class Parser(object):
                 tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
                 tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
 
-                print("============")
-                print("concept_name:", tag)
-                print("value:", child.text)
-                print("kwargs", kwargs)
-                print("kwargs['context'].instant:", kwargs["context"].instant)
-                print("kwargs['context'].duration:", kwargs["context"].duration)
-                print("kwargs['context'].entity:", kwargs["context"].entity)
-                print("kwargs['context'].axes:", kwargs["context"].axes)
-                print("Calling doc.set(concept_name, value, **kwargs)")
-                doc.set(tag, child.text, 
+                entrypoint.set(tag, child.text, **kwargs)
 
-        """
+        # Return populated entrypoint
+        return entrypoint
 
     def from_XML(self, in_filename):
         """ 

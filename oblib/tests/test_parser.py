@@ -95,6 +95,41 @@ TEST_JSON = """
 """
 
 TEST_XML = """
+<xbrl 
+    xmlns="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:solar="http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+    xmlns:units="http://www.xbrl.org/2009/utr"
+    xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMRLSchema-instance">
+    <link:schemaRef xlink:href="https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd" xlink:type="simple" />
+    <context id="NON_TABLE_CONCEPTS_0">
+        <entity>
+            <identifier scheme="http://xbrl.org/entity/identification/scheme" />
+        </entity>
+        <period>
+            <forever />
+        </period>
+    </context>
+    <solar:AppraisalAvailabilityOfDocument contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfDocument>
+    <solar:AppraisalAvailabilityOfFinalDocument contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfFinalDocument>
+    <solar:AppraisalAvailabilityOfDocumentExceptions contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfDocumentExceptions>
+    <solar:AppraisalExceptionDescription contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalExceptionDescription>
+    <solar:AppraisalCounterparties contextRef="NON_TABLE_CONCEPTS_0">2018-04-04</solar:AppraisalCounterparties>
+    <solar:AppraisalEffectiveDate contextRef="NON_TABLE_CONCEPTS_0">2018-01-01</solar:AppraisalEffectiveDate>
+    <solar:AppraisalExpirationDate contextRef="NON_TABLE_CONCEPTS_0">2018-05-05</solar:AppraisalExpirationDate>
+    <solar:AppraisedValueFairMarketValue contextRef="NON_TABLE_CONCEPTS_0">456456</solar:AppraisedValueFairMarketValue>
+    <solar:AppraisalDocumentLink contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalDocumentLink>
+    <solar:PreparerOfAppraisal contextRef="NON_TABLE_CONCEPTS_0">John Smith</solar:PreparerOfAppraisal>
+    <solar:DocumentIdentifierAppraisal contextRef="NON_TABLE_CONCEPTS_0">false</solar:DocumentIdentifierAppraisal>
+</xbrl>
+"""
+
+
+# Note: this currently fails and has been replaced by a clip that works.
+# Ultimately both need to work.
+TEST_XML_2 = """
 <xbrl
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"

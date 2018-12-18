@@ -91,7 +91,8 @@ def validate(args):
         sys.exit(1)
 
     p.validate(args.infile, ff)
-
+    print("Validation succcessful")
+    
 
 def generate_identifier(args):
     print(identifier.identifier())
