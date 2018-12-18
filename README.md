@@ -1,7 +1,9 @@
 # Orange Button Python Library (pyoblib)
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![TravisCI](https://travis-ci.com/SunSpecOrangeButton/pyoblib.svg?branch=master)]( https://travis-ci.com/SunSpecOrangeButton/pyoblib)
 [![Documentation Status](https://readthedocs.org/projects/pyoblib/badge/?version=latest)](https://pyoblib.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/SunSpecOrangeButton/pyoblib/branch/master/graph/badge.svg)](https://codecov.io/gh/SunSpecOrangeButton/pyoblib)
 
 
 The Orange Button Python Library, also called, pyoblib, provides functions to interact and work with the SunSpec Orange
