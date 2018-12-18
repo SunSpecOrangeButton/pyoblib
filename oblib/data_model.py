@@ -519,10 +519,15 @@ class Concept(object):
             elif isinstance(value, string_types):
                 try:
                     value = int( value )
-                except ValueError as e:
-                    return False
-                else:
                     return True
+                except ValueError as e:
+                    try:
+                        # the case of "1.0" - string can't be converted to float
+                        # but can be converted to int
+                        value = float(value)
+                        return int(value) == value
+                    except ValueError as e:
+                        return False
             return False
         if myType == "xbrli:stringItemType":
             return isinstance( value, string_types )
