@@ -34,13 +34,6 @@ Orange Button CLI GitHub: https://github.com/SunSpecOrangeButton/core
 
 DASHES = "---------------------------------------------------------------------------------------"
 
-# The following line will cause pyinstaller to work correctly.
-# In all likelihood it is sub-optimal however because it would
-# preclude adding file input or output as CLI arguments (since
-# the working directory changes to the wrong value).
-if getattr(sys, 'frozen', False):
-    os.chdir(sys._MEIPASS)
-
 tax = taxonomy.Taxonomy()
 csv = False
 json = False
@@ -92,7 +85,7 @@ def validate(args):
 
     p.validate(args.infile, ff)
     print("Validation succcessful")
-    
+
 
 def generate_identifier(args):
     print(identifier.identifier())
