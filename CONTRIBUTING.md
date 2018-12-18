@@ -1,51 +1,60 @@
 # Introduction
 
-First off, thank you for considering contributing to Orange Button Core. It's people like you that make Orange Button Core such a great libarary.
+Thank you for considering contributing to pyoblib. It's people like you that make pyoblib such a great library.
 
-Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
-
-Orange Button Core is an open source project and we love to receive contributions from our community — you!  There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into Orange Button itself.
-
-Orange Button Core is intended to be soruce code that can be consumed by application programs, other orange button libraries, etc...   It is not intended to be an end to end system.  Generally speaking if a particular library component could not be used in at least two client scenarios it does not belong in Orange Button Core.  Furthermore source code in Orange Button Core must:
-
-* Follow the design goals stated in the Core documentation
-* Be fully commented
-* Contain comprehensive test coverage including but not limited to cross platform (Windows, Linux, and Mac) testing.
-* Subject to vulnerability scan
-* Will be peer reviewed
-
-If source code does not meet all of the above criteria please place it in a different Orange Button repository.  It is fine to start code elsewhere and add it to the Core repository at a future date.
+There are many ways in which you can contribute. A contribution may be
+* writing code which can be incorporated into pyoblib
+* improving the documentation
+* submitting bug reports and feature requests
 
 # Ground Rules
 
-Responsibilities
+pyoblib contains core source code that may be used by other Orange Button code.  By definition, the functionality in
+this library should be consumable by multiple other Orange Button projects.  If the functionality is only usable in a
+single instance it should be placed in another project.
 
-* Follow the notes in the overview.
-* Create issues for any major changes and enhancements that you wish to make. Discuss things transparently and get community feedback.
-* Keep feature versions as small as possible, preferably one new feature per version.
-* Be welcoming to newcomers and encourage diverse new contributors from all backgrounds.  Being a library programmed in Python the [Python Community Code of Conduct](https://www.python.org/psf/codeofconduct/) is followed.
+Source code in Orange Button Core must:
 
-# Your First Contribution
-
-Unsure where to begin contributing to Orange Button Core?  Please enquire on our [Slack Channel](https://orange-button.slack.com/).
+* Be fully commented
+* Contain comprehensive test coverage
+* Subject to vulnerability scan
 
 # Getting started
 
-You must sign the Orange Button Individual or Corporate Contributors agreement before enhancing or changing the documentation.  Also please send an email to support@sunspec.org or post a message on the Orange Button developers slack channel so we are aware of your intent to contribute.
+You must sign the SunSpec Contributor License Agreement before enhancing the source code or the documentation.
+Please see the instructions on how to submit a signed CLA on the [Orange Button Open Source Community web page](https://sunspec.org/ob-open-source-community/).
 
-For all changes follow the procedure documented at the bottom of the [Orange Button Open Source Community Site](https://sunspec.org/ob-open-source-community/).  Our intent is to add more specific information on Continuous Integration, Vulnerability Scans, Code Style, Code Review, etc... as Orange Button Core evolves so please check back for more information.
+Also, please email support@sunspec.org or post a message on the [Orange Button Slack Channel](https://orange-button.slack.com/)
+so we are aware of your intent to contribute.
 
-# How to report a bug
+For all changes follow the procedure documented at the bottom of the
+[Orange Button Open Source Community web page](https://sunspec.org/ob-open-source-community/).
+
+## Your First Contribution
+
+Unsure where to begin?  Please enquire on our [Slack Channel](https://orange-button.slack.com/).
+
+## How to report a bug
+
+Please use [GitHub Issues](https://github.com/SunSpecOrangeButton/pyoblib/issues) for all bug reports.
 If you find a security vulnerability, do NOT open an issue. Email support@sunspec.org instead.
 
-Please use GitHub Issues for all bug reports.
+## How to suggest a feature or enhancement
 
-# How to suggest a feature or enhancement
-
-Please use the [Orange Button Slack Channel](https://orange-button.slack.com/) to suggest features and enhancements at this point in time.  At a future date a more formal process may be adopted.
+Please use the [Orange Button Slack Channel](https://orange-button.slack.com/) to suggest features and enhancements.
 
 # Code review process
-All code is subject to a peer review.  When a pull request is submitted one person with collobaration status must review the code before merging.  They will also verify that a contributors agreement is no file before approving the request.
+
+All code is subject to a peer review.  When a pull request is submitted at least one person with collaboration status
+must review the code before merging. All necessary checks (CLA verification, TravisCI) must pass before a pull request
+is merged.
+
+# Code of Conduct
+
+Being a library programmed in Python the [Python Community Code of Conduct](https://www.python.org/psf/codeofconduct/) is followed.
   
 # Community
-The [Orange Button Slack Channel](https://orange-button.slack.com/) is the best online resource for discussions regarding Orange Button Core.  You are also invited to join regular developer meetings (just ask to be invited on the Slack Channel) that occur.
+
+The [Orange Button Slack Channel](https://orange-button.slack.com/) is the best online resource for discussions
+regarding pyoblib. You are also invited to join regular developer meetings that occur (just ask to be invited on the
+Slack Channel).

@@ -1,4 +1,4 @@
-"""Orange Button constants."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Orange Button constants."""
+
 import os
+
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "..", "solar-taxonomy")
