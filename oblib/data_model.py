@@ -21,6 +21,42 @@ from six import string_types
 
 UNTABLE = "NON_TABLE_CONCEPTS"
 
+class OBTypeException(Exception):
+    """
+    Raised if we try to set a concept to a value with an invalid data type
+    """
+    def __init__(self, message):
+        super(OBTypeException, self).__init__(message)
+
+class OBContextExeption(Exception):
+    """
+    Raised if we try to set a concept without sufficient Context fields
+    """
+    def __init__(self, message):
+        super(OBContextException, self).__init__(message)
+
+class OBConceptExeption(Exception):
+    """
+    Raised if we try to set a concept that can't be set in the current
+    Entrypoint
+    """
+    def __init__(self, message):
+        super(OBConceptException, self).__init__(message)
+
+class OBNotFoundExeption(Exception):
+    """
+    Raised if we refer to a name that's not found in the taxonomy
+    """
+    def __init__(self, message):
+        super(OBNotFoundException, self).__init__(message)
+
+class OBUnitExeption(Exception):
+    """
+    Raised if we try to set a concept to a value with incorrect units
+    """
+    def __init__(self, message):
+        super(OBUnitException, self).__init__(message)
+
 class Axis(object):
     """
     A table axis. A concept with some extra stuff.
@@ -204,21 +240,24 @@ class Hypercube(object):
         """
         for axis_name in self._axes:
             if not axis_name in context.axes:
-                raise Exception("Missing required {} axis for table {}".format(
-                    axis_name, self._table_name))
+                raise OBContextException(
+                    "Missing required {} axis for table {}".format(
+                        axis_name, self._table_name))
 
             # Check that the value is not outside the domain, for domain-based axes:
             axis = self._axes[axis_name]
             if self.is_typed_dimension(axis_name):
                 axis_value = context.axes[axis_name]
                 if not self.axis_value_within_domain(axis_name, axis_value):
-                    raise Exception("{} is not a valid value for the axis {}.".format(
+                    raise OBContextException(
+                        "{} is not a valid value for the axis {}.".format(
                         axis_value, axis_name))
 
         for axis_name in context.axes:
             if not axis_name in self._axes:
-                raise Exception("{} is not a valid axis for table {}.".format(
-                    axis_name, self._table_name))
+                raise OBContextException(
+                    "{} is not a valid axis for table {}.".format(
+                        axis_name, self._table_name))
 
 
 
@@ -253,9 +292,9 @@ class Context(object):
         self.entity = None
         # kwargs must provide exactly one of instant or duration
         if PeriodType.instant.value in kwargs and PeriodType.duration.value in kwargs:
-            raise Exception("Context given both instant and duration")
+            raise OBContextException("Context given both instant and duration")
         if (PeriodType.instant.value not in kwargs) and (PeriodType.duration.value not in kwargs):
-            raise Exception("Context not given either instant or duration")
+            raise OBContextException("Context not given either instant or duration")
         if PeriodType.instant.value in kwargs:
             self.instant = kwargs.pop(PeriodType.instant.value)
         if PeriodType.duration.value in kwargs:
@@ -268,7 +307,7 @@ class Context(object):
             if not keyword.endswith("Axis"):
                 # TODO in the future we should use metadata to identify
                 # what's an axis, not just look for the string "Axis".
-                raise Exception("Context given invalid keyword {}".format(keyword))
+                raise OBContextException("Context given invalid keyword {}".format(keyword))
             qualified_name = keyword
             if not qualified_name.startswith("solar:"):
                 qualified_name = "solar:" + keyword
@@ -610,7 +649,9 @@ class Entrypoint(object):
         self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
         if not self.ts.validate_ep(entrypoint_name):
-            raise Exception("There is no Orange Button entrypoint named {}.".format(entrypoint_name))
+            raise OBNotFoundException(
+                "There is no Orange Button entrypoint named {}.".format(
+                    entrypoint_name))
 
         # This gives me the list of every concept that could ever be
         # included in the document.
@@ -717,8 +758,9 @@ class Entrypoint(object):
         that concept belongs inside of, or None if there's no match.
         """
         if concept_name not in self._all_my_concepts:
-            raise Exception("{} is not an allowed concept for {}".format(
-                concept_name, self.entrypoint_name))
+            raise OBConceptException(
+                "{} is not an allowed concept for {}".format(
+                    concept_name, self.entrypoint_name))
         # We know that a concept belongs in a table because the concept
         # is a descendant of a LineItem that has a relationship to the
         # table.
@@ -772,8 +814,9 @@ class Entrypoint(object):
 
         if PeriodType(period_type) == PeriodType.duration:
             if not context.duration:
-                raise Exception("Missing required duration in {} context".format(
-                    concept_name))
+                raise OBContextException(
+                    "Missing required duration in {} context".format(
+                        concept_name))
 
             # a valid duration is either "forever" or {"start", "end"}
             valid = False
@@ -783,14 +826,16 @@ class Entrypoint(object):
                 # TODO check isinstance(duration["start"], datetime)
                 valid = True
             if not valid:
-                raise Exception("Invalid duration in {} context".format(
-                    concept_name))
+                raise OBContextException(
+                    "Invalid duration in {} context".format(
+                        concept_name))
 
 
         if PeriodType(period_type) == PeriodType.instant:
             if not context.instant:
-                raise Exception("Missing required instant in {} context".format(
-                    concept_name))
+                raise OBContextException(
+                    "Missing required instant in {} context".format(
+                        concept_name))
                 # TODO check isinstance(instant, datetime)
 
         # If we got this far, we know the time period is OK. Now check the
@@ -816,8 +861,9 @@ class Entrypoint(object):
             if unit_id is None:
                 return True
             else:
-                raise Exception("Unit {} given for unitless concept {} ({})".format(
-                    unit_id, concept, required_type))
+                raise OBUnitException(
+                    "Unit {} given for unitless concept {} ({})".format(
+                        unit_id, concept, required_type))
 
         if required_type.startswith("solar-types:"):
             print("I don't know how to validate {} yet, skipping for now".format(required_type))
@@ -826,12 +872,14 @@ class Entrypoint(object):
         # TODO what other required_types might we get here?
 
         if unit_id is None:
-            raise Exception("No unit given for concept {}, requires type {}".format(
-                concept, required_type))
+            raise OBUnitException(
+                "No unit given for concept {}, requires type {}".format(
+                    concept, required_type))
 
         unit = self.tu.unit(unit_id)
         if unit is None:
-            raise Exception("There is no unit ID={} in the taxonomy.".format(unit_id))
+            raise OBNotFoundException(
+                "There is no unit ID={} in the taxonomy.".format(unit_id))
 
         # TODO: utr.xml has unqualified type names, e.g. "frequencyItemType" and we're looking
         # for a qualified type name e.g. "num-us:frequencyItemType". Should we assume that if
@@ -876,7 +924,8 @@ class Entrypoint(object):
             precision = kwargs.pop("precision")
 
         if not self.can_write_concept(concept_name):
-            raise Exception("{} is not a writeable concept".format(concept_name))
+            raise OBConceptException(
+                "{} is not a writeable concept".format(concept_name))
         concept = self.get_concept_by_name(concept_name)
 
         if "context" in kwargs:
@@ -896,15 +945,18 @@ class Entrypoint(object):
             context = self._fill_in_context_from_defaults(context, concept)
 
         if not self.sufficient_context(concept_name, context):
-            raise Exception("Insufficient context for {}".format(concept_name))
+            raise OBContextException(
+                "Insufficient context for {}".format(concept_name))
 
         # Check unit type:
         if not self.valid_unit(concept_name, unit_name):
-            raise Exception("{} is an invalid unit type for {}".format(unit_name, concept_name))
+            raise OBUnitException(
+                "{} is an invalid unit type for {}".format(unit_name, concept_name))
         
         # check datatype of given value against concept
         if not concept.validate_datatype(value):
-            raise Exception("{} is the wrong datatype for {}".format(value, concept_name))
+            raise OBTypeException(
+                "{} is the wrong datatype for {}".format(value, concept_name))
         
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID
@@ -1087,8 +1139,9 @@ class Entrypoint(object):
             if period in self._default_context:
                 context_args[period.value] = self._default_context[period]
             else:
-                raise Exception("{} needs a {}, no default set and no context given.".format(
-                    concept.name, period.value))
+                raise OBContextException(
+                    "{} needs a {}, no default set and no context given.".format(
+                        concept.name, period.value))
             if "entity" in self._default_context:
                 context_args["entity"] = self._default_context["entity"]
             context = Context(**context_args)
