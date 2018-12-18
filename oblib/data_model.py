@@ -21,21 +21,28 @@ from six import string_types
 
 UNTABLE = "NON_TABLE_CONCEPTS"
 
-class OBTypeException(Exception):
+class OBException(Exception):
+    """
+    Base class for Orange Button data validity exceptions.
+    """
+    def __init__(self, message):
+        super(OBException, self).__init__(message)
+
+class OBTypeException(OBException):
     """
     Raised if we try to set a concept to a value with an invalid data type
     """
     def __init__(self, message):
         super(OBTypeException, self).__init__(message)
 
-class OBContextExeption(Exception):
+class OBContextExeption(OBException):
     """
     Raised if we try to set a concept without sufficient Context fields
     """
     def __init__(self, message):
         super(OBContextException, self).__init__(message)
 
-class OBConceptExeption(Exception):
+class OBConceptExeption(OBException):
     """
     Raised if we try to set a concept that can't be set in the current
     Entrypoint
@@ -43,14 +50,14 @@ class OBConceptExeption(Exception):
     def __init__(self, message):
         super(OBConceptException, self).__init__(message)
 
-class OBNotFoundExeption(Exception):
+class OBNotFoundExeption(OBException):
     """
     Raised if we refer to a name that's not found in the taxonomy
     """
     def __init__(self, message):
         super(OBNotFoundException, self).__init__(message)
 
-class OBUnitExeption(Exception):
+class OBUnitExeption(OBException):
     """
     Raised if we try to set a concept to a value with incorrect units
     """
