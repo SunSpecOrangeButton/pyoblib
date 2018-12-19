@@ -130,6 +130,7 @@ def list_ep(args):
     for ep in tax.semantic.entry_points():
         print(ep)
 
+
 def list_ep_concepts_info(args):
 
     if csv:
@@ -239,6 +240,14 @@ def list_units_details(args):
                        unit.status, unit.definition))
 
 
+def list_types(args):
+
+    names = tax.semantic.type_names()
+    names.sort()
+    for name in names:
+        print(name)
+        
+
 def validate_concept(args):
     print("Valid:", tax.semantic.validate_concept(args.concept))
 
@@ -330,6 +339,10 @@ list_unit_info_parser = subparsers.add_parser('list-unit-info',
 list_unit_info_parser.set_defaults(command='list_unit_info')
 list_unit_info_parser.add_argument('unit', action='store',
                                    help='The unit to list information for')
+
+list_types_parser = subparsers.add_parser('list-types',
+                                              help='List all Orange Button data type names')
+list_types_parser.set_defaults(command='list_types')
 
 list_concepts_info_parser = subparsers.add_parser(
         'list-concepts-info',

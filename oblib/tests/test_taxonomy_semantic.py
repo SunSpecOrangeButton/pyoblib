@@ -97,6 +97,9 @@ class TestTaxonomySemantic(unittest.TestCase):
     def test_elements(self):
         self.assertIsNotNone(tax.elements())
 
+    def test_type_names(self):
+        self.assertEqual(len(tax.type_names()), 76)
+
     def test_entry_points(self):
         self.assertEqual(len(tax.entry_points()), 158)
 
