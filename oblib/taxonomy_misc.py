@@ -41,7 +41,7 @@ class _TaxonomyNumericHandler(xml.sax.ContentHandler):
                     if ":" in item[1]:
                         name = item[1]
                     else:
-                        name = "solar:" + item[1]
+                        name = "num-us:" + item[1]
                     self._numeric_types.append(name)
 
     def numeric_types(self):
