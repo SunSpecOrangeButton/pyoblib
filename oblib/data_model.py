@@ -35,14 +35,14 @@ class OBTypeException(OBException):
     def __init__(self, message):
         super(OBTypeException, self).__init__(message)
 
-class OBContextExeption(OBException):
+class OBContextException(OBException):
     """
     Raised if we try to set a concept without sufficient Context fields
     """
     def __init__(self, message):
         super(OBContextException, self).__init__(message)
 
-class OBConceptExeption(OBException):
+class OBConceptException(OBException):
     """
     Raised if we try to set a concept that can't be set in the current
     Entrypoint
@@ -50,14 +50,14 @@ class OBConceptExeption(OBException):
     def __init__(self, message):
         super(OBConceptException, self).__init__(message)
 
-class OBNotFoundExeption(OBException):
+class OBNotFoundException(OBException):
     """
     Raised if we refer to a name that's not found in the taxonomy
     """
     def __init__(self, message):
         super(OBNotFoundException, self).__init__(message)
 
-class OBUnitExeption(OBException):
+class OBUnitException(OBException):
     """
     Raised if we try to set a concept to a value with incorrect units
     """
