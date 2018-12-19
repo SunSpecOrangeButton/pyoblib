@@ -246,6 +246,14 @@ class TaxonomySemantic(object):
         """Return a map of elements."""
         return self._elements
 
+    def type_names(self):
+        """Return an array of strings representing all data types in elements"""
+
+        type_names = set()
+        for e in self._elements:
+            type_names.add(self._elements[e].type_name)
+        return list(type_names)
+
     def validate_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""
         found = False

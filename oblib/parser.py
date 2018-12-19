@@ -20,6 +20,29 @@ import util
 
 import enum
 import json
+import xml.etree.ElementTree as ElementTree
+import sys
+
+# The Following code is used internally by the XML parser - there is no known general usage
+# reason to leverage.  The extremely short function name is for brevity in the XML parser.
+
+_xml_ns = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
+      "link:": "{http://www.xbrl.org/2003/linkbase}",
+      "solar:": "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}",
+      "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
+      "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
+
+def _xn(s):
+    # eXpands the Namespace to be equitable to what is read in by the XML parser.
+
+    if s is None:
+        return None
+    for n in _xml_ns:
+        if n in s:
+            return s.replace(n, _xml_ns[n])
+    return "{http://www.xbrl.org/2003/instance}" + s 
+
+# End of XML parsign utility code
 
 
 class FileFormat(enum.Enum):
@@ -97,6 +120,8 @@ class Parser(object):
         Loads the Entrypoint from a JSON string into an entrypoint
 
         json_string (str): String containing JSON
+
+        TODO: Currently this method works in some cases but testing is incomplete
         """
 
         # Convert string to JSON data
@@ -170,13 +195,92 @@ class Parser(object):
         Loads the Entrypoint from an XML string
 
         xml_string(str): String containing XML.
+
+        TODO: Currently this method works in some cases but there are known bugs and incomplete
+        testing to work through.  See Issues for more information.
         """
 
-        # Create an entrypoint.
-        # TODO: Should not have to initiatilize taxonomy and Entrypoint type should not be hardcoded.
-        entrypoint = data_model.Entrypoint("CutSheet", self._taxonomy)
+        root = ElementTree.fromstring(xml_string)
 
-        # TODO: Supply implementation upon completion of prototype code.
+        # Read all elements that are not a context or a unit:
+        fact_names = []
+        for child in root:
+            if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
+
+                tag = child.tag
+                tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
+                tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+                fact_names.append(tag)
+
+        # Create an entrypoint.
+        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy, dev_validation_off=True)
+
+        # Read in units
+        units = {}
+        for unit in root.iter(_xn("unit")):
+            units[unit.attrib["id"]] = unit[0].text
+
+        # Read in contexts
+        contexts = {}
+        for context in root.iter(_xn("context")):
+            instant = None
+            duration = None
+            entity = None
+            start_date = None
+            end_date = None
+            axis = {}
+            for elem in context.iter():
+                if elem.tag == _xn("period"):
+                    if elem[0].tag == _xn("forever"):
+                        duration = "forever"
+                    elif elem[0].tag == _xn("startDate"):
+                        start_date = elem[0].tag.text
+                    elif elem[0].tag == _xn("endDate"):
+                        end_date = elem[0].tag.text
+                    elif elem[0].tag == _xn("instant"):
+                        instant = elem[0].text
+                elif elem.tag == _xn("entity"):
+                    for elem2 in elem.iter():
+                        if elem2.tag == _xn("identifier"):
+                            entity = elem2.text
+                        elif elem2.tag == _xn("segment"):
+                            for elem3 in elem2.iter():
+                                if elem3.tag == _xn("xbrldi:typedMember"):
+                                    for elem4 in elem3.iter():
+                                        if elem4.tag != _xn("xbrldi:typedMember"):
+                                            axis[elem3.attrib["dimension"]] = elem4.text
+
+            if duration is None and start_date is not None and end_date is not None:
+                duration = {"start": start_date, "end": end_date}
+            kwargs = {}
+            if instant is not None:
+                kwargs["instant"] = instant
+            if duration is not None:
+                kwargs["duration"] = duration
+            if entity is not None:
+                kwargs["entity"] = entity
+            if axis is not None:
+                for a in axis:
+                    kwargs[a] = axis[a]
+            dm_ctx = data_model.Context(**kwargs)
+            contexts[context.attrib["id"]] = dm_ctx
+
+        # Read all elements that are not a context or a unit:
+        for child in root:
+            if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
+                kwargs = {}
+                if "contextRef" in child.attrib:
+                    kwargs["context"] = contexts[child.attrib["contextRef"]]
+
+                tag = child.tag
+                tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
+                tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+
+                entrypoint.set(tag, child.text, **kwargs)
+
+        # Return populated entrypoint
         return entrypoint
 
     def from_XML(self, in_filename):

@@ -15,7 +15,13 @@
 """Orange Button constants."""
 
 import os
-
+import sys
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "..", "solar-taxonomy")
+
+if getattr( sys, 'frozen', False ) :
+    # Running in a bundle (pyinstaller)
+    SOLAR_TAXONOMY_DIR = os.path.join(sys._MEIPASS, "solar-taxonomy")
+else:
+    # Running from source
+    SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "..", "solar-taxonomy")
