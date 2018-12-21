@@ -109,17 +109,21 @@ class Parser(object):
                     if the_one is None:
                         the_one = ep
                     else:
-                        raise Exception("Multiple entrypoints found given the set of facts")
+                         raise Exception("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, ep))
             if the_one == None:
                 raise Exception("No entrypoint found given the set of facts")
             else:
                 return the_one
 
-    def from_JSON_string(self, json_string):
+    def from_JSON_string(self, json_string, entrypoint_name=None):
         """ 
-        Loads the Entrypoint from a JSON string into an entrypoint
+        Loads the Entrypoint from a JSON string into an entrypoint.  If no entrypoint_name
+        is given the entrypoint will be derived from the facts.  In some cases this is not
+        possible because more than one entrypoint could exist given the list of facts and
+        in these cases an entrypoint is required.
 
         json_string (str): String containing JSON
+        entrypoint_name (str): Optional name of the entrypoint.
 
         TODO: Currently this method works in some cases but testing is incomplete
         """
@@ -138,13 +142,15 @@ class Parser(object):
             raise Exception("JSON is missing facts tag")
 
         # Loop through facts to determine what type of endpoint this is.
-        facts = json_data["facts"]
-        fact_names = []
-        for fact in facts:
-            fact_names.append(fact["aspects"]["xbrl:concept"])
-    
+        if not entrypoint_name:
+            facts = json_data["facts"]
+            fact_names = []
+            for fact in facts:
+                fact_names.append(fact["aspects"]["xbrl:concept"])
+            entrypoint_name = self._entrypoint_name(fact_names)
+
         # Create an entrypoint.
-        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy, dev_validation_off=True)
+        entrypoint = data_model.Entrypoint(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
         facts = json_data["facts"]
@@ -179,22 +185,30 @@ class Parser(object):
 
         return entrypoint
 
-    def from_JSON(self, in_filename):
+    def from_JSON(self, in_filename, entrypoint_name=None):
         """
-        Imports XBRL as JSON from the given filename.
+        Imports XBRL as JSON from the given filename.    If no entrypoint_name
+        is given the entrypoint will be derived from the facts.  In some cases this is not
+        possible because more than one entrypoint could exist given the list of facts and
+        in these cases an entrypoint is required.
         
         in_filename(str): input filename
+        entrypoint_name (str): Optional name of the entrypoint.
         """
 
         with open(in_filename, "r") as infile: 
             s = infile.read()
-        return self.from_JSON_string(s)
+        return self.from_JSON_string(s, entrypoint_name)
 
-    def from_XML_string(self, xml_string):
+    def from_XML_string(self, xml_string, entrypoint_name=None):
         """
-        Loads the Entrypoint from an XML string
+        Loads the Entrypoint from an XML string.    If no entrypoint_name
+        is given the entrypoint will be derived from the facts.  In some cases this is not
+        possible because more than one entrypoint could exist given the list of facts and
+        in these cases an entrypoint is required.
 
         xml_string(str): String containing XML.
+        entrypoint_name (str): Optional name of the entrypoint.
 
         TODO: Currently this method works in some cases but there are known bugs and incomplete
         testing to work through.  See Issues for more information.
@@ -203,18 +217,20 @@ class Parser(object):
         root = ElementTree.fromstring(xml_string)
 
         # Read all elements that are not a context or a unit:
-        fact_names = []
-        for child in root:
-            if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
+        if not entrypoint_name:
+            fact_names = []
+            for child in root:
+                if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
 
-                tag = child.tag
-                tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
-                tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
-                tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
-                fact_names.append(tag)
+                    tag = child.tag
+                    tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                    tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
+                    tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+                    fact_names.append(tag)
+            entrypoint_name = self._entrypoint_name(fact_names)
 
         # Create an entrypoint.
-        entrypoint = data_model.Entrypoint(self._entrypoint_name(fact_names), self._taxonomy, dev_validation_off=True)
+        entrypoint = data_model.Entrypoint(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Read in units
         units = {}
@@ -283,16 +299,20 @@ class Parser(object):
         # Return populated entrypoint
         return entrypoint
 
-    def from_XML(self, in_filename):
+    def from_XML(self, in_filename, entrypoint_name=None):
         """ 
-        Imports XBRL as XML from the given filename.
+        Imports XBRL as XML from the given filename.  If no entrypoint_name
+        is given the entrypoint will be derived from the facts.  In some cases this is not
+        possible because more than one entrypoint could exist given the list of facts and
+        in these cases an entrypoint is required.
 
         in_filename (str): input filename
+        entrypoint_name (str): Optional name of the entrypoint.
         """
 
         with open(in_filename, "r") as infile: 
             s = infile.read()
-        return self.from_XML_string(s)
+        return self.from_XML_string(s, entrypoint_name)
 
     def to_JSON_string(self, entrypoint):
         """
@@ -332,32 +352,40 @@ class Parser(object):
         
         entrypoint.to_XML(out_filename)
 
-    def convert(self, in_filename, out_filename, file_format):
+    def convert(self, in_filename, out_filename, file_format, entrypoint_name=None):
         """ 
         Converts and input file (in_filename) to an output file (out_filename) given an input 
-        file format specified by file_format.
+        file format specified by file_format.  If no entrypoint_name
+        is given the entrypoint will be derived from the facts.  In some cases this is not
+        possible because more than one entrypoint could exist given the list of facts and
+        in these cases an entrypoint is required.
 
         in_filename (str): full path to input file
         out_filename (str): full path to output file
-        file_format (FileFormat): values are FileFormat.JSON" or FileForamt.XML"
+        entrypoint_name (str): Optional name of the entrypoint.
+        file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
         """
 
         if file_format == FileFormat.JSON:
-            entrypoint = self.from_JSON(in_filename)
+            entrypoint = self.from_JSON(in_filename, entrypoint_name)
             self.to_XML(entrypoint, out_filename)
         elif file_format == FileFormat.XML:
-            entrypoint = self.from_XML(in_filename)
+            entrypoint = self.from_XML(in_filename, entrypoint_name)
             self.to_JSON(entrypoint, out_filename)
         else:
             raise ValueError("file_format must be JSON or XML")
 
-    def validate(self, in_filename, file_format):
+    def validate(self, in_filename, file_format, entrypoint_name=None):
         """
         Validates an in input file (in_filename) by loading it.  Unlike convert does not produce
-        an output file.
+        an output file.  If no entrypoint_name
+        is given the entrypoint will be derived from the facts.  In some cases this is not
+        possible because more than one entrypoint could exist given the list of facts and
+        in these cases an entrypoint is required.
 
         in_filename (str): full path to input file
-        file_format (FileFormat): values are FileFormat.JSON" or FileForamt.XML"
+        entrypoint_name (str): Optional name of the entrypoint.
+        file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
 
         TODO: At this point in time errors part output via print statements.  Future implementation
         should actually return the conditions instead.  It also may be desirable to list the 
@@ -365,6 +393,6 @@ class Parser(object):
         """
 
         if file_format == FileFormat.JSON:
-            self.from_JSON(in_filename)
+            self.from_JSON(in_filename, entrypoint_name)
         else:
-            self.from_XML(in_filename)
+            self.from_XML(in_filename, entrypoint_name)
