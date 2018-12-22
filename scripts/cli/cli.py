@@ -62,7 +62,7 @@ def convert(args):
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
         
-    p.convert(args.infile, args.outfile, ff)
+    p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
 
 
 def validate(args):
@@ -83,7 +83,7 @@ def validate(args):
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
 
-    p.validate(args.infile, ff)
+    p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
     print("Validation succcessful")
 
 
@@ -307,10 +307,12 @@ convert_parser = subparsers.add_parser('convert', help='Convert XBRL files from 
 convert_parser.set_defaults(command='convert')
 convert_parser.add_argument('infile', action='store', help='The input file')
 convert_parser.add_argument('outfile', action='store', help='The output file')
+convert_parser.add_argument('--entrypoint', action='store', help='Entrypoint name (will be derived from input if not included)')
 
 validate_parser = subparsers.add_parser('validate', help='Validate XBRL JSON or XML files')
 validate_parser.set_defaults(command='validate')
 validate_parser.add_argument('infile', action='store', help='The input file')
+validate_parser.add_argument('--entrypoint', action='store', help='Entrypoint name (will be derived from input if not included)')
 
 generate_identifier_parser = subparsers.add_parser('generate-identifier',
                                                    help='Generate an Orange Button Identifier')

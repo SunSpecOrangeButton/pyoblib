@@ -44,6 +44,23 @@ class TestParser(unittest.TestCase):
 
         # TODO: Add an XML diff tool and run tests on it.
 
+    def test_entrypoint_names(self):
+        # Correct
+        parser.from_JSON_string(TEST_JSON, "MonthlyOperatingReport")
+        parser.from_XML_string(TEST_XML, "Appraisal")
+
+        # Misspelled cases
+        with self.assertRaises(Exception):
+            parser.from_JSON_string(TEST_JSON, "MonlyOperatingReport")
+        with self.assertRaises(Exception):
+            parser.from_XML_string(TEST_XML, "Apprial")
+
+        # Wrong entrypoint
+        with self.assertRaises(Exception):
+            parser.from_JSON_string(TEST_JSON, "CutSheet")
+        with self.assertRaises(Exception):
+            parser.from_XML_string(TEST_XML, "System")
+
     def test_files(self):
         # TODO:
         # Test validate XML
