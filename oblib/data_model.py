@@ -193,7 +193,7 @@ class Hypercube(object):
         Returns True if the dimensionName (a string) is a dimension with a defined
         domain, as opposed to an explicit dimension.
         """
-        # if not present, reutrn None? or throw exception?
+        # if not present, return None? or throw exception?
         return self.get_domain(dimensionName) is not None
 
     def get_domain(self, dimensionName):
@@ -217,6 +217,10 @@ class Hypercube(object):
             # matching the ID and read the name from that element.
             return domain_ref.replace("#solar_", "solar:")
         return None
+
+    def get_valid_values_for_axis(self, dimensionName):
+        axis = self._axes[dimensionName]
+        return axis.domainMembers
 
     def axis_value_within_domain(self, dimensionName, dimensionValue):
         """
