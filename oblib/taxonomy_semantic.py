@@ -210,9 +210,11 @@ class TaxonomySemantic(object):
         relationships = {}
         for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "documents")):
-            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
+            for filename in os.listdir(os.path.join(
+                    constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
                 if 'def.' in filename:
-                    relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
+                    relationships[dirname] = self._load_relationships_file(
+                            os.path.join("documents", dirname, filename))
         return relationships
 
     def _reduce_memory_footprint(self):
@@ -254,8 +256,8 @@ class TaxonomySemantic(object):
             type_names.add(self._elements[e].type_name)
         return list(type_names)
 
-    def validate_concept(self, concept):
-        """Validate if a concept is present in the Taxonomy."""
+    def is_concept(self, concept):
+        """Return true if a concept is present in the Taxonomy."""
         found = False
         for c in self._concepts:
             for cc in self._concepts[c]:
@@ -272,18 +274,12 @@ class TaxonomySemantic(object):
         its value is legal.
         """
         # Check presence
-        found = False
-        concept_info = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    concept_info = self.concept_info(concept)
-                    break
+        found = self.is_concept(concept)
         if not found:
             return ["'{}' concept not found.".format(concept)]
-
-        return validator.validate_concept_value(concept_info, value)
+        else:
+            concept_info = self.concept_info(concept)
+            return validator.validate_concept_value(concept_info, value)
 
     def validate_ep(self, data):
         """Validate if an end point type is present in the Taxonomy."""
