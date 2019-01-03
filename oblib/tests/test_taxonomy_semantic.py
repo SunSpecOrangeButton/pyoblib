@@ -110,10 +110,10 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(len(tax.relationships_ep("CutSheet")), 305)
 
     def test_validate_concept(self):
-        self.assertTrue(tax.validate_concept("solar:EnvironmentalImpactReportExpirationDate"))
-        self.assertFalse(tax.validate_concept("solar:EnvironmentalImpactReportExirationDate"))
-        self.assertTrue(tax.validate_concept("solar:AdvisorInvoicesCounterparties"))
-        self.assertTrue(tax.validate_concept("dei:LegalEntityIdentifier"))
+        self.assertTrue(tax.is_concept("solar:EnvironmentalImpactReportExpirationDate"))
+        self.assertFalse(tax.is_concept("solar:EnvironmentalImpactReportExirationDate"))
+        self.assertTrue(tax.is_concept("solar:AdvisorInvoicesCounterparties"))
+        self.assertTrue(tax.is_concept("dei:LegalEntityIdentifier"))
 
     def test_concept_value(self):
         self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")))
