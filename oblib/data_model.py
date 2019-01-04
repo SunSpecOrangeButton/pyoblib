@@ -434,9 +434,6 @@ class Context(object):
 
         return aspects
 
-    # TODO it would be great to read the documentation string for the concept (out of
-    #  solar_2018-03-31_r01_lab.xml) so we can get documentation string for any concept.
-
 
 class Fact(object):
     """
@@ -479,7 +476,7 @@ class Fact(object):
         if self.unit == "pure":
             elem.text = "%d" % self.value
         else:
-            elem.text = str(self.value)
+            elem.text = unicode(self.value)
         return elem
 
 
@@ -495,7 +492,7 @@ class Fact(object):
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%d")
         else:
-            value_str = str(self.value)
+            value_str = unicode(self.value)
         return { "aspects": aspects,
                  "value": value_str}
 
@@ -599,6 +596,9 @@ class Concept(object):
             # TODO I assume this is the same as decimalItemType except that it
             # also requires a unit (units are validated elsewhere). Is this
             # correct?
+            if isinstance( value, string_types ):
+                value = value.replace("$", "")
+                value = value.replace(",", "")
             try:
                 value = float( value )
             except ValueError as e:
@@ -606,9 +606,27 @@ class Concept(object):
             else:
                 return True
         if myType == "xbrli:dateItemType":
-            # TODO also return true if it's a string that can be parsed into
-            # a date according to a standard pattern?
-            return isinstance( value, datetime.date)
+            if isinstance( value, datetime.date):
+                return True
+            if isinstance( value, datetime.datetime):
+                return True
+            if isinstance( value, string_types):
+                # also return true if it's a string that can be parsed into
+                # a date according to a standard pattern. Note that this assumes
+                # American style month-first date; LONGTERM TODO support multiple
+                # date formats. Also LONGTERM TODO we may need to convert this
+                # into a date object instead of just returning true/false.
+                date_formats = ["%m/%d/%y", "%m/%d/%Y"]
+                success = False
+                for fmt in date_formats:
+                    try:
+                        converted_val = datetime.datetime.strptime(value, fmt)
+                    except ValueError as e:
+                        continue
+                    else:
+                        success = True
+                return success
+            return False
         if myType == "num:percentItemType":
             # TODO Look up what is expected -- does this want 0.01 - 0.99 or
             # does it want 1 - 99  or does it want "1%" - "99%" ?
@@ -659,25 +677,29 @@ class Entrypoint(object):
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
-        if not self.ts.validate_ep(entrypoint_name):
-            raise OBNotFoundException(
-                "There is no Orange Button entrypoint named {}.".format(
-                    entrypoint_name))
 
-        # This gives me the list of every concept that could ever be
-        # included in the document.
+        if entrypoint_name == "All":
+            self._init_all_entrypoint()
+        else:
+            if not self.ts.validate_ep(entrypoint_name):
+                raise OBNotFoundException(
+                    "There is no Orange Button entrypoint named {}.".format(
+                        entrypoint_name))
 
-        self._all_my_concepts = {}
-        for concept_name in self.ts.concepts_ep(entrypoint_name):
-            if concept_name.endswith("_1"):
-                # There are a bunch of duplicate concept names that all end in "_1"
-                # that raise an exception if we try to query them.
-                continue
-            self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+            # This gives me the list of every concept that could ever be
+            # included in the document.
+            self._all_my_concepts = {}
+            for concept_name in self.ts.concepts_ep(entrypoint_name):
+                if concept_name.endswith("_1"):
+                    # There are a bunch of duplicate concept names that all end in "_1"
+                    # that raise an exception if we try to query them.
+                    continue
+                self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
 
-        # Get the relationships (this comes from solar_taxonomy/documents/
-        #  <entrypoint>/<entrypoint><version>_def.xml)
-        self.relations = self.ts.relationships_ep(entrypoint_name)
+            # Get the relationships (this comes from solar_taxonomy/documents/
+            #  <entrypoint>/<entrypoint><version>_def.xml)
+            self.relations = self.ts.relationships_ep(entrypoint_name)
+
         # Search through the relationships to find all of the tables, their
         # axes, and parent/child relationships between concepts:
         self._initialize_parents()
@@ -692,9 +714,28 @@ class Entrypoint(object):
             "xmlns:units": "http://www.xbrl.org/2009/utr",
             "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
             "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+            # TODO add usgaap here, if any concepts start with usgaap?
         }
         self.taxonomy_name = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
         self._default_context = {}
+
+    def _init_all_entrypoint(self):
+        # take every concept from taxonomy
+        every_concept = []
+        for x in self.ts._concepts.values():
+            every_concept.extend(x)
+
+        self._all_my_concepts = {}
+        for concept_name in every_concept:
+            self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+        # Take every relation from taxonomy
+
+        every_relation = []
+        for x in self.ts._relationships.values():
+            every_relation.extend(x)
+        self.relations = every_relation  # this will contain a lot of duplicates
+        # can't do list(set(list)) when the starting point is a list of dicts
+        # since dicts aren't trivially comparable
 
 
     def _initialize_tables(self):
