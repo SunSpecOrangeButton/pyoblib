@@ -1,65 +1,101 @@
-==============
 API Reference
 ==============
-.. currentmodule:: oblib
+
+Subpackages
+-----------
+
+.. toctree::
+
+    oblib.tests
+
+Submodules
+----------
+
+oblib.constants module
+----------------------
+
+.. automodule:: oblib.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.data\_model module
+------------------------
+
+.. automodule:: oblib.data_model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.identifier module
+-----------------------
+
+.. automodule:: oblib.identifier
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.taxonomy module
+---------------------
+
+.. automodule:: oblib.taxonomy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.taxonomy\_misc module
+---------------------------
+
+.. automodule:: oblib.taxonomy_misc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.taxonomy\_semantic module
+-------------------------------
+
+.. automodule:: oblib.taxonomy_semantic
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.taxonomy\_types module
+----------------------------
+
+.. automodule:: oblib.taxonomy_types
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.taxonomy\_units module
+----------------------------
+
+.. automodule:: oblib.taxonomy_units
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.util module
+-----------------
+
+.. automodule:: oblib.util
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.validator module
+----------------------
+
+.. automodule:: oblib.validator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
 
 .. automodule:: oblib
-
-Identifier
------------
-.. automodule:: oblib.identifier
-
-.. autosummary::
-
-   identifier.identifier
-   identifier.validate
-
-Taxonomy
---------
-.. automodule:: oblib.taxonomy
-
-.. autosummary::
-
-   taxonomy.SubstitutionGroup
-   taxonomy.PeriodType
-   taxonomy.BaseStandard
-   taxonomy.UnitStatus
-   taxonomy.Element
-   taxonomy.Taxonomy
-   taxonomy.Unit
-   taxonomy.getTaxonomy
-
-Taxonomy Semantic
------------------
-.. automodule:: oblib.taxonomy_semantic
-
-.. autosummary::
-
-   taxonomy_semantic.TaxonomySemantic
-
-Taxonomy Types
---------------
-.. automodule:: oblib.taxonomy_types
-
-.. autosummary::
-
-   taxonomy_types.TaxonomyTypes
-
-Taxonomy Units
---------------
-.. automodule:: oblib.taxonomy_units
-
-.. autosummary::
-
-   taxonomy_units.TaxonomyUnits
-
-Taxonomy Miscellaneous
-----------------------
-.. automodule:: oblib.taxonomy_misc
-
-.. autosummary::
-
-   taxonomy_misc.TaxonomyNumericTypes
-   taxonomy_misc.TaxonomyGenericRoles
-   taxonomy_misc.TaxonomyRefParts
-
+    :members:
+    :undoc-members:
+    :show-inheritance:
