@@ -22,7 +22,7 @@ import taxonomy
 taxonomy = taxonomy.Taxonomy()
 parser = parser.Parser(taxonomy)
 
-def ln():
+def _ln():
     # Returns line number of caller.
 
     cf = currentframe()
@@ -62,7 +62,7 @@ class TestJsonClips(unittest.TestCase):
 
 CLIPS = [
     # Basic tests of each JSON field
-    [ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
+    [_ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
         {
             "id": "illegal-identifier",
             "value": 93.26,
@@ -75,7 +75,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Float expected", 2, """
+    [_ln(), "MonthlyOperatingReport", "Float expected", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Bad Data",
@@ -88,7 +88,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "is not a writeable concept", 4, """
+    [_ln(), "MonthlyOperatingReport", "is not a writeable concept", 4, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Bad Data",
@@ -101,7 +101,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Entity is not a string", 5, """
+    [_ln(), "MonthlyOperatingReport", "Entity is not a string", 5, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Bad Data",
@@ -114,7 +114,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Illegal Period Start", 6, """
+    [_ln(), "MonthlyOperatingReport", "Illegal Period Start", 6, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 93.26,
@@ -127,7 +127,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Illegal Period End", 7, """
+    [_ln(), "MonthlyOperatingReport", "Illegal Period End", 7, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 93.26,
@@ -140,7 +140,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
+    [_ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
         {
             "id": "illegal-identifier",
             "value": 93.26,
@@ -156,7 +156,7 @@ CLIPS = [
 
     # Validate that all required fields are present.  Note that all fields are required except
     # periodStart and periodEnd (if missing this indicates that duration is forever)
-    [ln(), "MonthlyOperatingReport", "Identifier is missing", 0, """
+    [_ln(), "MonthlyOperatingReport", "Identifier is missing", 0, """
         {
             "value": 93.26,
             "aspects": {
@@ -168,7 +168,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Value is missing", 0, """
+    [_ln(), "MonthlyOperatingReport", "Value is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "aspects": {
@@ -180,14 +180,14 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Aspects is missing", 0, """
+    [_ln(), "MonthlyOperatingReport", "Aspects is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 93.26,
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Concept is missing", 0, """
+    [_ln(), "MonthlyOperatingReport", "Concept is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 93.26,
@@ -199,7 +199,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "Entity is missing", 0, """
+    [_ln(), "MonthlyOperatingReport", "Entity is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 93.26,
@@ -213,7 +213,7 @@ CLIPS = [
     ],
 
     # Check that a non-nillable field is not set to null
-    [ln(), "MasterPurchaseAgreement", "Non-nillable value is set to null", 3, """
+    [_ln(), "MasterPurchaseAgreement", "Non-nillable value is set to null", 3, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": null,
@@ -231,7 +231,7 @@ CLIPS = [
 
     # us-types:perUnitItemType, Sample valid value is UNKNOWN
     # TODO: Implement
-    # [ln(), "", "value is not legal for type us-types:perUnitItemType", 2, """
+    # [_ln(), "", "value is not legal for type us-types:perUnitItemType", 2, """
     #     {
     #         "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
     #         "value": false,
@@ -246,7 +246,7 @@ CLIPS = [
     # ],
 
     # xbrli:booleanItemType, Sample valid value is false
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": true,
@@ -259,7 +259,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -272,7 +272,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "non-boolean",
@@ -285,7 +285,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "true",
@@ -298,7 +298,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "false",
@@ -311,7 +311,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 1,
@@ -324,7 +324,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 0,
@@ -337,7 +337,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 1.0,
@@ -350,7 +350,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 0.0,
@@ -365,7 +365,7 @@ CLIPS = [
     ],
 
     # xbrli:dateItemType, Sample valid value is 2018-01-02
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-01-01",
@@ -378,7 +378,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-01-31",
@@ -391,7 +391,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-02-01",
@@ -404,7 +404,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2017-02-28",
@@ -417,7 +417,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-02-28",
@@ -430,7 +430,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2019-02-28",
@@ -444,7 +444,7 @@ CLIPS = [
         """
     ],
     # Leap Year
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2020-02-29",
@@ -457,7 +457,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-03-01",
@@ -470,7 +470,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-03-31",
@@ -483,7 +483,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-04-01",
@@ -496,7 +496,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-04-30",
@@ -509,7 +509,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-05-01",
@@ -522,7 +522,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-05-31",
@@ -535,7 +535,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-06-01",
@@ -548,7 +548,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-06-30",
@@ -561,7 +561,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-07-01",
@@ -574,7 +574,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-07-31",
@@ -587,7 +587,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-08-01",
@@ -600,7 +600,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-08-31",
@@ -613,7 +613,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-01-01",
@@ -626,7 +626,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-09-30",
@@ -639,7 +639,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-10-01",
@@ -652,7 +652,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-10-31",
@@ -665,7 +665,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-11-01",
@@ -678,7 +678,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-11-30",
@@ -691,7 +691,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-12-01",
@@ -704,7 +704,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-12-31",
@@ -717,7 +717,7 @@ CLIPS = [
         }
         """
     ],    
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-13-02",
@@ -730,7 +730,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-01-32",
@@ -743,7 +743,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2016-02-30",
@@ -756,7 +756,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2017-02-28",
@@ -769,7 +769,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2019-02-29",
@@ -783,7 +783,7 @@ CLIPS = [
         """
     ],
     # Leap Year
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2020-02-30",
@@ -796,7 +796,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-03-32",
@@ -809,7 +809,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-04-30",
@@ -822,7 +822,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-05-32",
@@ -835,7 +835,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-06-31",
@@ -848,7 +848,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-08-32",
@@ -861,7 +861,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-09-31",
@@ -874,7 +874,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-10-32",
@@ -887,7 +887,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-11-31",
@@ -900,7 +900,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-12-32",
@@ -913,7 +913,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-1-01",
@@ -926,7 +926,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018-01-1",
@@ -939,7 +939,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2018_01_01",
@@ -952,7 +952,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "01-01-2018",
@@ -965,7 +965,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "01/01/2018",
@@ -978,7 +978,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -991,7 +991,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1004,7 +1004,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1017,7 +1017,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1032,7 +1032,7 @@ CLIPS = [
     ],
 
     # xbrli:decimalItemType, Sample valid value is 99.99
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1045,7 +1045,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.00,
@@ -1058,7 +1058,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": -99.99,
@@ -1071,7 +1071,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1084,7 +1084,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
+    [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1097,7 +1097,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
+    [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "99.99",
@@ -1110,7 +1110,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
+    [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -1126,7 +1126,7 @@ CLIPS = [
 
     # xbrli:durationItemType, Sample valid value's are documented at based on the last
     # paragragh of http://books.xmlschemata.org/relaxng/ch19-77073.html
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1Y",
@@ -1139,7 +1139,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "PT1004199059S",
@@ -1152,7 +1152,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "PT130S",
@@ -1165,7 +1165,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "PT2M10S",
@@ -1178,7 +1178,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1DT2S",
@@ -1191,7 +1191,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "-P1Y",
@@ -1204,7 +1204,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1Y2M3DT5H20M30.123S",
@@ -1217,7 +1217,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid",
@@ -1230,7 +1230,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "1Y",
@@ -1243,7 +1243,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1S",
@@ -1256,7 +1256,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1-Y",
@@ -1269,7 +1269,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1M2Y",
@@ -1282,7 +1282,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "P1Y-1M",
@@ -1295,7 +1295,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1308,7 +1308,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1321,7 +1321,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1334,7 +1334,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid",
@@ -1350,7 +1350,7 @@ CLIPS = [
 
 
     # xbrli:integerItemType, Sample valid value is 99
-    [ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1364,7 +1364,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": -99,
@@ -1378,7 +1378,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 0,
@@ -1392,7 +1392,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1406,7 +1406,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1420,7 +1420,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "99",
@@ -1434,7 +1434,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid",
@@ -1450,7 +1450,7 @@ CLIPS = [
     ],
 
     # xbrli:monetaryItemType, Sample valid value is 9999.99
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 9999.99,
@@ -1464,7 +1464,7 @@ CLIPS = [
         """
     ],
 
-    [ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1477,7 +1477,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 9999,
@@ -1490,7 +1490,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 9999.9,
@@ -1503,7 +1503,7 @@ CLIPS = [
         }
         """
     ],
-        [ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+        [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 9999.999,
@@ -1517,7 +1517,7 @@ CLIPS = [
         """
     ],
 
-    [ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "9999.99",
@@ -1530,7 +1530,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid",
@@ -1546,7 +1546,7 @@ CLIPS = [
 
     # # xbrli:pureItemType, Sample valid value is UNKNOWN
     # # TODO: Implement
-    # [ln(), "", "value is not legal for type xbrli:pureItemType", 2, """
+    # [_ln(), "", "value is not legal for type xbrli:pureItemType", 2, """
     #     {
     #         "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
     #         "value": false,
@@ -1561,7 +1561,7 @@ CLIPS = [
     # ],
 
     # xbrli:stringItemType, Sample valid value is "Sample String"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Sample String",
@@ -1574,7 +1574,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1587,7 +1587,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1600,7 +1600,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
+    [_ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1614,7 +1614,7 @@ CLIPS = [
         """
     ],
     # num:percentItemType, Sample valid value is 99.99
-    [ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1627,7 +1627,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 0.0,
@@ -1640,7 +1640,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1653,7 +1653,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": -0.01,
@@ -1666,7 +1666,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 100.01,
@@ -1679,7 +1679,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1692,7 +1692,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -1713,7 +1713,7 @@ CLIPS = [
     # to be reflective of full URI rules although this may have diminishing returns against other
     # goals give that (1) URI is not common in the Taxonomy and (2) whether illegal URI's should
     # be rejected  or not is currently undefined from a requirements standpoint.
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "http://www.google.com",
@@ -1728,7 +1728,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "https://www.google.com",
@@ -1743,7 +1743,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
+    [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1758,7 +1758,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
+    [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1773,7 +1773,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
+    [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99,
@@ -1790,7 +1790,7 @@ CLIPS = [
     ],
 
     # dei:legalEntityIdentifierItemType, Sample valid value is 5493006MHB84DD0ZWV18
-    [ln(), "Participant", None, 0, """
+    [_ln(), "Participant", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "5493006MHB84DD0ZWV18",
@@ -1804,7 +1804,7 @@ CLIPS = [
         """
     ],
 
-    [ln(), "Participant", "value is not legal for type dei:legalEntityIdentifierItemType", 2, """
+    [_ln(), "Participant", "value is not legal for type dei:legalEntityIdentifierItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1820,7 +1820,7 @@ CLIPS = [
 
     # nonnum:domainItemType, Sample valid value is UNKNOWN
     # TODO: Implement
-    # [ln(), "", "value is not legal for type nonnum:domainItemType", 2, """
+    # [_ln(), "", "value is not legal for type nonnum:domainItemType", 2, """
     #     {
     #         "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
     #         "value": false,
@@ -1835,7 +1835,7 @@ CLIPS = [
     # ],
 
     # num-us:electricCurrentItemType, Sample valid value is 99.99
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1850,7 +1850,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type num-us:electricCurrentItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type num-us:electricCurrentItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1867,7 +1867,7 @@ CLIPS = [
     ],
 
     # num-us:frequencyItemType, Sample valid value is 99.99
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1882,7 +1882,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type num-us:frequencyItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type num-us:frequencyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1899,7 +1899,7 @@ CLIPS = [
     ],
 
     # num-us:insolationItemType, Sample valid value is 99.99
-    [ln(), "MonthlyOperatingReport", None, 0, """
+    [_ln(), "MonthlyOperatingReport", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1912,7 +1912,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "value is not legal for type num-us:insolationItemType", 2, """
+    [_ln(), "MonthlyOperatingReport", "value is not legal for type num-us:insolationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1925,7 +1925,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "MonthlyOperatingReport", "value is out of range for type num-us:insolationItemType", 2, """
+    [_ln(), "MonthlyOperatingReport", "value is out of range for type num-us:insolationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 101.01,
@@ -1940,7 +1940,7 @@ CLIPS = [
     ],
 
     # num-us:irradianceItemType, Sample valid value is 99.99
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -1953,7 +1953,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type num-us:irradianceItemType", 2, """
+    [_ln(), None, "value is not legal for type num-us:irradianceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -1968,7 +1968,7 @@ CLIPS = [
     ],
 
     # num-us:planeAngleItemType, Sample valid value is 33.33
-    [ln(), "SystemDeviceListing", None, 0, """
+    [_ln(), "SystemDeviceListing", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 33.33,
@@ -1981,7 +1981,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "SystemDeviceListing", "value is out of range for type num-us:planeAngleItemType", 0, """
+    [_ln(), "SystemDeviceListing", "value is out of range for type num-us:planeAngleItemType", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 361.10,
@@ -1994,7 +1994,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "SystemDeviceListing", "value is not legal for type num-us:planeAngleItemType", 2, """
+    [_ln(), "SystemDeviceListing", "value is not legal for type num-us:planeAngleItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2009,7 +2009,7 @@ CLIPS = [
     ],
 
     # num-us:pressureItemType, Sample valid value is 99.99
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2022,7 +2022,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type num-us:pressureItemType", 2, """
+    [_ln(), None, "value is not legal for type num-us:pressureItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2037,7 +2037,7 @@ CLIPS = [
     ],
 
     # num-us:speedItemType, Sample valid value is 19.19
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 19.19,
@@ -2052,7 +2052,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type num-us:speedItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type num-us:speedItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2069,7 +2069,7 @@ CLIPS = [
     ],
 
     # num-us:temperatureItemType, Sample valid value is 74.74
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2082,7 +2082,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type num-us:temperatureItemType", 2, """
+    [_ln(), None, "value is not legal for type num-us:temperatureItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2097,7 +2097,7 @@ CLIPS = [
     ],
 
     # num-us:voltageItemType, Sample valid value is 99.99
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2112,7 +2112,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type num-us:voltageItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type num-us:voltageItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2129,7 +2129,7 @@ CLIPS = [
     ],
 
     # num:areaItemType, Sample valid value is 99.99
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2142,7 +2142,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type num:areaItemType", 2, """
+    [_ln(), None, "value is not legal for type num:areaItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2157,7 +2157,7 @@ CLIPS = [
     ],
 
     # num:energyItemType, Sample valid value is 99.99
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2170,7 +2170,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type num:energyItemType", 2, """
+    [_ln(), None, "value is not legal for type num:energyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2185,7 +2185,7 @@ CLIPS = [
     ],
 
     # num:lengthItemType, Sample valid value is 99.99
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2200,7 +2200,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type num:lengthItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type num:lengthItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2217,7 +2217,7 @@ CLIPS = [
     ],
 
     # num:massItemType, Sample valid value is 99.99
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2232,7 +2232,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type num:massItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type num:massItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2249,7 +2249,7 @@ CLIPS = [
     ],
 
     # num:powerItemType, Sample valid value is 99.99
-    [ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2262,7 +2262,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type num:powerItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type num:powerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2277,7 +2277,7 @@ CLIPS = [
     ],
 
     # num:volumeItemType, Sample valid value is 99.99
-    [ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 99.99,
@@ -2291,7 +2291,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "WashingAndWasteAgreement", "value is not legal for type num:volumeItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "value is not legal for type num:volumeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2307,7 +2307,7 @@ CLIPS = [
     ],
 
     # solar-types:DERItemType, Sample valid value is "Storage"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Storage",
@@ -2320,7 +2320,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2333,7 +2333,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2348,7 +2348,7 @@ CLIPS = [
     ],
 
     # solar-types:aLTASurveyItemType, Sample valid value is "Preliminary"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Preliminary",
@@ -2361,7 +2361,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:aLTASurveyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2374,7 +2374,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:aLTASurveyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2389,7 +2389,7 @@ CLIPS = [
     ],
 
     # solar-types:batteryChemistryItemType, Sample valid value is "NiCad"
-    [ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "NiCad",
@@ -2402,7 +2402,7 @@ CLIPS = [
         }
         """
     ],
-   [ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+   [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2415,7 +2415,7 @@ CLIPS = [
         }
         """
     ],
-   [ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+   [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2430,7 +2430,7 @@ CLIPS = [
     ],
 
     # solar-types:batteryConnectionItemType, Sample valid value is "DC-Coupled"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "DC-Coupled",
@@ -2443,7 +2443,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2456,7 +2456,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2471,7 +2471,7 @@ CLIPS = [
     ],
 
     # solar-types:climateClassificationKoppenItemType, Sample valid value is "2.4.1 Hot summer continental climates"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "2.4.1 Hot summer continental climates",
@@ -2484,7 +2484,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2497,7 +2497,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2512,7 +2512,7 @@ CLIPS = [
     ],
 
     # solar-types:climateZoneANSIItemType, Sample valid value is "Mixed - Marine"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Mixed - Marine",
@@ -2525,7 +2525,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2538,7 +2538,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2553,7 +2553,7 @@ CLIPS = [
     ],
 
     # solar-types:communicationProtocolItemType, Sample valid value is "Modbus"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Modbus",
@@ -2566,7 +2566,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2579,7 +2579,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2594,7 +2594,7 @@ CLIPS = [
     ],
 
     # solar-types:deviceItemType, Sample valid value is "BatteryManagementSystemMember"
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "BatteryManagementSystemMember",
@@ -2609,7 +2609,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2624,7 +2624,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2641,7 +2641,7 @@ CLIPS = [
     ],
 
     # solar-types:distributedGenOrUtilityScaleItemType, Sample valid value is "Distributed Generation"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Distributed Generation",
@@ -2655,7 +2655,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2669,7 +2669,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2685,7 +2685,7 @@ CLIPS = [
     ],
 
     # solar-types:divisionStateApprovalStatusItemType, Sample valid value is "Final Approval"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Final Approval",
@@ -2698,7 +2698,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2711,7 +2711,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2726,7 +2726,7 @@ CLIPS = [
     ],
 
     # solar-types:eventSeverityItemType, Sample valid value is "Moderate"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Moderate",
@@ -2739,7 +2739,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2752,7 +2752,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2767,7 +2767,7 @@ CLIPS = [
     ],
 
     # solar-types:feeStatusItemType, Sample valid value is "Fully Paid"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2780,7 +2780,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:feeStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2793,7 +2793,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:feeStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invald Value",
@@ -2808,7 +2808,7 @@ CLIPS = [
     ],
 
     # solar-types:fundStatusItemType, Sample valid value is "Committed"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2821,7 +2821,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2834,7 +2834,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2849,7 +2849,7 @@ CLIPS = [
     ],
 
     # solar-types:gISFileFormatItemType, Sample valid value is "GEOJson"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "GEOJson",
@@ -2862,7 +2862,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2875,7 +2875,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2890,7 +2890,7 @@ CLIPS = [
     ],
 
     # solar-types:hedgeItemType, Sample valid value is "Revenue Put"
-    [ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Revenue Put",
@@ -2903,7 +2903,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2916,7 +2916,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2931,7 +2931,7 @@ CLIPS = [
     ],
 
     # solar-types:insuranceItemType, Sample valid value is "Surety Solar Module Supply Bond"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Surety Solar Module Supply Bond",
@@ -2944,7 +2944,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2957,7 +2957,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -2972,7 +2972,7 @@ CLIPS = [
     ],
 
     # solar-types:internetConnectionItemType, Sample valid value is "Dedicated Broadband"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2985,7 +2985,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -2998,7 +2998,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3013,7 +3013,7 @@ CLIPS = [
     ],
 
     # solar-types:inverterItemType, Sample valid value is "MicroInverter"
-    [ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "MicroInverter",
@@ -3026,7 +3026,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3039,7 +3039,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3054,7 +3054,7 @@ CLIPS = [
     ],
 
     # solar-types:inverterPhaseItemType, Sample valid value is "Three Phase WYE"
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Three Phase WYE",
@@ -3069,7 +3069,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3084,7 +3084,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3101,7 +3101,7 @@ CLIPS = [
     ],
 
     # solar-types:investmentStatusItemType, Sample valid value is "Partial Funding"
-    [ln(), "", None, 0, """
+    [_ln(), "", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Partial Funding",
@@ -3114,7 +3114,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type solar-types:investmentStatusItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:investmentStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3127,7 +3127,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type solar-types:investmentStatusItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:investmentStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3142,7 +3142,7 @@ CLIPS = [
     ],
 
     # solar-types:mORLevelItemType, Sample valid value is "Fund Level"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Fund Level",
@@ -3155,7 +3155,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3168,7 +3168,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3183,7 +3183,7 @@ CLIPS = [
     ],
 
     # solar-types:moduleItemType, Sample valid value is "BiFacial"
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "BiFacial",
@@ -3198,7 +3198,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3213,7 +3213,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3230,7 +3230,7 @@ CLIPS = [
     ],
 
     # solar-types:moduleOrientationItemType, Sample valid value is "Portrait"
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Portrait",
@@ -3245,7 +3245,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3260,7 +3260,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3277,7 +3277,7 @@ CLIPS = [
     ],
 
     # solar-types:moduleTechnologyItemType, Sample valid value is "Multi-C-Si"
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Multi-C-Si",
@@ -3292,7 +3292,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3307,7 +3307,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3324,7 +3324,7 @@ CLIPS = [
     ],
 
     # solar-types:mountingItemType, Sample valid value is "Ballasted"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Ballasted",
@@ -3337,7 +3337,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3350,7 +3350,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3365,7 +3365,7 @@ CLIPS = [
     ],
 
     # solar-types:occupancyItemType, Sample valid value is "Owner Occupied"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Owner Occupied",
@@ -3378,7 +3378,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3391,7 +3391,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3406,7 +3406,7 @@ CLIPS = [
     ],
 
     # solar-types:optimizerTypeItemType, Sample valid value is "Attached"
-    [ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Attached",
@@ -3421,7 +3421,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3436,7 +3436,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3453,7 +3453,7 @@ CLIPS = [
     ],
 
     # solar-types:participantItemType, Sample valid value is "Workers Compensation Insurer"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Workers Compensation Insurer",
@@ -3466,7 +3466,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:participantItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3479,7 +3479,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:participantItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3494,7 +3494,7 @@ CLIPS = [
     ],
 
     # solar-types:preventiveMaintenanceTaskStatusItemType, Sample valid value is "Incomplete"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Incomplete",
@@ -3507,7 +3507,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3520,7 +3520,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3535,7 +3535,7 @@ CLIPS = [
     ],
 
     # solar-types:projectAssetTypeItemType, Sample valid value is "Solar Plus Storage"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Solar Plus Storage",
@@ -3548,7 +3548,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3561,7 +3561,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3576,7 +3576,7 @@ CLIPS = [
     ],
 
     # solar-types:projectClassItemType, Sample valid value is "Community Solar"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Community Solar",
@@ -3589,7 +3589,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectClassItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3602,7 +3602,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectClassItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3617,7 +3617,7 @@ CLIPS = [
     ],
 
     # solar-types:projectInterconnectionItemType, Sample valid value is "Virtual Net Meter"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Virtual Net Meter",
@@ -3630,7 +3630,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3643,7 +3643,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3658,7 +3658,7 @@ CLIPS = [
     ],
 
     # solar-types:projectPhaseItemType, Sample valid value is "Early Construction"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Early Construction",
@@ -3672,7 +3672,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3686,7 +3686,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3702,7 +3702,7 @@ CLIPS = [
     ],
 
     # solar-types:projectStageItemType, Sample valid value is "In Operation"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "In Operation",
@@ -3715,7 +3715,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectStageItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3728,7 +3728,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:projectStageItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3743,7 +3743,7 @@ CLIPS = [
     ],
 
     # solar-types:regulatoryApprovalStatusItemType, Sample valid value is "Not Submitted"
-    [ln(), "Project", None, 0, """
+    [_ln(), "Project", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Not Submitted",
@@ -3756,7 +3756,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3769,7 +3769,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3784,7 +3784,7 @@ CLIPS = [
     ],
 
     # solar-types:regulatoryFacilityItemType, Sample valid value is "EWG"
-    [ln(), "Project", None, 0, """
+    [_ln(), "Project", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "EWG",
@@ -3797,7 +3797,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3810,7 +3810,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3825,7 +3825,7 @@ CLIPS = [
     ],
 
     # solar-types:reserveCollateralItemType, Sample valid value is "Letter of Credit"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Letter of Credit",
@@ -3838,7 +3838,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3851,7 +3851,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3866,7 +3866,7 @@ CLIPS = [
     ],
 
     # solar-types:reserveUseItemType, Sample valid value is "Maintenance"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Maintenance",
@@ -3879,7 +3879,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3892,7 +3892,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3907,7 +3907,7 @@ CLIPS = [
     ],
 
     # solar-types:roofItemType, Sample valid value is "Thermoplastic Polyolefin"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3920,7 +3920,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3933,7 +3933,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3948,7 +3948,7 @@ CLIPS = [
     ],
 
     # solar-types:roofSlopeItemType, Sample valid value is "Steep"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3961,7 +3961,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -3974,7 +3974,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -3989,7 +3989,7 @@ CLIPS = [
     ],
 
     # solar-types:siteControlItemType, Sample valid value is "Lease"
-    [ln(), "Site", None, 0, """
+    [_ln(), "Site", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Lease",
@@ -4002,7 +4002,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4015,7 +4015,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4030,7 +4030,7 @@ CLIPS = [
     ],
 
     # solar-types:solarSystemCharacterItemType, Sample valid value is "Agricultural"
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Agricultural",
@@ -4043,7 +4043,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4056,7 +4056,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4071,7 +4071,7 @@ CLIPS = [
     ],
 
     # solar-types:sparePartsStatusItemType, Sample valid value is "Insufficient"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Insufficient",
@@ -4084,7 +4084,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4097,7 +4097,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4112,7 +4112,7 @@ CLIPS = [
     ],
 
     # solar-types:systemAvailabilityModeItemType, Sample valid value is "Islanded"
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Islanded",
@@ -4125,7 +4125,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4138,7 +4138,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4153,7 +4153,7 @@ CLIPS = [
     ],
 
     # solar-types:systemOperationalStatusItemType, Sample valid value is "Communication Failure"
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Communication Failure",
@@ -4166,7 +4166,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4179,7 +4179,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4194,7 +4194,7 @@ CLIPS = [
     ],
 
     # solar-types:titlePolicyInsuranceItemType, Sample valid value is "Pro Forma"
-    [ln(), None, None, 0, """
+    [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Pro Forma",
@@ -4207,7 +4207,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4220,7 +4220,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), None, "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), None, "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4235,7 +4235,7 @@ CLIPS = [
     ],
 
     # solar-types:trackerItemType, Sample valid value is "Azimuth Axis Tracking"
-    [ln(), "System", None, 0, """
+    [_ln(), "System", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Azimuth Axis Tracking",
@@ -4248,7 +4248,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4261,7 +4261,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
@@ -4276,7 +4276,7 @@ CLIPS = [
     ],
 
     # solar-types:zoningPermitPropertyItemType, Sample valid value is "Gen Tie Line"
-    [ln(), "", None, 0, """
+    [_ln(), "", None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4289,7 +4289,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": false,
@@ -4302,7 +4302,7 @@ CLIPS = [
         }
         """
     ],
-    [ln(), "", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
+    [_ln(), "", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": "Invalid Value",
