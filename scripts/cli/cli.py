@@ -17,7 +17,7 @@ import sys
 import argparse
 
 import identifier
-from parser import Parser, FileFormat
+from parser import Parser, FileFormat, ValidationErrors
 import taxonomy
 
 #
@@ -61,8 +61,12 @@ def convert(args):
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
-        
-    p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
+    
+    try:
+        p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
+    except ValidationErrors as errors:
+        for e in errors.get_errors():
+            print(e)
 
 
 def validate(args):
@@ -83,8 +87,12 @@ def validate(args):
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
 
-    p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
-    print("Validation succcessful")
+    try:
+        p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
+        print("Validation succcessful")
+    except ValidationErrors as errors:
+        for e in errors.get_errors():
+            print(e)
 
 
 def generate_identifier(args):

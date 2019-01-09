@@ -123,7 +123,7 @@ TEST_XML = """
     <link:schemaRef xlink:href="https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd" xlink:type="simple" />
     <context id="NON_TABLE_CONCEPTS_0">
         <entity>
-            <identifier scheme="http://xbrl.org/entity/identification/scheme" />
+            <identifier scheme="http://xbrl.org/entity/identification/scheme" >JUPITER</identifier>
         </entity>
         <period>
             <forever />
