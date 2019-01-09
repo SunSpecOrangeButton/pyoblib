@@ -39,7 +39,7 @@ class ValidationError(Exception):
 class ValidationErrors(Exception):
     
     def __init__(self, message, validation_errors=None):
-        super().__init__(message)
+        super(ValidationErrors, self).__init__(message)
         if validation_errors is not None:
             self._errors = validation_errors
         else:
@@ -423,7 +423,7 @@ class Parser(object):
         # Raise the errors if necessary
         if len(validation_errors.get_errors()) > 0:
             raise validation_errors
-            
+
         # Return populated entrypoint
         return entrypoint
 
