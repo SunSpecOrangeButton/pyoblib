@@ -174,16 +174,16 @@ class Parser(object):
 
         # Perform basic validation that all required parts of the document are present.
         if "documentType" not in json_data:
-            validation_errors.append(ValidationError("JSON is missing documentType tag"))
+            validation_errors.append("JSON is missing documentType tag")
             raise validation_errors
         if "prefixes" not in json_data:
-            validation_errors.append(ValidationError("JSON is missing prefixes tag"))
+            validation_errors.append("JSON is missing prefixes tag")
             raise validation_errors
         if "dtsReferences" not in json_data:
-            validation_errors.append(ValidationError("JSON is missing dtsRererences tag"))
+            validation_errors.append("JSON is missing dtsRererences tag")
             raise validation_errors
         if "facts" not in json_data:
-            validation_errors.append(ValidationError("JSON is missing facts tag"))
+            validation_errors.append("JSON is missing facts tag")
             raise validation_errors
         facts = json_data["facts"]
 
@@ -192,9 +192,9 @@ class Parser(object):
             fact_names = []
             for fact in facts:
                 if "aspects" not in fact:
-                    validation_errors.append(ValidationError("fact tag is missing aspects tag"))
+                    validation_errors.append("fact tag is missing aspects tag")
                 elif "xbrl:concept" not in fact["aspects"]:
-                    validation_errors.append(ValidationError("aspects tag is missing xbrl:concept tag"))
+                    validation_errors.append("aspects tag is missing xbrl:concept tag")
                 else:
                     fact_names.append(fact["aspects"]["xbrl:concept"])
             try:
@@ -220,12 +220,12 @@ class Parser(object):
             # Create kwargs and populate with entity.
             kwargs = None
             if "aspects" not in fact:
-                validation_errors.append(ValidationError("fact tag is missing aspects tag"))
+                validation_errors.append("fact tag is missing aspects tag")
             else:
                 if "xbrl:concept" not in fact["aspects"]:
-                    validation_errors.append(ValidationError("aspects tag is missing xbrl:concept tag"))
+                    validation_errors.append("aspects tag is missing xbrl:concept tag")
                 if "xbrl:entity" not in fact["aspects"]:
-                    validation_errors.append(ValidationError("aspects tag is missing xbrl:entity tag"))
+                    validation_errors.append("aspects tag is missing xbrl:entity tag")
                 else:
                     kwargs = {"entity": fact["aspects"]["xbrl:entity"]}
 
@@ -275,7 +275,7 @@ class Parser(object):
             try:
                 entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
             except Exception as e:
-                validation_errors.append(ValidationError(str(e)))
+                validation_errors.append(e)
 
         # Raise the errors if necessary
         if validation_errors.get_errors():
@@ -397,13 +397,13 @@ class Parser(object):
                 validation_errors.append(
                     ValidationError("Context is missing both a duration and instant tag"))
             if entity is None:
-                validation_errors.append(ValidationError("Context is missing an entity tag"))
+                validation_errors.append("Context is missing an entity tag")
 
             try:
                 dm_ctx = data_model.Context(**kwargs)
                 contexts[context.attrib["id"]] = dm_ctx
             except Exception as e:
-                validation_errors.append(ValidationError(str(e)))
+                validation_errors.append(e)
 
         # Read all elements that are not a context or a unit:
         for child in root:
@@ -419,7 +419,7 @@ class Parser(object):
                         try:
                             entrypoint.set(tag, child.text, **kwargs)
                         except Exception as e:
-                            validation_errors.append(ValidationError(str(e)))
+                            validation_errors.append(e)
                     else:
                         validation_errors.append("referenced context is missing")
                 else:
