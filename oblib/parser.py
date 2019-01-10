@@ -23,6 +23,42 @@ import json
 import xml.etree.ElementTree as ElementTree
 import sys
 
+##################################################################################
+# NOTE: Start of temporary code.  Once a permanent ValidationErrors strategy is
+# created (even if it is analagous to the code below but in a different file)
+# this code will be removed and the new code that is shared by all modules will
+# be used instead.  In order to avoid creating a temporary file that may or may
+# not have the final approach intact these two classes are being placed here.
+
+class ValidationError(Exception):
+    
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class ValidationErrors(Exception):
+    
+    def __init__(self, message, validation_errors=None):
+        super(ValidationErrors, self).__init__(message)
+        if validation_errors is not None:
+            self._errors = validation_errors
+        else:
+            self._errors = []
+
+    def append(self, validation_error):
+        if isinstance(validation_error, ValidationError):
+            self._errors.append(validation_error)
+        elif isinstance(validation_error, str):
+            self._errors.append(ValidationError(validation_error))
+        else:
+            self._errors.append(str(validation_error))
+
+    def get_errors(self):
+        return self._errors
+
+# End of temporary code.
+##################################################################################
+
 # The Following code is used internally by the XML parser - there is no known general usage
 # reason to leverage.  The extremely short function name is for brevity in the XML parser.
 
@@ -86,7 +122,7 @@ class Parser(object):
                         eps_found.add(ep)
 
         if len(eps_found) == 0:
-            raise Exception("No entrypoint found given the set of facts")
+            raise ValidationError("No entrypoint found given the set of facts")
         elif len(eps_found) == 1:
             for ep in eps_found:
                 return ep
@@ -109,9 +145,9 @@ class Parser(object):
                     if the_one is None:
                         the_one = ep
                     else:
-                         raise Exception("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, ep))
+                         raise ValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, ep))
             if the_one == None:
-                raise Exception("No entrypoint found given the set of facts")
+                raise ValidationError("No entrypoint found given the set of facts")
             else:
                 return the_one
 
@@ -124,64 +160,126 @@ class Parser(object):
 
         json_string (str): String containing JSON
         entrypoint_name (str): Optional name of the entrypoint.
-
-        TODO: Currently this method works in some cases but testing is incomplete
         """
 
+        # Create a validation error which can be used to maintain a list of error messages
+        validation_errors = ValidationErrors("Error(s) found in input JSON")
+
         # Convert string to JSON data
-        json_data = json.loads(json_string)
+        try:
+            json_data = json.loads(json_string)
+        except Exception as e:
+            validation_errors.append(e)
+            raise validation_errors
 
         # Perform basic validation that all required parts of the document are present.
         if "documentType" not in json_data:
-            raise Exception("JSON is missing documentType tag")
+            validation_errors.append("JSON is missing documentType tag")
+            raise validation_errors
         if "prefixes" not in json_data:
-            raise Exception("JSON is missing prefixes tag")
+            validation_errors.append("JSON is missing prefixes tag")
+            raise validation_errors
         if "dtsReferences" not in json_data:
-            raise Exception("JSON is missing dtsRererences tag")
+            validation_errors.append("JSON is missing dtsRererences tag")
+            raise validation_errors
         if "facts" not in json_data:
-            raise Exception("JSON is missing facts tag")
+            validation_errors.append("JSON is missing facts tag")
+            raise validation_errors
+        facts = json_data["facts"]
 
         # Loop through facts to determine what type of endpoint this is.
         if not entrypoint_name:
-            facts = json_data["facts"]
             fact_names = []
             for fact in facts:
-                fact_names.append(fact["aspects"]["xbrl:concept"])
-            entrypoint_name = self._entrypoint_name(fact_names)
+                if "aspects" not in fact:
+                    validation_errors.append("fact tag is missing aspects tag")
+                elif "xbrl:concept" not in fact["aspects"]:
+                    validation_errors.append("aspects tag is missing xbrl:concept tag")
+                else:
+                    fact_names.append(fact["aspects"]["xbrl:concept"])
+            try:
+                entrypoint_name = self._entrypoint_name(fact_names)
+            except ValidationError as ve:
+                validation_errors.append(ve)
+                raise validation_errors
+
+        # If we reach this point re-initialize the validation errors because all previous errors found
+        # will be found again.  Re-initialization reduces duplicate error messages and ensures that 
+        # errors are found in the correct order.
+        validation_errors = ValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
         entrypoint = data_model.Entrypoint(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
-        facts = json_data["facts"]
         for fact in facts:
 
+            # Track the current number of errors to see if it grows for this fact
+            begin_error_count = len(validation_errors.get_errors())
+
             # Create kwargs and populate with entity.
-            kwargs = {"entity": fact["aspects"]["xbrl:entity"]}
-
-            # TODO: id is not currently support by Entrypoint.  Uncomment when it is.
-            # if "id" in fact:
-            #     kwargs["id"] = fact["id"]
-
-            if "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
-                if fact["aspects"]["xbrl:periodStart"] == fact["aspects"]["xbrl:periodEnd"]:
-                    kwargs["instant"] = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                else:
-                    kwargs["duration"] = {}
-                    kwargs["duration"]["start"] = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                    kwargs["duration"]["end"] = util.convert_json_datetime(fact["aspects"]["xbrl:periodEnd"])
+            kwargs = None
+            if "aspects" not in fact:
+                validation_errors.append("fact tag is missing aspects tag")
             else:
-                kwargs["duration"] = "forever"
+                if "xbrl:concept" not in fact["aspects"]:
+                    validation_errors.append("aspects tag is missing xbrl:concept tag")
+                if "xbrl:entity" not in fact["aspects"]:
+                    validation_errors.append("aspects tag is missing xbrl:entity tag")
+                else:
+                    kwargs = {"entity": fact["aspects"]["xbrl:entity"]}
 
-            if "xbrl:unit" in fact["aspects"]:
+                # TODO: id is not currently support by Entrypoint.  Uncomment when it is.
+                # if "id" in fact:
+                #     kwargs["id"] = fact["id"]
+
+                if "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
+                    if fact["aspects"]["xbrl:periodStart"] == fact["aspects"]["xbrl:periodEnd"]:
+                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
+                        if start is None:
+                            validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+                        elif kwargs is not None:
+                            kwargs["instant"] = start
+                    else:
+                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
+                        end = util.convert_json_datetime(fact["aspects"]["xbrl:periodEnd"])
+                        if start is None:
+                            validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+                        if end is None:
+                            validation_errors.append("xbrl:periodEnd is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+
+                        if start is not None and end is not None and kwargs is not None:
+                            kwargs["duration"] = {}
+                            kwargs["duration"]["start"] = start 
+                            kwargs["duration"]["end"] = end
+                elif "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" not in fact["aspects"]:
+                    validation_errors.append("xbrl:periodStart is present but xbrl:periodEnd is missing")
+                elif "xbrl:periodStart" not in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
+                    validation_errors.append("xbrl:periodEnd is present but xbrl:periodStart is missing")
+                elif kwargs is not None:
+                    kwargs["duration"] = "forever"
+
+                # Add axis to kwargs if item is an axis.
+                # TODO: Exception processing
+                for axis_chk in fact["aspects"]:
+                    if "Axis" in axis_chk:
+                        kwargs[axis_chk.split(":")[1]] = fact["aspects"][axis_chk]
+
+            if "aspects" in fact and "xbrl:unit" in fact["aspects"] and kwargs is not None:
                 kwargs["unit_name"] = fact["aspects"]["xbrl:unit"]
 
-            # Add axis to kwargs if item is an axis.
-            for axis_chk in fact["aspects"]:
-                if "Axis" in axis_chk:
-                    kwargs[axis_chk.split(":")[1]] = fact["aspects"][axis_chk]
+            # If validation errors were found for this fact continute to the next fact
+            if len(validation_errors.get_errors()) > begin_error_count:
+                continue
 
-            entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
+            try:
+                entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
+            except Exception as e:
+                validation_errors.append(e)
+
+        # Raise the errors if necessary
+        if validation_errors.get_errors():
+            raise validation_errors
 
         return entrypoint
 
@@ -209,12 +307,23 @@ class Parser(object):
 
         xml_string(str): String containing XML.
         entrypoint_name (str): Optional name of the entrypoint.
-
-        TODO: Currently this method works in some cases but there are known bugs and incomplete
-        testing to work through.  See Issues for more information.
         """
 
-        root = ElementTree.fromstring(xml_string)
+        # NOTE: The XML parser has much less effort placed into both the coding and testing as
+        # opposed to the coding and testing effort performed on the JSON parser.  To some extent
+        # this is on purpose since the hope is that the bulk of Orange Button data will be
+        # transmitted using JSON.  With this you are invited to (a) refactor the XML parsing code
+        # and (b) create XML test cases if you believe that XML parser should receive the same 
+        # effort level as the JSON parser.
+  
+        # Create a validation error which can be used to maintain a list of error messages
+        validation_errors = ValidationErrors("Error(s) found in input JSON")
+
+        try:
+            root = ElementTree.fromstring(xml_string)
+        except Exception as e:
+            validation_errors.append(e)
+            raise validation_errors
 
         # Read all elements that are not a context or a unit:
         if not entrypoint_name:
@@ -227,7 +336,11 @@ class Parser(object):
                     tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
                     tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
                     fact_names.append(tag)
-            entrypoint_name = self._entrypoint_name(fact_names)
+            try:
+                entrypoint_name = self._entrypoint_name(fact_names)
+            except ValidationError as ve:
+                validation_errors.append(ve)
+                raise validation_errors
 
         # Create an entrypoint.
         entrypoint = data_model.Entrypoint(entrypoint_name, self._taxonomy, dev_validation_off=True)
@@ -279,22 +392,42 @@ class Parser(object):
             if axis is not None:
                 for a in axis:
                     kwargs[a] = axis[a]
-            dm_ctx = data_model.Context(**kwargs)
-            contexts[context.attrib["id"]] = dm_ctx
+
+            if instant is None  and duration is None:
+                validation_errors.append(
+                    ValidationError("Context is missing both a duration and instant tag"))
+            if entity is None:
+                validation_errors.append("Context is missing an entity tag")
+
+            try:
+                dm_ctx = data_model.Context(**kwargs)
+                contexts[context.attrib["id"]] = dm_ctx
+            except Exception as e:
+                validation_errors.append(e)
 
         # Read all elements that are not a context or a unit:
         for child in root:
             if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
                 kwargs = {}
                 if "contextRef" in child.attrib:
-                    kwargs["context"] = contexts[child.attrib["contextRef"]]
+                    if child.attrib["contextRef"] in contexts:
+                        kwargs["context"] = contexts[child.attrib["contextRef"]]
+                        tag = child.tag
+                        tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                        tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
+                        tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+                        try:
+                            entrypoint.set(tag, child.text, **kwargs)
+                        except Exception as e:
+                            validation_errors.append(e)
+                    else:
+                        validation_errors.append("referenced context is missing")
+                else:
+                    validation_errors.append("Element is missing a context")
 
-                tag = child.tag
-                tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
-                tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
-                tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
-
-                entrypoint.set(tag, child.text, **kwargs)
+        # Raise the errors if necessary
+        if validation_errors.get_errors():
+            raise validation_errors
 
         # Return populated entrypoint
         return entrypoint
