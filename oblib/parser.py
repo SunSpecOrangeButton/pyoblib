@@ -46,7 +46,12 @@ class ValidationErrors(Exception):
             self._errors = []
 
     def append(self, validation_error):
-        self._errors.append(validation_error)
+        if isinstance(validation_error, ValidationError):
+            self._errors.append(validation_error)
+        elif isinstance(validation_error, str):
+            self._errors.append(ValidationError(validation_error))
+        else:
+            self._errors.append(str(validation_error))
 
     def get_errors(self):
         return self._errors
@@ -273,7 +278,7 @@ class Parser(object):
                 validation_errors.append(ValidationError(str(e)))
 
         # Raise the errors if necessary
-        if len(validation_errors.get_errors()) > 0:
+        if validation_errors.get_errors():
             raise validation_errors
 
         return entrypoint
@@ -421,7 +426,7 @@ class Parser(object):
                     validation_errors.append("Element is missing a context")
 
         # Raise the errors if necessary
-        if len(validation_errors.get_errors()) > 0:
+        if validation_errors.get_errors():
             raise validation_errors
 
         # Return populated entrypoint
