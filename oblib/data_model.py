@@ -20,6 +20,7 @@ import datetime
 import json
 from taxonomy import PeriodType
 from six import string_types
+import validator
 
 UNTABLE = "NON_TABLE_CONCEPTS"
 
@@ -511,6 +512,7 @@ class Concept(object):
         e.g. integer, string, decimal, boolean, or complex enumerated type.
         False otherwise.
         """
+        return not validator.validate_concept_value(self.metadata, value)
         myType = self.get_metadata("type_name")
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):
@@ -896,7 +898,7 @@ class Entrypoint(object):
             raise Exception("{} is an invalid unit type for {}".format(unit_name, concept_name))
         
         # check datatype of given value against concept
-        if not self._dev_validation_off and not concept.validate_datatype(value):
+        if not concept.validate_datatype(value):
             raise Exception("{} is the wrong datatype for {}".format(value, concept_name))
         
         table = self.get_table_for_concept(concept_name)
