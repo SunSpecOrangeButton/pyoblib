@@ -105,7 +105,7 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_relationships_ep(self):
         self.assertIsNone(tax.relationships_ep("Arggh"))
-        self.assertEqual(len(tax.relationships_ep("Utility")), 0)        
+        self.assertEqual(len(tax.relationships_ep("Utility")), 7)        
         self.assertEqual(len(tax.relationships_ep("MonthlyOperatingReport")), 84)
         self.assertEqual(len(tax.relationships_ep("CutSheet")), 305)
 

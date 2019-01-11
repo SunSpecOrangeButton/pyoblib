@@ -57,10 +57,10 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax_generic_roles.validate_generic_role("Genric UML inheritance arc"))
         self.assertFalse(tax_generic_roles.validate_generic_role("Genric UML property arc"))
 
-    def test_validate_docstirngs(self):
-        self.assertEqual(tax_doc.docstrings["solar:EntitySizeACPower"],
+    def test_validate_docstrings(self):
+        self.assertEqual(tax_doc.docstrings()["solar:EntitySizeACPower"],
                              "Size of the entity in megawatts AC.")
-        self.assertEqual(tax_doc.docstrings["solar:FundDescriptionAnalyst"],
+        self.assertEqual(tax_doc.docstrings()["solar:FundDescriptionAnalyst"],
                              "Name of analyst covering the fund.")
-        self.assertEqual(tax_doc.docstrings["solar:IncentivesPerformanceBasedIncentiveEscalator"],
+        self.assertEqual(tax_doc.docstrings()["solar:IncentivesPerformanceBasedIncentiveEscalator"],
                              "Annual escalation of the performance based incentive value (percent)")
