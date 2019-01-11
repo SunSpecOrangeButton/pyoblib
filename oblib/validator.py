@@ -172,3 +172,64 @@ def num_percent_item_type_validator(value, concept):
 def dei_legal_entity_identifier_item_type_validator(value, concept):
     """DEI Legal Entity Identifier"""
     return xbrli_string_item_type_validator(value, concept)
+
+def xbrli_any_uri_item_type_validator(value, concept):
+    """XBRLI Any URI validator"""
+    return xbrli_string_item_type_validator(value, concept)
+
+def num_us_electric_current_item_type_validator(value, concept):
+    """NUM US Electric Current validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_frequency_item_type_validator(value, concept):
+    """NUM US Frequency validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_insolation_item_type_validator(value, concept):
+    """NUM US Insolation validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_irradiance_item_type_validator(value, concept):
+    """NUM US Irradience validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_plane_angle_item_type_validator(value, concept):
+    """NUM US Plane Angle validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_pressure_item_type_validator(value, concept):
+    """NUM US Pressure validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_speed_item_type_validator(value, concept):
+    """NUM US Speed validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_temperature_item_type_validator(value, concept):
+    """NUM US Temperature validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_voltage_item_type_validator(value, concept):
+    """NUM US Voltage validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_area_item_type_validator(value, concept):
+    """NUM Area validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_energy_item_type_validator(value, concept):
+    """NUM Energy validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_length_item_type_validator(value, concept):
+    """NUM Length validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_mass_item_type_validator(value, concept):
+    """NUM Mass validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_volume_item_type_validator(value, concept):
+    """NUM Volume validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
