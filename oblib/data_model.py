@@ -477,7 +477,7 @@ class Fact(object):
         if self.unit == "pure":
             elem.text = "%d" % self.value
         else:
-            elem.text = unicode(self.value)
+            elem.text = str(self.value)
         return elem
 
 
@@ -493,7 +493,7 @@ class Fact(object):
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%d")
         else:
-            value_str = unicode(self.value)
+            value_str = str(self.value)
         return { "aspects": aspects,
                  "value": value_str}
 
