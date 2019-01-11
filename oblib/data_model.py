@@ -1,4 +1,4 @@
-"""Orange Button data model."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""Orange Button data model."""
 
 import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
@@ -147,7 +149,7 @@ class Hypercube(object):
 
     def has_line_item(self, line_item_name):
         """
-        Return True if the given line_item_name (a string naming a concept) is
+        Return True if the given line_item_name (a string naming a concept)
         can be stored in this table.
         """
         return line_item_name in self._allowed_line_items
@@ -271,7 +273,6 @@ class Hypercube(object):
                         axis_name, self._table_name))
 
 
-
 class Context(object):
     """
     Represents the context for one or more facts. The context tells us
@@ -352,7 +353,7 @@ class Context(object):
 
     def set_id(self, hypercube, new_id):
         """
-        Adds this context to a hypercub
+        Adds this context to a hypercube
         """
         self.hypercube = hypercube
         self._id = new_id
@@ -569,8 +570,8 @@ class Concept(object):
                     return True
                 except ValueError as e:
                     try:
-                        # the case of "1.0" - string can't be converted to float
-                        # but can be converted to int
+                        # the case of "1.0" - string can't be converted to int
+                        # but can be converted to float
                         value = float(value)
                         return int(value) == value
                     except ValueError as e:
@@ -636,15 +637,10 @@ class Concept(object):
             # that we can import here.
             return True
         print("Warning: i don't know how to validate " + myType)
-        
 
         # TODO add validation for complex types.  Most types in the num:
-        # namespace will be decimals that expect units. e.g.
-        # #num:powerItemType. We can use
-        # t.numeric_types.numeric_types() to get a list of these to compare against.
-        # Most types in
-        # the solar-types: namespace will be enumerated string types. We could use
-        # e.g. t.types.type_enum("mountingItemType") to get the valid values.
+        # namespace will be decimals that expect units. Most types in
+        # the solar-types: namespace will be enumerated string types.
         return True
 
 
@@ -660,7 +656,7 @@ class Entrypoint(object):
     and from particular physical file format (or database schema) will
     be handled elsewhere.
     """
-    def __init__(self, entrypoint_name, taxonomy):
+    def __init__(self, entrypoint_name, taxonomy, dev_validation_off=False):
         """
         Initialize an entrypoint.
 
@@ -673,11 +669,15 @@ class Entrypoint(object):
         and axes/dimensions.
         taxonomy_semantic should be the global singleton TaxonomySemantic
         object.
+
+        An optional flag ("dev_validation_off") can be set to turn validation
+        rules off during development.  This should not be used during a release.   
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
         self.entrypoint_name = entrypoint_name
-
+        self._dev_validation_off = dev_validation_off
+        
         if entrypoint_name == "All":
             self._init_all_entrypoint()
         else:
@@ -946,7 +946,6 @@ class Entrypoint(object):
         # item_type_date, symbol, definition, base_standard, status, version_date
 
 
-
     def set(self, concept_name, value, **kwargs):
         """
         Adds a fact to the document. The concept_name and the context
@@ -1001,14 +1000,15 @@ class Entrypoint(object):
                 "Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self.valid_unit(concept_name, unit_name):
+        if not self._dev_validation_off and not self.valid_unit(concept_name, unit_name):
             raise OBUnitException(
                 "{} is an invalid unit type for {}".format(unit_name, concept_name))
         
         # check datatype of given value against concept
-        if not concept.validate_datatype(value):
+        if not self._dev_validation_off and not concept.validate_datatype(value):
             raise OBTypeException(
                 "{} is the wrong datatype for {}".format(value, concept_name))
+
         
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID

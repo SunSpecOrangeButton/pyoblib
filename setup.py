@@ -22,7 +22,7 @@ setup(
     Documentation: https://pyoblib.readthedocs.io/en/latest/
     Source code: https://github.com/SunSpecOrangeButton/pyoblib
     """,
-    author='SunSpec Alliance, GitHub Contributors',
+    author='SunSpec Alliance',
     author_email='support@sunspec.org',
     packages=['oblib'],
     extras_require=EXTRAS_REQUIRE,

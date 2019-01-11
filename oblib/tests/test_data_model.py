@@ -1,4 +1,4 @@
-# Copyright 2018 Jonathan Xia
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

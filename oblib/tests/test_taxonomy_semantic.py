@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -96,6 +96,9 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_elements(self):
         self.assertIsNotNone(tax.elements())
+
+    def test_type_names(self):
+        self.assertEqual(len(tax.type_names()), 76)
 
     def test_entry_points(self):
         self.assertEqual(len(tax.entry_points()), 158)

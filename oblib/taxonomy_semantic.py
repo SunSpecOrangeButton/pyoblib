@@ -1,4 +1,4 @@
-"""Semantic taxonomy classes."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""Semantic taxonomy classes."""
 
 import os
 import xml.sax
@@ -250,6 +252,14 @@ class TaxonomySemantic(object):
     def elements(self):
         """Return a map of elements."""
         return self._elements
+
+    def type_names(self):
+        """Return an array of strings representing all data types in elements"""
+
+        type_names = set()
+        for e in self._elements:
+            type_names.add(self._elements[e].type_name)
+        return list(type_names)
 
     def validate_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""

@@ -21,8 +21,8 @@ print(sys.path)
 # -- Project information -----------------------------------------------------
 
 project = 'pyoblib'
-copyright = '2018, SunSpec Alliance, GitHub Contributors'
-author = 'SunSpec Alliance, GitHub Contributors'
+copyright = '2018, SunSpec Alliance'
+author = 'SunSpec Alliance'
 
 # The short X.Y version
 version = ''
@@ -134,7 +134,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'pyoblib.tex', 'pyoblib Documentation',
-     'SunSpec Alliance, GitHub Contributors', 'manual'),
+     'SunSpec Alliance', 'manual'),
 ]
 
 

@@ -25,13 +25,20 @@ Features
 - Supports identifier generation and validation
 
 
+pyoblib Class and Module Structure
+==================================
+.. figure:: pyoblib.png
+   :scale: 75 %
+   :alt: pyoblib module structure
+
+
 Requirements
 ============
 - Python 2.7, 3.4-3.6
 
 
-Installation
-============
+Installation for Development (From GitHub)
+===========================================
 
 A series of Bash (Mac/Linux) shell scripts are available to assist with development and packaging.
 Their state is preliminary but they can be used to get started.

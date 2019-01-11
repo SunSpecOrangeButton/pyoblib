@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,4 +21,7 @@
 # correct placement of solar-taxonomy.
 
 export PYTHONPATH=`pwd`/oblib
-pyinstaller --add-data ../solar-taxonomy:../solar-taxonomy --clean --onefile scripts/cli/cli.py
+export SOLAR_TAXONOMY_DIR='solar-taxonomy'
+pyinstaller --add-data solar-taxonomy:solar-taxonomy --clean --onefile scripts/cli/cli.py
+rm -rf build
+mv dist/cli dist/ob

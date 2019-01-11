@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ exported as part of the module so if a method has an external signature place it
 """
 
 import datetime
+
 
 def convert_taxonomy_bool(s):
     """ 
@@ -47,5 +48,12 @@ def convert_taxonomy_date(s):
 
     try:
         return datetime.datetime.strptime(s, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+def convert_json_datetime(s):
+
+    try:
+        return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S").date()
     except ValueError:
         return None

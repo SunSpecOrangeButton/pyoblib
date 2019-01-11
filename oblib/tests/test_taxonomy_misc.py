@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,12 +32,14 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertEqual(len(tax_generic_roles.generic_roles()), 5)
 
     def test_validate_numeric_types(self):
-        self.assertTrue(tax_numeric_types.validate_numeric_type("insolationItemType"))
-        self.assertTrue(tax_numeric_types.validate_numeric_type("speedItemType"))
-        self.assertTrue(tax_numeric_types.validate_numeric_type("luminousIntensityItemType"))
-        self.assertFalse(tax_numeric_types.validate_numeric_type("inslationItemType"))
-        self.assertFalse(tax_numeric_types.validate_numeric_type("speedItemTye"))
-        self.assertFalse(tax_numeric_types.validate_numeric_type("luminousIntensityIteType"))
+        self.assertTrue(tax_numeric_types.validate_numeric_type("num-us:insolationItemType"))
+        self.assertTrue(tax_numeric_types.validate_numeric_type("num-us:speedItemType"))
+        self.assertTrue(tax_numeric_types.validate_numeric_type("num-us:luminousIntensityItemType"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("solar:luminousIntensityItemType"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("luminousIntensityItemType"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("num-us:inslationItemType"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("num-us:speedItemTye"))
+        self.assertFalse(tax_numeric_types.validate_numeric_type("num-us:luminousIntensityIteType"))
 
     def test_validate_ref_part(self):
         self.assertTrue(tax_ref_parts.validate_ref_part("Publisher"))

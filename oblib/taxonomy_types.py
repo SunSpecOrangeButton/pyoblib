@@ -1,4 +1,4 @@
-"""Taxonomy types."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""Taxonomy types."""
 
 import os
 import xml.sax
@@ -29,7 +31,11 @@ class _TaxonomyTypesHandler(xml.sax.ContentHandler):
             for item in attrs.items():
                 if item[0] == "name":
                     self._curr = []
-                    self._types[item[1]] = self._curr
+                    if ":" in item[1]:
+                        name = item[1]
+                    else:
+                        name = "solar-types:" + item[1]
+                    self._types[name] = self._curr
         elif name == "xs:enumeration":
             for item in attrs.items():
                 if item[0] == "value":

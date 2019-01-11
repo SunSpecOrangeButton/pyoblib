@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,6 +80,9 @@ python scripts/cli/cli.py taxonomy validate-type climateZoneANSIItemType || {
 python scripts/cli/cli.py taxonomy validate-type climateZoneANSIItemype || {
     EXITVAL=1
 }
+python scripts/cli/cli.py taxonomy list-types || {
+    EXITVAL=1
+}
 
 # Semantic tests
 python scripts/cli/cli.py taxonomy validate-ep MonthlyOperatingReport || {
@@ -143,5 +146,13 @@ python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML compositio
 python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML compositin arc" || {
     EXITVAL=1
 }
+
+echo ""
+if [ $EXITVAL -eq 0 ]
+then
+    echo "Tests completed successfully"
+else
+    echo "Some tests were unsuccesful"
+fi
 
 exit $EXITVAL

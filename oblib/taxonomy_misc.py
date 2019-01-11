@@ -1,4 +1,4 @@
-"""Miscellaneous taxonomy functions."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""Miscellaneous taxonomy functions."""
 
 import os
 import xml.sax
@@ -36,7 +38,11 @@ class _TaxonomyNumericHandler(xml.sax.ContentHandler):
         if name == "complexType":
             for item in attrs.items():
                 if item[0] == "name":
-                    self._numeric_types.append(item[1])
+                    if ":" in item[1]:
+                        name = item[1]
+                    else:
+                        name = "num-us:" + item[1]
+                    self._numeric_types.append(name)
 
     def numeric_types(self):
         return self._numeric_types
