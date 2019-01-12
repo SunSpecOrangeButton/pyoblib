@@ -1,4 +1,4 @@
-"""Validation functions."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Validation functions."""
+
 import identifier
 import re
 import sys
+import taxonomy
+from datetime import date
+from datetime import datetime
 
 # TODO: There are several main improvements at this point in time:
 #
@@ -38,14 +43,22 @@ def validate_concept_value(concept, value):
     # If null check if nillable is ok and return
     if value is None and not concept.nillable:
         errors += ["'{}' is not allowed to be nillable (null).".format(concept.id)]
-
+    enum = taxonomy.getTaxonomy().types.type_enum(concept.type_name)
+    is_enum = enum is not None
     # Check data type and validator calling
     if type(concept.type_name).__name__ in ["str", "unicode"]:
         method_name = get_validator_method_name(concept.type_name)
         validator_module = sys.modules[__name__]
         found_method = getattr(validator_module, method_name, None)
         if found_method is not None:
-            errors += found_method(value, concept)
+            if is_enum:
+                errors += found_method(value, concept, enum)
+            else:
+                errors += found_method(value, concept)
+        elif is_enum:
+            errors += generic_enum_validator(value, concept, enum)
+        else:
+            raise Exception("Concept '{}' could not be processed. Missing method '{}'.".format(concept.type_name, method_name))
 
     # Check identifiers.  This is based upon the name of the field containing
     # the word Identifier in it.
@@ -68,6 +81,11 @@ def get_validator_method_name(type_name):
     type_name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", type_name).lower()
     return type_name + "_validator"
 
+def generic_enum_validator(value, concept, enum):
+    errors = []
+    if (value not in enum):
+        errors += ["Value '{}' is not found in enum list for type '{}'.".format(value, concept.type_name)]
+    return errors
 
 # validators implementation
 # TODO: could be moved to other file and loaded and even loading custom
@@ -83,14 +101,12 @@ def xbrli_boolean_item_type_validator(value, concept):
         errors += ["'{}' is not a valid boolean value.".format(value)]
     return errors
 
-
 def xbrli_string_item_type_validator(value, concept):
     """XBRLI string validator."""
     errors = []
     if type(value).__name__ not in ["str", "unicode"]:
         errors += ["'{}' is not a valid string value.".format(value)]
     return errors
-
 
 def xbrli_integer_item_type_validator(value, concept):
     """XBRLI int validator."""
@@ -103,3 +119,117 @@ def xbrli_integer_item_type_validator(value, concept):
     elif type(value) is not int:
         errors += ["'{}' is not a valid integer value.".format(value)]
     return errors
+
+def xbrli_decimal_item_type_validator(value, concept):
+    """XBRLI decimal validator."""
+    errors = []
+    if type(value) is str:
+        try:
+            result = float(value)
+        except ValueError as ex:
+            errors += ["'{}' is not a valid decimal value.".format(value)]
+    elif type(value) is not int:
+        errors += ["'{}' is not a valid decimal value.".format(value)]
+    return errors
+
+def xbrli_monetary_item_type_validator(value, concept):
+    """XBRLI monetary validator."""
+    errors = []
+    if type(value) is str:
+        try:
+            result = float(value)
+        except ValueError as ex:
+            errors += ["'{}' is not a valid monetary value.".format(value)]
+    elif type(value) is not int:
+        errors += ["'{}' is not a valid monetary value.".format(value)]
+    return errors
+
+def xbrli_date_item_type_validator(value, concept):
+    """XBRLI date validator."""
+    errors = []
+    if type(value) is str:
+        try:
+            result = datetime.strptime(value, '%Y-%m-%d').date()
+        except ValueError as ex:
+            print(ex)
+            errors += ["'{}' is not a valid date value.".format(value)]
+    elif type(value) is not date:
+        print("{} is not {}".format(type(value), type(date)))
+        errors += ["'{}' is not a valid date value.".format(value)]
+    return errors
+
+def xbrli_duration_item_type_validator(value, concept):
+    """XBRLI duration validator."""
+    return xbrli_integer_item_type_validator(value, concept)
+def num_power_item_type_validator(value, concept):
+    """NUM power validator."""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_percent_item_type_validator(value, concept):
+    """NUM percent validator."""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def dei_legal_entity_identifier_item_type_validator(value, concept):
+    """DEI Legal Entity Identifier"""
+    return xbrli_string_item_type_validator(value, concept)
+
+def xbrli_any_uri_item_type_validator(value, concept):
+    """XBRLI Any URI validator"""
+    return xbrli_string_item_type_validator(value, concept)
+
+def num_us_electric_current_item_type_validator(value, concept):
+    """NUM US Electric Current validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_frequency_item_type_validator(value, concept):
+    """NUM US Frequency validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_insolation_item_type_validator(value, concept):
+    """NUM US Insolation validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_irradiance_item_type_validator(value, concept):
+    """NUM US Irradience validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_plane_angle_item_type_validator(value, concept):
+    """NUM US Plane Angle validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_pressure_item_type_validator(value, concept):
+    """NUM US Pressure validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_speed_item_type_validator(value, concept):
+    """NUM US Speed validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_temperature_item_type_validator(value, concept):
+    """NUM US Temperature validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_us_voltage_item_type_validator(value, concept):
+    """NUM US Voltage validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_area_item_type_validator(value, concept):
+    """NUM Area validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_energy_item_type_validator(value, concept):
+    """NUM Energy validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_length_item_type_validator(value, concept):
+    """NUM Length validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_mass_item_type_validator(value, concept):
+    """NUM Mass validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+
+def num_volume_item_type_validator(value, concept):
+    """NUM Volume validator"""
+    return xbrli_decimal_item_type_validator(value, concept)
+

@@ -1,4 +1,4 @@
-"""Taxonomy units."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Taxonomy units."""
+
 import xml.sax
 
-import taxonomy
 import constants
+import taxonomy
+import util
 import os
+import sys
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Units from the units type registry file."""
@@ -49,17 +53,17 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "itemType":
             self._curr.item_type = self._content
         elif name == "itemTypeDate":
-            self._curr.item_type_date = self._content
+            self._curr.item_type_date = util.convert_taxonomy_date(self._content)
         elif name == "symbol":
             self._curr.symbol = self._content
         elif name == "definition":
             self._curr.definition = self._content
         elif name == "baseStandard":
-            self._curr.base_standard = self._content
+            self._curr.base_standard = taxonomy.BaseStandard(self._content)
         elif name == "status":
-            self._curr.status = self._content
+            self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
-            self._curr.version_date = self._content
+            self._curr.version_date = util.convert_taxonomy_date(self._content)
 
     def units(self):
         return self._units
@@ -81,7 +85,13 @@ class TaxonomyUnits(object):
         tax = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(fn))
+        if sys.version_info[0] < 3:
+            # python 2.x
+            with open(fn, 'r') as infile:
+                parser.parse(infile)
+        else:
+            with open(fn, 'r', encoding='utf8') as infile:
+                parser.parse(infile)
         return tax.units()
 
     def _load_units(self):
@@ -94,10 +104,19 @@ class TaxonomyUnits(object):
         """Return a map and sublists of all units."""
         return self._units
 
-    def validate_unit(self, unit_id):
-        """Validate that a unit is in the taxonomy based on its id."""
-        if unit_id in self._units:
-            return True
+    def validate_unit(self, **kwargs):
+        """
+        Validate that a unit is in the taxonomy based on its unit_id or
+        unit_name.
+        """
+        if "unit_id" in kwargs:
+            unit_id = kwargs.pop("unit_id")
+            return unit_id in self._units
+        elif "unit_name" in kwargs:
+            unit_name = kwargs.pop("unit_name")
+            valid_names = [self._units[k].unit_name for k in
+                           self._units.keys()]
+            return unit_name in valid_names
         else:
             return False
 
@@ -105,7 +124,7 @@ class TaxonomyUnits(object):
         """
         Return a unit.
 
-        Returns an unit given a unit_id or None if the type does not
+        Returns an unit given a unit_id or None if unit_id does not
         exist in the taxonomy.
         """
         if unit_id in self._units:

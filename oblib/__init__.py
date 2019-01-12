@@ -1,4 +1,4 @@
-"""Initializes Orange Button package."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Initializes the Orange Button package."""
+
 import identifier
 import data_model
+import parser
 import taxonomy
 import taxonomy_semantic
 import taxonomy_types
@@ -21,6 +24,7 @@ import taxonomy_units
 import taxonomy_misc
 import validator
 
-__all__ = ['identifier', 'data_model', 'taxonomy', 'taxonomy_semantic',
+__all__ = ['identifier', 'data_model', 'parser',
+           'taxonomy', 'taxonomy_semantic',
            'taxonomy_types', 'taxonomy_units',
            'taxonomy_misc', 'validator']

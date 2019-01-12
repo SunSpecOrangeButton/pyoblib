@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ import sys
 import argparse
 
 import identifier
+from parser import Parser, FileFormat
 import taxonomy
 
 #
@@ -33,18 +34,57 @@ Orange Button CLI GitHub: https://github.com/SunSpecOrangeButton/core
 
 DASHES = "---------------------------------------------------------------------------------------"
 
-# The following line will cause pyinstaller to work correctly.
-# In all likelihood it is sub-optimal however because it would
-# preclude adding file input or output as CLI arguments (since
-# the working directory changes to the wrong value).
-if getattr(sys, 'frozen', False):
-    os.chdir(sys._MEIPASS)
-
 tax = taxonomy.Taxonomy()
 csv = False
+json = False
+xml = False
+
 
 def info(args):
     print(INFO)
+
+
+def convert(args):
+
+    p = Parser(tax)
+
+    ff = None
+    if json:
+        ff = FileFormat.JSON
+    elif xml:
+        ff = FileFormat.XML
+    elif args.infile.lower().endswith(".json") and args.outfile.lower().endswith(".xml"):
+        ff = FileFormat.JSON
+    elif args.infile.lower().endswith(".xml") and args.outfile.lower().endswith(".json"):
+        ff = FileFormat.XML
+
+    if ff is None:
+        print("Unable to determine file format.  Conversion not processed.")
+        sys.exit(1)
+        
+    p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
+
+
+def validate(args):
+
+    p = Parser(tax)
+
+    ff = None
+    if json:
+        ff = FileFormat.JSON
+    elif xml:
+        ff = FileFormat.XML
+    elif args.infile.lower().endswith(".json"):
+        ff = FileFormat.JSON
+    elif args.infile.lower().endswith(".xml"):
+        ff = FileFormat.XML
+
+    if ff is None:
+        print("Unable to determine file format.  Conversion not processed.")
+        sys.exit(1)
+
+    p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
+    print("Validation succcessful")
 
 
 def generate_identifier(args):
@@ -86,6 +126,11 @@ def list_unit_info(args):
         print("Not found")
 
 
+def list_ep(args):
+    for ep in tax.semantic.entry_points():
+        print(ep)
+
+
 def list_ep_concepts_info(args):
 
     if csv:
@@ -125,17 +170,17 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
+                       (r['role'], r['from'], r['to'], r['order']))
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
         print('%0.19s %0.78s %0.78s %0.5s' %
                 (DASHES, DASHES, DASHES, DASHES))
-        
+
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))    
+                       (r['role'], r['from'], r['to'], r['order']))
         else:
             print("Not found")
 
@@ -150,17 +195,17 @@ def list_type_enums(args):
 
 
 def list_numeric_types(args):
-    for numeric_type in tax.misc.numeric_types():
+    for numeric_type in tax.numeric_types.numeric_types():
         print(numeric_type)
 
 
 def list_ref_parts(args):
-    for ref_part in tax.misc.ref_parts():
+    for ref_part in tax.ref_parts.ref_parts():
         print(ref_part)
 
 
 def list_generic_roles(args):
-    for generic_role in tax.misc.generic_roles():
+    for generic_role in tax.generic_roles.generic_roles():
         print(generic_role)
 
 
@@ -171,9 +216,9 @@ def list_units(args):
 
 def list_units_details(args):
 
-    if csv:      
+    if csv:
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
- 
+
         for unit_id in tax.units.units():
                 unit = tax.units.unit(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
@@ -194,6 +239,14 @@ def list_units_details(args):
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
                        unit.status, unit.definition))
 
+
+def list_types(args):
+
+    names = tax.semantic.type_names()
+    names.sort()
+    for name in names:
+        print(name)
+        
 
 def validate_concept(args):
     print("Valid:", tax.semantic.validate_concept(args.concept))
@@ -221,19 +274,19 @@ def validate_type(args):
 
 
 def validate_numeric_type(args):
-    print("Valid:", tax.misc.validate_numeric_type(args.numeric_type))
+    print("Valid:", tax.numeric_types.validate_numeric_type(args.numeric_type))
 
 
 def validate_ref_part(args):
-    print("Valid:", tax.misc.validate_ref_part(args.ref_part))
+    print("Valid:", tax.ref_parts.validate_ref_part(args.ref_part))
 
 
 def validate_generic_role(args):
-    print("Valid:", tax.misc.validate_generic_role(args.generic_role))
+    print("Valid:", tax.generic_roles.validate_generic_role(args.generic_role))
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.validate_unit(args.generic_unit))
+    print("Valid:", tax.units.validate_unit(unit_id=args.generic_unit))
 
 
 def version(args):
@@ -243,10 +296,23 @@ formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=3
 
 parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
 parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
+parser.add_argument("--json", help="input format is JSON", action="store_true")
+parser.add_argument("--xml", help="input format is XML", action="store_true")
 subparsers = parser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
 info_parser.set_defaults(command='info')
+
+convert_parser = subparsers.add_parser('convert', help='Convert XBRL files from JSON/XML to XML/JSON')
+convert_parser.set_defaults(command='convert')
+convert_parser.add_argument('infile', action='store', help='The input file')
+convert_parser.add_argument('outfile', action='store', help='The output file')
+convert_parser.add_argument('--entrypoint', action='store', help='Entrypoint name (will be derived from input if not included)')
+
+validate_parser = subparsers.add_parser('validate', help='Validate XBRL JSON or XML files')
+validate_parser.set_defaults(command='validate')
+validate_parser.add_argument('infile', action='store', help='The input file')
+validate_parser.add_argument('--entrypoint', action='store', help='Entrypoint name (will be derived from input if not included)')
 
 generate_identifier_parser = subparsers.add_parser('generate-identifier',
                                                    help='Generate an Orange Button Identifier')
@@ -276,12 +342,19 @@ list_unit_info_parser.set_defaults(command='list_unit_info')
 list_unit_info_parser.add_argument('unit', action='store',
                                    help='The unit to list information for')
 
+list_types_parser = subparsers.add_parser('list-types',
+                                              help='List all Orange Button data type names')
+list_types_parser.set_defaults(command='list_types')
+
 list_concepts_info_parser = subparsers.add_parser(
         'list-concepts-info',
         help='List concept information in an Orange Button Entry Point')
 list_concepts_info_parser.set_defaults(command='list_ep_concepts_info')
 list_concepts_info_parser.add_argument('ep', action='store',
                                        help='The entry point to list concepts for')
+
+list_ep_parser = subparsers.add_parser('list-ep', help='List Orange Button Entry Points')
+list_ep_parser.set_defaults(command='list_ep')
 
 list_concepts_parser = subparsers.add_parser('list-concepts',
                                              help='List concepts in an Orange Button Entry Point')
@@ -377,6 +450,14 @@ args = parser.parse_args()
 
 if args.csv:
     csv = True
+if args.json:
+    json = True
+if args.xml:
+    xml = True
+
+if json and xml:
+    print("--json and --xml are mutually exclusive.")
+    sys.exit(1)
 
 if not hasattr(args, 'command'):
     print('A command must be specified')

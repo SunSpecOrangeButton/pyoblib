@@ -1,4 +1,4 @@
-# Copyright 2018 Wells Fargo
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
 # limitations under the License.
 
 import unittest
+
+import taxonomy
 import taxonomy_semantic
+from six import string_types
 
 tax = taxonomy_semantic.TaxonomySemantic()
 
@@ -21,16 +24,19 @@ tax = taxonomy_semantic.TaxonomySemantic()
 class TestTaxonomySemantic(unittest.TestCase):
 
     def test_concept_info(self):
-        ci = tax.concept_info("solar:AdvisorInvoicesCounterparties")
+
+        # Data type checks
+        ci = tax.concept_info("solar:ACDisconnectSwitchMember")
         self.assertIsNotNone(ci)
-        self.assertIsNone(ci.abstract)
-        self.assertEqual(ci.id, "solar:AdvisorInvoicesCounterparties")
-        self.assertEqual(ci.name, "AdvisorInvoicesCounterparties")
-        self.assertTrue(ci.nillable)
-        self.assertEqual(ci.period_independent, "0")
-        self.assertEqual(ci.substitution_group, "xbrli:item")
-        self.assertEqual(ci.type_name, "xbrli:stringItemType")
-        self.assertEqual(ci.period_type, "duration")
+        self.assertIsInstance(ci.abstract, bool)
+        self.assertIsInstance(ci.id, string_types)
+        # 'six.string_types' is equivalent to "str or unicode" in python2, "str" in python3
+        self.assertIsInstance(ci.name, string_types)
+        self.assertIsInstance(ci.nillable, bool)
+        self.assertIsInstance(ci.period_independent, bool)
+        self.assertIsInstance(ci.substitution_group, taxonomy.SubstitutionGroup)
+        self.assertIsInstance(ci.type_name, string_types)
+        self.assertIsInstance(ci.period_type, taxonomy.PeriodType)
 
         ci = tax.concept_info("solar:ACDisconnectSwitchMember")
         self.assertIsNotNone(ci)
@@ -38,10 +44,22 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.id, "solar:ACDisconnectSwitchMember")
         self.assertEqual(ci.name, "ACDisconnectSwitchMember")
         self.assertTrue(ci.nillable)
-        self.assertEqual(ci.period_independent, "0")
-        self.assertEqual(ci.substitution_group, "xbrli:item")
+        self.assertFalse(ci.period_independent)
+        self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
         self.assertEqual(ci.type_name, "nonnum:domainItemType")
-        self.assertEqual(ci.period_type, "duration")
+        self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
+
+        # Values checks
+        ci = tax.concept_info("solar:AdvisorInvoicesCounterparties")
+        self.assertIsNotNone(ci)
+        self.assertFalse(ci.abstract)
+        self.assertEqual(ci.id, "solar:AdvisorInvoicesCounterparties")
+        self.assertEqual(ci.name, "AdvisorInvoicesCounterparties")
+        self.assertTrue(ci.nillable)
+        self.assertFalse(ci.period_independent)
+        self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
+        self.assertEqual(ci.type_name, "xbrli:stringItemType")
+        self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
         ci = tax.concept_info("dei:LegalEntityIdentifier")
         self.assertIsNotNone(ci)
@@ -49,10 +67,10 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.id, "dei:LegalEntityIdentifier")
         self.assertEqual(ci.name, "LegalEntityIdentifier")
         self.assertTrue(ci.nillable)
-        self.assertEqual(ci.period_independent, None)
-        self.assertEqual(ci.substitution_group, "xbrli:item")
+        self.assertFalse(ci.period_independent)
+        self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
         self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
-        self.assertEqual(ci.period_type, "duration")
+        self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
     def test_concepts_ep(self):
         self.assertEqual(len(tax.concepts_ep("MonthlyOperatingReport")), 84)
@@ -76,8 +94,14 @@ class TestTaxonomySemantic(unittest.TestCase):
         for ci in tax.concepts_info_ep("Utility"):
             self.assertEqual(ci, tax.concept_info(ci.id))
 
-    def elements(self):
+    def test_elements(self):
         self.assertIsNotNone(tax.elements())
+
+    def test_type_names(self):
+        self.assertEqual(len(tax.type_names()), 76)
+
+    def test_entry_points(self):
+        self.assertEqual(len(tax.entry_points()), 158)
 
     def test_relationships_ep(self):
         self.assertIsNone(tax.relationships_ep("Arggh"))

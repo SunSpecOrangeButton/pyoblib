@@ -1,4 +1,4 @@
-"""Semantic taxonomy classes."""
+# Copyright 2018 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Semantic taxonomy classes."""
+
 import os
 import xml.sax
 
-import taxonomy
-import validator
 import constants
+import taxonomy
+import util
+import validator
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -38,10 +41,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
             element = taxonomy.Element()
             for item in attrs.items():
                 if item[0] == "abstract":
-                    if item[1] == "false":
-                        element.abstact = False
-                    else:
-                        element.abstract = True
+                    element.abstract = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "id":
                     # Turn the first underscore (only the first) into
                     # a colon. For example, the concept named
@@ -53,18 +53,18 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "name":
                     element.name = item[1]
                 elif item[0] == "nillable":
-                    if item[1] == "false":
-                        element.nillable = False
-                    else:
-                        element.nillable = True
+                    element.nillable = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "solar:periodIndependent":
-                    element.period_independent = item[1]
+                    element.period_independent = util.convert_taxonomy_bool(item[1])
                 elif item[0] == "substitutionGroup":
-                    element.substitution_group = item[1]
+                    element.substitution_group = taxonomy.SubstitutionGroup(item[1])
                 elif item[0] == "type":
                     element.type_name = item[1]
                 elif item[0] == "xbrli:periodType":
-                    element.period_type = item[1]
+                    #element.period_type = item[1]
+                    element.period_type = taxonomy.PeriodType(item[1])
+                elif item[0] == "xbrldt:typedDomainRef":
+                    element.typed_domain_ref = item[1]
             self._elements[element.id] = element
 
     def elements(self):
@@ -246,6 +246,14 @@ class TaxonomySemantic(object):
         """Return a map of elements."""
         return self._elements
 
+    def type_names(self):
+        """Return an array of strings representing all data types in elements"""
+
+        type_names = set()
+        for e in self._elements:
+            type_names.add(self._elements[e].type_name)
+        return list(type_names)
+
     def validate_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""
         found = False
@@ -285,7 +293,7 @@ class TaxonomySemantic(object):
             return False
 
     def concepts_ep(self, data):
-        """Return a list of all concepts in an end point."""
+        """Return a list of all concepts in an entry point."""
         if data in self._concepts:
             return self._concepts[data]
         else:
@@ -293,10 +301,10 @@ class TaxonomySemantic(object):
 
     def relationships_ep(self, entry_point):
         """
-        Return a list of all relationships in an entry point.
-
-        Returns an empty list if the concept exists but has no relationships.
+        Returns a list of all relationships in an entry point
+        Returns an empty list if the concept exists but has no relationships
         """
+
         if entry_point in self._concepts:
             if entry_point in self._relationships:
                 return self._relationships[entry_point]
@@ -304,6 +312,13 @@ class TaxonomySemantic(object):
                 return []
         else:
             return None
+
+    def entry_points(self):
+        """
+        Returns a list of all entry points (data, documents, and processes) in the Taxonomy.
+        """
+    
+        return list(self._concepts)
 
     def concept_info(self, concept):
         """Return information on a single concept."""
@@ -332,15 +347,14 @@ class TaxonomySemantic(object):
                 if concept in self._elements:
                     ci.append(self._elements[concept])
                 else:
-                    # TODO: This case is not correctly understood.
+                    # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
+                    # Remove this comment once completed.
                     # Here are some samples that are not found:
                     # Warning, concept not found: solar:MeterRatingAccuracy_1
                     # Warning, concept not found: solar:MeterRevenueGrade_1
                     # Warning, concept not found: solar:MeterBidirectional_1
                     # Warning, concept not found: solar:RevenueMeterPowerFactor_1
                     # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                    # This case should be understood and handled correctly as
-                    # opposed to just printing a warning message.
                     # print("Warning, concept not found:", concept)
                     pass
             return ci
