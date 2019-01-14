@@ -79,6 +79,7 @@ def xbrli_boolean_item_type_validator(value, concept):
     if type(value) is str:
         if re.search(r'\d', value):
             if len(re.findall(r'0*(1|0)', value)) is not 1:
+                errors += ["'{}' is not a valid boolean value.".format(value)]
         elif value.lower() not in ['true', 'false']:
             errors += ["'{}' is not a valid boolean value.".format(value)]
     elif type(value) is int:
