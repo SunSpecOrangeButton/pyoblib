@@ -77,12 +77,28 @@ def xbrli_boolean_item_type_validator(value, concept):
     """XBRLI boolean validator."""
     errors = []
     if type(value) is str:
-        if value.lower() not in ['true', 'false']:
+        if re.search(r'\d', value):
+            if len(re.findall(r'0*(1|0)', value)) is not 1:
+        elif value.lower() not in ['true', 'false']:
+            errors += ["'{}' is not a valid boolean value.".format(value)]
+    elif type(value) is int:
+        if not (value is 1 or value is 0):
             errors += ["'{}' is not a valid boolean value.".format(value)]
     elif type(value) is not bool:
         errors += ["'{}' is not a valid boolean value.".format(value)]
     return errors
 
+def xbrli_decimal_item_type_validator(value, concept):
+    """XBRLI decimal validator"""
+    errors = []
+    if type(value) is str:
+        if re.search(r'[^0-9.]', value):
+            errors += ["'{} is not a valid decimal value.".format(value)]
+        elif len(re.findall(r'(\d*\.\d+|\d+)', value)) is not 1:
+            errors += ["'{} is not a valid decimal value.".format(value)]
+    elif type(value).__name__ not in ['float', 'int']:
+        errors += ["'{} is not a valid decimal value.".format(value)]
+    return errors
 
 def xbrli_string_item_type_validator(value, concept):
     """XBRLI string validator."""
