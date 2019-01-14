@@ -21,6 +21,10 @@ import taxonomy
 from datetime import date
 from datetime import datetime
 
+BOOLEAN_TRUE = ['true', 't', 'y', '1']
+BOOLEAN_FALSE = ['false', 'f', 'n', '0']
+BOOLEAN_VALUES = BOOLEAN_TRUE + BOOLEAN_FALSE
+
 # TODO: There are several main improvements at this point in time:
 #
 #  1) Currently Python types (int, bool, str) are supported for values.
@@ -84,41 +88,55 @@ def get_validator_method_name(type_name):
 def generic_enum_validator(value, concept, enum):
     errors = []
     if (value not in enum):
-        errors += ["Value '{}' is not found in enum list for type '{}'.".format(value, concept.type_name)]
+        errors.append("Value '{}' is not found in enum list for type '{}'."
+                      .format(value, concept.type_name))
     return errors
 
 # validators implementation
 # TODO: could be moved to other file and loaded and even loading custom
 # validator files
 
-def xbrli_boolean_item_type_validator(value, concept):
-    """XBRLI boolean validator."""
+def xbrli_boolean_item_type_validator(value):
+    """Returns python boolean if value can be converted"""
     errors = []
-    if type(value) is str:
-        if value.lower() not in ['true', 'false']:
-            errors += ["'{}' is not a valid boolean value.".format(value)]
-    elif type(value) is not bool:
-        errors += ["'{}' is not a valid boolean value.".format(value)]
-    return errors
+    if value is True:
+        pass
+    elif value is False:
+        pass
+    else:
+        # value is not a boolean
+        if str(value).lower() in BOOLEAN_VALUES:
+            value = str(value).lower() in BOOLEAN_TRUE
+        else:
+            errors.append("'{}' is not a valid boolean value.".format(value))
+    return value, errors
 
-def xbrli_string_item_type_validator(value, concept):
-    """XBRLI string validator."""
-    errors = []
-    if type(value).__name__ not in ["str", "unicode"]:
-        errors += ["'{}' is not a valid string value.".format(value)]
-    return errors
 
-def xbrli_integer_item_type_validator(value, concept):
-    """XBRLI int validator."""
+def xbrli_string_item_type_validator(value):
+    """Returns python str if value can be converted"""
     errors = []
-    if type(value) is str:
+    try:
+        value = str(value)
+    except:
+#        if type(value).__name__ not in ["str", "unicode"]:
+        errors.append("'{}' is not a valid string value.".format(value))
+    return value, errors
+
+
+def xbrli_integer_item_type_validator(value):
+    """Returns python int if value can be converted"""
+    errors = []
+    if isinstance(value, int):
+        value = int(value)
+    elif isinstance(value, str):
         try:
-            result = int(value)
-        except ValueError as ex:
-            errors += ["'{}' is not a valid integer value.".format(value)]
-    elif type(value) is not int:
-        errors += ["'{}' is not a valid integer value.".format(value)]
-    return errors
+            value = int(value)
+        except:
+            errors.append("'{}' is not a valid integer value.".format(value))
+    else:
+        errors.append("'{}' is not a valid integer value.".format(value))
+    return value, errors
+
 
 def xbrli_decimal_item_type_validator(value, concept):
     """XBRLI decimal validator."""
