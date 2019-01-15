@@ -732,6 +732,31 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     # TODO test conversion to XML and JSON when duration has start and end.
 
+    def test_set_default_multiple_times(self):
+        # set default for some fields, then set default again for different
+        # fields, assert the non-replaced fields keep old values.
+        doc = Entrypoint("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                                 "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                                })
+
+        doc.set_default_context({PeriodType.instant: now,
+                                 PeriodType.duration: "forever"})
+
+        # The second set_default_context should not erase defaults for entity or
+        # TestConditionAxis
+        doc.set("solar:DeviceCost", "100", unit_name="USD", ProductIdentifierAxis = "placeholder")
+        fact = doc.get("solar:DeviceCost", Context(
+            ProductIdentifierAxis = "placeholder",
+            TestConditionAxis = "solar:StandardTestConditionMember",
+            entity = "JUPITER",
+            instant = now))
+        self.assertEqual(fact.value, "100")
+        self.assertEqual(fact.unit, "USD")
+        self.assertEqual(fact.context.entity, "JUPITER")
+        self.assertEqual(fact.context.instant, now)
+
     def test_validate_values_for_enumerated_solar_data_types(self):
         # solar-specific data types (Defined in a document we don't have:
         # xmlns:solar-types="http://xbrl.us/dtr/type/solar-types"

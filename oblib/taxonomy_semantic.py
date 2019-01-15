@@ -209,10 +209,17 @@ class TaxonomySemantic(object):
     def _load_relationships(self):
         relationships = {}
         for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "data")):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data", dirname)):
+                if 'def.' in filename:
+                    relationships[dirname] = self._load_relationships_file(os.path.join("data", dirname, filename))
+
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "documents")):
             for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
+
         return relationships
 
     def _reduce_memory_footprint(self):

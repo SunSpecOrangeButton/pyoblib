@@ -203,3 +203,60 @@ class TaxonomyRefParts(object):
         else:
             return False
 
+class _TaxonomyDocstringHandler(xml.sax.ContentHandler):
+    """Loads Taxonomy Docstrings from Labels file"""
+
+    def __init__(self):
+        """Ref parts constructor."""
+        self._docstrings = {}
+        self._awaiting_text_for_concept = None
+
+    def startElement(self, name, attrs):
+        # Technically we should be using the labelArc element to connect a label
+        # element to a loc element and the loc element refers to a concept by its anchor
+        # within the main xsd, but that's really complicated and in practice the
+        # xlink:label atrr in the <label> element seems to always be "label_" plus the
+        # name of the concept.
+        concept = None
+        role = None
+        if name == "label":
+            for item in attrs.items():
+                # Do we care about the difference between xlink:role="http:.../documentation"
+                # and xlink:role="http:.../label" ??
+                if item[0] == "xlink:label":
+                    concept = item[1].replace("label_solar_", "solar:")
+                if item[0] == "xlink:role":
+                    role = item[1]
+        if concept is not None and role == "http://www.xbrl.org/2003/role/documentation":
+            self._awaiting_text_for_concept = concept
+
+    def characters(self, chars):
+        if self._awaiting_text_for_concept is not None:
+            self._docstrings[ self._awaiting_text_for_concept ] = chars
+
+    def endElement(self, name):
+        self._awaiting_text_for_concept = None
+
+    def docstrings(self):
+        return self._docstrings
+
+
+class TaxonomyDocstrings(object):
+    """
+    Loads the documentation strings for each concept from solar_2018-03-31_r01_lab.xml
+    """
+    def __init__(self):
+        self._docstrings = self._load_docstrings()
+
+    def _load_docstrings(self):
+        label_file = "solar_2018-03-31_r01_lab.xml"
+        filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
+
+        tax = _TaxonomyDocstringHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(tax)
+        parser.parse(open(filename))
+        return tax.docstrings()
+
+    def docstrings(self):
+        return self._docstrings
