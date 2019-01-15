@@ -176,6 +176,10 @@ def xbrli_date_item_type_validator(value, concept):
         errors += ["'{}' is not a valid date value.".format(value)]
     return errors
 
+def solar_document_identifier_appraisal(value, concept):
+    """SOLAR Document Identifier Appraisal validator"""
+    return xbrli_boolean_item_type_validator(value, concept)
+
 def xbrli_duration_item_type_validator(value, concept):
     """XBRLI duration validator."""
     return xbrli_integer_item_type_validator(value, concept)
