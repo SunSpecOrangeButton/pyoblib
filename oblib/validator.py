@@ -44,6 +44,7 @@ BOOLEAN_VALUES = BOOLEAN_TRUE + BOOLEAN_FALSE
 def validate_concept_value(concept, value):
     """Validate a concept."""
     errors = []
+    result = value, []
     # If null check if nillable is ok and return
     if value is None and not concept.nillable:
         errors += ["'{}' is not allowed to be nillable (null).".format(concept.id)]
@@ -56,11 +57,11 @@ def validate_concept_value(concept, value):
         found_method = getattr(validator_module, method_name, None)
         if found_method is not None:
             if is_enum:
-                errors += found_method(value, concept, enum)
+                result = found_method(value, enum)
             else:
-                errors += found_method(value, concept)
+                result = found_method(value)
         elif is_enum:
-            errors += generic_enum_validator(value, concept, enum)
+            result = generic_enum_validator(value, concept, enum)
         else:
             raise Exception("Concept '{}' could not be processed. Missing method '{}'.".format(concept.type_name, method_name))
 
@@ -71,7 +72,8 @@ def validate_concept_value(concept, value):
             errors += ["'{}' is not valid identifier.".format(concept.id)]
 
     # If all conditions clear then the value passes.
-    return errors
+    errors += result[1]
+    return result[0], errors
 
 
 def get_validator_method_name(type_name):
@@ -90,7 +92,7 @@ def generic_enum_validator(value, concept, enum):
     if (value not in enum):
         errors.append("Value '{}' is not found in enum list for type '{}'."
                       .format(value, concept.type_name))
-    return errors
+    return value, errors
 
 # validators implementation
 # TODO: could be moved to other file and loaded and even loading custom
@@ -138,7 +140,7 @@ def xbrli_integer_item_type_validator(value):
     return value, errors
 
 
-def xbrli_decimal_item_type_validator(value, concept):
+def xbrli_decimal_item_type_validator(value):
     """XBRLI decimal validator."""
     errors = []
     if type(value) is str:
@@ -148,9 +150,9 @@ def xbrli_decimal_item_type_validator(value, concept):
             errors += ["'{}' is not a valid decimal value.".format(value)]
     elif type(value) is not int:
         errors += ["'{}' is not a valid decimal value.".format(value)]
-    return errors
+    return value, errors
 
-def xbrli_monetary_item_type_validator(value, concept):
+def xbrli_monetary_item_type_validator(value):
     """XBRLI monetary validator."""
     errors = []
     if type(value) is str:
@@ -160,9 +162,9 @@ def xbrli_monetary_item_type_validator(value, concept):
             errors += ["'{}' is not a valid monetary value.".format(value)]
     elif type(value) is not int:
         errors += ["'{}' is not a valid monetary value.".format(value)]
-    return errors
+    return value, errors
 
-def xbrli_date_item_type_validator(value, concept):
+def xbrli_date_item_type_validator(value):
     """XBRLI date validator."""
     errors = []
     if type(value) is str:
@@ -174,84 +176,85 @@ def xbrli_date_item_type_validator(value, concept):
     elif type(value) is not date:
         print("{} is not {}".format(type(value), type(date)))
         errors += ["'{}' is not a valid date value.".format(value)]
-    return errors
+    return value, errors
 
-def solar_document_identifier_appraisal(value, concept):
+def solar_document_identifier_appraisal(value):
     """SOLAR Document Identifier Appraisal validator"""
-    return xbrli_boolean_item_type_validator(value, concept)
+    return xbrli_boolean_item_type_validator(value)
 
-def xbrli_duration_item_type_validator(value, concept):
+def xbrli_duration_item_type_validator(value):
     """XBRLI duration validator."""
-    return xbrli_integer_item_type_validator(value, concept)
-def num_power_item_type_validator(value, concept):
+    return xbrli_integer_item_type_validator(value)
+
+def num_power_item_type_validator(value):
     """NUM power validator."""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_percent_item_type_validator(value, concept):
+def num_percent_item_type_validator(value):
     """NUM percent validator."""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def dei_legal_entity_identifier_item_type_validator(value, concept):
+def dei_legal_entity_identifier_item_type_validator(value):
     """DEI Legal Entity Identifier"""
-    return xbrli_string_item_type_validator(value, concept)
+    return xbrli_string_item_type_validator(value)
 
-def xbrli_any_uri_item_type_validator(value, concept):
+def xbrli_any_uri_item_type_validator(value):
     """XBRLI Any URI validator"""
-    return xbrli_string_item_type_validator(value, concept)
+    return xbrli_string_item_type_validator(value)
 
-def num_us_electric_current_item_type_validator(value, concept):
+def num_us_electric_current_item_type_validator(value):
     """NUM US Electric Current validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_frequency_item_type_validator(value, concept):
+def num_us_frequency_item_type_validator(value):
     """NUM US Frequency validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_insolation_item_type_validator(value, concept):
+def num_us_insolation_item_type_validator(value):
     """NUM US Insolation validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_irradiance_item_type_validator(value, concept):
+def num_us_irradiance_item_type_validator(value):
     """NUM US Irradience validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_plane_angle_item_type_validator(value, concept):
+def num_us_plane_angle_item_type_validator(value):
     """NUM US Plane Angle validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_pressure_item_type_validator(value, concept):
+def num_us_pressure_item_type_validator(value):
     """NUM US Pressure validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_speed_item_type_validator(value, concept):
+def num_us_speed_item_type_validator(value):
     """NUM US Speed validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_temperature_item_type_validator(value, concept):
+def num_us_temperature_item_type_validator(value):
     """NUM US Temperature validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_us_voltage_item_type_validator(value, concept):
+def num_us_voltage_item_type_validator(value):
     """NUM US Voltage validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_area_item_type_validator(value, concept):
+def num_area_item_type_validator(value):
     """NUM Area validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_energy_item_type_validator(value, concept):
+def num_energy_item_type_validator(value):
     """NUM Energy validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_length_item_type_validator(value, concept):
+def num_length_item_type_validator(value):
     """NUM Length validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_mass_item_type_validator(value, concept):
+def num_mass_item_type_validator(value):
     """NUM Mass validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 
-def num_volume_item_type_validator(value, concept):
+def num_volume_item_type_validator(value):
     """NUM Volume validator"""
-    return xbrli_decimal_item_type_validator(value, concept)
+    return xbrli_decimal_item_type_validator(value)
 

@@ -25,35 +25,36 @@ class TestValidator(unittest.TestCase):
         concept = taxonomy.Element()
         concept.id = "SomeId"
         concept.nillable = False
-        self.assertEqual(1, len(validator.validate_concept_value(concept, None)))
+        self.assertEqual(1, len(validator.validate_concept_value(concept, None)[1]))
         concept.nillable = True
-        self.assertEqual(0, len(validator.validate_concept_value(concept, None)))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, None)[1]))
 
         concept.type_name = "xbrli:booleanItemType"
-        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")))
-        self.assertEqual(1, len(validator.validate_concept_value(concept, 52)))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, False)))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, True)))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, "False")))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, "True")))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, "false")))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, "true")))
+        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")[1]))
+        self.assertEqual(1, len(validator.validate_concept_value(concept, 52)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, False)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, True)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, "False")[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, "True")[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, "false")[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, "true")[1]))
 
         concept.type_name = "xbrli:integerItemType"
-        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")))
-        self.assertEqual(1, len(validator.validate_concept_value(concept, True)))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, 52)))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, -52)))
+        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")[1]))
+        #TODO: True value can be converted to integer value 1
+        self.assertEqual(0, len(validator.validate_concept_value(concept, True)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, 52)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, -52)[1]))
 
         concept.type_name = "xbrli:stringItemType"
-        self.assertEqual(1, len(validator.validate_concept_value(concept, False)))
-        self.assertEqual(1, len(validator.validate_concept_value(concept, 52)))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, "Arf")))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, "")))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, False)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, 52)[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, "Arf")[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, "")[1]))
 
         concept.id = "SomeIdentifier"
-        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")))
-        self.assertEqual(0, len(validator.validate_concept_value(concept, identifier.identifier())))
+        self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")[1]))
+        self.assertEqual(0, len(validator.validate_concept_value(concept, identifier.identifier())[1]))
 
     def test_get_validator_method_name(self):
         type_name = "xbrli:booleanItemType"

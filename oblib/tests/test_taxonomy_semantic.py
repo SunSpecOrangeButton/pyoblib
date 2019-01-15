@@ -116,10 +116,11 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertTrue(tax.validate_concept("dei:LegalEntityIdentifier"))
 
     def test_concept_value(self):
-        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")))
+        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")[1]))
         self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicaionPlan", "Arff")))
-        self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37)))
-        self.assertEqual(1, len(tax.validate_concept_value("dei:LegalEntityIdentifier", "5493006MHB84DD0ZWV18")))
+        #TODO: 37 can be converted to valid string
+        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37)[1]))
+        self.assertEqual(1, len(tax.validate_concept_value("dei:LegalEntityIdentifier", "5493006MHB84DD0ZWV18")[1]))
 
         # TODO: Once the validator is fully working test a large number of cases.
 
