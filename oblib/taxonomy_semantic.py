@@ -172,10 +172,6 @@ class TaxonomySemantic(object):
 
     def _load_concepts(self):
         """Return a dict of available concepts."""
-        # TODO: Better understand the relationship of "def" vs. "pre" xml
-        # files. Using pre seems to load a more accurate representation
-        # of the taxonomy but this was found via trial and error as opposed
-        # to a scientific methodology.
         concepts = {}
         for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "data")):
