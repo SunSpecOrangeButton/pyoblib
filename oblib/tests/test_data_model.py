@@ -60,11 +60,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                       ["solar:InverterPowerLevelTable",
                                        "solar:CutSheetDetailsTable"])
         self._check_arrays_equivalent(
-            doc.get_table("solar:InverterPowerLevelTable").axes(),
+            doc.get_table("solar:InverterPowerLevelTable").get_axes(),
                          ["solar:ProductIdentifierAxis",
                           "solar:InverterPowerLevelPercentAxis"])
         self._check_arrays_equivalent(
-            doc.get_table("solar:CutSheetDetailsTable").axes(),
+            doc.get_table("solar:CutSheetDetailsTable").get_axes(),
                          ["solar:ProductIdentifierAxis",
                           "solar:TestConditionAxis"])
 
@@ -73,15 +73,15 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # The CutSheet instance should know that RevenueMeterFrequency
         # is a concept that belongs in the CutSheetDetailsTable
         table = doc.get_table_for_concept("solar:RevenueMeterFrequency")
-        self.assertEqual(table.name(), "solar:CutSheetDetailsTable")
+        self.assertEqual(table.get_name(), "solar:CutSheetDetailsTable")
 
         table = doc.get_table_for_concept("solar:InverterEfficiencyAtVmaxPercent")
-        self.assertEqual(table.name(), "solar:InverterPowerLevelTable")
+        self.assertEqual(table.get_name(), "solar:InverterPowerLevelTable")
 
         # but if we ask for something that is not a line item concept,
         # we should get back the non-table:
         table = doc.get_table_for_concept("solar:CutSheetDetailsTable")
-        self.assertEqual(table.name(), UNTABLE)
+        self.assertEqual(table.get_name(), UNTABLE)
 
     def test_can_write_concept(self):
         doc = Entrypoint("CutSheet", self.taxonomy)
@@ -490,10 +490,10 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = Entrypoint("CutSheet", self.taxonomy)
         table = doc.get_table("solar:CutSheetDetailsTable")
 
-        self.assertTrue( table.axis_value_within_domain("solar:TestConditionAxis",
+        self.assertTrue( table.is_axis_value_within_domain("solar:TestConditionAxis",
                                                      "solar:StandardTestConditionMember") )
 
-        self.assertFalse( table.axis_value_within_domain("solar:TestConditionAxis",
+        self.assertFalse( table.is_axis_value_within_domain("solar:TestConditionAxis",
                                                      "solar:InverterPowerLevel100PercentMember"))
 
         concept = 'solar:InverterOutputRatedPowerAC'

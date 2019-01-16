@@ -140,11 +140,11 @@ class Hypercube(object):
                         axis.domainMembers.append( member )
         
 
-    def name(self):
+    def get_name(self):
         """Return table name."""
         return self._table_name
 
-    def axes(self):
+    def get_axes(self):
         """Return a list of strings which are the names of the table's axes."""
         return list(self._axes.keys())
 
@@ -184,12 +184,12 @@ class Hypercube(object):
                 return context
         return None
 
-    def to_XML(self):
+    def _toXML(self):
         """
         Returns a list of XML tags representing all the contexts in the table,
         ready to be added to an ElementTree.
         """
-        return [context.to_XML() for context in self.contexts]
+        return [context._toXML() for context in self.contexts]
 
     def is_typed_dimension(self, dimensionName):
         """
@@ -225,7 +225,7 @@ class Hypercube(object):
         axis = self._axes[dimensionName]
         return axis.domainMembers
 
-    def axis_value_within_domain(self, dimensionName, dimensionValue):
+    def is_axis_value_within_domain(self, dimensionName, dimensionValue):
         """
         dimensionName: a string naming one of the dimensions of this table.
         dimensionValue: a string containing a proposed value for that dimension
@@ -244,7 +244,7 @@ class Hypercube(object):
 
         return dimensionValue in axis.domainMembers
 
-    def sufficient_context(self, context):
+    def validate_context(self, context):
         """
         context: a Context object
         returns True if the given context provides valid values for all axes required
@@ -262,7 +262,7 @@ class Hypercube(object):
             axis = self._axes[axis_name]
             if self.is_typed_dimension(axis_name):
                 axis_value = context.axes[axis_name]
-                if not self.axis_value_within_domain(axis_name, axis_value):
+                if not self.is_axis_value_within_domain(axis_name, axis_value):
                     raise OBContextException(
                         "{} is not a valid value for the axis {}.".format(
                         axis_value, axis_name))
@@ -362,7 +362,7 @@ class Context(object):
     def get_id(self):
         return self._id
 
-    def to_XML(self):
+    def _toXML(self):
         # if neither prod_month nor instant is provided, then period will
         # be "forever"
         context = Element("context", attrib={"id": self.get_id()})
@@ -409,7 +409,7 @@ class Context(object):
                 explicit.text = str(self.axes[dimension])
         return context
 
-    def to_JSON(self):
+    def _toJSON(self):
         """
         Returns context's entity, period, and extra dimensions as JSON dictionary
         object.
@@ -461,7 +461,7 @@ class Fact(object):
         self.unit = unit
         self.decimals = decimals
 
-    def to_XML(self):
+    def _toXML(self):
         """
         Return the Fact as an XML element.
         """
@@ -482,11 +482,11 @@ class Fact(object):
         return elem
 
 
-    def to_JSON(self):
+    def _toJSON(self):
         """
         Return the Fact as a JSON dictionary object
         """
-        aspects = self.context.to_JSON()
+        aspects = self.context._toJSON()
         aspects["xbrl:concept"] = self.concept
         if self.unit is not None:
             aspects["xbrl:unit"] = self.unit
@@ -896,7 +896,7 @@ class Entrypoint(object):
         # required axes, if this concept is on a table:
         table = self.get_table_for_concept(concept_name)
         if table is not None:
-            table.sufficient_context(context)
+            table.validate_context(context)
 
         return True
 
@@ -1020,13 +1020,13 @@ class Entrypoint(object):
 
         # self.facts is nested dict keyed first on table then on context ID
         # and finally on concept:
-        if not table.name() in self.facts:
-            self.facts[table.name()] = {}
-        if not context.get_id() in self.facts[table.name()]:
-            self.facts[table.name()][context.get_id()] = {}
+        if not table.get_name() in self.facts:
+            self.facts[table.get_name()] = {}
+        if not context.get_id() in self.facts[table.get_name()]:
+            self.facts[table.get_name()][context.get_id()] = {}
         # TODO simplify above with defaultdict
         
-        self.facts[table.name()][context.get_id()][concept_name] = f
+        self.facts[table.get_name()][context.get_id()][concept_name] = f
         # Or: we could keep facts in a flat list, and get() could look them
         # up by getting context from hypercube and getting fact from context
 
@@ -1054,10 +1054,10 @@ class Entrypoint(object):
         # concept regardless of context, or vice versa.
         table = self.get_table_for_concept(concept)
         context = table.lookup_context(context)
-        if table.name() in self.facts:
-            if context.get_id() in self.facts[table.name()]:
-                if concept in self.facts[table.name()][context.get_id()]:
-                    return self.facts[table.name()][context.get_id()][concept]
+        if table.get_name() in self.facts:
+            if context.get_id() in self.facts[table.get_name()]:
+                if concept in self.facts[table.get_name()][context.get_id()]:
+                    return self.facts[table.get_name()][context.get_id()][concept]
         return None
 
     def get_facts(self):
@@ -1086,7 +1086,7 @@ class Entrypoint(object):
         return unit
 
 
-    def to_XML_tag(self):
+    def _toXML_tag(self):
         """
         Returns an XML tag which is the root of an XML tree representing
         the entire document contents (all contexts, units, and facts) in XML form.
@@ -1101,7 +1101,7 @@ class Entrypoint(object):
 
         # Add a context tag for each context we want to reference:
         for hypercube in list(self._tables.values()):
-            tags = hypercube.to_XML()
+            tags = hypercube._toXML()
             for tag in tags:
                 xbrl.append(tag)
 
@@ -1113,7 +1113,7 @@ class Entrypoint(object):
             xbrl.append(self._make_unit_tag(unit))
 
         for fact in self.get_facts():
-            xbrl.append( fact.to_XML() )
+            xbrl.append( fact._toXML() )
 
         return xbrl
 
@@ -1123,7 +1123,7 @@ class Entrypoint(object):
 
         To ensure future support use the method with the same name and functionality in Parser.
         """
-        xbrl = self.to_XML_tag()
+        xbrl = self._toXML_tag()
         tree = xml.etree.ElementTree.ElementTree(xbrl)
         # Apparently every XML file should start with this, which ElementTree
         # doesn't do:
@@ -1136,7 +1136,7 @@ class Entrypoint(object):
 
         To ensure future support use the method with the same name and functionality in Parser.
         """
-        xbrl = self.to_XML_tag()
+        xbrl = self._toXML_tag()
         return xml.etree.ElementTree.tostring(xbrl).decode()
 
 
@@ -1172,7 +1172,7 @@ class Entrypoint(object):
         facts = self.get_facts()
 
         for fact in facts:
-            masterJsonObj["facts"].append( fact.to_JSON() )
+            masterJsonObj["facts"].append( fact._toJSON() )
         return json.dumps(masterJsonObj)
 
     def set_default_context(self, dictionary):
@@ -1219,7 +1219,7 @@ class Entrypoint(object):
         # If any axis that the table wants is missing, fill in axis from defaults:
         table = self.get_table_for_concept(concept.name)
         if table is not None:
-            for axis_name in table.axes():
+            for axis_name in table.get_axes():
                 if axis_name in self._default_context and axis_name not in context.axes:
                     context.axes[axis_name] = self._default_context[axis_name]
         return context
