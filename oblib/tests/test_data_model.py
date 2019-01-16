@@ -586,7 +586,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         concept = doc.get_concept_by_name("solar:TransformerStyle") # string
         self.assertTrue(concept.validate_datatype("Autobot"))
         self.assertTrue(concept.validate_datatype("Decepticon"))
-        self.assertFalse(concept.validate_datatype(99.99))
+        #TODO: 99.99 can be converted to valid string
+        self.assertTrue(concept.validate_datatype(99.99))
 
         concept = doc.get_concept_by_name("solar:TransformerDesignFactor") # decimal
         self.assertTrue(concept.validate_datatype("0.99"))
