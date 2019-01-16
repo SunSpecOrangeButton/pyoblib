@@ -58,8 +58,8 @@ class TestValidator(unittest.TestCase):
 
     def test_get_validator_method_name(self):
         type_name = "xbrli:booleanItemType"
-        method_name_expected = "xbrli_boolean_item_type_validator"
-        method_name_result = validator.get_validator_method_name(type_name)
+        method_name_expected = "_xbrli_boolean_item_type_validator"
+        method_name_result = validator._get_validator_method_name(type_name)
         self.assertEqual(method_name_expected, method_name_result)
 
     def test_xbrli_boolean_item_type_validator(self):
@@ -70,7 +70,7 @@ class TestValidator(unittest.TestCase):
                   5.1: (5.1, ["'{}' is not a valid boolean value.".format(5.1)]),
                   'foo': ('foo', ["'{}' is not a valid boolean value.".format('foo')])}
         for v in values.keys():
-            result = validator.xbrli_boolean_item_type_validator(v)
+            result = validator._xbrli_boolean_item_type_validator(v)
             self.assertEqual(result[0], values[v][0])
             if values[v][1]: # error messages are present
                 self.assertTrue(result[1])
@@ -81,7 +81,7 @@ class TestValidator(unittest.TestCase):
         values = {'frog': ('frog', []), 'Frog': ('Frog', []),
                   True: ('True', []), 0.3: ('0.3', [])}
         for v in values.keys():
-            result = validator.xbrli_string_item_type_validator(v)
+            result = validator._xbrli_string_item_type_validator(v)
             self.assertEqual(result[0], values[v][0])
             if values[v][1]: # error messages are present
                 self.assertTrue(result[1])
@@ -93,7 +93,7 @@ class TestValidator(unittest.TestCase):
                   'a': ('a', ["'{}' is not a valid integer value.".format('a')]),
                   5.1: (5.1, ["'{}' is not a valid integer value.".format(5.1)])}
         for v in values.keys():
-            result = validator.xbrli_integer_item_type_validator(v)
+            result = validator._xbrli_integer_item_type_validator(v)
             self.assertEqual(result[0], values[v][0])
             if values[v][1]: # error messages are present
                 self.assertTrue(result[1])
