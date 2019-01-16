@@ -53,7 +53,7 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "itemType":
             self._curr.item_type = self._content
         elif name == "itemTypeDate":
-            self._curr.item_type_date = util.convert_taxonomy_date(self._content)
+            self._curr.item_type_date = util.convert_taxonomy_xsd_date(self._content)
         elif name == "symbol":
             self._curr.symbol = self._content
         elif name == "definition":
@@ -63,7 +63,7 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "status":
             self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
-            self._curr.version_date = util.convert_taxonomy_date(self._content)
+            self._curr.version_date = util.convert_taxonomy_xsd_date(self._content)
 
     def units(self):
         return self._units

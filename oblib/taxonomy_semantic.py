@@ -41,7 +41,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
             element = taxonomy.Element()
             for item in attrs.items():
                 if item[0] == "abstract":
-                    element.abstract = util.convert_taxonomy_bool(item[1])
+                    element.abstract = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "id":
                     # Turn the first underscore (only the first) into
                     # a colon. For example, the concept named
@@ -53,9 +53,9 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "name":
                     element.name = item[1]
                 elif item[0] == "nillable":
-                    element.nillable = util.convert_taxonomy_bool(item[1])
+                    element.nillable = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "solar:periodIndependent":
-                    element.period_independent = util.convert_taxonomy_bool(item[1])
+                    element.period_independent = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "substitutionGroup":
                     element.substitution_group = taxonomy.SubstitutionGroup(item[1])
                 elif item[0] == "type":
