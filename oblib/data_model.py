@@ -112,7 +112,7 @@ class Hypercube(object):
                 if relation['from'] == self._table_name:
                     axis_name = relation['to']
                     if not axis_name in self._axes:
-                        concept = entry_point.get_concept_by_name(axis_name)
+                        concept = entry_point.get_concept(axis_name)
                         self._axes[axis_name] = Axis(concept)
 
         # If there's an arcrole of "all" then the "from" is a LineItems
@@ -209,7 +209,7 @@ class Hypercube(object):
             return axis.domain
         
         concept = self._axes[dimensionName].concept
-        domain_ref = concept.get_metadata("typed_domain_ref")
+        domain_ref = concept.get_details("typed_domain_ref")
         
         if domain_ref is not None:
             # The typed_domain_ref metadata property will contain something like
@@ -518,7 +518,7 @@ class Concept(object):
             print("Warning: no metadata found for {}".format(concept_name))
 
 
-    def get_metadata(self, field_name):
+    def get_details(self, field_name):
         """
         Returns the concept metadata value for the named field, or None if there
         is no value for that field. Accepted field_names are:
@@ -562,7 +562,7 @@ class Concept(object):
         False otherwise.
         """
         return not validator.validate_concept_value(self.metadata, value)[1]
-        myType = self.get_metadata("type_name")
+        myType = self.get_details("type_name")
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):
                 return True
@@ -770,11 +770,11 @@ class Entrypoint(object):
                 if parent_name.endswith("_1") or child_name.endswith("_1"):
                     # These are the duplicate concept names and are unwanted
                     continue
-                parent = self.get_concept_by_name(parent_name)
-                child = self.get_concept_by_name(child_name)
+                parent = self.get_concept(parent_name)
+                child = self.get_concept(child_name)
                 parent.add_child(child)
 
-    def get_concept_by_name(self, concept_name):
+    def get_concept(self, concept_name):
         """
         Returns the Concept instance object matching given concept_name string.
         """
@@ -836,9 +836,9 @@ class Entrypoint(object):
         Return list of strings naming all concepts that can be written to this
         document.
         """
-        return [c for c in self._all_my_concepts if self.can_write_concept(c)]
+        return [c for c in self._all_my_concepts if self.is_concept_writable(c)]
 
-    def can_write_concept(self, concept_name):
+    def is_concept_writable(self, concept_name):
         """
         Return whether a concept is writable.
 
@@ -855,7 +855,7 @@ class Entrypoint(object):
             return True
         return False
 
-    def sufficient_context(self, concept_name, context):
+    def validate_context(self, concept_name, context):
         """
         True if the given Context object contains all the information
         needed to provide full context for the named concept -- sufficient
@@ -864,7 +864,7 @@ class Entrypoint(object):
         Otherwise, raises an exception explaining what is wrong.
         """
         # TODO Refactor to put this logic into the Concept?
-        period_type = self.get_concept_by_name(concept_name).get_metadata("period_type")
+        period_type = self.get_concept(concept_name).get_details("period_type")
 
         if PeriodType(period_type) == PeriodType.duration:
             if not context.duration:
@@ -900,7 +900,7 @@ class Entrypoint(object):
 
         return True
 
-    def valid_unit(self, concept, unit_id):
+    def _is_valid_unit(self, concept, unit_id):
         # TODO Refactor to move this logic into the Concept class?
 
         unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
@@ -910,7 +910,7 @@ class Entrypoint(object):
         # There is type-checking we can do for these unitless types but we'll handle
         # it elsewhere
         
-        required_type = self.get_concept_by_name(concept).get_metadata("type_name")
+        required_type = self.get_concept(concept).get_details("type_name")
         if required_type in unitlessTypes:
             if unit_id is None:
                 return True
@@ -976,17 +976,17 @@ class Entrypoint(object):
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
 
-        if not self.can_write_concept(concept_name):
+        if not self.is_concept_writable(concept_name):
             raise OBConceptException(
                 "{} is not a writeable concept".format(concept_name))
-        concept = self.get_concept_by_name(concept_name)
+        concept = self.get_concept(concept_name)
 
         if "context" in kwargs:
             context = kwargs.pop("context")
         elif len(list(kwargs.keys())) > 0:
             # turn the remaining keyword args into a Context object -- this
             # is just syntactic sugar to make this method easier to call.
-            period = concept.get_metadata("period_type")
+            period = concept.get_details("period_type")
             if period not in kwargs and period in self._default_context:
                 kwargs[period.value] = self._default_context[period]
             context = Context(**kwargs)
@@ -997,12 +997,12 @@ class Entrypoint(object):
         if len(self._default_context) > 0:
             context = self._fill_in_context_from_defaults(context, concept)
 
-        if not self.sufficient_context(concept_name, context):
+        if not self.validate_context(concept_name, context):
             raise OBContextException(
                 "Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self._dev_validation_off and not self.valid_unit(concept_name, unit_name):
+        if not self._dev_validation_off and not self._is_valid_unit(concept_name, unit_name):
             raise OBUnitException(
                 "{} is an invalid unit type for {}".format(unit_name, concept_name))
         
@@ -1060,7 +1060,7 @@ class Entrypoint(object):
                     return self.facts[table.get_name()][context.get_id()][concept]
         return None
 
-    def get_facts(self):
+    def get_all_facts(self):
         """
         Returns a flattened list of Fact instances -- all of the facts that
         have been set in this document so far.
@@ -1105,14 +1105,14 @@ class Entrypoint(object):
             for tag in tags:
                 xbrl.append(tag)
 
-        facts = self.get_facts()
-        required_units = set([fact.unit for fact in self.get_facts() \
+        facts = self.get_all_facts()
+        required_units = set([fact.unit for fact in self.get_all_facts() \
                               if fact.unit is not None])
         for unit in required_units:
             # Add a unit tag defining each unit we want to reference:
             xbrl.append(self._make_unit_tag(unit))
 
-        for fact in self.get_facts():
+        for fact in self.get_all_facts():
             xbrl.append( fact._toXML() )
 
         return xbrl
@@ -1169,7 +1169,7 @@ class Entrypoint(object):
             "href": self.taxonomy_name
         })
 
-        facts = self.get_facts()
+        facts = self.get_all_facts()
 
         for fact in facts:
             masterJsonObj["facts"].append( fact._toJSON() )
@@ -1194,7 +1194,7 @@ class Entrypoint(object):
         Returns a Context object that has had all its required fields filled in
         from the default context (see set_default_context()) if possible.
         """
-        period = concept.get_metadata("period_type") # PeriodType.instant or PeriodType.duration
+        period = concept.get_details("period_type") # PeriodType.instant or PeriodType.duration
         if context is None:
             # Create context from default entity and default period:
             context_args = {}
