@@ -513,7 +513,7 @@ class Concept(object):
         self.children = []
 
         try:
-            self.metadata = taxonomy_semantic.concept_info(concept_name)
+            self.metadata = taxonomy_semantic.get_concept_details(concept_name)
         except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
 
@@ -683,7 +683,7 @@ class Entrypoint(object):
         if entrypoint_name == "All":
             self._init_all_entrypoint()
         else:
-            if not self.ts.validate_ep(entrypoint_name):
+            if not self.ts.is_entrypoint(entrypoint_name):
                 raise OBNotFoundException(
                     "There is no Orange Button entrypoint named {}.".format(
                         entrypoint_name))
@@ -691,7 +691,7 @@ class Entrypoint(object):
             # This gives me the list of every concept that could ever be
             # included in the document.
             self._all_my_concepts = {}
-            for concept_name in self.ts.concepts_ep(entrypoint_name):
+            for concept_name in self.ts.get_entrypoint_concepts(entrypoint_name):
                 if concept_name.endswith("_1"):
                     # There are a bunch of duplicate concept names that all end in "_1"
                     # that raise an exception if we try to query them.
@@ -700,7 +700,7 @@ class Entrypoint(object):
 
             # Get the relationships (this comes from solar_taxonomy/documents/
             #  <entrypoint>/<entrypoint><version>_def.xml)
-            self.relations = self.ts.relationships_ep(entrypoint_name)
+            self.relations = self.ts.get_entrypoint_relationships(entrypoint_name)
 
         # Search through the relationships to find all of the tables, their
         # axes, and parent/child relationships between concepts:

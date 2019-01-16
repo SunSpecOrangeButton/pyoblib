@@ -115,8 +115,8 @@ class Parser(object):
         """ 
 
         eps_found = set()
-        for ep in self._taxonomy.semantic.entry_points():
-            for concept in self._taxonomy.semantic.concepts_ep(ep):
+        for ep in self._taxonomy.semantic.get_all_entrypoints():
+            for concept in self._taxonomy.semantic.get_entrypoint_concepts(ep):
                 for dc in doc_concepts:
                     if dc == concept:
                         eps_found.add(ep)
@@ -134,7 +134,7 @@ class Parser(object):
                 ok = True
                 for c in doc_concepts:
                     ok2 = False
-                    for c2 in self._taxonomy.semantic.concepts_ep(ep):
+                    for c2 in self._taxonomy.semantic.get_entrypoint_concepts(ep):
                         if c == c2:
                             ok2 = True
                             break

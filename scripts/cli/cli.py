@@ -101,7 +101,7 @@ def generate_identifier(args):
 
 def list_concept_info(args):
     print()
-    c = tax.semantic.concept_info(args.concept)
+    c = tax.semantic.get_concept_details(args.concept)
     print(c)
     if c is not None:
         print("Id:                ", c.id)
@@ -135,21 +135,21 @@ def list_unit_info(args):
 
 
 def list_ep(args):
-    for ep in tax.semantic.entry_points():
+    for ep in tax.semantic.get_all_entrypoints():
         print(ep)
 
 
 def list_ep_concepts_info(args):
 
     if csv:
-        concepts = tax.semantic.concepts_info_ep(args.ep)
+        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
         print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
         for c in concepts:
                 print('%s, %s, %s, %s, %s, %s, %s, %s' %
                 (c.id, c.name, c.abstract, c.nillable, c.period_independent,
                 c.substitution_group, c.type_name, c.period_type))
     else:
-        concepts = tax.semantic.concepts_info_ep(args.ep)
+        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
                 ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
                 "Per Type"))
@@ -162,7 +162,7 @@ def list_ep_concepts_info(args):
 
 
 def list_concepts(args):
-    concepts = tax.semantic.concepts_ep(args.ep)
+    concepts = tax.semantic.get_entrypoint_concepts(args.ep)
     if concepts is not None:
         for concept in concepts:
             print(concept)
@@ -171,7 +171,7 @@ def list_concepts(args):
 
 
 def list_relationships(args):
-    relationships = tax.semantic.relationships_ep(args.ep)
+    relationships = tax.semantic.get_entrypoint_relationships(args.ep)
 
     if csv:
         print("Role, From, To, Order")
@@ -250,14 +250,14 @@ def list_units_details(args):
 
 def list_types(args):
 
-    names = tax.semantic.type_names()
+    names = tax.semantic.get_all_type_names()
     names.sort()
     for name in names:
         print(name)
         
 
 def validate_concept(args):
-    print("Valid:", tax.semantic.validate_concept(args.concept))
+    print("Valid:", tax.semantic.is_concept(args.concept))
 
 
 def validate_value(args):
@@ -269,7 +269,7 @@ def validate_value(args):
 
 
 def validate_ep(args):
-    print("Valid:", tax.semantic.validate_ep(args.ep))
+    print("Valid:", tax.semantic.is_entrypoint(args.ep))
 
 
 def validate_identifier(args):
