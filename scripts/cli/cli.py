@@ -117,7 +117,7 @@ def list_concept_info(args):
 
 
 def list_unit_info(args):
-    unit = tax.units.unit(args.unit)
+    unit = tax.units.is_unit2(args.unit)
     if unit is not None:
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
@@ -218,7 +218,7 @@ def list_generic_roles(args):
 
 
 def list_units(args):
-    for unit in tax.units.units():
+    for unit in tax.units.get_all_units():
         print(unit)
 
 
@@ -227,8 +227,8 @@ def list_units_details(args):
     if csv:
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
-        for unit_id in tax.units.units():
-                unit = tax.units.unit(unit_id)
+        for unit_id in tax.units.get_all_units():
+                unit = tax.units.is_unit2(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -240,8 +240,8 @@ def list_units_details(args):
         print('%0.6s %0.10s %0.40s %0.35s %0.16s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
-        for unit_id in tax.units.units():
-                unit = tax.units.unit(unit_id)
+        for unit_id in tax.units.get_all_units():
+                unit = tax.units.is_unit2(unit_id)
                 print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
