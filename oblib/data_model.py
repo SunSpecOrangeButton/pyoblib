@@ -1120,6 +1120,8 @@ class Entrypoint(object):
     def to_XML(self, filename):
         """
         Exports XBRL as XML to the given filename.
+
+        To ensure future support use the method with the same name and functionality in Parser.
         """
         xbrl = self.to_XML_tag()
         tree = xml.etree.ElementTree.ElementTree(xbrl)
@@ -1130,7 +1132,9 @@ class Entrypoint(object):
 
     def to_XML_string(self):
         """
-        Returns XBRL as an XML string
+        Returns XBRL as an XML string.
+
+        To ensure future support use the method with the same name and functionality in Parser.
         """
         xbrl = self.to_XML_tag()
         return xml.etree.ElementTree.tostring(xbrl).decode()
@@ -1139,6 +1143,8 @@ class Entrypoint(object):
     def to_JSON(self, filename):
         """
         Exports XBRL as JSON to the given filename.
+
+        To ensure future support use the method with the same name and functionality in Parser.
         """
 
         outfile = open(filename, "w")
@@ -1148,6 +1154,8 @@ class Entrypoint(object):
     def to_JSON_string(self):
         """
         Returns XBRL as a JSON string
+
+        To ensure future support use the method with the same name and functionality in Parser.
         """
         masterJsonObj = {
             "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
