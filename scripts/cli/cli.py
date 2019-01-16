@@ -293,7 +293,7 @@ def validate_generic_role(args):
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.validate_unit(unit_id=args.generic_unit))
+    print("Valid:", tax.units.is_unit(unit_id=args.generic_unit))
 
 
 def version(args):

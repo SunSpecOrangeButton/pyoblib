@@ -930,7 +930,7 @@ class Entrypoint(object):
                 "No unit given for concept {}, requires type {}".format(
                     concept, required_type))
 
-        unit = self.tu.unit(unit_id)
+        unit = self.tu.is_unit2(unit_id)
         if unit is None:
             raise OBNotFoundException(
                 "There is no unit ID={} in the taxonomy.".format(unit_id))
@@ -969,7 +969,7 @@ class Entrypoint(object):
 
         if "unit_name" in kwargs:
             unit_name = kwargs.pop("unit_name")
-            valid_unit_name = self.tu.validate_unit(unit_name=unit_name)
+            valid_unit_name = self.tu.is_unit(unit_name=unit_name)
         else:
             unit_name = None
 
