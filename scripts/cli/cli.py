@@ -194,7 +194,7 @@ def list_relationships(args):
 
 
 def list_type_enums(args):
-    enums = tax.types.type_enum(args.type_name)
+    enums = tax.types.get_type_enum(args.type_name)
     if enums is not None:
         for enum in enums:
             print(enum)
@@ -277,7 +277,7 @@ def validate_identifier(args):
 
 
 def validate_type(args):
-    print("Valid:", tax.types.validate_type(args.type_name))
+    print("Valid:", tax.types.is_type(args.type_name))
 
 
 def validate_numeric_type(args):

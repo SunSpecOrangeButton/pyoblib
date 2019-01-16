@@ -48,7 +48,7 @@ def validate_concept_value(concept, value):
     # If null check if nillable is ok and return
     if value is None and not concept.nillable:
         errors += ["'{}' is not allowed to be nillable (null).".format(concept.id)]
-    enum = taxonomy.getTaxonomy().types.type_enum(concept.type_name)
+    enum = taxonomy.getTaxonomy().types.get_type_enum(concept.type_name)
     is_enum = enum is not None
     # Check data type and validator calling
     if type(concept.type_name).__name__ in ["str", "unicode"]:
