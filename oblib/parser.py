@@ -209,7 +209,7 @@ class Parser(object):
         validation_errors = ValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
-        entrypoint = data_model.Entrypoint(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
         for fact in facts:
@@ -343,7 +343,7 @@ class Parser(object):
                 raise validation_errors
 
         # Create an entrypoint.
-        entrypoint = data_model.Entrypoint(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Read in units
         units = {}

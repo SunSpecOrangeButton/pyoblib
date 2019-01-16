@@ -647,7 +647,7 @@ class Concept(object):
 
 
 
-class Entrypoint(object):
+class OBInstance(object):
     """
     Data structure representing an entrypoint.
 
