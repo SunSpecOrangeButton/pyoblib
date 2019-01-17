@@ -20,7 +20,7 @@ exported as part of the module so if a method has an external signature place it
 import datetime
 
 
-def convert_taxonomy_bool(s):
+def convert_taxonomy_xsd_bool(s):
     """ 
     Returns true/false given a string loaded from the Taxonomy.  Values to check are based on
     observed values from within the Taxonomy.  If the input is not valid this will always return
@@ -35,7 +35,7 @@ def convert_taxonomy_bool(s):
         return False
 
 
-def convert_taxonomy_date(s):
+def convert_taxonomy_xsd_date(s):
     """
     Returns a datetime representation of a date (in string format) loaded from the taxonomy.  It
     is assumed that the input format will be YYYY-MM-DD based upon observed values from within 

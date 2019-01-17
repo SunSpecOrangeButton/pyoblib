@@ -116,14 +116,14 @@ class TaxonomyNumericTypes(object):
                     pathname, filename))
         return numeric_types
 
-    def numeric_types(self):
+    def get_all_numeric_types(self):
         """
         A list of numeric types.
         """
 
         return self._numeric_types
 
-    def validate_numeric_type(self, numeric_type):
+    def is_numeric_type(self, numeric_type):
         """
         Check if a numeric type is valid.
         """
@@ -157,11 +157,11 @@ class TaxonomyGenericRoles(object):
                     pathname, filename))
         return generic_roles
 
-    def generic_roles(self):
+    def get_all_generic_roles(self):
         """A list of generic roles."""
         return self._generic_roles
 
-    def validate_generic_role(self, generic_role):
+    def is_generic_role(self, generic_role):
         """Check if a generic role is valid."""
         if generic_role in self._generic_roles:
             return True
@@ -192,11 +192,11 @@ class TaxonomyRefParts(object):
                                                                    filename))
         return ref_parts
 
-    def ref_parts(self):
+    def get_all_ref_parts(self):
         """A list of ref parts."""
         return self._ref_parts
 
-    def validate_ref_part(self, ref_part):
+    def is_ref_part(self, ref_part):
         """Check if a ref part is valid."""
         if ref_part in self._ref_parts:
             return True
