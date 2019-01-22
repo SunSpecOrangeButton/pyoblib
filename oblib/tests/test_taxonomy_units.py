@@ -27,21 +27,23 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertEqual(len(tax.get_all_units()), 296)
 
     def test_validate_unit(self):
-        self.assertTrue(tax.is_unit(unit_id="acre"))
-        self.assertTrue(tax.is_unit(unit_id="oz"))
-        self.assertTrue(tax.is_unit(unit_id="rad"))
-        self.assertFalse(tax.is_unit(unit_id="acrre"))
-        self.assertFalse(tax.is_unit(unit_id="ozz"))
-        self.assertFalse(tax.is_unit(unit_id="rrad"))
-        self.assertTrue(tax.is_unit(unit_name="Acre"))
-        self.assertTrue(tax.is_unit(unit_name="Ounce"))
-        self.assertTrue(tax.is_unit(unit_name="Radian"))
-        self.assertFalse(tax.is_unit(unit_name="acrre"))
-        self.assertFalse(tax.is_unit(unit_name="ozz"))
-        self.assertFalse(tax.is_unit(unit_name="rrad"))
+        self.assertTrue(tax.is_unit("acre"))
+        self.assertTrue(tax.is_unit("oz"))
+        self.assertTrue(tax.is_unit("rad"))
+        self.assertFalse(tax.is_unit("acrre"))
+        self.assertFalse(tax.is_unit("ozz"))
+        self.assertFalse(tax.is_unit("rrad"))
+        self.assertTrue(tax.is_unit("Acre"))
+        self.assertTrue(tax.is_unit("Ounce"))
+        self.assertTrue(tax.is_unit("Radian"))
+        self.assertFalse(tax.is_unit("acrre"))
+        self.assertFalse(tax.is_unit("ozz"))
+        self.assertFalse(tax.is_unit("rrad"))
+        self.assertTrue(tax.is_unit("u00004"))
+        self.assertFalse(tax.is_unit("x0004"))
 
     def test_unit(self):
-        unit = tax.is_unit2("VAh")
+        unit = tax.get_allunits()["VAh"]
 
         # Test data types
         # TODO: checks for strings are commented out for Python 2.7 which fails
