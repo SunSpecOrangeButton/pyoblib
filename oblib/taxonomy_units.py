@@ -113,16 +113,54 @@ class TaxonomyUnits(object):
         """Return a dict of the form {unit_name: unit_id}"""
         return {self._units[k].unit_name: k for k in self._units.keys()}
 
-    def is_unit(self, unit):
+    def is_unit(self, unit_str):
         """
-        Return True if unit is the unit_id, unit_name or id of a unit in the
-        taxonomy, False otherwise.
+        Return True if unit_str is the unit_id, unit_name or id of a unit in
+        the taxonomy, False otherwise.
 
         Args:
-            unit : string
+            unit_str : string
+                can be unit_id, unit_name or id
 
         Returns boolean
         """
-        return (unit in self._units.keys() or \
-                unit in self._by_id.keys() or \
-                unit in self._by_unit_name.keys())
+        return (unit_str in self._units.keys() or \
+                unit_str in self._by_id().keys() or \
+                unit_str in self._by_unit_name().keys())
+
+    def get_unit(self, unit_str):
+        """
+        Returns the unit with unit_id, unit_name or id is given by unit_str.
+
+        Args:
+            unit_str : string
+                can be unit_id, unit_name or id
+
+        Returns:
+            unit : dict
+
+        Raises:
+            KeyError if unit_str is not in the taxonomy
+        """
+        found = False
+        if self.is_unit(unit_str):
+            # find unit_id
+            try:
+                unit = self._units[unit_str]
+                found = True
+            except:
+                if unit_str in self._by_id():
+                    unit_id = self._by_id()[unit_str]
+                    unit = self._units[unit_id]
+                    found = True
+                elif unit_str in self._by_unit_name():
+                    unit_id = self._by_unit_name[unit_str]
+                    unit = self._units[unit_id]
+                    found = True
+
+        if not found:
+            raise KeyError("{} is not a valid unit_id, unit_name or id"
+                            .format(unit_str))
+            return None
+        else:
+            return unit

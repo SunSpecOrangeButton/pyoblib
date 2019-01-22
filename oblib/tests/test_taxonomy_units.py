@@ -26,7 +26,7 @@ class TestTaxonomyUnits(unittest.TestCase):
     def test_taxonomy_units(self):
         self.assertEqual(len(tax.get_all_units()), 296)
 
-    def test_validate_unit(self):
+    def test_is_unit(self):
         self.assertTrue(tax.is_unit("acre"))
         self.assertTrue(tax.is_unit("oz"))
         self.assertTrue(tax.is_unit("rad"))
@@ -42,8 +42,8 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertTrue(tax.is_unit("u00004"))
         self.assertFalse(tax.is_unit("x0004"))
 
-    def test_unit(self):
-        unit = tax.get_allunits()["VAh"]
+    def test_get_unit(self):
+        unit = tax.get_unit("VAh")
 
         # Test data types
         # TODO: checks for strings are commented out for Python 2.7 which fails
@@ -72,3 +72,13 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertEqual(unit.base_standard, taxonomy.BaseStandard.customary)
         self.assertEqual(unit.status, taxonomy.UnitStatus.cr)
         self.assertEqual(unit.version_date, datetime.date(2017, 7, 12))
+
+        unit2 = tax.get_unit("u00291")
+        self.assertEqual(unit, unit2)
+        unit3 = tax.get_unit("Volt-ampere-hours")
+        self.assertEqual(unit, unit3)
+
+    def test_get_all_units(self):
+        units = self.get_all_units()
+        self.assertIsInstance(units, dict)
+        self.assertEqual(len(units.keys()), 296)

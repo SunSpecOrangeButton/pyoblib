@@ -61,7 +61,7 @@ def convert(args):
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
-    
+
     try:
         p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
     except ValidationErrors as errors:
@@ -117,7 +117,7 @@ def list_concept_info(args):
 
 
 def list_unit_info(args):
-    unit = tax.units.is_unit2(args.unit)
+    unit = tax.units.get_unit(args.unit)
     if unit is not None:
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
@@ -228,7 +228,7 @@ def list_units_details(args):
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
         for unit_id in tax.units.get_all_units():
-                unit = tax.units.is_unit2(unit_id)
+                unit = tax.units.get_unit(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -241,7 +241,7 @@ def list_units_details(args):
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
         for unit_id in tax.units.get_all_units():
-                unit = tax.units.is_unit2(unit_id)
+                unit = tax.units.get_unit(unit_id)
                 print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -254,7 +254,7 @@ def list_types(args):
     names.sort()
     for name in names:
         print(name)
-        
+
 
 def validate_concept(args):
     print("Valid:", tax.semantic.is_concept(args.concept))
@@ -293,7 +293,7 @@ def validate_generic_role(args):
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.is_unit(unit_id=args.generic_unit))
+    print("Valid:", tax.units.is_unit(args.generic_unit))
 
 
 def version(args):
