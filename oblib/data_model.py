@@ -21,6 +21,7 @@ import json
 from taxonomy import PeriodType
 from six import string_types
 import validator
+import identifier
 
 UNTABLE = "NON_TABLE_CONCEPTS"
 
@@ -414,21 +415,21 @@ class Context(object):
         Returns context's entity, period, and extra dimensions as JSON dictionary
         object.
         """
-        aspects = {"xbrl:entity": self.entity}
-        if self.duration == "forever":
-            aspects["xbrl:period"] = "forever" # TODO is this right syntax???
-        elif self.duration is not None:
-            aspects["xbrl:periodStart"] = self.duration["start"].strftime("%Y-%m-%d")
-            aspects["xbrl:periodEnd"] = self.duration["end"].strftime("%Y-%m-%d")
+        aspects = {"entity": self.entity}
+
+        datefmt = "%Y-%m-%dT%H:%M:%S"
+        if (self.duration is not None) and (self.duration != "forever"):
+            aspects["period"] = "{}/{}".format(
+                self.duration["start"].strftime(datefmt),
+                self.duration["end"].strftime(datefmt)
+                )
         elif self.instant is not None:
-            aspects["xbrl:instant"] = self.instant.strftime("%Y-%m-%d")
-            # TODO is this the right syntax???
+            aspects["period"] = self.instant.strftime(datefmt)
 
         for dimension in self.axes:
             # TODO is there a difference in how typed axes vs explicit axes
             # are represented in JSON?
             if self.hypercube.is_typed_dimension(dimension):
-            #if dimension in self.typedDimensionDomains:
                 value_str = self.axes[dimension]
             else:
                 value_str = self.axes[dimension]
@@ -460,6 +461,8 @@ class Fact(object):
         self.context = context
         self.unit = unit
         self.decimals = decimals
+        # Fill in the id property with a UUID:
+        self.id = identifier.identifier() # Only used when exporting JSON
 
     def _toXML(self):
         """
@@ -487,12 +490,12 @@ class Fact(object):
         Return the Fact as a JSON dictionary object
         """
         aspects = self.context._toJSON()
-        aspects["xbrl:concept"] = self.concept
+        aspects["concept"] = self.concept
         if self.unit is not None:
-            aspects["xbrl:unit"] = self.unit
+            aspects["unit"] = self.unit
 
         if isinstance( self.value, datetime.datetime):
-            value_str = self.value.strftime("%Y-%m-%d")
+            value_str = self.value.strftime("%Y-%m-%dT%H:%M:%S")
         else:
             value_str = str(self.value)
         return { "aspects": aspects,
@@ -1161,7 +1164,7 @@ class OBInstance(object):
             "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
             "prefixes": self.namespaces,
             "dtsReferences": [],
-            "facts": []
+            "facts": {}
             }
 
         masterJsonObj["dtsReferences"].append({
@@ -1172,7 +1175,7 @@ class OBInstance(object):
         facts = self.get_all_facts()
 
         for fact in facts:
-            masterJsonObj["facts"].append( fact._toJSON() )
+            masterJsonObj["facts"][fact.id] = fact._toJSON()
         return json.dumps(masterJsonObj)
 
     def set_default_context(self, dictionary):
