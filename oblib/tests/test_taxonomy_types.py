@@ -21,20 +21,20 @@ tax = taxonomy_types.TaxonomyTypes()
 class TestTaxonomyTypes(unittest.TestCase):
 
     def test_taxonomy_types(self):
-        self.assertEqual(len(tax.types()), 65)
+        self.assertEqual(len(tax.get_all_types()), 65)
 
     def test_taxonomy_types_validate_type(self):
-        self.assertTrue(tax.validate_type("solar-types:systemAvailabilityModeItemType"))
-        self.assertTrue(tax.validate_type("solar-types:deviceItemType"))
-        self.assertTrue(tax.validate_type("solar-types:insuranceItemType"))
-        self.assertFalse(tax.validate_type("solar:insuranceItemType"))
-        self.assertFalse(tax.validate_type("insuranceItemType"))
-        self.assertFalse(tax.validate_type("solar-types:systemAvailabilityMoeItemType"))
-        self.assertFalse(tax.validate_type("solar-types:deviceIteType"))
-        self.assertFalse(tax.validate_type("solar-types:inuranceItemType"))
+        self.assertTrue(tax.is_type("solar-types:systemAvailabilityModeItemType"))
+        self.assertTrue(tax.is_type("solar-types:deviceItemType"))
+        self.assertTrue(tax.is_type("solar-types:insuranceItemType"))
+        self.assertFalse(tax.is_type("solar:insuranceItemType"))
+        self.assertFalse(tax.is_type("insuranceItemType"))
+        self.assertFalse(tax.is_type("solar-types:systemAvailabilityMoeItemType"))
+        self.assertFalse(tax.is_type("solar-types:deviceIteType"))
+        self.assertFalse(tax.is_type("solar-types:inuranceItemType"))
 
     def test_taxonomy_types_type_enum(self):
-        self.assertEqual(len(tax.type_enum("solar-types:projectAssetTypeItemType")), 3)
-        self.assertEqual(len(tax.type_enum("solar-types:feeStatusItemType")), 5)
-        self.assertEqual(len(tax.type_enum("solar-types:financialTransactionItemType")), 26)
-        self.assertIsNone(tax.type_enum("solar-types:fdsfdsadsf"))
+        self.assertEqual(len(tax.get_type_enum("solar-types:projectAssetTypeItemType")), 3)
+        self.assertEqual(len(tax.get_type_enum("solar-types:feeStatusItemType")), 5)
+        self.assertEqual(len(tax.get_type_enum("solar-types:financialTransactionItemType")), 26)
+        self.assertIsNone(tax.get_type_enum("solar-types:fdsfdsadsf"))

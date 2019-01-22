@@ -101,7 +101,7 @@ def generate_identifier(args):
 
 def list_concept_info(args):
     print()
-    c = tax.semantic.concept_info(args.concept)
+    c = tax.semantic.get_concept_details(args.concept)
     print(c)
     if c is not None:
         print("Id:                ", c.id)
@@ -117,7 +117,7 @@ def list_concept_info(args):
 
 
 def list_unit_info(args):
-    unit = tax.units.unit(args.unit)
+    unit = tax.units.is_unit2(args.unit)
     if unit is not None:
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
@@ -135,21 +135,21 @@ def list_unit_info(args):
 
 
 def list_ep(args):
-    for ep in tax.semantic.entry_points():
+    for ep in tax.semantic.get_all_entrypoints():
         print(ep)
 
 
 def list_ep_concepts_info(args):
 
     if csv:
-        concepts = tax.semantic.concepts_info_ep(args.ep)
+        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
         print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
         for c in concepts:
                 print('%s, %s, %s, %s, %s, %s, %s, %s' %
                 (c.id, c.name, c.abstract, c.nillable, c.period_independent,
                 c.substitution_group, c.type_name, c.period_type))
     else:
-        concepts = tax.semantic.concepts_info_ep(args.ep)
+        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
                 ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
                 "Per Type"))
@@ -162,7 +162,7 @@ def list_ep_concepts_info(args):
 
 
 def list_concepts(args):
-    concepts = tax.semantic.concepts_ep(args.ep)
+    concepts = tax.semantic.get_entrypoint_concepts(args.ep)
     if concepts is not None:
         for concept in concepts:
             print(concept)
@@ -171,7 +171,7 @@ def list_concepts(args):
 
 
 def list_relationships(args):
-    relationships = tax.semantic.relationships_ep(args.ep)
+    relationships = tax.semantic.get_entrypoint_relationships(args.ep)
 
     if csv:
         print("Role, From, To, Order")
@@ -194,7 +194,7 @@ def list_relationships(args):
 
 
 def list_type_enums(args):
-    enums = tax.types.type_enum(args.type_name)
+    enums = tax.types.get_type_enum(args.type_name)
     if enums is not None:
         for enum in enums:
             print(enum)
@@ -203,22 +203,22 @@ def list_type_enums(args):
 
 
 def list_numeric_types(args):
-    for numeric_type in tax.numeric_types.numeric_types():
+    for numeric_type in tax.numeric_types.get_all_numeric_types():
         print(numeric_type)
 
 
 def list_ref_parts(args):
-    for ref_part in tax.ref_parts.ref_parts():
+    for ref_part in tax.ref_parts.get_all_ref_parts():
         print(ref_part)
 
 
 def list_generic_roles(args):
-    for generic_role in tax.generic_roles.generic_roles():
+    for generic_role in tax.generic_roles.get_all_generic_roles():
         print(generic_role)
 
 
 def list_units(args):
-    for unit in tax.units.units():
+    for unit in tax.units.get_all_units():
         print(unit)
 
 
@@ -227,8 +227,8 @@ def list_units_details(args):
     if csv:
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
-        for unit_id in tax.units.units():
-                unit = tax.units.unit(unit_id)
+        for unit_id in tax.units.get_all_units():
+                unit = tax.units.is_unit2(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -240,8 +240,8 @@ def list_units_details(args):
         print('%0.6s %0.10s %0.40s %0.35s %0.16s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
-        for unit_id in tax.units.units():
-                unit = tax.units.unit(unit_id)
+        for unit_id in tax.units.get_all_units():
+                unit = tax.units.is_unit2(unit_id)
                 print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -250,27 +250,26 @@ def list_units_details(args):
 
 def list_types(args):
 
-    names = tax.semantic.type_names()
+    names = tax.semantic.get_all_type_names()
     names.sort()
     for name in names:
         print(name)
         
 
 def validate_concept(args):
-    print("Valid:", tax.semantic.validate_concept(args.concept))
+    print("Valid:", tax.semantic.is_concept(args.concept))
 
 
 def validate_value(args):
     result = tax.semantic.validate_concept_value(args.concept, args.value)
-    if len(result) > 0:
-        result += ["False"]
-    else:
-        result += ["True"]
-    print("Valid:", "\n".join(result))
+    valid = "True"
+    if len(result[1]) > 0:
+        valid = "False"
+    print("Valid:", valid, "\n", "\n".join(result[1]))
 
 
 def validate_ep(args):
-    print("Valid:", tax.semantic.validate_ep(args.ep))
+    print("Valid:", tax.semantic.is_entrypoint(args.ep))
 
 
 def validate_identifier(args):
@@ -278,23 +277,23 @@ def validate_identifier(args):
 
 
 def validate_type(args):
-    print("Valid:", tax.types.validate_type(args.type_name))
+    print("Valid:", tax.types.is_type(args.type_name))
 
 
 def validate_numeric_type(args):
-    print("Valid:", tax.numeric_types.validate_numeric_type(args.numeric_type))
+    print("Valid:", tax.numeric_types.is_numeric_type(args.numeric_type))
 
 
 def validate_ref_part(args):
-    print("Valid:", tax.ref_parts.validate_ref_part(args.ref_part))
+    print("Valid:", tax.ref_parts.is_ref_part(args.ref_part))
 
 
 def validate_generic_role(args):
-    print("Valid:", tax.generic_roles.validate_generic_role(args.generic_role))
+    print("Valid:", tax.generic_roles.is_generic_role(args.generic_role))
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.validate_unit(unit_id=args.generic_unit))
+    print("Valid:", tax.units.is_unit(unit_id=args.generic_unit))
 
 
 def version(args):

@@ -41,7 +41,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
             element = taxonomy.Element()
             for item in attrs.items():
                 if item[0] == "abstract":
-                    element.abstract = util.convert_taxonomy_bool(item[1])
+                    element.abstract = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "id":
                     # Turn the first underscore (only the first) into
                     # a colon. For example, the concept named
@@ -53,9 +53,9 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "name":
                     element.name = item[1]
                 elif item[0] == "nillable":
-                    element.nillable = util.convert_taxonomy_bool(item[1])
+                    element.nillable = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "solar:periodIndependent":
-                    element.period_independent = util.convert_taxonomy_bool(item[1])
+                    element.period_independent = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "substitutionGroup":
                     element.substitution_group = taxonomy.SubstitutionGroup(item[1])
                 elif item[0] == "type":
@@ -172,10 +172,6 @@ class TaxonomySemantic(object):
 
     def _load_concepts(self):
         """Return a dict of available concepts."""
-        # TODO: Better understand the relationship of "def" vs. "pre" xml
-        # files. Using pre seems to load a more accurate representation
-        # of the taxonomy but this was found via trial and error as opposed
-        # to a scientific methodology.
         concepts = {}
         for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "data")):
@@ -249,11 +245,11 @@ class TaxonomySemantic(object):
                 ne[e] = self._elements[e]
         self._elements = ne
 
-    def elements(self):
+    def get_all_concept_details(self):
         """Return a map of elements."""
         return self._elements
 
-    def type_names(self):
+    def get_all_type_names(self):
         """Return an array of strings representing all data types in elements"""
 
         type_names = set()
@@ -261,7 +257,7 @@ class TaxonomySemantic(object):
             type_names.add(self._elements[e].type_name)
         return list(type_names)
 
-    def validate_concept(self, concept):
+    def is_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""
         found = False
         for c in self._concepts:
@@ -285,49 +281,49 @@ class TaxonomySemantic(object):
             for cc in self._concepts[c]:
                 if cc == concept:
                     found = True
-                    concept_info = self.concept_info(concept)
+                    concept_info = self.get_concept_details(concept)
                     break
         if not found:
             return ["'{}' concept not found.".format(concept)]
 
         return validator.validate_concept_value(concept_info, value)
 
-    def validate_ep(self, data):
+    def is_entrypoint(self, entrypoint):
         """Validate if an end point type is present in the Taxonomy."""
-        if data in self._concepts:
+        if entrypoint in self._concepts:
             return True
         else:
             return False
 
-    def concepts_ep(self, data):
+    def get_entrypoint_concepts(self, entrypoint):
         """Return a list of all concepts in an entry point."""
-        if data in self._concepts:
-            return self._concepts[data]
+        if entrypoint in self._concepts:
+            return self._concepts[entrypoint]
         else:
             return None
 
-    def relationships_ep(self, entry_point):
+    def get_entrypoint_relationships(self, entrypoint):
         """
         Returns a list of all relationships in an entry point
         Returns an empty list if the concept exists but has no relationships
         """
 
-        if entry_point in self._concepts:
-            if entry_point in self._relationships:
-                return self._relationships[entry_point]
+        if entrypoint in self._concepts:
+            if entrypoint in self._relationships:
+                return self._relationships[entrypoint]
             else:
                 return []
         else:
             return None
 
-    def entry_points(self):
+    def get_all_entrypoints(self):
         """
         Returns a list of all entry points (data, documents, and processes) in the Taxonomy.
         """
     
         return list(self._concepts)
 
-    def concept_info(self, concept):
+    def get_concept_details(self, concept):
         """Return information on a single concept."""
         found = False
         for c in self._concepts:
@@ -342,15 +338,15 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def concepts_info_ep(self, data):
+    def get_entrypoint_concepts_details(self, entrypoint):
         """
         Return concepts from an endpoints.
 
         Return a list of all concepts and their attributes in an end point.
         """
-        if data in self._concepts:
+        if entrypoint in self._concepts:
             ci = []
-            for concept in self._concepts[data]:
+            for concept in self._concepts[entrypoint]:
                 if concept in self._elements:
                     ci.append(self._elements[concept])
                 else:

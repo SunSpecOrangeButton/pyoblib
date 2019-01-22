@@ -53,7 +53,7 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "itemType":
             self._curr.item_type = self._content
         elif name == "itemTypeDate":
-            self._curr.item_type_date = util.convert_taxonomy_date(self._content)
+            self._curr.item_type_date = util.convert_taxonomy_xsd_date(self._content)
         elif name == "symbol":
             self._curr.symbol = self._content
         elif name == "definition":
@@ -63,7 +63,7 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "status":
             self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
-            self._curr.version_date = util.convert_taxonomy_date(self._content)
+            self._curr.version_date = util.convert_taxonomy_xsd_date(self._content)
 
     def units(self):
         return self._units
@@ -100,11 +100,11 @@ class TaxonomyUnits(object):
         units = self._load_units_file(os.path.join(pathname, filename))
         return units
 
-    def units(self):
+    def get_all_units(self):
         """Return a map and sublists of all units."""
         return self._units
 
-    def validate_unit(self, **kwargs):
+    def is_unit(self, **kwargs):
         """
         Validate that a unit is in the taxonomy based on its unit_id or
         unit_name.
@@ -120,7 +120,7 @@ class TaxonomyUnits(object):
         else:
             return False
 
-    def unit(self, unit_id):
+    def is_unit2(self, unit_id):
         """
         Return a unit.
 

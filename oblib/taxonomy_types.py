@@ -75,25 +75,25 @@ class TaxonomyTypes(object):
                 types = self._load_types_file(os.path.join(pathname, filename))
         return types
 
-    def types(self):
+    def get_all_types(self):
         """Return a map and sublists of all types."""
         return self._types
 
-    def validate_type(self, type_name):
+    def is_type(self, name):
         """Validate that a type is in the taxonomy."""
-        if type_name in self._types:
+        if name in self._types:
             return True
         else:
             return False
 
-    def type_enum(self, type_name):
+    def get_type_enum(self, name):
         """
         Get type enumeration.
 
         Return an enumeration given a type or None if the type does not exist
         in the taxonomy.
         """
-        if type_name in self._types:
-            return self._types[type_name]
+        if name in self._types:
+            return self._types[name]
         else:
             return None
