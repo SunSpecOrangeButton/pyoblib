@@ -110,21 +110,16 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "definitionArc":
-            relationship = {
-                "role": None,
-                "from": None,
-                "to": None,
-                "order": None
-            }
+            relationship = taxonomy.Relationship()
             for item in attrs.items():
                 if item[0] == "xlink:arcrole":
-                    relationship['role'] = item[1].split("/")[-1]
+                    relationship.role = taxonomy.RelationshipRole(item[1].split("/")[-1])
                 if item[0] == "xlink:from":
-                    relationship['from'] = item[1].replace("_", ":", 1)
+                    relationship.from_ = item[1].replace("_", ":", 1)
                 if item[0] == "xlink:to":
-                    relationship['to'] = item[1].replace("_", ":", 1)
+                    relationship.to = item[1].replace("_", ":", 1)
                 if item[0] == "order":
-                    relationship['order'] = item[1]
+                    relationship.order = item[1]
             self._relationships.append(relationship)
             # Question TBD: do we need to remember which document definition
             # this relationship came from? would the same concepts ever have

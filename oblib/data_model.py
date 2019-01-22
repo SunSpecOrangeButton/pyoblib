@@ -18,7 +18,7 @@ import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
-from taxonomy import PeriodType
+from taxonomy import PeriodType, RelationshipRole
 from six import string_types
 import validator
 
@@ -108,9 +108,9 @@ class Hypercube(object):
         relationships = entry_point.relations
         # Use the relationships to find the names of my axes:
         for relation in relationships:
-            if relation['role'] == 'hypercube-dimension':
-                if relation['from'] == self._table_name:
-                    axis_name = relation['to']
+            if relation.role == RelationshipRole.hypercube_dimension:
+                if relation.from_ == self._table_name:
+                    axis_name = relation.to
                     if not axis_name in self._axes:
                         concept = entry_point.get_concept(axis_name)
                         self._axes[axis_name] = Axis(concept)
@@ -118,25 +118,25 @@ class Hypercube(object):
         # If there's an arcrole of "all" then the "from" is a LineItems
         # and the "to" is the table?  I think?
         for relation in relationships:
-            if relation['role'] == 'all':
-                if relation['to'] == self._table_name:
-                    line_item = relation['from']
+            if relation.role == RelationshipRole.all:
+                if relation.to == self._table_name:
+                    line_item = relation.from_
                     if not self.has_line_item(line_item):
                         self._allowed_line_items.append(line_item)
 
         # If there's dimension-domain or domain-member relationships for any
         # of my axes, extract that information as well:
         for relation in relationships:
-            if relation['role'] == 'dimension-domain':
-                if relation['from'] in self._axes:
-                    domain = relation['to']
-                    self._axes[ relation['from'] ].domain = domain
+            if relation.role == RelationshipRole.dimension_domain:
+                if relation.from_ in self._axes:
+                    domain = relation.to
+                    self._axes[ relation.from_ ].domain = domain
 
         for relation in relationships:
-            if relation['role'] == 'domain-member':
+            if relation.role == RelationshipRole.domain_member:
                 for axis in list(self._axes.values()):
-                    if axis.domain == relation['from']:
-                        member = relation['to']
+                    if axis.domain == relation.from_:
+                        member = relation.to
                         axis.domainMembers.append( member )
         
 
@@ -753,8 +753,8 @@ class OBInstance(object):
         self._tables = {}
         all_table_names = set([])
         for relation in self.relations:
-            if relation['role'] == 'hypercube-dimension':
-                table_name = relation['from']
+            if relation.role == RelationshipRole.hypercube_dimension:
+                table_name = relation.from_
                 all_table_names.add(table_name)
 
         for table_name in all_table_names:
@@ -764,9 +764,9 @@ class OBInstance(object):
     def _initialize_parents(self):
         """Put the concepts into a tree based on domain-member relations."""
         for relation in self.relations:
-            if relation['role'] == 'domain-member':
-                parent_name = relation['from']
-                child_name = relation['to']
+            if relation.role == RelationshipRole.domain_member:
+                parent_name = relation.from_
+                child_name = relation.to
                 if parent_name.endswith("_1") or child_name.endswith("_1"):
                     # These are the duplicate concept names and are unwanted
                     continue
@@ -799,10 +799,10 @@ class OBInstance(object):
         # purposes. Do not use in production.
         from_me = [r for r in self.relations if r['from'] == concept_name]
         for x in from_me:
-            print("{} -> {} -> {}".format(concept_name, x['role'], x['to']))
-        to_me = [r for r in self.relations if r['to'] == concept_name]
+            print("{} -> {} -> {}".format(concept_name, x.role, x.to))
+        to_me = [r for r in self.relations if r.to == concept_name]
         for x in to_me:
-            print("{} -> {} -> {}".format(x['from'], x['role'], concept_name))
+            print("{} -> {} -> {}".format(x.from_, x.role, concept_name))
 
     def get_table_for_concept(self, concept_name):
         """
