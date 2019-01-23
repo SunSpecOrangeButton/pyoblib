@@ -79,6 +79,6 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertEqual(unit, unit3)
 
     def test_get_all_units(self):
-        units = self.get_all_units()
+        units = tax.get_all_units()
         self.assertIsInstance(units, dict)
         self.assertEqual(len(units.keys()), 296)
