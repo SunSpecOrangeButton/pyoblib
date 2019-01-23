@@ -178,7 +178,7 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-                       (r['role'], r['from'], r['to'], r['order']))
+                       (r.role, r.from_, r.to, r.order))
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
@@ -188,7 +188,7 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))
+                       (r.role, r.from_, r.to, r.order))
         else:
             print("Not found")
 
