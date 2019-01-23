@@ -20,7 +20,7 @@ import util
 
 class TestUtil(unittest.TestCase):
 
-    def test_convert_taxonomy_bool(self):
+    def test_convert_taxonomy_xsd_bool(self):
         self.assertFalse(util.convert_taxonomy_xsd_bool(None))
         self.assertFalse(util.convert_taxonomy_xsd_bool("false"))
         self.assertFalse(util.convert_taxonomy_xsd_bool("False"))
@@ -33,7 +33,7 @@ class TestUtil(unittest.TestCase):
         self.assertTrue(util.convert_taxonomy_xsd_bool("1"))
 
 
-    def test_convert_taxonomy_date(self):
+    def test_convert_taxonomy_xsd_date(self):
         self.assertIsInstance(util.convert_taxonomy_xsd_date("2018-10-12"), datetime.date)
         self.assertIsNone(util.convert_taxonomy_xsd_date("201-10-12"), datetime.date)
         self.assertIsNone(util.convert_taxonomy_xsd_date("2019-42-12"), datetime.date)

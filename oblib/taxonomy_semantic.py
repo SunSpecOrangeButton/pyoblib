@@ -240,7 +240,7 @@ class TaxonomySemantic(object):
                 ne[e] = self._elements[e]
         self._elements = ne
 
-    def get_all_concept_details(self):
+    def get_all_concepts_details(self):
         """Return a map of elements."""
         return self._elements
 

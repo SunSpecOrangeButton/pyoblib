@@ -22,13 +22,13 @@ tax_doc = taxonomy_misc.TaxonomyDocstrings()
 
 class TestTaxonomyMisc(unittest.TestCase):
 
-    def test_taxonomy_numeric_types(self):
+    def test_get_all_numeric_types(self):
         self.assertEqual(len(tax_numeric_types.get_all_numeric_types()), 13)
 
-    def test_taxonomy_ref_parts(self):
+    def test_get_all_ref_parts(self):
         self.assertEqual(len(tax_ref_parts.get_all_ref_parts()), 6)
 
-    def test_taxonomy_generic_roles(self):
+    def test_get_all_generic_roles(self):
         self.assertEqual(len(tax_generic_roles.get_all_generic_roles()), 5)
 
     def test_validate_numeric_types(self):
@@ -41,7 +41,7 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax_numeric_types.is_numeric_type("num-us:speedItemTye"))
         self.assertFalse(tax_numeric_types.is_numeric_type("num-us:luminousIntensityIteType"))
 
-    def test_validate_ref_part(self):
+    def test_is_ref_part(self):
         self.assertTrue(tax_ref_parts.is_ref_part("Publisher"))
         self.assertTrue(tax_ref_parts.is_ref_part("Sample"))
         self.assertTrue(tax_ref_parts.is_ref_part("Confidentiality"))
@@ -49,7 +49,7 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax_ref_parts.is_ref_part("Sampl"))
         self.assertFalse(tax_ref_parts.is_ref_part("Confidentialit"))
 
-    def test_validate_generic_role(self):
+    def test_is_generic_role(self):
         self.assertTrue(tax_generic_roles.is_generic_role("Generic UML aggregation arc"))
         self.assertTrue(tax_generic_roles.is_generic_role("Generic UML inheritance arc"))
         self.assertTrue(tax_generic_roles.is_generic_role("Generic UML property arc"))

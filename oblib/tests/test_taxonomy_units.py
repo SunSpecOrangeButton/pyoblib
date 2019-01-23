@@ -23,7 +23,7 @@ tax = taxonomy_units.TaxonomyUnits()
 
 class TestTaxonomyUnits(unittest.TestCase):
 
-    def test_taxonomy_units(self):
+    def test_get_all_units(self):
         self.assertEqual(len(tax.get_all_units()), 296)
 
     def test_is_unit(self):
