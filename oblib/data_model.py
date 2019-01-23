@@ -979,6 +979,7 @@ class OBInstance(object):
             unit = self.tu.get_unit(unit_name)
         else:
             unit_name = None
+            unit = None
 
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
