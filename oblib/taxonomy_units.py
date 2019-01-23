@@ -154,7 +154,7 @@ class TaxonomyUnits(object):
                     unit = self._units[unit_id]
                     found = True
                 elif unit_str in self._by_unit_name():
-                    unit_id = self._by_unit_name[unit_str]
+                    unit_id = self._by_unit_name()[unit_str]
                     unit = self._units[unit_id]
                     found = True
 
