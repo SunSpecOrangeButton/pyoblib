@@ -308,14 +308,14 @@ class TaxonomySemantic(object):
                 primary key is name from concepts, value is dict of concept
                 details
         """
-        concepts = None
-        ci = []
+        concepts = []
         if entrypoint in self._concepts:
             concepts = self._concepts[entrypoint]
             if details:
+                ci = {}
                 for concept in concepts:
                     if concept in self._elements:
-                        ci.append(self._elements[concept])
+                        ci[concept] = self._elements[concept]
                     else:
                         # TODO: This is now known to be a bug in the taxonomy
                         # and has been submitted for fix.
@@ -328,7 +328,8 @@ class TaxonomySemantic(object):
                         # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
                         # print("Warning, concept not found:", concept)
                         pass
-        return concepts, ci
+                return concepts, ci
+        return concepts
 
     def get_entrypoint_relationships(self, entrypoint):
         """
