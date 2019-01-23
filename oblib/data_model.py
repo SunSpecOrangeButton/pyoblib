@@ -977,6 +977,9 @@ class OBInstance(object):
         if "unit_name" in kwargs:
             unit_name = kwargs.pop("unit_name")
             valid_unit_name = self.tu.is_unit(unit_name)
+        else:
+            unit_name = None
+            valid_unit_name = False
 
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
@@ -1008,7 +1011,7 @@ class OBInstance(object):
                 "Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self._dev_validation_off and not valid_unit_name:
+        if not self._dev_validation_off and not  self._is_valid_unit(concept_name, unit_name):
             raise OBUnitException(
                 "{} is not a valid unit name for {}".format(unit_name, concept_name))
 
