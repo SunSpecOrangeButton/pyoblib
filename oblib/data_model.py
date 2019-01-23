@@ -991,7 +991,7 @@ class OBInstance(object):
 
         if "context" in kwargs:
             context = kwargs.pop("context")
-        elif all([k in kwargs for k in {"duration", "instant", "entity"}]):
+        elif len(list(kwargs.keys())) > 0:
             # turn the remaining keyword args into a Context object -- this
             # is just syntactic sugar to make this method easier to call.
             # TODO this block will not work
