@@ -118,7 +118,7 @@ class Hypercube(object):
         # If there's an arcrole of "all" then the "from" is a LineItems
         # and the "to" is the table?  I think?
         for relation in relationships:
-            if relation.role == RelationshipRole.all:
+            if relation.role == RelationshipRole.dimension_all:
                 if relation.to == self._table_name:
                     line_item = relation.from_
                     if not self.has_line_item(line_item):

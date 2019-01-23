@@ -69,7 +69,7 @@ class RelationshipRole(enum.Enum):
     Legal values for Relationship roles.
     """
 
-    all = "all"
+    dimension_all = "all"
     dimension_default = "dimension-default"
     dimension_domain = "dimension-domain"
     domain_member = "domain-member"
@@ -114,7 +114,7 @@ class Relationship(object):
         self.order = None
 
     def __repr__(self):
-        """Return a printable representation of an element."""
+        """Return a printable representation of an relationship."""
         return "{" + str(self.role) + \
             "," + str(self.from_) + \
             "," + str(self.to) + \
