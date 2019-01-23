@@ -290,12 +290,45 @@ class TaxonomySemantic(object):
         else:
             return False
 
-    def get_entrypoint_concepts(self, entrypoint):
-        """Return a list of all concepts in an entry point."""
+    def get_entrypoint_concepts(self, entrypoint, details=False):
+        """
+        Return a list of all concepts in the entrypoint, with concept details 
+        (optional).
+
+        Args:
+            entrypoint: str
+                name of the entrypoint
+            details: boolean, default False
+                if True return details for each concept
+
+        Returns:
+            concepts: list
+                elements of the list are concept names
+            details: dict
+                primary key is name from concepts, value is dict of concept
+                details
+        """
+        concepts = None
+        ci = []
         if entrypoint in self._concepts:
-            return self._concepts[entrypoint]
-        else:
-            return None
+            concepts = self._concepts[entrypoint]
+            if details:
+                for concept in concepts:
+                    if concept in self._elements:
+                        ci.append(self._elements[concept])
+                    else:
+                        # TODO: This is now known to be a bug in the taxonomy
+                        # and has been submitted for fix.
+                        # Remove this comment once completed.
+                        # Here are some samples that are not found:
+                        # Warning, concept not found: solar:MeterRatingAccuracy_1
+                        # Warning, concept not found: solar:MeterRevenueGrade_1
+                        # Warning, concept not found: solar:MeterBidirectional_1
+                        # Warning, concept not found: solar:RevenueMeterPowerFactor_1
+                        # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
+                        # print("Warning, concept not found:", concept)
+                        pass
+        return concepts, ci
 
     def get_entrypoint_relationships(self, entrypoint):
         """
@@ -333,28 +366,31 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def get_entrypoint_concepts_details(self, entrypoint):
-        """
-        Return concepts from an endpoints.
-
-        Return a list of all concepts and their attributes in an end point.
-        """
-        if entrypoint in self._concepts:
-            ci = []
-            for concept in self._concepts[entrypoint]:
-                if concept in self._elements:
-                    ci.append(self._elements[concept])
-                else:
-                    # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
-                    # Remove this comment once completed.
-                    # Here are some samples that are not found:
-                    # Warning, concept not found: solar:MeterRatingAccuracy_1
-                    # Warning, concept not found: solar:MeterRevenueGrade_1
-                    # Warning, concept not found: solar:MeterBidirectional_1
-                    # Warning, concept not found: solar:RevenueMeterPowerFactor_1
-                    # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                    # print("Warning, concept not found:", concept)
-                    pass
-            return ci
-        else:
-            return None
+# =============================================================================
+#     def get_entrypoint_concepts_details(self, entrypoint):
+#         """
+#         Return concepts from an endpoints.
+# 
+#         Return a list of all concepts and their attributes in an end point.
+#         """
+#         if entrypoint in self._concepts:
+#             ci = []
+#             for concept in self._concepts[entrypoint]:
+#                 if concept in self._elements:
+#                     ci.append(self._elements[concept])
+#                 else:
+#                     # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
+#                     # Remove this comment once completed.
+#                     # Here are some samples that are not found:
+#                     # Warning, concept not found: solar:MeterRatingAccuracy_1
+#                     # Warning, concept not found: solar:MeterRevenueGrade_1
+#                     # Warning, concept not found: solar:MeterBidirectional_1
+#                     # Warning, concept not found: solar:RevenueMeterPowerFactor_1
+#                     # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
+#                     # print("Warning, concept not found:", concept)
+#                     pass
+#             return ci
+#         else:
+#             return None
+# 
+# =============================================================================

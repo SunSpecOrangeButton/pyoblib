@@ -73,27 +73,37 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
     def test_get_entrypoint_concepts(self):
-        self.assertEqual(len(tax.get_entrypoint_concepts("MonthlyOperatingReport")), 84)
-        self.assertEqual(tax.get_entrypoint_concepts("MonthlyOperatingReort"), None)
-        self.assertEqual(len(tax.get_entrypoint_concepts("CutSheet")), 302)
-        self.assertEqual(len(tax.get_entrypoint_concepts("Utility")), 8)
+        concepts, _ = tax.get_entrypoint_concepts("MonthlyOperatingReport")
+        self.assertEqual(len(concepts), 84)
+        concepts, _ = tax.get_entrypoint_concepts("MonthlyOperatingReort")
+        self.assertEqual(concepts, None)
+        concepts, details = tax.get_entrypoint_concepts("CutSheet",
+                                                        details=True)
+        self.assertEqual(len(concepts), 302)
+        self.assertEqual(len(details), 297)
+        concepts, details = tax.get_entrypoint_concepts("Utility", True)
+        self.assertEqual(len(concepts), 8)
+        for ci in details:
+            self.assertEqual(ci, tax.get_concept_details(ci.id))
 
         # TODO: SystemInstallation is currently loaded under System.
         # self.assertEqual(len(tax.concepts_ep("SystemInstallationCost")), 10)
 
-    def test_get_entrypoint_concepts_details(self):
-        self.assertEqual(len(tax.get_entrypoint_concepts_details("MonthlyOperatingReport")), 84)
-        self.assertEqual(tax.get_entrypoint_concepts_details("MonthlyOperatingReort"), None)
-        
-        # TODO: 302 is expected but 297 returned, seeking info on why this is from XBRL.
-        # self.assertEqual(len(tax.concepts_info_ep("CutSheet")), 302)
-        self.assertEqual(len(tax.get_entrypoint_concepts_details("CutSheet")), 297)
-
-        self.assertEqual(len(tax.get_entrypoint_concepts_details("Utility")), 8)
-
-        for ci in tax.get_entrypoint_concepts_details("Utility"):
-            self.assertEqual(ci, tax.get_concept_details(ci.id))
-
+# =============================================================================
+#     def test_get_entrypoint_concepts_details(self):
+#         self.assertEqual(len(tax.get_entrypoint_concepts_details("MonthlyOperatingReport")), 84)
+#         self.assertEqual(tax.get_entrypoint_concepts_details("MonthlyOperatingReort"), None)
+#         
+#         # TODO: 302 is expected but 297 returned, seeking info on why this is from XBRL.
+#         # self.assertEqual(len(tax.concepts_info_ep("CutSheet")), 302)
+#         self.assertEqual(len(tax.get_entrypoint_concepts_details("CutSheet")), 297)
+# 
+#         self.assertEqual(len(tax.get_entrypoint_concepts_details("Utility")), 8)
+# 
+#         for ci in tax.get_entrypoint_concepts_details("Utility"):
+#             self.assertEqual(ci, tax.get_concept_details(ci.id))
+# 
+# =============================================================================
     def test_get_all_concept_details(self):
         self.assertIsNotNone(tax.get_all_concepts_details())
 
