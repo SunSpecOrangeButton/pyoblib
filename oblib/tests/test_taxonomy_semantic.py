@@ -76,7 +76,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         concepts = tax.get_entrypoint_concepts("MonthlyOperatingReport")
         self.assertEqual(len(concepts), 84)
         concepts = tax.get_entrypoint_concepts("MonthlyOperatingReort")
-        self.assertEqual(concepts, None)
+        self.assertEqual(concepts, [])
         concepts, details = tax.get_entrypoint_concepts("CutSheet",
                                                         details=True)
         self.assertEqual(len(concepts), 302)
