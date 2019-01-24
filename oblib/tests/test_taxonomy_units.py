@@ -23,17 +23,26 @@ tax = taxonomy_units.TaxonomyUnits()
 
 class TestTaxonomyUnits(unittest.TestCase):
 
-    def test_get_all_units(self):
-        self.assertEqual(len(tax.get_all_units()), 296)
-
     def test_is_unit(self):
         self.assertTrue(tax.is_unit("acre"))
+        self.assertTrue(tax.is_unit("acre", attr=None))
+        self.assertTrue(tax.is_unit("acre", "unit_id"))
+        self.assertFalse(tax.is_unit("acre", "unit_name"))
+        self.assertFalse(tax.is_unit("acre", "id"))
+
+        with self.assertRaises(ValueError):
+            found = tax.is_unit("acre", "unit_nickname")
+        with self.assertRaises(ValueError):
+            found = tax.is_unit("acre", attr=14)
+
         self.assertTrue(tax.is_unit("oz"))
         self.assertTrue(tax.is_unit("rad"))
         self.assertFalse(tax.is_unit("acrre"))
         self.assertFalse(tax.is_unit("ozz"))
         self.assertFalse(tax.is_unit("rrad"))
         self.assertTrue(tax.is_unit("Acre"))
+        self.assertTrue(tax.is_unit("Acre", "unit_name"))
+        self.assertTrue(tax.is_unit("u00001", "id"))
         self.assertTrue(tax.is_unit("Ounce"))
         self.assertTrue(tax.is_unit("Radian"))
         self.assertFalse(tax.is_unit("acrre"))
