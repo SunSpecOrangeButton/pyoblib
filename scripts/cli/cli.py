@@ -19,6 +19,7 @@ import argparse
 import identifier
 from parser import Parser, FileFormat, ValidationErrors
 import taxonomy
+import validator
 
 #
 # TODO: list-types is missing
@@ -261,11 +262,18 @@ def validate_concept(args):
 
 
 def validate_value(args):
-    result = tax.semantic.validate_concept_value(args.concept, args.value)
-    valid = "True"
-    if len(result[1]) > 0:
-        valid = "False"
-    print("Valid:", valid, "\n", "\n".join(result[1]))
+    concept_details = tax.semantic.get_concept_details(args.concept)
+    if concept_details is None:
+        print("Not valid:", args.concept, "is not a concept name.")
+        return
+
+    result = validator.validate_concept_value(concept_details, args.value)
+    if len(result[1]) == 0:
+        print("Valid:", result[0])
+    else:
+        print("Not valid:", end=" ")
+        for error in result[1]:
+            print(error)
 
 
 def validate_ep(args):
