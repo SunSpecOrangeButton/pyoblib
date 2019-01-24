@@ -137,7 +137,7 @@ class TaxonomySemantic(object):
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
         self._relationships = self._load_relationships()
-        self._reduce_memory_footprint()
+        self._reduce_unused_semantic_data()
 
     def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
@@ -230,14 +230,16 @@ class TaxonomySemantic(object):
 
         return relationships
 
-    def _reduce_memory_footprint(self):
+    def _reduce_unused_semantic_data(self):
         """
-        Reduce the memory footprint post load by removing unused data.
-
         During loading of the elements unused elements may be loaded in the
         us-gaap and dei namespaces.  A new elements list can be created that
         does not contain them.  Although there is no other known cases of
         unused memory if any are found they should be addressed.
+
+        Removing the elements has two benefits:
+            - Allows simplifcation of accessor methods which no longer have to filter unused data.
+            - Reduces in-memory footprint of data
         """
         # Create a list of elements in use and set them all to False
         elements_in_use = {}
@@ -286,13 +288,11 @@ class TaxonomySemantic(object):
 
     def is_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""
-        found = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    break
-        return found
+
+        if concept in self._elements:
+            return True
+        else:
+            return False
 
     def is_entrypoint(self, entrypoint):
         """Validate if an end point type is present in the Taxonomy."""
