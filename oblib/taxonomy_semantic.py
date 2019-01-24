@@ -294,27 +294,6 @@ class TaxonomySemantic(object):
                     break
         return found
 
-    def validate_concept_value(self, concept, value):
-        """
-        Validate a concept.
-
-        Validates whether a concept is present in the Taxonomy and if
-        its value is legal.
-        """
-        # Check presence
-        found = False
-        concept_info = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    concept_info = self.get_concept_details(concept)
-                    break
-        if not found:
-            return ["'{}' concept not found.".format(concept)]
-
-        return validator.validate_concept_value(concept_info, value)
-
     def is_entrypoint(self, entrypoint):
         """Validate if an end point type is present in the Taxonomy."""
         if entrypoint in self._concepts:
