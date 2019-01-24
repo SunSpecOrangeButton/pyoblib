@@ -142,23 +142,28 @@ def list_ep(args):
 def list_ep_concepts_info(args):
 
     if csv:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
-        print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
+        concepts, details = tax.semantic.get_entrypoint_concepts(args.ep,
+                                                                 details=True)
+        print("Id, Name, Abstract, Nillable, Period Indicator, "
+              "Substitution Group, Type, Period Type")
         for c in concepts:
-                print('%s, %s, %s, %s, %s, %s, %s, %s' %
-                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-                c.substitution_group, c.type_name, c.period_type))
+            d = details[c]
+            print('%s, %s, %s, %s, %s, %s, %s, %s' %
+            (d.id, d.name, d.abstract, d.nillable, d.period_independent,
+            d.substitution_group, d.type_name, d.period_type))
     else:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
+        concepts, details = tax.semantic.get_entrypoint_concepts(args.ep,
+                                                                 details=True)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-                ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
-                "Per Type"))
+                ("Id", "Name", "Abstract", "Nillable", "Period Ind",
+                 "Substitution Group", "Type", "Period Type"))
         print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
         for c in concepts:
-                print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-                c.substitution_group, c.type_name, c.period_type))
+            d = details[c]
+            print('%85s %80s %8s %8s %10s %20s %28s %8s' %
+            (d.id, d.name, d.abstract, d.nillable, d.period_independent,
+            d.substitution_group, d.type_name, d.period_type))
 
 
 def list_concepts(args):

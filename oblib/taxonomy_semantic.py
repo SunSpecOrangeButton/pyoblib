@@ -257,14 +257,29 @@ class TaxonomySemantic(object):
                 ne[e] = self._elements[e]
         self._elements = ne
 
-    def get_all_concepts_details(self):
-        """Return a map of elements."""
-        return self._elements
+    def get_all_concepts(self, details=False):
+        """
+        Return all concepts in the taxonomy.
+        
+        Args:
+            details : boolean, default False
+
+        Returns:
+            list of concept names if details=False
+            dict of concept details if details=True
+        """
+        if not details:
+            return list(self._concepts)
+        else:
+            return self._elements
 
     def get_all_type_names(self):
-        """Return an array of strings representing all data types in elements"""
+        """
+        Return all type names in elements of the taxonomy.
 
-        type_names = set()
+        Returns list
+        """
+        type_names = set() # use set to eliminate duplicates
         for e in self._elements:
             type_names.add(self._elements[e].type_name)
         return list(type_names)
@@ -307,12 +322,46 @@ class TaxonomySemantic(object):
         else:
             return False
 
-    def get_entrypoint_concepts(self, entrypoint):
-        """Return a list of all concepts in an entry point."""
+    def get_entrypoint_concepts(self, entrypoint, details=False):
+        """
+        Return a list of all concepts in the entrypoint, with concept details 
+        (optional).
+
+        Args:
+            entrypoint: str
+                name of the entrypoint
+            details: boolean, default False
+                if True return details for each concept
+
+        Returns:
+            concepts: list
+                elements of the list are concept names
+            details: dict
+                primary key is name from concepts, value is dict of concept
+                details
+        """
+        concepts = []
         if entrypoint in self._concepts:
-            return self._concepts[entrypoint]
-        else:
-            return None
+            concepts = self._concepts[entrypoint]
+            if details:
+                ci = {}
+                for concept in concepts:
+                    if concept in self._elements:
+                        ci[concept] = self._elements[concept]
+                    else:
+                        # TODO: This is now known to be a bug in the taxonomy
+                        # and has been submitted for fix.
+                        # Remove this comment once completed.
+                        # Here are some samples that are not found:
+                        # Warning, concept not found: solar:MeterRatingAccuracy_1
+                        # Warning, concept not found: solar:MeterRevenueGrade_1
+                        # Warning, concept not found: solar:MeterBidirectional_1
+                        # Warning, concept not found: solar:RevenueMeterPowerFactor_1
+                        # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
+                        # print("Warning, concept not found:", concept)
+                        pass
+                return concepts, ci
+        return concepts
 
     def get_entrypoint_relationships(self, entrypoint):
         """
@@ -336,42 +385,22 @@ class TaxonomySemantic(object):
         return list(self._concepts)
 
     def get_concept_details(self, concept):
-        """Return information on a single concept."""
-        found = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    break
-        if not found:
-            return None
-        if concept in self._elements:
+        """
+        Return information on a single concept.
+
+        Args:
+            concept : str
+                concept name
+
+        Returns:
+            dict containing concept attributes
+
+        Raises:
+            KeyError if concept is not found
+        """
+        if self.is_concept(concept):
             return self._elements[concept]
         else:
+            raise KeyError('{} is not a concept in the taxonomy'.format(concept))
             return None
 
-    def get_entrypoint_concepts_details(self, entrypoint):
-        """
-        Return concepts from an endpoints.
-
-        Return a list of all concepts and their attributes in an end point.
-        """
-        if entrypoint in self._concepts:
-            ci = []
-            for concept in self._concepts[entrypoint]:
-                if concept in self._elements:
-                    ci.append(self._elements[concept])
-                else:
-                    # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
-                    # Remove this comment once completed.
-                    # Here are some samples that are not found:
-                    # Warning, concept not found: solar:MeterRatingAccuracy_1
-                    # Warning, concept not found: solar:MeterRevenueGrade_1
-                    # Warning, concept not found: solar:MeterBidirectional_1
-                    # Warning, concept not found: solar:RevenueMeterPowerFactor_1
-                    # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                    # print("Warning, concept not found:", concept)
-                    pass
-            return ci
-        else:
-            return None
