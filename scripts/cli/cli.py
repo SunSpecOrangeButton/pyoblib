@@ -142,14 +142,14 @@ def list_ep(args):
 def list_ep_concepts_info(args):
 
     if csv:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
+        concepts = tax.semantic.get_entrypoint_concepts(args.ep, details=True)
         print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
         for c in concepts:
                 print('%s, %s, %s, %s, %s, %s, %s, %s' %
                 (c.id, c.name, c.abstract, c.nillable, c.period_independent,
                 c.substitution_group, c.type_name, c.period_type))
     else:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
+        concepts = tax.semantic.get_entrypoint_concepts(args.ep, details=True)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
                 ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
                 "Per Type"))
