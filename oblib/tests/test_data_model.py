@@ -774,4 +774,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         pass
 
 
-
+    def test_decimals_and_precision(self):
+        #
+        pass
