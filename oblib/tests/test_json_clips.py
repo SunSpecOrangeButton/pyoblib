@@ -37,7 +37,6 @@ class TestJsonClips(unittest.TestCase):
     # necessarily required unless noted via the expression).  A line number in the JSON also is
     # present and in an ideal world the line number should also be decipherable fromt he parser.
 
-     @pytest.mark.skip(reason="skipping during refactor to speed up tests - remove when done")
      def test_clips(self):
         failure_list = []
         for clip in CLIPS:

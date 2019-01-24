@@ -61,7 +61,7 @@ def convert(args):
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
-    
+
     try:
         p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
     except ValidationErrors as errors:
@@ -117,7 +117,7 @@ def list_concept_info(args):
 
 
 def list_unit_info(args):
-    unit = tax.units.is_unit2(args.unit)
+    unit = tax.units.get_unit(args.unit)
     if unit is not None:
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
@@ -142,23 +142,28 @@ def list_ep(args):
 def list_ep_concepts_info(args):
 
     if csv:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
-        print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
+        concepts, details = tax.semantic.get_entrypoint_concepts(args.ep,
+                                                                 details=True)
+        print("Id, Name, Abstract, Nillable, Period Indicator, "
+              "Substitution Group, Type, Period Type")
         for c in concepts:
-                print('%s, %s, %s, %s, %s, %s, %s, %s' %
-                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-                c.substitution_group, c.type_name, c.period_type))
+            d = details[c]
+            print('%s, %s, %s, %s, %s, %s, %s, %s' %
+            (d.id, d.name, d.abstract, d.nillable, d.period_independent,
+            d.substitution_group, d.type_name, d.period_type))
     else:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
+        concepts, details = tax.semantic.get_entrypoint_concepts(args.ep,
+                                                                 details=True)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-                ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
-                "Per Type"))
+                ("Id", "Name", "Abstract", "Nillable", "Period Ind",
+                 "Substitution Group", "Type", "Period Type"))
         print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
         for c in concepts:
-                print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-                c.substitution_group, c.type_name, c.period_type))
+            d = details[c]
+            print('%85s %80s %8s %8s %10s %20s %28s %8s' %
+            (d.id, d.name, d.abstract, d.nillable, d.period_independent,
+            d.substitution_group, d.type_name, d.period_type))
 
 
 def list_concepts(args):
@@ -178,7 +183,7 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-                       (r['role'], r['from'], r['to'], r['order']))
+                       (r.role, r.from_, r.to, r.order))
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
@@ -188,7 +193,7 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))
+                       (r.role, r.from_, r.to, r.order))
         else:
             print("Not found")
 
@@ -228,7 +233,7 @@ def list_units_details(args):
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
         for unit_id in tax.units.get_all_units():
-                unit = tax.units.is_unit2(unit_id)
+                unit = tax.units.get_unit(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -241,7 +246,7 @@ def list_units_details(args):
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
         for unit_id in tax.units.get_all_units():
-                unit = tax.units.is_unit2(unit_id)
+                unit = tax.units.get_unit(unit_id)
                 print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -254,7 +259,7 @@ def list_types(args):
     names.sort()
     for name in names:
         print(name)
-        
+
 
 def validate_concept(args):
     print("Valid:", tax.semantic.is_concept(args.concept))
@@ -293,7 +298,7 @@ def validate_generic_role(args):
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.is_unit(unit_id=args.generic_unit))
+    print("Valid:", tax.units.is_unit(args.generic_unit))
 
 
 def version(args):
