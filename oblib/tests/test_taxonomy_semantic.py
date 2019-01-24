@@ -72,6 +72,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
+        with self.assertRaises(KeyError):
+            _ = tax.get_concept_details("solar:iamnotaconcept")
+
     def test_get_entrypoint_concepts(self):
         concepts = tax.get_entrypoint_concepts("MonthlyOperatingReport")
         self.assertEqual(len(concepts), 84)
@@ -104,8 +107,11 @@ class TestTaxonomySemantic(unittest.TestCase):
 #             self.assertEqual(ci, tax.get_concept_details(ci.id))
 # 
 # =============================================================================
-    def test_get_all_concept_details(self):
-        self.assertIsNotNone(tax.get_all_concepts_details())
+    def test_get_all_concepts(self):
+        self.assertIsNotNone(tax.get_all_concepts())
+        self.assertIsInstance(tax.get_all_concepts(), list)
+        self.assertIsNotNone(tax.get_all_concepts(details=True))
+        self.assertIsNotNone(tax.get_all_concepts(details=True), dict)
 
     def test_get_all_type_names(self):
         self.assertEqual(len(tax.get_all_type_names()), 76)
