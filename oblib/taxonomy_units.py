@@ -192,6 +192,8 @@ class TaxonomyUnits(object):
                 raise ValueError("{} is not a valid unit_id, unit_name or id"
                                 .format(unit_str))
                 return None
+            else:
+                return unit
 
         elif attr not in {'unit_id', 'unit_name', 'id'}:
             raise ValueError('{} is not a recognized unit attribute'

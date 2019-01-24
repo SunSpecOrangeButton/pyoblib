@@ -25,7 +25,7 @@ class TestTaxonomyUnits(unittest.TestCase):
 
     def test_is_unit(self):
         self.assertTrue(tax.is_unit("acre"))
-        self.assertTrue(tax.is_unit("acre"), attr=None)
+        self.assertTrue(tax.is_unit("acre", attr=None))
         self.assertTrue(tax.is_unit("acre", "unit_id"))
         self.assertFalse(tax.is_unit("acre", "unit_name"))
         self.assertFalse(tax.is_unit("acre", "id"))
