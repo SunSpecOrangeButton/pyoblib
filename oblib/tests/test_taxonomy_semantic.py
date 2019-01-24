@@ -83,8 +83,8 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(len(details), 297)
         concepts, details = tax.get_entrypoint_concepts("Utility", True)
         self.assertEqual(len(concepts), 8)
-        for ci in details:
-            self.assertEqual(ci, tax.get_concept_details(ci.id))
+        for ci in concepts:
+            self.assertEqual(details[ci], tax.get_concept_details(ci))
 
         # TODO: SystemInstallation is currently loaded under System.
         # self.assertEqual(len(tax.concepts_ep("SystemInstallationCost")), 10)
