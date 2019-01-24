@@ -188,6 +188,17 @@ class TaxonomySemantic(object):
                     concepts[dirname] = self._load_concepts_file(
                         os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                      "documents", dirname, filename))
+
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "process")):
+            for filename in os.listdir(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "process",
+                                 dirname)):
+                # if 'def.' in filename:
+                if 'pre.' in filename:
+                    concepts[dirname] = self._load_concepts_file(
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                     "process", dirname, filename))
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -210,6 +221,12 @@ class TaxonomySemantic(object):
             for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
+
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "process")):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process", dirname)):
+                if 'def.' in filename:
+                    relationships[dirname] = self._load_relationships_file(os.path.join("process", dirname, filename))
 
         return relationships
 
