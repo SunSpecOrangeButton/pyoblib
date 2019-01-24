@@ -271,7 +271,9 @@ def validate_value(args):
     if len(result[1]) == 0:
         print("Valid:", result[0])
     else:
-        print("Not valid:", end=" ")
+        # Note: the following line is not valid in 2.7 so use sys.stdout.write instead.
+        #print("Not valid:", end=" ")
+        sys.stdout.write("Not valid: ")
         for error in result[1]:
             print(error)
 
