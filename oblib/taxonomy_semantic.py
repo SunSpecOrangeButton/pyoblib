@@ -257,12 +257,15 @@ class TaxonomySemantic(object):
             return self._elements
 
     def get_all_type_names(self):
-        """Return an array of strings representing all data types in elements"""
+        """
+        Return all type names in elements of the taxonomy.
 
-        type_names = []
+        Returns list
+        """
+        type_names = set() # use set to eliminate duplicates
         for e in self._elements:
-            type_names.append(self._elements[e].type_name)
-        return type_names
+            type_names.add(self._elements[e].type_name)
+        return list(type_names)
 
     def is_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""
