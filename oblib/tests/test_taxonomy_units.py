@@ -30,8 +30,10 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertFalse(tax.is_unit("acre", "unit_name"))
         self.assertFalse(tax.is_unit("acre", "id"))
 
-        self.assertRaises(tax.is_unit("acre", "unit_nickname"))
-        self.assertRaises(tax.is_unit("acre", attr=14))
+        with self.assertRaises(ValueError):
+            found = tax.is_unit("acre", "unit_nickname")
+        with self.assertRaises(ValueError):
+            found = tax.is_unit("acre", attr=14)
 
         self.assertTrue(tax.is_unit("oz"))
         self.assertTrue(tax.is_unit("rad"))
