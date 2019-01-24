@@ -73,9 +73,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
     def test_get_entrypoint_concepts(self):
-        concepts, _ = tax.get_entrypoint_concepts("MonthlyOperatingReport")
+        concepts = tax.get_entrypoint_concepts("MonthlyOperatingReport")
         self.assertEqual(len(concepts), 84)
-        concepts, _ = tax.get_entrypoint_concepts("MonthlyOperatingReort")
+        concepts = tax.get_entrypoint_concepts("MonthlyOperatingReort")
         self.assertEqual(concepts, None)
         concepts, details = tax.get_entrypoint_concepts("CutSheet",
                                                         details=True)
