@@ -268,7 +268,7 @@ def validate_value(args):
         return
 
     result = validator.validate_concept_value(concept_details, args.value)
-    if len(result[1]) == 0:
+    if not result[1]:
         print("Valid:", result[0])
     else:
         # Note: the following line is not valid in 2.7 so use sys.stdout.write instead.
