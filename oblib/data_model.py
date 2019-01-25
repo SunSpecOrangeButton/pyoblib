@@ -444,14 +444,15 @@ class Fact(object):
     as either XML or JSON. A Fact provides a value for a certain concept within
     a certain context, and can optionally provide units and a precision.
     """
-    def __init__(self, concept, context, unit, value, decimals=2):
+    def __init__(self, concept, context, unit, value, decimals=None, precision=None):
         """
         Concept is the field name - it must match the schema definition.
         Context is a reference to this fact's parent Context object.
         Units is a string naming the unit, for example "kWh"
-        Value is a string, integer, or float
-        Decimals is used only for float types, it is the number of
-        digits 
+        Value is a string, integer, or float.
+        For numeric types only, precision OR decimals (not both) can be specified.
+        Decimals is the number of digits past the decimal point; precision is
+        the total number of significant digits.
         """
         # in case of xml the context ID will be rendered in the fact tag.
         # in case of json the contexts' attributes will be copied to the
@@ -460,7 +461,15 @@ class Fact(object):
         self.value = value
         self.context = context
         self.unit = unit
+
+        if decimals is not None and precision is not None:
+            raise OBException("Fact given both precision and decimals - use only one.")
         self.decimals = decimals
+        self.precision = precision
+        if decimals is None and precision is None:
+            # Default to 2 decimals:
+            self.decimals = 2
+
         # Fill in the id property with a UUID:
         self.id = identifier.identifier() # Only used when exporting JSON
 
@@ -473,10 +482,13 @@ class Fact(object):
         # also the self.unit may not be correct unitRef? not sure
         if self.unit is not None:
             attribs["unitRef"] = self.unit
-            if self.unit == "pure" or self.unit == "degrees":
+            if self.unit == "pure":
                 attribs["decimals"] = "0"
             else:
-                attribs["decimals"] = str(self.decimals)
+                if self.decimals is not None:
+                    attribs["decimals"] = str(self.decimals)
+                elif self.precision is not None:
+                    attribs["precision"] = str(self.precision)
         elem = Element(self.concept, attrib=attribs)
         if self.unit == "pure":
             elem.text = "%d" % self.value
@@ -493,6 +505,13 @@ class Fact(object):
         aspects["concept"] = self.concept
         if self.unit is not None:
             aspects["unit"] = self.unit
+            if self.unit == "pure":
+                aspects["decimals"] = "0"
+            else:
+                if self.decimals is not None:
+                    aspects["decimals"] = str(self.decimals)
+                elif self.precision is not None:
+                    aspects["precision"] = str(self.precision)
 
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%dT%H:%M:%S")
@@ -958,12 +977,15 @@ class OBInstance(object):
         that fact.
         If concept_name and context are identical to a previous call, the old fact
         will be overwritten. Otherwise, a new fact is created.
-        acceptable keyword args:
-        unit_nam = a string naming a unit
-        precision = <number of places past the decimal pt>(for decimal values only)
+        accepts keyword args:
         context = a Context object
+        unit_name = a string naming a unit
+        precision = <number of significant digits of precision>(for decimal values only)
+        decimals = <number of places past the decimal pt>(for decimal values only)
+        (only one of precision or decimals should be given. Defaults to decimals=2)
 
-        can be supplied as separate keyword args instead of context object:
+        Alternately, the following can be supplied as separate keyword args instead of
+        as a context object:
         duration = "forever" or {"start": <date>, "end": <date>}
         instant = <date>
         entity = <entity name>
@@ -978,6 +1000,12 @@ class OBInstance(object):
 
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
+        else:
+            precision = None
+        if "decimals" in kwargs:
+            decimals = kwargs.pop("decimals")
+        else:
+            decimals = None
 
         if not self.is_concept_writable(concept_name):
             raise OBConceptException(
@@ -1018,8 +1046,9 @@ class OBInstance(object):
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID
 
-        f = Fact(concept_name, context, unit_name, value)
-        # TODO pass in decimals? Fact expects decimals and "precision" is slightly different
+        f = Fact(concept_name, context, unit_name, value,
+                 precision=precision,
+                 decimals=decimals)
 
         # self.facts is nested dict keyed first on table then on context ID
         # and finally on concept:

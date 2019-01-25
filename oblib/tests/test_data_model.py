@@ -14,6 +14,7 @@
 
 import unittest
 from data_model import OBInstance, Context, Hypercube, UNTABLE
+from data_model import OBException, OBContextException
 from datetime import datetime, date
 from taxonomy import getTaxonomy
 from lxml import etree
@@ -648,7 +649,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
             instant = datetime.now())
         # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
         # but the table that holds DeviceCost doesn't want this axis:
-        with self.assertRaises(Exception):
+        with self.assertRaises(OBContextException):
             doc.validate_context("solar:DeviceCost", threeAxisContext)
 
 
@@ -775,5 +776,42 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
 
     def test_decimals_and_precision(self):
-        #
-        pass
+        # if we set a fact and pass in a Decimals argument,
+        # then when we write out to JSON or XML we should see decimals there.
+        # Same with Precision.
+        # Trying to set both Decimals and Precision should give an error.
+        # If we don't set either, it should default to decimals=2.
+
+        doc = OBInstance("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               PeriodType.instant: now,
+                               PeriodType.duration: "forever"
+                               })
+
+        # If we set a fact that wants a duration context, it should use jan 1 - jan 31:
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1, precision = 3)
+
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+
+        # TODO is supposed to be in aspects or not?
+        self.assertEqual(len(facts), 1)
+        self.assertEqual(facts.values()[0]["aspects"]["precision"], "3")
+
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1, decimals = 3)
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+        self.assertEqual(len(facts), 1)
+        self.assertEqual(facts.values()[0]["aspects"]["decimals"], "3")
+
+        # Trying to set both decimals and precision should raise an error
+        with self.assertRaises(OBException):
+            doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1, decimals = 3, precision=3)
+ 
+        
+        
