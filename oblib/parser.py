@@ -190,13 +190,14 @@ class Parser(object):
         # Loop through facts to determine what type of endpoint this is.
         if not entrypoint_name:
             fact_names = []
-            for fact in facts:
+            for id in facts:
+                fact = facts[id]
                 if "aspects" not in fact:
                     validation_errors.append("fact tag is missing aspects tag")
-                elif "xbrl:concept" not in fact["aspects"]:
+                elif "concept" not in fact["aspects"]:
                     validation_errors.append("aspects tag is missing xbrl:concept tag")
                 else:
-                    fact_names.append(fact["aspects"]["xbrl:concept"])
+                    fact_names.append(fact["aspects"]["concept"])
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
             except ValidationError as ve:
@@ -204,7 +205,7 @@ class Parser(object):
                 raise validation_errors
 
         # If we reach this point re-initialize the validation errors because all previous errors found
-        # will be found again.  Re-initialization reduces duplicate error messages and ensures that 
+        # will be found again.  Re-initialization reduces duplicate error messages and ensures that
         # errors are found in the correct order.
         validation_errors = ValidationErrors("Error(s) found in input JSON")
 
@@ -212,7 +213,9 @@ class Parser(object):
         entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
-        for fact in facts:
+        for id in facts:
+
+            fact = facts[id]
 
             # Track the current number of errors to see if it grows for this fact
             begin_error_count = len(validation_errors.get_errors())
@@ -222,40 +225,39 @@ class Parser(object):
             if "aspects" not in fact:
                 validation_errors.append("fact tag is missing aspects tag")
             else:
-                if "xbrl:concept" not in fact["aspects"]:
+                if "concept" not in fact["aspects"]:
                     validation_errors.append("aspects tag is missing xbrl:concept tag")
-                if "xbrl:entity" not in fact["aspects"]:
+                if "entity" not in fact["aspects"]:
                     validation_errors.append("aspects tag is missing xbrl:entity tag")
                 else:
-                    kwargs = {"entity": fact["aspects"]["xbrl:entity"]}
+                    kwargs = {"entity": fact["aspects"]["entity"]}
 
                 # TODO: id is not currently support by Entrypoint.  Uncomment when it is.
                 # if "id" in fact:
                 #     kwargs["id"] = fact["id"]
 
-                if "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
-                    if fact["aspects"]["xbrl:periodStart"] == fact["aspects"]["xbrl:periodEnd"]:
-                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                        if start is None:
-                            validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
-                        elif kwargs is not None:
-                            kwargs["instant"] = start
-                    else:
-                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                        end = util.convert_json_datetime(fact["aspects"]["xbrl:periodEnd"])
-                        if start is None:
-                            validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
-                        if end is None:
-                            validation_errors.append("xbrl:periodEnd is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
-
-                        if start is not None and end is not None and kwargs is not None:
+                if "period" in fact["aspects"]:
+                    period = fact["aspects"]["period"]
+                    if "/" in period:
+                        dates = period.split("/")
+                        if len(dates) != 2:
+                            validation_errors.append("period component is in an incorrect format (yyyy-mm-ddT00:00:00/yyyy-mm-ddT00:00:00 expected)")
+                        else:
+                            start = util.convert_json_datetime(dates[0])
+                            end = util.convert_json_datetime(dates[1])
+                            if start is None:
+                                validation_errors.append("period start component is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+                            if end is None:
+                                validation_errors.append("period end component is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
                             kwargs["duration"] = {}
-                            kwargs["duration"]["start"] = start 
+                            kwargs["duration"]["start"] = start
                             kwargs["duration"]["end"] = end
-                elif "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" not in fact["aspects"]:
-                    validation_errors.append("xbrl:periodStart is present but xbrl:periodEnd is missing")
-                elif "xbrl:periodStart" not in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
-                    validation_errors.append("xbrl:periodEnd is present but xbrl:periodStart is missing")
+                    else:
+                        start = util.convert_json_datetime(fact["aspects"]["period"])
+                        if start is None:
+                            validation_errors.append("start is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+                        kwargs["instant"] = start
+
                 elif kwargs is not None:
                     kwargs["duration"] = "forever"
 
@@ -266,14 +268,26 @@ class Parser(object):
                         kwargs[axis_chk.split(":")[1]] = fact["aspects"][axis_chk]
 
             if "aspects" in fact and "xbrl:unit" in fact["aspects"] and kwargs is not None:
-                kwargs["unit_name"] = fact["aspects"]["xbrl:unit"]
+                kwargs["unit_name"] = fact["aspects"]["unit"]
 
             # If validation errors were found for this fact continute to the next fact
             if len(validation_errors.get_errors()) > begin_error_count:
                 continue
 
+            # TODO: Temporary code
+            # Required to match behavior of to_JSON, once the two are syncrhonized it should not be required.
+            value = fact["value"]
+            if value == "None":
+                value = None
+            elif value == "True":
+                value = True
+            elif value == "False":
+                value = False
+            # Done with temporary code
+
             try:
-                entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
+                entrypoint.set(fact["aspects"]["concept"], value, **kwargs)
+                # entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
             except Exception as e:
                 validation_errors.append(e)
 
