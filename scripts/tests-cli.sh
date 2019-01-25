@@ -52,7 +52,7 @@ python scripts/cli/cli.py taxonomy list-units-details || {
 python scripts/cli/cli.py --csv taxonomy list-units-details || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-unit-info rad || {
+python scripts/cli/cli.py taxonomy list-unit-details rad || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy validate-unit rad || {
@@ -85,25 +85,25 @@ python scripts/cli/cli.py taxonomy list-types || {
 }
 
 # Semantic tests
-python scripts/cli/cli.py taxonomy validate-ep MonthlyOperatingReport || {
+python scripts/cli/cli.py taxonomy validate-entrypoint MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-ep MonthlyOperatngReport || {
+python scripts/cli/cli.py taxonomy validate-entrypoint MonthlyOperatngReport || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy list-concepts MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
+python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concept-info solar:AccountsReceivableCustomerName || {
+python scripts/cli/cli.py taxonomy list-concept-details solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-concepts-info MonthlyOperatingReport || {
+python scripts/cli/cli.py --csv taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-ep || {
+python scripts/cli/cli.py --csv taxonomy list-entrypoint || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
@@ -115,7 +115,7 @@ python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustom
 python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts-info MonthlyOperatingReport || {
+python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy list-relationships MonthlyOperatingReport || {
