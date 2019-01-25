@@ -430,9 +430,9 @@ class Context(object):
             # TODO is there a difference in how typed axes vs explicit axes
             # are represented in JSON?
             if self.hypercube.is_typed_dimension(dimension):
-                value_str = self.axes[dimension]
+                value_str = str(self.axes[dimension])
             else:
-                value_str = self.axes[dimension]
+                value_str = str(self.axes[dimension])
             aspects[dimension] = value_str
 
         return aspects
@@ -505,7 +505,7 @@ class Fact(object):
         aspects = self.context._toJSON()
         aspects["concept"] = self.concept
         if self.unit is not None:
-            aspects["unit"] = self.unit
+            aspects["unit"] = str(self.unit)
             if self.unit == "pure":
                 aspects["decimals"] = "0"
             else:

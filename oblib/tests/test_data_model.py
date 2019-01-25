@@ -858,3 +858,35 @@ class TestDataModelEntrypoint(unittest.TestCase):
         root = etree.fromstring(xml)
         fact = root.find("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ModuleNameplateCapacity")
         self.assertEqual(fact.attrib["id"], fact_id)
+
+    def test_json_fields_are_strings(self):
+        # Issue #77 - all json fields should be strings other than None which should convert
+        # a JSON null literal.
+        # e.g. numbers should be "100" not 100
+        # booleans should be "true" not true
+
+        
+        doc = OBInstance("System", self.taxonomy, dev_validation_off=True)
+        now = datetime.now()
+        doc.set_default_context({
+            "entity": "JUPITER",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel100PercentMember",
+            PeriodType.instant: now,
+            PeriodType.duration: "forever"
+        })
+
+        # Set fact using a numeric type as value:
+        doc.set("solar:InverterOutputRatedPowerAC", 1.25, unit_name="kW",
+                ProductIdentifierAxis = 1)
+
+        # Set fact using a boolean type as value:
+        doc.set("solar:ModuleHasCertificationIEC61646", True, ProductIdentifierAxis = 1)
+
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+
+        self.assertEqual(len(facts), 2)
+
+        for fact in facts.values():
+            self.assertTrue( isinstance( fact['value'], unicode) )
+            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], unicode))
