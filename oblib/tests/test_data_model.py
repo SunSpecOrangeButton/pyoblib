@@ -790,7 +790,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                PeriodType.duration: "forever"
                                })
 
-        # If we set a fact that wants a duration context, it should use jan 1 - jan 31:
+        # Set fact with precision:
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, precision = 3)
 
@@ -801,6 +801,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(facts), 1)
         self.assertEqual(facts.values()[0]["aspects"]["precision"], "3")
 
+        # Set fact with decimals:
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3)
         jsonstring = doc.to_JSON_string()
@@ -808,10 +809,52 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(facts), 1)
         self.assertEqual(facts.values()[0]["aspects"]["decimals"], "3")
 
+        # If you set a fact with neither it should default to decimals=2:
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1)
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+        self.assertEqual(len(facts), 1)
+        self.assertEqual(facts.values()[0]["aspects"]["decimals"], "2")
+
+
         # Trying to set both decimals and precision should raise an error
         with self.assertRaises(OBException):
             doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3, precision=3)
- 
-        
-        
+
+
+    def test_ids_in_xml_and_json(self):
+        # facts should have IDs in both exported JSON and exported XML, and they
+        # should be the same ID either way.
+        doc = OBInstance("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               PeriodType.instant: now,
+                               PeriodType.duration: "forever"
+                               })
+
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1)
+
+        fact = doc.get("solar:ModuleNameplateCapacity",
+                       Context(
+                           ProductIdentifierAxis = 1,
+                           TestConditionAxis = "solar:StandardTestConditionMember",
+                           entity = "JUPITER",
+                           duration="forever"))
+        # Read the fact ID that was automatically assigned when we set the fact:
+        fact_id = fact.id
+
+        # Look for fact ID in JSON:
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+        self.assertEqual(len(facts.keys()), 1)
+        self.assertEqual(facts.keys()[0], fact_id)
+
+        # Look for fact ID in XML:
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+        fact = root.find("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ModuleNameplateCapacity")
+        self.assertEqual(fact.attrib["id"], fact_id)

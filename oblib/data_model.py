@@ -477,7 +477,8 @@ class Fact(object):
         """
         Return the Fact as an XML element.
         """
-        attribs = {"contextRef": self.context.get_id()}
+        attribs = {"contextRef": self.context.get_id(),
+                   "id": self.id}
         # TODO the "pure" part is probably wrong now.
         # also the self.unit may not be correct unitRef? not sure
         if self.unit is not None:
