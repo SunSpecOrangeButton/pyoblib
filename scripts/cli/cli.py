@@ -19,6 +19,7 @@ import argparse
 import identifier
 from parser import Parser, FileFormat, ValidationErrors
 import taxonomy
+import validator
 
 #
 # TODO: list-types is missing
@@ -61,7 +62,7 @@ def convert(args):
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
         sys.exit(1)
-    
+
     try:
         p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
     except ValidationErrors as errors:
@@ -99,7 +100,7 @@ def generate_identifier(args):
     print(identifier.identifier())
 
 
-def list_concept_info(args):
+def list_concept_details(args):
     print()
     c = tax.semantic.get_concept_details(args.concept)
     print(c)
@@ -116,8 +117,8 @@ def list_concept_info(args):
         print("Not found")
 
 
-def list_unit_info(args):
-    unit = tax.units.is_unit2(args.unit)
+def list_unit_details(args):
+    unit = tax.units.get_unit(args.unit)
     if unit is not None:
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
@@ -134,35 +135,40 @@ def list_unit_info(args):
         print("Not found")
 
 
-def list_ep(args):
-    for ep in tax.semantic.get_all_entrypoints():
-        print(ep)
+def list_entrypoint(args):
+    for entrypoint in tax.semantic.get_all_entrypoints():
+        print(entrypoint)
 
 
-def list_ep_concepts_info(args):
+def list_entrypoint_concepts_details(args):
 
     if csv:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
-        print("Id, Name, Abstract, Nillable, Period Indicator, Substitution Group", "Type", "Period Type")
+        concepts, details = tax.semantic.get_entrypoint_concepts(args.entrypoint,
+                                                                 details=True)
+        print("Id, Name, Abstract, Nillable, Period Indicator, "
+              "Substitution Group, Type, Period Type")
         for c in concepts:
-                print('%s, %s, %s, %s, %s, %s, %s, %s' %
-                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-                c.substitution_group, c.type_name, c.period_type))
+            d = details[c]
+            print('%s, %s, %s, %s, %s, %s, %s, %s' %
+            (d.id, d.name, d.abstract, d.nillable, d.period_independent,
+            d.substitution_group, d.type_name, d.period_type))
     else:
-        concepts = tax.semantic.get_entrypoint_concepts_details(args.ep)
+        concepts, details = tax.semantic.get_entrypoint_concepts(args.entrypoint,
+                                                                 details=True)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-                ("Id", "Name", "Abstract", "Nillable", "Period Ind", "Substitution Group", "Type",
-                "Per Type"))
+                ("Id", "Name", "Abstract", "Nillable", "Period Ind",
+                 "Substitution Group", "Type", "Period Type"))
         print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
         for c in concepts:
-                print('%85s %80s %8s %8s %10s %20s %28s %8s' %
-                (c.id, c.name, c.abstract, c.nillable, c.period_independent,
-                c.substitution_group, c.type_name, c.period_type))
+            d = details[c]
+            print('%85s %80s %8s %8s %10s %20s %28s %8s' %
+            (d.id, d.name, d.abstract, d.nillable, d.period_independent,
+            d.substitution_group, d.type_name, d.period_type))
 
 
 def list_concepts(args):
-    concepts = tax.semantic.get_entrypoint_concepts(args.ep)
+    concepts = tax.semantic.get_entrypoint_concepts(args.entrypoint)
     if concepts is not None:
         for concept in concepts:
             print(concept)
@@ -171,14 +177,14 @@ def list_concepts(args):
 
 
 def list_relationships(args):
-    relationships = tax.semantic.get_entrypoint_relationships(args.ep)
+    relationships = tax.semantic.get_entrypoint_relationships(args.entrypoint)
 
     if csv:
         print("Role, From, To, Order")
         if relationships is not None:
             for r in relationships:
                 print('%s, %s, %s, %s' %
-                       (r['role'], r['from'], r['to'], r['order']))
+                       (r.role, r.from_, r.to, r.order))
     else:
         print('%19s %78s %78s %5s' %
                 ("Role", "From", "To", "Order"))
@@ -188,7 +194,7 @@ def list_relationships(args):
         if relationships is not None:
             for r in relationships:
                 print('%19s %78s %78s %5s' %
-                       (r['role'], r['from'], r['to'], r['order']))
+                       (r.role, r.from_, r.to, r.order))
         else:
             print("Not found")
 
@@ -228,7 +234,7 @@ def list_units_details(args):
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
         for unit_id in tax.units.get_all_units():
-                unit = tax.units.is_unit2(unit_id)
+                unit = tax.units.get_unit(unit_id)
                 print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -241,7 +247,7 @@ def list_units_details(args):
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
         for unit_id in tax.units.get_all_units():
-                unit = tax.units.is_unit2(unit_id)
+                unit = tax.units.get_unit(unit_id)
                 print('%6s %10s %40s %35s %16s %10s %6s %9s %10s %8s %1s' %
                        (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
                        unit.item_type_date, unit.symbol, unit.base_standard, unit.version_date,
@@ -254,22 +260,31 @@ def list_types(args):
     names.sort()
     for name in names:
         print(name)
-        
+
 
 def validate_concept(args):
     print("Valid:", tax.semantic.is_concept(args.concept))
 
 
 def validate_value(args):
-    result = tax.semantic.validate_concept_value(args.concept, args.value)
-    valid = "True"
-    if len(result[1]) > 0:
-        valid = "False"
-    print("Valid:", valid, "\n", "\n".join(result[1]))
+    concept_details = tax.semantic.get_concept_details(args.concept)
+    if concept_details is None:
+        print("Not valid:", args.concept, "is not a concept name.")
+        return
+
+    result = validator.validate_concept_value(concept_details, args.value)
+    if not result[1]:
+        print("Valid:", result[0])
+    else:
+        # Note: the following line is not valid in 2.7 so use sys.stdout.write instead.
+        #print("Not valid:", end=" ")
+        sys.stdout.write("Not valid: ")
+        for error in result[1]:
+            print(error)
 
 
-def validate_ep(args):
-    print("Valid:", tax.semantic.is_entrypoint(args.ep))
+def validate_entrypoint(args):
+    print("Valid:", tax.semantic.is_entrypoint(args.entrypoint))
 
 
 def validate_identifier(args):
@@ -293,7 +308,7 @@ def validate_generic_role(args):
 
 
 def validate_unit(args):
-    print("Valid:", tax.units.is_unit(unit_id=args.generic_unit))
+    print("Valid:", tax.units.is_unit(args.generic_unit))
 
 
 def version(args):
@@ -337,42 +352,42 @@ version_parser.set_defaults(command='version')
 taxonomy_parser = subparsers.add_parser('taxonomy', help='Taxonomy Meta-data Related Commands', formatter_class=formatter)
 subparsers = taxonomy_parser.add_subparsers(help='commands')
 
-list_concept_info_parser = subparsers.add_parser('list-concept-info',
-                                                 help='List Orange Button concept information')
-list_concept_info_parser.set_defaults(command='list_concept_info')
-list_concept_info_parser.add_argument('concept', action='store',
-                                      help='The concept to list information for')
+list_concept_details_parser = subparsers.add_parser('list-concept-details',
+                                                 help='List Orange Button concept details')
+list_concept_details_parser.set_defaults(command='list_concept_details')
+list_concept_details_parser.add_argument('concept', action='store',
+                                      help='The concept to list details for')
 
-list_unit_info_parser = subparsers.add_parser('list-unit-info',
-                                              help='List Orange Button unit information')
-list_unit_info_parser.set_defaults(command='list_unit_info')
-list_unit_info_parser.add_argument('unit', action='store',
-                                   help='The unit to list information for')
+list_unit_details_parser = subparsers.add_parser('list-unit-details',
+                                              help='List Orange Button unit details')
+list_unit_details_parser.set_defaults(command='list_unit_details')
+list_unit_details_parser.add_argument('unit', action='store',
+                                   help='The unit to list details for')
 
 list_types_parser = subparsers.add_parser('list-types',
                                               help='List all Orange Button data type names')
 list_types_parser.set_defaults(command='list_types')
 
-list_concepts_info_parser = subparsers.add_parser(
-        'list-concepts-info',
-        help='List concept information in an Orange Button Entry Point')
-list_concepts_info_parser.set_defaults(command='list_ep_concepts_info')
-list_concepts_info_parser.add_argument('ep', action='store',
+list_concepts_details_parser = subparsers.add_parser(
+        'list-concepts-details',
+        help='List concept details in an Orange Button Entry Point')
+list_concepts_details_parser.set_defaults(command='list_entrypoint_concepts_details')
+list_concepts_details_parser.add_argument('entrypoint', action='store',
                                        help='The entry point to list concepts for')
 
-list_ep_parser = subparsers.add_parser('list-ep', help='List Orange Button Entry Points')
-list_ep_parser.set_defaults(command='list_ep')
+list_entrypoint_parser = subparsers.add_parser('list-entrypoint', help='List Orange Button Entry Points')
+list_entrypoint_parser.set_defaults(command='list_entrypoint')
 
 list_concepts_parser = subparsers.add_parser('list-concepts',
                                              help='List concepts in an Orange Button Entry Point')
 list_concepts_parser.set_defaults(command='list_concepts')
-list_concepts_parser.add_argument('ep', action='store',
+list_concepts_parser.add_argument('entrypoint', action='store',
                                   help='The entry point to list concepts for')
 
 list_relationships_parser = subparsers.add_parser('list-relationships',
                                              help='List relationships in an Orange Button Entry Point')
 list_relationships_parser.set_defaults(command='list_relationships')
-list_relationships_parser.add_argument('ep', action='store',
+list_relationships_parser.add_argument('entrypoint', action='store',
                                   help='The entry point to list relationships for')
 
 list_types_parser = subparsers.add_parser('list-type-enums',
@@ -417,10 +432,10 @@ validate_value_parser.add_argument('concept', action='store',
 validate_value_parser.add_argument('value', action='store',
                                    help='The value to validate')
 
-validate_ep_parser = subparsers.add_parser('validate-ep',
+validate_entrypoint_parser = subparsers.add_parser('validate-entrypoint',
                                            help='Validate an Orange Button Entry Point')
-validate_ep_parser.set_defaults(command='validate_ep')
-validate_ep_parser.add_argument('ep', action='store',
+validate_entrypoint_parser.set_defaults(command='validate_entrypoint')
+validate_entrypoint_parser.add_argument('entrypoint', action='store',
                                 help='The entry point to validate')
 
 validate_type_parser = subparsers.add_parser('validate-type',

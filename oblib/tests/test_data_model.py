@@ -139,7 +139,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                               durationContext))
 
 
-    def test_sufficient_context_axes(self):
+    def test_validate_context_axes(self):
         doc = OBInstance("CutSheet", self.taxonomy)
 
         # The context must also provide all of the axes needed to place the
@@ -450,7 +450,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(costFact['aspects']['unit'], 'USD')
 
 
-    def test_concepts_load_metadata(self):
+    def test_concepts_load_details(self):
         doc = OBInstance("CutSheet", self.taxonomy)
 
         frequency = doc.get_concept("solar:RevenueMeterFrequency")
@@ -549,7 +549,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 TestConditionAxis= "solar:StandardTestConditionMember",
                 unit_name="USD")
 
-    def test_valid_unit_method(self):
+    def test_is_unit_method(self):
         doc = OBInstance("CutSheet", self.taxonomy)
         # Basic data types:
         self.assertTrue(doc._is_valid_unit("solar:TrackerNumberOfControllers", None)) # pure integer

@@ -20,10 +20,10 @@ tax = taxonomy_types.TaxonomyTypes()
 
 class TestTaxonomyTypes(unittest.TestCase):
 
-    def test_taxonomy_types(self):
+    def test_get_all_types(self):
         self.assertEqual(len(tax.get_all_types()), 65)
 
-    def test_taxonomy_types_validate_type(self):
+    def test_is_type(self):
         self.assertTrue(tax.is_type("solar-types:systemAvailabilityModeItemType"))
         self.assertTrue(tax.is_type("solar-types:deviceItemType"))
         self.assertTrue(tax.is_type("solar-types:insuranceItemType"))
@@ -33,7 +33,7 @@ class TestTaxonomyTypes(unittest.TestCase):
         self.assertFalse(tax.is_type("solar-types:deviceIteType"))
         self.assertFalse(tax.is_type("solar-types:inuranceItemType"))
 
-    def test_taxonomy_types_type_enum(self):
+    def test_get_type_enum(self):
         self.assertEqual(len(tax.get_type_enum("solar-types:projectAssetTypeItemType")), 3)
         self.assertEqual(len(tax.get_type_enum("solar-types:feeStatusItemType")), 5)
         self.assertEqual(len(tax.get_type_enum("solar-types:financialTransactionItemType")), 26)
