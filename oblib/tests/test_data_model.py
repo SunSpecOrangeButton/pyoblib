@@ -138,7 +138,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                               durationContext))
 
 
-    def test_sufficient_context_axes(self):
+    def test_validate_context_axes(self):
         doc = OBInstance("CutSheet", self.taxonomy)
 
         # The context must also provide all of the axes needed to place the
@@ -418,23 +418,25 @@ class TestDataModelEntrypoint(unittest.TestCase):
         root = json.loads(jsonstring)
 
         # should have 2 facts:
-        self.assertEqual( len(root['facts']), 2)
+        all_facts = root["facts"].values()
+        self.assertEqual( len(all_facts), 2)
 
         # each should have expected 'value' and 'aspects':
-        typeFacts = [x for x in root['facts'] if x['aspects']['xbrl:concept'] == 'solar:TypeOfDevice']
+        typeFacts = [x for x in all_facts if x['aspects']['concept'] == 'solar:TypeOfDevice']
         self.assertEqual(len(typeFacts), 1)
         typeFact = typeFacts[0]
         self.assertEqual(typeFact['value'], "ModuleMember")
         self.assertEqual(typeFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
         self.assertEqual(typeFact['aspects']['solar:TestConditionAxis'],
                              "solar:StandardTestConditionMember")
-        self.assertEqual(typeFact['aspects']['xbrl:entity'], 'JUPITER')
-        self.assertEqual(typeFact['aspects']['xbrl:period'], 'forever')
+        self.assertEqual(typeFact['aspects']['entity'], 'JUPITER')
+        # period = Forever means we don't write a period aspect:
+        self.assertNotIn("period", typeFact['aspects'])
         # TODO if there's no unit is it correct to write 'xbrl:unit':'None' or to leave out
         # xbrl:unit?  Currently assuming we leave it out:
-        self.assertNotIn("xbrl:unit", typeFact["aspects"])
+        self.assertNotIn("unit", typeFact["aspects"])
 
-        costFacts = [x for x in root['facts'] if x['aspects']['xbrl:concept'] == 'solar:DeviceCost']
+        costFacts = [x for x in all_facts if x['aspects']['concept'] == 'solar:DeviceCost']
         self.assertEqual(len(costFacts), 1)
 
         costFact = costFacts[0]
@@ -442,12 +444,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(costFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
         self.assertEqual(costFact['aspects']['solar:TestConditionAxis'],
                              "solar:StandardTestConditionMember")
-        self.assertEqual(costFact['aspects']['xbrl:entity'], 'JUPITER')
-        self.assertEqual(costFact['aspects']['xbrl:instant'], now.strftime("%Y-%m-%d"))
-        self.assertEqual(costFact['aspects']['xbrl:unit'], 'USD')
+        self.assertEqual(costFact['aspects']['entity'], 'JUPITER')
+        self.assertEqual(costFact['aspects']['period'], now.strftime("%Y-%m-%dT%H:%M:%S"))
+        self.assertEqual(costFact['aspects']['unit'], 'USD')
 
 
-    def test_concepts_load_metadata(self):
+    def test_concepts_load_details(self):
         doc = OBInstance("CutSheet", self.taxonomy)
 
         frequency = doc.get_concept("solar:RevenueMeterFrequency")
@@ -546,7 +548,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 TestConditionAxis= "solar:StandardTestConditionMember",
                 unit_name="USD")
 
-    def test_valid_unit_method(self):
+    def test_is_unit_method(self):
         doc = OBInstance("CutSheet", self.taxonomy)
         # Basic data types:
         self.assertTrue(doc._is_valid_unit("solar:TrackerNumberOfControllers", None)) # pure integer

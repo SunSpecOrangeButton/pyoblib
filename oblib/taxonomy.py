@@ -64,6 +64,18 @@ class UnitStatus(enum.Enum):
     cr = "CR"
 
 
+class RelationshipRole(enum.Enum):
+    """
+    Legal values for Relationship roles.
+    """
+
+    dimension_all = "all"
+    dimension_default = "dimension-default"
+    dimension_domain = "dimension-domain"
+    domain_member = "domain-member"
+    hypercube_dimension = "hypercube-dimension"
+
+
 class Element(object):
     """Element is used to model a data element within a Taxonomy Concept."""
 
@@ -88,6 +100,25 @@ class Element(object):
             "," + str(self.substitution_group) + \
             "," + str(self.type_name) + \
             "," + str(self.period_type) + \
+            "}"
+
+
+class Relationship(object):
+    """Relationship holds a taxonomy relationship record."""
+
+    def __init__(self):
+        """Relationship constructor."""
+        self.role = None
+        self.from_ = None
+        self.to = None
+        self.order = None
+
+    def __repr__(self):
+        """Return a printable representation of an relationship."""
+        return "{" + str(self.role) + \
+            "," + str(self.from_) + \
+            "," + str(self.to) + \
+            "," + str(self.order) + \
             "}"
 
 

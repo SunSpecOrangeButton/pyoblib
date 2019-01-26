@@ -22,6 +22,7 @@ import util
 import os
 import sys
 
+
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Units from the units type registry file."""
 
@@ -101,33 +102,121 @@ class TaxonomyUnits(object):
         return units
 
     def get_all_units(self):
-        """Return a map and sublists of all units."""
+        """Return a dict of all units with unit_id as primary key."""
         return self._units
 
-    def is_unit(self, **kwargs):
-        """
-        Validate that a unit is in the taxonomy based on its unit_id or
-        unit_name.
-        """
-        if "unit_id" in kwargs:
-            unit_id = kwargs.pop("unit_id")
-            return unit_id in self._units
-        elif "unit_name" in kwargs:
-            unit_name = kwargs.pop("unit_name")
-            valid_names = [self._units[k].unit_name for k in
-                           self._units.keys()]
-            return unit_name in valid_names
-        else:
-            return False
+    def _by_id(self):
+        """Return a dict of the form {id: unit_id}"""
+        return {self._units[k].id: k for k in self._units.keys()}
 
-    def is_unit2(self, unit_id):
-        """
-        Return a unit.
+    def _by_unit_name(self):
+        """Return a dict of the form {unit_name: unit_id}"""
+        return {self._units[k].unit_name: k for k in self._units.keys()}
 
-        Returns an unit given a unit_id or None if unit_id does not
-        exist in the taxonomy.
+    def is_unit(self, unit_str, attr=None):
         """
-        if unit_id in self._units:
-            return self._units[unit_id]
+        Return True if unit_str is the unit_id, unit_name or id of a unit in
+        the taxonomy, False otherwise.
+
+        The search for the unit can be restricted by specifying attr as one
+        of 'unit_id', 'unit_name', or 'id'.
+
+        Args:
+            unit_str: str
+                can be unit_id, unit_name or id
+            attr: str, default None
+                checks only specified attribute, can be 'unit_id', 'unit_name',
+                or 'id'
+
+        Returns:
+            boolean
+
+        Raises:
+            ValueError if attr is not valid attribute
+        """
+        if not attr:
+            # check for any attribute
+            return (unit_str in self._units.keys() or \
+                    unit_str in self._by_id().keys() or \
+                    unit_str in self._by_unit_name().keys())
+        elif attr not in {'unit_id', 'unit_name', 'id'}:
+            raise ValueError('{} is not a valid unit attribute, must be one of'
+                             '"unit_id", "unit_name" or "id"'
+                             .format(attr))
         else:
-            return None
+            if attr=='unit_id':
+                return unit_str in self._units.keys()
+            elif attr=='unit_name':
+                return unit_str in self._by_unit_name().keys()
+            elif attr=='id':
+                return unit_str in self._by_id().keys()
+
+    def get_unit(self, unit_str, attr=None):
+        """
+        Returns the unit with unit_id, unit_name or id is given by unit_str.
+
+        The search for the unit can be restricted by specifying attr as one
+        of 'unit_id', 'unit_name', or 'id'.
+
+        Args:
+            unit_str: str
+                can be unit_id, unit_name or id
+            attr: str, default None
+                checks only specified attribute, can be 'unit_id', 'unit_name',
+                or 'id'
+
+        Returns:
+            unit: dict
+
+        Raises:
+            ValueError if unit_str is not a value for a unit in the taxonomy
+        """
+        found = False
+        if not attr:
+            # search by unit_id, unit_name or id
+            if self.is_unit(unit_str, attr):
+                # find unit_id
+                try:
+                    unit = self._units[unit_str]
+                    found = True
+                except:
+                    if unit_str in self._by_id():
+                        unit_id = self._by_id()[unit_str]
+                        unit = self._units[unit_id]
+                        found = True
+                    elif unit_str in self._by_unit_name():
+                        unit_id = self._by_unit_name()[unit_str]
+                        unit = self._units[unit_id]
+                        found = True
+            if not found:
+                raise ValueError("{} is not a valid unit_id, unit_name or id"
+                                .format(unit_str))
+                return None
+            else:
+                return unit
+
+        elif attr not in {'unit_id', 'unit_name', 'id'}:
+            raise ValueError('{} is not a recognized unit attribute'
+                             .format(attr))
+        else:
+            # valid attr, search for unit_str in attr's values
+            if attr=='unit_id':
+                if unit_str in self._units.keys():
+                    unit = self._units[unit_str]
+                    found = True
+            elif attr=='unit_name':
+                if unit_str in self._by_unit_name():
+                    unit_id = self._by_unit_name()[unit_str]
+                    unit = self._units[unit_id]
+                    found = True
+            elif attr=='id':
+                if unit_str in self._by_id():
+                    unit_id = self._by_id()[unit_str]
+                    unit = self._units[unit_id]
+                    found = True
+            if not found:
+                raise ValueError("{} is not a valid value for {}"
+                                .format(unit_str, attr))
+                return None
+            else:
+                return unit
