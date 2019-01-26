@@ -110,21 +110,16 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "definitionArc":
-            relationship = {
-                "role": None,
-                "from": None,
-                "to": None,
-                "order": None
-            }
+            relationship = taxonomy.Relationship()
             for item in attrs.items():
                 if item[0] == "xlink:arcrole":
-                    relationship['role'] = item[1].split("/")[-1]
+                    relationship.role = taxonomy.RelationshipRole(item[1].split("/")[-1])
                 if item[0] == "xlink:from":
-                    relationship['from'] = item[1].replace("_", ":", 1)
+                    relationship.from_ = item[1].replace("_", ":", 1)
                 if item[0] == "xlink:to":
-                    relationship['to'] = item[1].replace("_", ":", 1)
+                    relationship.to = item[1].replace("_", ":", 1)
                 if item[0] == "order":
-                    relationship['order'] = item[1]
+                    relationship.order = item[1]
             self._relationships.append(relationship)
             # Question TBD: do we need to remember which document definition
             # this relationship came from? would the same concepts ever have
@@ -142,7 +137,7 @@ class TaxonomySemantic(object):
         self._elements = self._load_elements()
         self._concepts = self._load_concepts()
         self._relationships = self._load_relationships()
-        self._reduce_memory_footprint()
+        self._reduce_unused_semantic_data()
 
     def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
@@ -193,6 +188,17 @@ class TaxonomySemantic(object):
                     concepts[dirname] = self._load_concepts_file(
                         os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                      "documents", dirname, filename))
+
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "process")):
+            for filename in os.listdir(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "process",
+                                 dirname)):
+                # if 'def.' in filename:
+                if 'pre.' in filename:
+                    concepts[dirname] = self._load_concepts_file(
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                     "process", dirname, filename))
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -216,16 +222,24 @@ class TaxonomySemantic(object):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
 
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                               "process")):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process", dirname)):
+                if 'def.' in filename:
+                    relationships[dirname] = self._load_relationships_file(os.path.join("process", dirname, filename))
+
         return relationships
 
-    def _reduce_memory_footprint(self):
+    def _reduce_unused_semantic_data(self):
         """
-        Reduce the memory footprint post load by removing unused data.
-
         During loading of the elements unused elements may be loaded in the
         us-gaap and dei namespaces.  A new elements list can be created that
         does not contain them.  Although there is no other known cases of
         unused memory if any are found they should be addressed.
+
+        Removing the elements has two benefits:
+            - Allows simplifcation of accessor methods which no longer have to filter unused data.
+            - Reduces in-memory footprint of data
         """
         # Create a list of elements in use and set them all to False
         elements_in_use = {}
@@ -245,48 +259,40 @@ class TaxonomySemantic(object):
                 ne[e] = self._elements[e]
         self._elements = ne
 
-    def get_all_concept_details(self):
-        """Return a map of elements."""
-        return self._elements
+    def get_all_concepts(self, details=False):
+        """
+        Return all concepts in the taxonomy.
+        
+        Args:
+            details : boolean, default False
+
+        Returns:
+            list of concept names if details=False
+            dict of concept details if details=True
+        """
+        if not details:
+            return list(self._concepts)
+        else:
+            return self._elements
 
     def get_all_type_names(self):
-        """Return an array of strings representing all data types in elements"""
+        """
+        Return all type names in elements of the taxonomy.
 
-        type_names = set()
+        Returns list
+        """
+        type_names = set() # use set to eliminate duplicates
         for e in self._elements:
             type_names.add(self._elements[e].type_name)
         return list(type_names)
 
     def is_concept(self, concept):
         """Validate if a concept is present in the Taxonomy."""
-        found = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    break
-        return found
 
-    def validate_concept_value(self, concept, value):
-        """
-        Validate a concept.
-
-        Validates whether a concept is present in the Taxonomy and if
-        its value is legal.
-        """
-        # Check presence
-        found = False
-        concept_info = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    concept_info = self.get_concept_details(concept)
-                    break
-        if not found:
-            return ["'{}' concept not found.".format(concept)]
-
-        return validator.validate_concept_value(concept_info, value)
+        if concept in self._elements:
+            return True
+        else:
+            return False
 
     def is_entrypoint(self, entrypoint):
         """Validate if an end point type is present in the Taxonomy."""
@@ -295,12 +301,46 @@ class TaxonomySemantic(object):
         else:
             return False
 
-    def get_entrypoint_concepts(self, entrypoint):
-        """Return a list of all concepts in an entry point."""
+    def get_entrypoint_concepts(self, entrypoint, details=False):
+        """
+        Return a list of all concepts in the entrypoint, with concept details 
+        (optional).
+
+        Args:
+            entrypoint: str
+                name of the entrypoint
+            details: boolean, default False
+                if True return details for each concept
+
+        Returns:
+            concepts: list
+                elements of the list are concept names
+            details: dict
+                primary key is name from concepts, value is dict of concept
+                details
+        """
+        concepts = []
         if entrypoint in self._concepts:
-            return self._concepts[entrypoint]
-        else:
-            return None
+            concepts = self._concepts[entrypoint]
+            if details:
+                ci = {}
+                for concept in concepts:
+                    if concept in self._elements:
+                        ci[concept] = self._elements[concept]
+                    else:
+                        # TODO: This is now known to be a bug in the taxonomy
+                        # and has been submitted for fix.
+                        # Remove this comment once completed.
+                        # Here are some samples that are not found:
+                        # Warning, concept not found: solar:MeterRatingAccuracy_1
+                        # Warning, concept not found: solar:MeterRevenueGrade_1
+                        # Warning, concept not found: solar:MeterBidirectional_1
+                        # Warning, concept not found: solar:RevenueMeterPowerFactor_1
+                        # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
+                        # print("Warning, concept not found:", concept)
+                        pass
+                return concepts, ci
+        return concepts
 
     def get_entrypoint_relationships(self, entrypoint):
         """
@@ -324,42 +364,22 @@ class TaxonomySemantic(object):
         return list(self._concepts)
 
     def get_concept_details(self, concept):
-        """Return information on a single concept."""
-        found = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    break
-        if not found:
-            return None
-        if concept in self._elements:
+        """
+        Return information on a single concept.
+
+        Args:
+            concept : str
+                concept name
+
+        Returns:
+            dict containing concept attributes
+
+        Raises:
+            KeyError if concept is not found
+        """
+        if self.is_concept(concept):
             return self._elements[concept]
         else:
+            raise KeyError('{} is not a concept in the taxonomy'.format(concept))
             return None
 
-    def get_entrypoint_concepts_details(self, entrypoint):
-        """
-        Return concepts from an endpoints.
-
-        Return a list of all concepts and their attributes in an end point.
-        """
-        if entrypoint in self._concepts:
-            ci = []
-            for concept in self._concepts[entrypoint]:
-                if concept in self._elements:
-                    ci.append(self._elements[concept])
-                else:
-                    # TODO: This is now known to be a bug in the taxonomy and has been submitted for fix.
-                    # Remove this comment once completed.
-                    # Here are some samples that are not found:
-                    # Warning, concept not found: solar:MeterRatingAccuracy_1
-                    # Warning, concept not found: solar:MeterRevenueGrade_1
-                    # Warning, concept not found: solar:MeterBidirectional_1
-                    # Warning, concept not found: solar:RevenueMeterPowerFactor_1
-                    # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                    # print("Warning, concept not found:", concept)
-                    pass
-            return ci
-        else:
-            return None

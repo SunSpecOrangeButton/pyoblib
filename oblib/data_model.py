@@ -18,7 +18,7 @@ import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
-from taxonomy import PeriodType
+from taxonomy import PeriodType, RelationshipRole
 from six import string_types
 import validator
 import identifier
@@ -109,9 +109,9 @@ class Hypercube(object):
         relationships = entry_point.relations
         # Use the relationships to find the names of my axes:
         for relation in relationships:
-            if relation['role'] == 'hypercube-dimension':
-                if relation['from'] == self._table_name:
-                    axis_name = relation['to']
+            if relation.role == RelationshipRole.hypercube_dimension:
+                if relation.from_ == self._table_name:
+                    axis_name = relation.to
                     if not axis_name in self._axes:
                         concept = entry_point.get_concept(axis_name)
                         self._axes[axis_name] = Axis(concept)
@@ -119,27 +119,27 @@ class Hypercube(object):
         # If there's an arcrole of "all" then the "from" is a LineItems
         # and the "to" is the table?  I think?
         for relation in relationships:
-            if relation['role'] == 'all':
-                if relation['to'] == self._table_name:
-                    line_item = relation['from']
+            if relation.role == RelationshipRole.dimension_all:
+                if relation.to == self._table_name:
+                    line_item = relation.from_
                     if not self.has_line_item(line_item):
                         self._allowed_line_items.append(line_item)
 
         # If there's dimension-domain or domain-member relationships for any
         # of my axes, extract that information as well:
         for relation in relationships:
-            if relation['role'] == 'dimension-domain':
-                if relation['from'] in self._axes:
-                    domain = relation['to']
-                    self._axes[ relation['from'] ].domain = domain
+            if relation.role == RelationshipRole.dimension_domain:
+                if relation.from_ in self._axes:
+                    domain = relation.to
+                    self._axes[ relation.from_ ].domain = domain
 
         for relation in relationships:
-            if relation['role'] == 'domain-member':
+            if relation.role == RelationshipRole.domain_member:
                 for axis in list(self._axes.values()):
-                    if axis.domain == relation['from']:
-                        member = relation['to']
+                    if axis.domain == relation.from_:
+                        member = relation.to
                         axis.domainMembers.append( member )
-        
+
 
     def get_name(self):
         """Return table name."""
@@ -208,10 +208,10 @@ class Hypercube(object):
         axis = self._axes[dimensionName]
         if axis.domain is not None:
             return axis.domain
-        
+
         concept = self._axes[dimensionName].concept
         domain_ref = concept.get_details("typed_domain_ref")
-        
+
         if domain_ref is not None:
             # The typed_domain_ref metadata property will contain something like
             #    "#solar_ProductIdentifierDomain"  which is actually an internal link
@@ -609,7 +609,7 @@ class Concept(object):
             if value in ["true", "false", "True", "False"]:
                 return True
             return False
-        
+
         if myType == "xbrli:decimalItemType":
             try:
                 value = float( value )
@@ -695,7 +695,7 @@ class OBInstance(object):
         object.
 
         An optional flag ("dev_validation_off") can be set to turn validation
-        rules off during development.  This should not be used during a release.   
+        rules off during development.  This should not be used during a release.
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
@@ -775,8 +775,8 @@ class OBInstance(object):
         self._tables = {}
         all_table_names = set([])
         for relation in self.relations:
-            if relation['role'] == 'hypercube-dimension':
-                table_name = relation['from']
+            if relation.role == RelationshipRole.hypercube_dimension:
+                table_name = relation.from_
                 all_table_names.add(table_name)
 
         for table_name in all_table_names:
@@ -786,9 +786,9 @@ class OBInstance(object):
     def _initialize_parents(self):
         """Put the concepts into a tree based on domain-member relations."""
         for relation in self.relations:
-            if relation['role'] == 'domain-member':
-                parent_name = relation['from']
-                child_name = relation['to']
+            if relation.role == RelationshipRole.domain_member:
+                parent_name = relation.from_
+                child_name = relation.to
                 if parent_name.endswith("_1") or child_name.endswith("_1"):
                     # These are the duplicate concept names and are unwanted
                     continue
@@ -821,10 +821,10 @@ class OBInstance(object):
         # purposes. Do not use in production.
         from_me = [r for r in self.relations if r['from'] == concept_name]
         for x in from_me:
-            print("{} -> {} -> {}".format(concept_name, x['role'], x['to']))
-        to_me = [r for r in self.relations if r['to'] == concept_name]
+            print("{} -> {} -> {}".format(concept_name, x.role, x.to))
+        to_me = [r for r in self.relations if r.to == concept_name]
         for x in to_me:
-            print("{} -> {} -> {}".format(x['from'], x['role'], concept_name))
+            print("{} -> {} -> {}".format(x.from_, x.role, concept_name))
 
     def get_table_for_concept(self, concept_name):
         """
@@ -931,7 +931,7 @@ class OBInstance(object):
                          "xbrli:anyURIItemType"]
         # There is type-checking we can do for these unitless types but we'll handle
         # it elsewhere
-        
+
         required_type = self.get_concept(concept).get_details("type_name")
         if required_type in unitlessTypes:
             if unit_id is None:
@@ -952,10 +952,11 @@ class OBInstance(object):
                 "No unit given for concept {}, requires type {}".format(
                     concept, required_type))
 
-        unit = self.tu.is_unit2(unit_id)
-        if unit is None:
+        unit = self.tu.get_unit(unit_id)
+        if not unit:
             raise OBNotFoundException(
-                "There is no unit ID={} in the taxonomy.".format(unit_id))
+                "There is no unit with unit_id={} in the taxonomy."
+                 .format(unit_id))
 
         # TODO: utr.xml has unqualified type names, e.g. "frequencyItemType" and we're looking
         # for a qualified type name e.g. "num-us:frequencyItemType". Should we assume that if
@@ -972,31 +973,35 @@ class OBInstance(object):
 
     def set(self, concept_name, value, **kwargs):
         """
-        Adds a fact to the document. The concept_name and the context
-        together identify the fact to set, and the value will be stored for
-        that fact.
-        If concept_name and context are identical to a previous call, the old fact
-        will be overwritten. Otherwise, a new fact is created.
-        accepts keyword args:
-        context = a Context object
-        unit_name = a string naming a unit
-        precision = <number of significant digits of precision>(for decimal values only)
-        decimals = <number of places past the decimal pt>(for decimal values only)
-        (only one of precision or decimals should be given. Defaults to decimals=2)
+        Adds a fact to the document.
 
-        Alternately, the following can be supplied as separate keyword args instead of
-        as a context object:
-        duration = "forever" or {"start": <date>, "end": <date>}
-        instant = <date>
-        entity = <entity name>
-        *Axis = <value>  (the name of any Axis in a table in this entrypoint)
+        The concept_name and the context together identify the fact to set,
+        and the value will be stored for that fact. If concept_name and context
+        match a fact already in the document, the old fact will be overwritten.
+        Otherwise, a new fact is created.
+
+        Args:
+            unit_name : string
+                a string naming a unit
+            precision : int
+                number of places past the decimal point (for decimal type only)
+            context : Context
+                can be specified by kwargs duration, instant and entity
+            duration : str or dict
+                "forever" or {"start": <datetime>, "end": <datetime>}
+            instant : datetime
+            entity : str
+                entity name
+            *Axis = <value> (not implemented)
+                the name of any Axis in a table in this entrypoint
         """
 
         if "unit_name" in kwargs:
             unit_name = kwargs.pop("unit_name")
-            valid_unit_name = self.tu.is_unit(unit_name=unit_name)
+            valid_unit_name = self.tu.is_unit(unit_name)
         else:
             unit_name = None
+            valid_unit_name = False
 
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
@@ -1017,6 +1022,7 @@ class OBInstance(object):
         elif len(list(kwargs.keys())) > 0:
             # turn the remaining keyword args into a Context object -- this
             # is just syntactic sugar to make this method easier to call.
+            # TODO this block will not work
             period = concept.get_details("period_type")
             if period not in kwargs and period in self._default_context:
                 kwargs[period.value] = self._default_context[period]
@@ -1033,16 +1039,16 @@ class OBInstance(object):
                 "Insufficient context for {}".format(concept_name))
 
         # Check unit type:
-        if not self._dev_validation_off and not self._is_valid_unit(concept_name, unit_name):
+        if not self._dev_validation_off and not  self._is_valid_unit(concept_name, unit_name):
             raise OBUnitException(
-                "{} is an invalid unit type for {}".format(unit_name, concept_name))
-        
+                "{} is not a valid unit name for {}".format(unit_name, concept_name))
+
         # check datatype of given value against concept
         if not self._dev_validation_off and not concept.validate_datatype(value):
             raise OBTypeException(
                 "{} is the wrong datatype for {}".format(value, concept_name))
 
-        
+
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID
 
@@ -1057,7 +1063,7 @@ class OBInstance(object):
         if not context.get_id() in self.facts[table.get_name()]:
             self.facts[table.get_name()][context.get_id()] = {}
         # TODO simplify above with defaultdict
-        
+
         self.facts[table.get_name()][context.get_id()][concept_name] = f
         # Or: we could keep facts in a flat list, and get() could look them
         # up by getting context from hypercube and getting fact from context
@@ -1103,7 +1109,7 @@ class OBInstance(object):
                 for fact in list(context_dict.values()):
                     all_facts.append(fact)
         return all_facts
-    
+
     def _make_unit_tag(self, unit_id):
         """
         Return an XML tag for a unit (such as kw, kwh, etc). Fact tags can

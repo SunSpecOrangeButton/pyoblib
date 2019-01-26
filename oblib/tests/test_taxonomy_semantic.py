@@ -23,7 +23,7 @@ tax = taxonomy_semantic.TaxonomySemantic()
 
 class TestTaxonomySemantic(unittest.TestCase):
 
-    def test_concept_info(self):
+    def test_concept_details(self):
 
         # Data type checks
         ci = tax.get_concept_details("solar:ACDisconnectSwitchMember")
@@ -72,59 +72,66 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
-    def test_concepts_ep(self):
-        self.assertEqual(len(tax.get_entrypoint_concepts("MonthlyOperatingReport")), 84)
-        self.assertEqual(tax.get_entrypoint_concepts("MonthlyOperatingReort"), None)
-        self.assertEqual(len(tax.get_entrypoint_concepts("CutSheet")), 302)
-        self.assertEqual(len(tax.get_entrypoint_concepts("Utility")), 8)
+        with self.assertRaises(KeyError):
+            _ = tax.get_concept_details("solar:iamnotaconcept")
+
+    def test_get_entrypoint_concepts(self):
+        concepts = tax.get_entrypoint_concepts("MonthlyOperatingReport")
+        self.assertEqual(len(concepts), 84)
+        concepts = tax.get_entrypoint_concepts("MonthlyOperatingReort")
+        self.assertEqual(concepts, [])
+        concepts, details = tax.get_entrypoint_concepts("CutSheet",
+                                                        details=True)
+        self.assertEqual(len(concepts), 302)
+        self.assertEqual(len(details), 297)
+        concepts, details = tax.get_entrypoint_concepts("Utility", True)
+        self.assertEqual(len(concepts), 8)
+        for ci in concepts:
+            self.assertEqual(details[ci], tax.get_concept_details(ci))
 
         # TODO: SystemInstallation is currently loaded under System.
         # self.assertEqual(len(tax.concepts_ep("SystemInstallationCost")), 10)
 
-    def test_concepts_info_ep(self):
-        self.assertEqual(len(tax.get_entrypoint_concepts_details("MonthlyOperatingReport")), 84)
-        self.assertEqual(tax.get_entrypoint_concepts_details("MonthlyOperatingReort"), None)
-        
-        # TODO: 302 is expected but 297 returned, seeking info on why this is from XBRL.
-        # self.assertEqual(len(tax.concepts_info_ep("CutSheet")), 302)
-        self.assertEqual(len(tax.get_entrypoint_concepts_details("CutSheet")), 297)
+# =============================================================================
+#     def test_get_entrypoint_concepts_details(self):
+#         self.assertEqual(len(tax.get_entrypoint_concepts_details("MonthlyOperatingReport")), 84)
+#         self.assertEqual(tax.get_entrypoint_concepts_details("MonthlyOperatingReort"), None)
+#         
+#         # TODO: 302 is expected but 297 returned, seeking info on why this is from XBRL.
+#         # self.assertEqual(len(tax.concepts_info_ep("CutSheet")), 302)
+#         self.assertEqual(len(tax.get_entrypoint_concepts_details("CutSheet")), 297)
+# 
+#         self.assertEqual(len(tax.get_entrypoint_concepts_details("Utility")), 8)
+# 
+#         for ci in tax.get_entrypoint_concepts_details("Utility"):
+#             self.assertEqual(ci, tax.get_concept_details(ci.id))
+# 
+# =============================================================================
+    def test_get_all_concepts(self):
+        self.assertIsNotNone(tax.get_all_concepts())
+        self.assertIsInstance(tax.get_all_concepts(), list)
+        self.assertIsNotNone(tax.get_all_concepts(details=True))
+        self.assertIsNotNone(tax.get_all_concepts(details=True), dict)
 
-        self.assertEqual(len(tax.get_entrypoint_concepts_details("Utility")), 8)
+    def test_get_all_type_names(self):
+        self.assertEqual(len(tax.get_all_type_names()), 91)
 
-        for ci in tax.get_entrypoint_concepts_details("Utility"):
-            self.assertEqual(ci, tax.get_concept_details(ci.id))
+    def test_get_all_entrypoints(self):
+        self.assertEqual(len(tax.get_all_entrypoints()), 159)
 
-    def test_elements(self):
-        self.assertIsNotNone(tax.get_all_concept_details())
-
-    def test_type_names(self):
-        self.assertEqual(len(tax.get_all_type_names()), 76)
-
-    def test_entry_points(self):
-        self.assertEqual(len(tax.get_all_entrypoints()), 158)
-
-    def test_relationships_ep(self):
+    def test_get_entrypoint_relationships(self):
         self.assertIsNone(tax.get_entrypoint_relationships("Arggh"))
         self.assertEqual(len(tax.get_entrypoint_relationships("Utility")), 7)
         self.assertEqual(len(tax.get_entrypoint_relationships("MonthlyOperatingReport")), 84)
         self.assertEqual(len(tax.get_entrypoint_relationships("CutSheet")), 305)
 
-    def test_validate_concept(self):
+    def test_is_concept(self):
         self.assertTrue(tax.is_concept("solar:EnvironmentalImpactReportExpirationDate"))
         self.assertFalse(tax.is_concept("solar:EnvironmentalImpactReportExirationDate"))
         self.assertTrue(tax.is_concept("solar:AdvisorInvoicesCounterparties"))
         self.assertTrue(tax.is_concept("dei:LegalEntityIdentifier"))
 
-    def test_concept_value(self):
-        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")[1]))
-        self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicaionPlan", "Arff")))
-        #TODO: 37 can be converted to valid string
-        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37)[1]))
-        self.assertEqual(1, len(tax.validate_concept_value("dei:LegalEntityIdentifier", "5493006MHB84DD0ZWV18")[1]))
-
-        # TODO: Once the validator is fully working test a large number of cases.
-
-    def test_validate_ep(self):
+    def test_is_entrypoint(self):
         self.assertTrue(tax.is_entrypoint("AssetManager"))
         self.assertFalse(tax.is_entrypoint("AssetMnager"))
         self.assertTrue(tax.is_entrypoint("MonthlyOperatingReport"))
