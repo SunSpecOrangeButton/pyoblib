@@ -890,3 +890,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
         for fact in facts.values():
             self.assertTrue( isinstance( fact['value'], unicode) )
             self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], unicode))
+
+        # TODO is there something we could set to null so we test null is exported as
+        # literal, not string?
+
+
+    # TODO test equals_context in the case where both contexts have duration=(start, end)
