@@ -28,3 +28,6 @@ __all__ = ['identifier', 'data_model', 'parser',
            'taxonomy', 'taxonomy_semantic',
            'taxonomy_types', 'taxonomy_units',
            'taxonomy_misc', 'validator']
+
+
+name = "oblib"
