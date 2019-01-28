@@ -26,7 +26,7 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(taxonomy.Unit(), taxonomy.Unit)
 
     def test_element(self):
-        self.assertIsInstance(taxonomy.Element(), taxonomy.Element)
+        self.assertIsInstance(taxonomy.ConceptDetails(), taxonomy.ConceptDetails)
 
     def test_relationship(self):
         self.assertIsInstance(taxonomy.Relationship(), taxonomy.Relationship)
