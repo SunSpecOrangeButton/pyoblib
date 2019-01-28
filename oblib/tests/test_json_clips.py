@@ -62,4256 +62,3946 @@ class TestJsonClips(unittest.TestCase):
             print(msg)
 
 CLIPS = [
-    # Basic tests of each JSON field
     [_ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
         {
-            "id": "illegal-identifier",
-            "value": 93.26,
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "illegal-identifier": {
+                "value": "93.26",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Float expected", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Bad Data",
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Bad Data",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "is not a writeable concept", 4, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Bad Data",
-            "aspects": {
-                "xbrl:concept": 2,
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Bad Data",
+                "aspects": {
+                    "concept": 2,
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Entity is not a string", 5, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Bad Data",
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": 3,
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Bad Data",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": 3,
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Illegal Period Start", 6, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 93.26,
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-13-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "93.26",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-13-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Illegal Period End", 7, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 93.26,
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-13-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "93.26",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-13-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
         {
-            "id": "illegal-identifier",
-            "value": 93.26,
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
-            }
-        }
-        """
-    ],
-
-    # Validate that all required fields are present.  Note that all fields are required except
-    # periodStart and periodEnd (if missing this indicates that duration is forever)
-    [_ln(), "MonthlyOperatingReport", "Identifier is missing", 0, """
-        {
-            "value": 93.26,
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "illegal-identifier": {
+                "value": "93.26",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Value is missing", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Aspects is missing", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 93.26,
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "93.26"
+            }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Concept is missing", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 93.26,
-            "aspects": {
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "93.26",
+                "aspects": {
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "Entity is missing", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 93.26,
-            "aspects": {
-                "xbrl:concept": "solar:MeasuredEnergyAvailabilityPercent",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "93.26",
+                "aspects": {
+                    "concept": "solar:MeasuredEnergyAvailabilityPercent",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # Check that a non-nillable field is not set to null
     [_ln(), "MasterPurchaseAgreement", "Non-nillable value is set to null", 3, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": null,
-            "aspects": {
-                "xbrl:concept": "solar:PreparerOfMasterPurchaseAgreement",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": null,
+                "aspects": {
+                    "concept": "solar:PreparerOfMasterPurchaseAgreement",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # Type checks - basic types
-
-    # us-types:perUnitItemType, Sample valid value is UNKNOWN
-    # TODO: Implement
-    # [_ln(), "", "value is not legal for type us-types:perUnitItemType", 2, """
-    #     {
-    #         "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-    #         "value": false,
-    #         "aspects": {
-    #             "xbrl:concept": "us-types:perUnitItemType",
-    #             "xbrl:entity": "JUPITER",
-    #             "xbrl:periodStart": "2017-11-01T00:00:00",
-    #             "xbrl:periodEnd": "2017-11-30T00:00:00"
-    #         }
-    #     }
-    #     """
-    # ],
-
-    # xbrli:booleanItemType, Sample valid value is false
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": true,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "True",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "non-boolean",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "non-boolean",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "true",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "true",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "false",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "false",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 1,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "1",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 0,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "0",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 1.0,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "1.0",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:booleanItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 0.0,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "0.0",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # xbrli:dateItemType, Sample valid value is 2018-01-02
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-01-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-01-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-01-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-01-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-02-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-02-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2017-02-28",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2017-02-28",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-02-28",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-02-28",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2019-02-28",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2019-02-28",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    # Leap Year
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2020-02-29",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2020-02-29",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-03-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-03-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-03-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-03-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-04-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-04-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-04-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-04-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-05-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-05-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-05-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-05-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-06-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-06-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-06-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-06-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-07-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-07-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-07-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-07-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-08-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-08-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-08-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-08-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-01-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-01-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-09-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-09-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-10-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-10-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-10-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-10-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-11-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-11-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-11-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-11-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-12-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-12-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-12-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
-            }
-        }
-        """
-    ],    
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
-        {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-13-02",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-12-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-01-32",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-13-02",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2016-02-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-01-32",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2017-02-28",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2016-02-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2019-02-29",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2017-02-28",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    # Leap Year
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2020-02-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2019-02-29",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-03-32",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2020-02-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-04-30",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-03-32",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-05-32",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-04-30",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-06-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-05-32",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-08-32",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-06-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-09-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-08-32",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-10-32",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-09-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-11-31",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-10-32",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-12-32",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-11-31",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-1-01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-12-32",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018-01-1",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-1-01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2018_01_01",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018-01-1",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "01-01-2018",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2018_01_01",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "01/01/2018",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "01-01-2018",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "01/01/2018",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportEndDate",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # xbrli:decimalItemType, Sample valid value is 99.99
-    [_ln(), "System", None, 0, """
+    [_ln(), "None", "value is not legal for type xbrli:dateItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportEndDate",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "System", None, 0, """
+    [_ln(), "System", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.00,
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "System", None, 0, """
+    [_ln(), "System", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": -99.99,
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.0",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "System", None, 0, """
+    [_ln(), "System", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "-99.99",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
+            }
+        }
+        """
+    ],
+    [_ln(), "System", "None", 0, """
+        {
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "99.99",
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:MonitoringSolutionSoftwareVersion",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:MonitoringSolutionSoftwareVersion",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # xbrli:durationItemType, Sample valid value's are documented at based on the last
-    # paragragh of http://books.xmlschemata.org/relaxng/ch19-77073.html
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1Y",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1Y",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "PT1004199059S",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "PT1004199059S",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "PT130S",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "PT130S",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "PT2M10S",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "PT2M10S",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1DT2S",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1DT2S",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "-P1Y",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "-P1Y",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1Y2M3DT5H20M30.123S",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1Y2M3DT5H20M30.123S",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "1Y",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "1Y",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1S",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1S",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1-Y",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1-Y",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1M2Y",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1M2Y",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "P1Y-1M",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "P1Y-1M",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:durationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid",
-            "aspects": {
-                "xbrl:concept": "solar:EstimationPeriodForCurtailment",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid",
+                "aspects": {
+                    "concept": "solar:EstimationPeriodForCurtailment",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-
-    # xbrli:integerItemType, Sample valid value is 99
-    [_ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": -99,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "-99",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 0,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "0",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "99",
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid",
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteFrequencyOfWashing",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteFrequencyOfWashing",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # xbrli:monetaryItemType, Sample valid value is 9999.99
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 9999.99,
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "9999.99",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:monetaryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:monetaryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 9999,
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "9999",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:monetaryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 9999.9,
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "9999.9",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-        [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:monetaryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 9999.999,
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "9999.999",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:monetaryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "9999.99",
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "9999.99",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:monetaryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid",
-            "aspects": {
-                "xbrl:concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-30T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid",
+                "aspects": {
+                    "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # # xbrli:pureItemType, Sample valid value is UNKNOWN
-    # # TODO: Implement
-    # [_ln(), "", "value is not legal for type xbrli:pureItemType", 2, """
-    #     {
-    #         "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-    #         "value": false,
-    #         "aspects": {
-    #             "xbrl:concept": "xbrli:pureItemType",
-    #             "xbrl:entity": "JUPITER",
-    #             "xbrl:periodStart": "2017-11-01T00:00:00",
-    #             "xbrl:periodEnd": "2017-11-30T00:00:00"
-    #         }
-    #     }
-    #     """
-    # ],
-
-    # xbrli:stringItemType, Sample valid value is "Sample String"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Sample String",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportExceptionDescription",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Sample String",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportExceptionDescription",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:stringItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportExceptionDescription",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportExceptionDescription",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:stringItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportExceptionDescription",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportExceptionDescription",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type xbrli:stringItemType", 2, """
+    [_ln(), "None", "value is not legal for type xbrli:stringItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportExceptionDescription",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportExceptionDescription",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    # num:percentItemType, Sample valid value is 99.99
-    [_ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 0.0,
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "0.0",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": -0.01,
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "-0.01",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 100.01,
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "100.01",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:AerosolModelFactorTMMPercent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:AerosolModelFactorTMMPercent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # Type checks - advanced types
-
-    # xbrli:anyURIItemType, Sample valid value is http://www.google.com
-    # Please note that the validation is very basic at this point in time.  It could be expanded
-    # to be reflective of full URI rules although this may have diminishing returns against other
-    # goals give that (1) URI is not common in the Taxonomy and (2) whether illegal URI's should
-    # be rejected  or not is currently undefined from a requirements standpoint.
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "http://www.google.com",
-            "aspects": {
-                "xbrl:concept": "solar:CutSheetDocumentLink",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "http://www.google.com",
+                "aspects": {
+                    "concept": "solar:CutSheetDocumentLink",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "https://www.google.com",
-            "aspects": {
-                "xbrl:concept": "solar:CutSheetDocumentLink",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "https://www.google.com",
+                "aspects": {
+                    "concept": "solar:CutSheetDocumentLink",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:CutSheetDocumentLink",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:CutSheetDocumentLink",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:CutSheetDocumentLink",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:CutSheetDocumentLink",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99,
-            "aspects": {
-                "xbrl:concept": "solar:CutSheetDocumentLink",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99",
+                "aspects": {
+                    "concept": "solar:CutSheetDocumentLink",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # dei:legalEntityIdentifierItemType, Sample valid value is 5493006MHB84DD0ZWV18
-    [_ln(), "Participant", None, 0, """
+    [_ln(), "Participant", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "5493006MHB84DD0ZWV18",
-            "aspects": {
-                "xbrl:concept": "dei:LegalEntityIdentifier",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "5493006MHB84DD0ZWV18",
+                "aspects": {
+                    "concept": "dei:LegalEntityIdentifier",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
     [_ln(), "Participant", "value is not legal for type dei:legalEntityIdentifierItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "dei:LegalEntityIdentifier",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "dei:LegalEntityIdentifier",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # nonnum:domainItemType, Sample valid value is UNKNOWN
-    # TODO: Implement
-    # [_ln(), "", "value is not legal for type nonnum:domainItemType", 2, """
-    #     {
-    #         "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-    #         "value": false,
-    #         "aspects": {
-    #             "xbrl:concept": "nonnum:domainItemType",
-    #             "xbrl:entity": "JUPITER",
-    #             "xbrl:periodStart": "2017-11-01T00:00:00",
-    #             "xbrl:periodEnd": "2017-11-30T00:00:00"
-    #         }
-    #     }
-    #     """
-    # ],
-
-    # num-us:electricCurrentItemType, Sample valid value is 99.99
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleShortCircuitCurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:ModuleShortCircuitCurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type num-us:electricCurrentItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleShortCircuitCurrent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModuleShortCircuitCurrent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:frequencyItemType, Sample valid value is 99.99
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:InverterOutputRatedFrequency",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:InverterOutputRatedFrequency",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type num-us:frequencyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:InverterOutputRatedFrequency",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:InverterOutputRatedFrequency",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:insolationItemType, Sample valid value is 99.99
-    [_ln(), "MonthlyOperatingReport", None, 0, """
+    [_ln(), "MonthlyOperatingReport", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:ExpectedInsolationAtP50",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:ExpectedInsolationAtP50",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "value is not legal for type num-us:insolationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ExpectedInsolationAtP50",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ExpectedInsolationAtP50",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "MonthlyOperatingReport", "value is out of range for type num-us:insolationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 101.01,
-            "aspects": {
-                "xbrl:concept": "solar:ExpectedInsolationAtP50",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "101.01",
+                "aspects": {
+                    "concept": "solar:ExpectedInsolationAtP50",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:irradianceItemType, Sample valid value is 99.99
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:SystemMinimumIrradianceThreshold",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:SystemMinimumIrradianceThreshold",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type num-us:irradianceItemType", 2, """
+    [_ln(), "None", "value is not legal for type num-us:irradianceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemMinimumIrradianceThreshold",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemMinimumIrradianceThreshold",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:planeAngleItemType, Sample valid value is 33.33
-    [_ln(), "SystemDeviceListing", None, 0, """
+    [_ln(), "SystemDeviceListing", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 33.33,
-            "aspects": {
-                "xbrl:concept": "solar:TrackerAzimuth",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "33.33",
+                "aspects": {
+                    "concept": "solar:TrackerAzimuth",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "SystemDeviceListing", "value is out of range for type num-us:planeAngleItemType", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 361.10,
-            "aspects": {
-                "xbrl:concept": "solar:TrackerAzimuth",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "361.1",
+                "aspects": {
+                    "concept": "solar:TrackerAzimuth",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "SystemDeviceListing", "value is not legal for type num-us:planeAngleItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:TrackerAzimuth",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:TrackerAzimuth",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:pressureItemType, Sample valid value is 99.99
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:SiteBarometricPressure",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:SiteBarometricPressure",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type num-us:pressureItemType", 2, """
+    [_ln(), "None", "value is not legal for type num-us:pressureItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SiteBarometricPressure",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SiteBarometricPressure",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:speedItemType, Sample valid value is 19.19
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 19.19,
-            "aspects": {
-                "xbrl:concept": "solar:TrackerStowWindSpeed",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "19.19",
+                "aspects": {
+                    "concept": "solar:TrackerStowWindSpeed",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type num-us:speedItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:TrackerStowWindSpeed",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:TrackerStowWindSpeed",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:temperatureItemType, Sample valid value is 74.74
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModelAmbientTemperature",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModelAmbientTemperature",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type num-us:temperatureItemType", 2, """
+    [_ln(), "None", "value is not legal for type num-us:temperatureItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModelAmbientTemperature",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModelAmbientTemperature",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num-us:voltageItemType, Sample valid value is 99.99
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:InverterInputMaximumVoltageDC",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:InverterInputMaximumVoltageDC",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type num-us:voltageItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:InverterInputMaximumVoltageDC",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:InverterInputMaximumVoltageDC",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num:areaItemType, Sample valid value is 99.99
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:SiteAcreage",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:SiteAcreage",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type num:areaItemType", 2, """
+    [_ln(), "None", "value is not legal for type num:areaItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SiteAcreage",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SiteAcreage",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num:energyItemType, Sample valid value is 99.99
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:ExpectedEnergyAtP50",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:ExpectedEnergyAtP50",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type num:energyItemType", 2, """
+    [_ln(), "None", "value is not legal for type num:energyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ExpectedEnergyAtP50",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-01T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ExpectedEnergyAtP50",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num:lengthItemType, Sample valid value is 99.99
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleLength",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModuleLength",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type num:lengthItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleLength",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModuleLength",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num:massItemType, Sample valid value is 99.99
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:InverterWeight",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:InverterWeight",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type num:massItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:InverterWeight",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:InverterWeight",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num:powerItemType, Sample valid value is 99.99
-    [_ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:BatteryInverterACPowerRating",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:BatteryInverterACPowerRating",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type num:powerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:BatteryInverterACPowerRating",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:BatteryInverterACPowerRating",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # num:volumeItemType, Sample valid value is 99.99
-    [_ln(), "WashingAndWasteAgreement", None, 0, """
+    [_ln(), "WashingAndWasteAgreement", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": 99.99,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteQuantityOfWater",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "99.99",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteQuantityOfWater",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "WashingAndWasteAgreement", "value is not legal for type num:volumeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:WashingAndWasteQuantityOfWater",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:SiteIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:WashingAndWasteQuantityOfWater",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:DERItemType, Sample valid value is "Storage"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Storage",
-            "aspects": {
-                "xbrl:concept": "solar:SystemDERType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Storage",
+                "aspects": {
+                    "concept": "solar:SystemDERType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:DERItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemDERType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemDERType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:DERItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemDERType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemDERType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:aLTASurveyItemType, Sample valid value is "Preliminary"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Preliminary",
-            "aspects": {
-                "xbrl:concept": "solar:AmericanLandTitleAssociationSurveyStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Preliminary",
+                "aspects": {
+                    "concept": "solar:AmericanLandTitleAssociationSurveyStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:aLTASurveyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:AmericanLandTitleAssociationSurveyStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:AmericanLandTitleAssociationSurveyStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:aLTASurveyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:AmericanLandTitleAssociationSurveyStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:AmericanLandTitleAssociationSurveyStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:batteryChemistryItemType, Sample valid value is "NiCad"
-    [_ln(), "IECRECertificate", None, 0, """
+    [_ln(), "IECRECertificate", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "NiCad",
-            "aspects": {
-                "xbrl:concept": "solar:BatteryStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "NiCad",
+                "aspects": {
+                    "concept": "solar:BatteryStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-   [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:BatteryStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:BatteryStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-   [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:BatteryStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:BatteryStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:batteryConnectionItemType, Sample valid value is "DC-Coupled"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "DC-Coupled",
-            "aspects": {
-                "xbrl:concept": "solar:SystemBatteryConnection",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "DC-Coupled",
+                "aspects": {
+                    "concept": "solar:SystemBatteryConnection",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:batteryConnectionItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemBatteryConnection",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemBatteryConnection",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:batteryConnectionItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemBatteryConnection",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemBatteryConnection",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:climateClassificationKoppenItemType, Sample valid value is "2.4.1 Hot summer continental climates"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "2.4.1 Hot summer continental climates",
-            "aspects": {
-                "xbrl:concept": "solar:SiteClimateClassificationKoppen",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "2.4.1 Hot summer continental climates",
+                "aspects": {
+                    "concept": "solar:SiteClimateClassificationKoppen",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SiteClimateClassificationKoppen",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SiteClimateClassificationKoppen",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SiteClimateClassificationKoppen",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SiteClimateClassificationKoppen",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:climateZoneANSIItemType, Sample valid value is "Mixed - Marine"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Mixed - Marine",
-            "aspects": {
-                "xbrl:concept": "solar:SiteClimateZoneTypeANSI",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Mixed - Marine",
+                "aspects": {
+                    "concept": "solar:SiteClimateZoneTypeANSI",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SiteClimateZoneTypeANSI",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SiteClimateZoneTypeANSI",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SiteClimateZoneTypeANSI",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SiteClimateZoneTypeANSI",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:communicationProtocolItemType, Sample valid value is "Modbus"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Modbus",
-            "aspects": {
-                "xbrl:concept": "solar:DataAcquisitionSystemCommunicationProtocol",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Modbus",
+                "aspects": {
+                    "concept": "solar:DataAcquisitionSystemCommunicationProtocol",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:communicationProtocolItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:DataAcquisitionSystemCommunicationProtocol",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:DataAcquisitionSystemCommunicationProtocol",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:communicationProtocolItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:DataAcquisitionSystemCommunicationProtocol",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:DataAcquisitionSystemCommunicationProtocol",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:deviceItemType, Sample valid value is "BatteryManagementSystemMember"
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "BatteryManagementSystemMember",
-            "aspects": {
-                "xbrl:concept": "solar:TypeOfDevice",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "BatteryManagementSystemMember",
+                "aspects": {
+                    "concept": "solar:TypeOfDevice",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:TypeOfDevice",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:TypeOfDevice",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:TypeOfDevice",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:TypeOfDevice",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:distributedGenOrUtilityScaleItemType, Sample valid value is "Distributed Generation"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Distributed Generation",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectDistributedGenerationPortolioOrUtilityScale",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:IndependentEngineeringServicesChecklistAxis": "solar:IndependentEngineeringServicesChecklistPostFundingActivityMember"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Distributed Generation",
+                "aspects": {
+                    "concept": "solar:ProjectDistributedGenerationPortolioOrUtilityScale",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectDistributedGenerationPortolioOrUtilityScale",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:IndependentEngineeringServicesChecklistAxis": "solar:IndependentEngineeringServicesChecklistPostFundingActivityMember"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectDistributedGenerationPortolioOrUtilityScale",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectDistributedGenerationPortolioOrUtilityScale",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:IndependentEngineeringServicesChecklistAxis": "solar:IndependentEngineeringServicesChecklistPostFundingActivityMember"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectDistributedGenerationPortolioOrUtilityScale",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:divisionStateApprovalStatusItemType, Sample valid value is "Final Approval"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Final Approval",
-            "aspects": {
-                "xbrl:concept": "solar:DivisionOfStateArchitectApprovalStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Final Approval",
+                "aspects": {
+                    "concept": "solar:DivisionOfStateArchitectApprovalStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:DivisionOfStateArchitectApprovalStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:DivisionOfStateArchitectApprovalStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:DivisionOfStateArchitectApprovalStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:DivisionOfStateArchitectApprovalStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:eventSeverityItemType, Sample valid value is "Moderate"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Moderate",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectRecentEventSeverityOfEvent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Moderate",
+                "aspects": {
+                    "concept": "solar:ProjectRecentEventSeverityOfEvent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:eventSeverityItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectRecentEventSeverityOfEvent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectRecentEventSeverityOfEvent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:eventSeverityItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectRecentEventSeverityOfEvent",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectRecentEventSeverityOfEvent",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:feeStatusItemType, Sample valid value is "Fully Paid"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ZoningPermitUpfrontFeeStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ZoningPermitUpfrontFeeStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:feeStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ZoningPermitUpfrontFeeStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ZoningPermitUpfrontFeeStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:feeStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invald Value",
-            "aspects": {
-                "xbrl:concept": "solar:ZoningPermitUpfrontFeeStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invald Value",
+                "aspects": {
+                    "concept": "solar:ZoningPermitUpfrontFeeStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:fundStatusItemType, Sample valid value is "Committed"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:FundStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:FundStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:fundStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:FundStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:FundStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:fundStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:FundStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:FundStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:gISFileFormatItemType, Sample valid value is "GEOJson"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "GEOJson",
-            "aspects": {
-                "xbrl:concept": "solar:SiteGeospatialBoundaryGISFileFormat",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "GEOJson",
+                "aspects": {
+                    "concept": "solar:SiteGeospatialBoundaryGISFileFormat",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:gISFileFormatItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SiteGeospatialBoundaryGISFileFormat",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SiteGeospatialBoundaryGISFileFormat",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:gISFileFormatItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SiteGeospatialBoundaryGISFileFormat",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
-            }
-        }
-        """
-    ],
-
-    # solar-types:hedgeItemType, Sample valid value is "Revenue Put"
-    [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
-        {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Revenue Put",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectHedgeAgreementType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SiteGeospatialBoundaryGISFileFormat",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectHedgeAgreementType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Revenue Put",
+                "aspects": {
+                    "concept": "solar:ProjectHedgeAgreementType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectHedgeAgreementType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectHedgeAgreementType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:insuranceItemType, Sample valid value is "Surety Solar Module Supply Bond"
-    [_ln(), None, None, 0, """
+    [_ln(), "", "value is not legal for type solar-types:hedgeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Surety Solar Module Supply Bond",
-            "aspects": {
-                "xbrl:concept": "solar:InsuranceType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectHedgeAgreementType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:InsuranceType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Surety Solar Module Supply Bond",
+                "aspects": {
+                    "concept": "solar:InsuranceType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:insuranceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:InsuranceType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:InsuranceType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:internetConnectionItemType, Sample valid value is "Dedicated Broadband"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "value is not legal for type solar-types:insuranceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:NetworkType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:InsuranceType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:NetworkType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:NetworkType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:internetConnectionItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:NetworkType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:NetworkType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:inverterItemType, Sample valid value is "MicroInverter"
-    [_ln(), "IECRECertificate", None, 0, """
+    [_ln(), "None", "value is not legal for type solar-types:internetConnectionItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "MicroInverter",
-            "aspects": {
-                "xbrl:concept": "solar:InverterStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:NetworkType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
+            }
+        }
+        """
+    ],
+    [_ln(), "IECRECertificate", "None", 0, """
+        {
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "MicroInverter",
+                "aspects": {
+                    "concept": "solar:InverterStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:InverterStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:InverterStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:InverterStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:InverterStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:inverterPhaseItemType, Sample valid value is "Three Phase WYE"
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Three Phase WYE",
-            "aspects": {
-                "xbrl:concept": "solar:InverterOutputPhaseType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
-            }
-        }
-        """
-    ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
-        {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:InverterOutputPhaseType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Three Phase WYE",
+                "aspects": {
+                    "concept": "solar:InverterOutputPhaseType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:InverterOutputPhaseType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:InverterOutputPhaseType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:investmentStatusItemType, Sample valid value is "Partial Funding"
-    [_ln(), "", None, 0, """
+    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Partial Funding",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectInvestmentStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:InverterOutputPhaseType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
+            }
+        }
+        """
+    ],
+    [_ln(), "", "None", 0, """
+        {
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Partial Funding",
+                "aspects": {
+                    "concept": "solar:ProjectInvestmentStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type solar-types:investmentStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectInvestmentStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectInvestmentStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type solar-types:investmentStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectInvestmentStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectInvestmentStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:mORLevelItemType, Sample valid value is "Fund Level"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Fund Level",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportLevel",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Fund Level",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportLevel",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:mORLevelItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportLevel",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportLevel",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:mORLevelItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:MonthlyOperatingReportLevel",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:MonthlyOperatingReportLevel",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:moduleItemType, Sample valid value is "BiFacial"
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "BiFacial",
-            "aspects": {
-                "xbrl:concept": "solar:ModuleStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "BiFacial",
+                "aspects": {
+                    "concept": "solar:ModuleStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModuleStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ModuleStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ModuleStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:moduleOrientationItemType, Sample valid value is "Portrait"
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Portrait",
-            "aspects": {
-                "xbrl:concept": "solar:ModuleOrientation",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Portrait",
+                "aspects": {
+                    "concept": "solar:ModuleOrientation",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleOrientation",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModuleOrientation",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ModuleOrientation",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ModuleOrientation",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:moduleTechnologyItemType, Sample valid value is "Multi-C-Si"
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Multi-C-Si",
-            "aspects": {
-                "xbrl:concept": "solar:ModuleTechnology",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Multi-C-Si",
+                "aspects": {
+                    "concept": "solar:ModuleTechnology",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ModuleTechnology",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ModuleTechnology",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ModuleTechnology",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ModuleTechnology",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:mountingItemType, Sample valid value is "Ballasted"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Ballasted",
-            "aspects": {
-                "xbrl:concept": "solar:MountingType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Ballasted",
+                "aspects": {
+                    "concept": "solar:MountingType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:mountingItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:MountingType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:MountingType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:mountingItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:MountingType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:MountingType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:occupancyItemType, Sample valid value is "Owner Occupied"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Owner Occupied",
-            "aspects": {
-                "xbrl:concept": "solar:SitePropertyOccupancyType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Owner Occupied",
+                "aspects": {
+                    "concept": "solar:SitePropertyOccupancyType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:occupancyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SitePropertyOccupancyType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SitePropertyOccupancyType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:occupancyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SitePropertyOccupancyType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SitePropertyOccupancyType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:optimizerTypeItemType, Sample valid value is "Attached"
-    [_ln(), "CutSheet", None, 0, """
+    [_ln(), "CutSheet", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Attached",
-            "aspects": {
-                "xbrl:concept": "solar:OptimizerType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Attached",
+                "aspects": {
+                    "concept": "solar:OptimizerType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:OptimizerType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:OptimizerType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:OptimizerType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-                "solar:ProductIdentifierAxis": "1"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:OptimizerType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:participantItemType, Sample valid value is "Workers Compensation Insurer"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Workers Compensation Insurer",
-            "aspects": {
-                "xbrl:concept": "solar:ParticipantRole",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Workers Compensation Insurer",
+                "aspects": {
+                    "concept": "solar:ParticipantRole",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:participantItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ParticipantRole",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ParticipantRole",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:participantItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ParticipantRole",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ParticipantRole",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:preventiveMaintenanceTaskStatusItemType, Sample valid value is "Incomplete"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Incomplete",
-            "aspects": {
-                "xbrl:concept": "solar:SystemPreventiveMaintenanceTasksStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Incomplete",
+                "aspects": {
+                    "concept": "solar:SystemPreventiveMaintenanceTasksStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemPreventiveMaintenanceTasksStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemPreventiveMaintenanceTasksStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemPreventiveMaintenanceTasksStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemPreventiveMaintenanceTasksStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:projectAssetTypeItemType, Sample valid value is "Solar Plus Storage"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Solar Plus Storage",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectAssetType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Solar Plus Storage",
+                "aspects": {
+                    "concept": "solar:ProjectAssetType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectAssetType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectAssetType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectAssetType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectAssetType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:projectClassItemType, Sample valid value is "Community Solar"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Community Solar",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectClassType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Community Solar",
+                "aspects": {
+                    "concept": "solar:ProjectClassType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectClassItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectClassType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectClassType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectClassItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectClassType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectClassType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:projectInterconnectionItemType, Sample valid value is "Virtual Net Meter"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Virtual Net Meter",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectInterconnectionType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Virtual Net Meter",
+                "aspects": {
+                    "concept": "solar:ProjectInterconnectionType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectInterconnectionType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectInterconnectionType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectInterconnectionType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectInterconnectionType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:projectPhaseItemType, Sample valid value is "Early Construction"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Early Construction",
-            "aspects": {
-                "xbrl:concept": "solar:PhaseOfProjectNeeded",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:IndependentEngineeringServicesChecklistAxis": "solar:IndependentEngineeringServicesChecklistPostFundingActivityMember"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Early Construction",
+                "aspects": {
+                    "concept": "solar:PhaseOfProjectNeeded",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectPhaseItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:PhaseOfProjectNeeded",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:IndependentEngineeringServicesChecklistAxis": "solar:IndependentEngineeringServicesChecklistPostFundingActivityMember"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:PhaseOfProjectNeeded",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectPhaseItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:PhaseOfProjectNeeded",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00",
-                "solar:IndependentEngineeringServicesChecklistAxis": "solar:IndependentEngineeringServicesChecklistPostFundingActivityMember"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:PhaseOfProjectNeeded",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:projectStageItemType, Sample valid value is "In Operation"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "In Operation",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectStage",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "In Operation",
+                "aspects": {
+                    "concept": "solar:ProjectStage",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectStageItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ProjectStage",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ProjectStage",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:projectStageItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ProjectStage",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ProjectStage",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:regulatoryApprovalStatusItemType, Sample valid value is "Not Submitted"
-    [_ln(), "Project", None, 0, """
+    [_ln(), "Project", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Not Submitted",
-            "aspects": {
-                "xbrl:concept": "solar:RegulatoryApprovalStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Not Submitted",
+                "aspects": {
+                    "concept": "solar:RegulatoryApprovalStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:RegulatoryApprovalStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:RegulatoryApprovalStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:RegulatoryApprovalStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:RegulatoryApprovalStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:regulatoryFacilityItemType, Sample valid value is "EWG"
-    [_ln(), "Project", None, 0, """
+    [_ln(), "Project", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "EWG",
-            "aspects": {
-                "xbrl:concept": "solar:RegulatoryFacilityType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
-            }
-        }
-        """
-    ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
-        {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:RegulatoryFacilityType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "EWG",
+                "aspects": {
+                    "concept": "solar:RegulatoryFacilityType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:RegulatoryFacilityType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:RegulatoryFacilityType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:reserveCollateralItemType, Sample valid value is "Letter of Credit"
-    [_ln(), None, None, 0, """
+    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Letter of Credit",
-            "aspects": {
-                "xbrl:concept": "solar:ReserveCollateralType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:RegulatoryFacilityType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ReserveCollateralType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Letter of Credit",
+                "aspects": {
+                    "concept": "solar:ReserveCollateralType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:reserveCollateralItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ReserveCollateralType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ReserveCollateralType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:reserveUseItemType, Sample valid value is "Maintenance"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "value is not legal for type solar-types:reserveCollateralItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Maintenance",
-            "aspects": {
-                "xbrl:concept": "solar:ReserveUse",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ReserveCollateralType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ReserveUse",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Maintenance",
+                "aspects": {
+                    "concept": "solar:ReserveUse",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:reserveUseItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ReserveUse",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ReserveUse",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:roofItemType, Sample valid value is "Thermoplastic Polyolefin"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "value is not legal for type solar-types:reserveUseItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:RoofType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ReserveUse",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:RoofType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:RoofType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:roofItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:RoofType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:RoofType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:roofSlopeItemType, Sample valid value is "Steep"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "value is not legal for type solar-types:roofItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:RoofSlopeType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:RoofType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:RoofSlopeType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:RoofSlopeType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:roofSlopeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:RoofSlopeType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:RoofSlopeType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:siteControlItemType, Sample valid value is "Lease"
-    [_ln(), "Site", None, 0, """
+    [_ln(), "None", "value is not legal for type solar-types:roofSlopeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Lease",
-            "aspects": {
-                "xbrl:concept": "solar:SiteControlType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:RoofSlopeType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SiteControlType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Lease",
+                "aspects": {
+                    "concept": "solar:SiteControlType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SiteControlType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SiteControlType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:solarSystemCharacterItemType, Sample valid value is "Agricultural"
-    [_ln(), "System", None, 0, """
+    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Agricultural",
-            "aspects": {
-                "xbrl:concept": "solar:SystemType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SiteControlType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
+            }
+        }
+        """
+    ],
+    [_ln(), "System", "None", 0, """
+        {
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Agricultural",
+                "aspects": {
+                    "concept": "solar:SystemType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemType",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemType",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:sparePartsStatusItemType, Sample valid value is "Insufficient"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Insufficient",
-            "aspects": {
-                "xbrl:concept": "solar:SystemSparePartsStatusLevel",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Insufficient",
+                "aspects": {
+                    "concept": "solar:SystemSparePartsStatusLevel",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemSparePartsStatusLevel",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemSparePartsStatusLevel",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemSparePartsStatusLevel",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemSparePartsStatusLevel",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:systemAvailabilityModeItemType, Sample valid value is "Islanded"
-    [_ln(), "System", None, 0, """
+    [_ln(), "System", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Islanded",
-            "aspects": {
-                "xbrl:concept": "solar:SystemAvailabilityMode",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
-            }
-        }
-        """
-    ],
-    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
-        {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemAvailabilityMode",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Islanded",
+                "aspects": {
+                    "concept": "solar:SystemAvailabilityMode",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemAvailabilityMode",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemAvailabilityMode",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:systemOperationalStatusItemType, Sample valid value is "Communication Failure"
-    [_ln(), "System", None, 0, """
+    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Communication Failure",
-            "aspects": {
-                "xbrl:concept": "solar:SystemOperationStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemAvailabilityMode",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
+            }
+        }
+        """
+    ],
+    [_ln(), "System", "None", 0, """
+        {
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Communication Failure",
+                "aspects": {
+                    "concept": "solar:SystemOperationStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:SystemOperationStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:SystemOperationStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:SystemOperationStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:SystemOperationStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:titlePolicyInsuranceItemType, Sample valid value is "Pro Forma"
-    [_ln(), None, None, 0, """
+    [_ln(), "None", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Pro Forma",
-            "aspects": {
-                "xbrl:concept": "solar:TitlePolicyInsuranceStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Pro Forma",
+                "aspects": {
+                    "concept": "solar:TitlePolicyInsuranceStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:TitlePolicyInsuranceStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:TitlePolicyInsuranceStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-    [_ln(), None, "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), "None", "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:TitlePolicyInsuranceStatus",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:TitlePolicyInsuranceStatus",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:trackerItemType, Sample valid value is "Azimuth Axis Tracking"
-    [_ln(), "System", None, 0, """
+    [_ln(), "System", "None", 0, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Azimuth Axis Tracking",
-            "aspects": {
-                "xbrl:concept": "solar:TrackerStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
-            }
-        }
-        """
-    ],
-    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
-        {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:TrackerStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Azimuth Axis Tracking",
+                "aspects": {
+                    "concept": "solar:TrackerStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:TrackerStyle",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:TrackerStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
-
-    # solar-types:zoningPermitPropertyItemType, Sample valid value is "Gen Tie Line"
-    [_ln(), "", None, 0, """
+    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ZoningPermitProperty",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:TrackerStyle",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
+            }
+        }
+        """
+    ],
+    [_ln(), "", "None", 0, """
+        {
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ZoningPermitProperty",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": false,
-            "aspects": {
-                "xbrl:concept": "solar:ZoningPermitProperty",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "False",
+                "aspects": {
+                    "concept": "solar:ZoningPermitProperty",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
     ],
     [_ln(), "", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
         {
-            "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
-            "value": "Invalid Value",
-            "aspects": {
-                "xbrl:concept": "solar:ZoningPermitProperty",
-                "xbrl:entity": "JUPITER",
-                "xbrl:periodStart": "2017-11-01T00:00:00",
-                "xbrl:periodEnd": "2017-11-30T00:00:00"
+            "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+                "value": "Invalid Value",
+                "aspects": {
+                    "concept": "solar:ZoningPermitProperty",
+                    "entity": "JUPITER",
+                    "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+                }
             }
         }
         """
