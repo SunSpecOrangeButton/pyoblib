@@ -102,40 +102,43 @@ class Parser(object):
 
     def _entrypoint_name(self, doc_concepts):
         """ 
-        Returns the name of the correct entrypoint given a set of concepts from a document (JSON or XML).
+        Used to find the name of the correct entrypoint given a set of concepts from a document (JSON or XML).
         Currently assumes that a JSON/XML document contains one and only one entrypoint and raises
         an exception if this is not true.
 
-        doc_concepts (list of strings): A list of all concepts in the input JSON/XML
+        Args:
+            doc_concepts (list of strings): A list of all concepts in the input JSON/XML document.
 
+        Returns:
+            A string contianing the name of the correct entrypoint.
         TODO: This is algorithm is fairly slow since it loops through all entry points which is time
         consuming for a small number of input concepts.  With this said there is not currently enough
         support functions in Taxonomy to accomodate other algorithms.  It may be better to move this
         into taxonomy_semantic and simultaneously improve the speed.
         """ 
 
-        eps_found = set()
-        for ep in self._taxonomy.semantic.get_all_entrypoints():
-            for concept in self._taxonomy.semantic.get_entrypoint_concepts(ep):
-                for dc in doc_concepts:
-                    if dc == concept:
-                        eps_found.add(ep)
+        entrypoints_found = set()
+        for entrypoint in self._taxonomy.semantic.get_all_entrypoints():
+            for concept in self._taxonomy.semantic.get_entrypoint_concepts(entrypoint):
+                for doc_concept in doc_concepts:
+                    if doc_concept == concept:
+                        entrypoints_found.add(entrypoint)
 
-        if len(eps_found) == 0:
+        if len(entrypoints_found) == 0:
             raise ValidationError("No entrypoint found given the set of facts")
-        elif len(eps_found) == 1:
-            for ep in eps_found:
-                return ep
+        elif len(entrypoints_found) == 1:
+            for entrypoint in entrypoints_found:
+                return entrypoint
         else:
             # Multiple candidate entrypoints are found.  See if there is one and only one
             # perfect fit.
             the_one = None
-            for ep in eps_found:
+            for entrypoint in entrypoints_found:
                 ok = True
-                for c in doc_concepts:
+                for doc_concept in doc_concepts:
                     ok2 = False
-                    for c2 in self._taxonomy.semantic.get_entrypoint_concepts(ep):
-                        if c == c2:
+                    for doc_concept2 in self._taxonomy.semantic.get_entrypoint_concepts(entrypoint):
+                        if doc_concept == doc_concept2:
                             ok2 = True
                             break
                     if not ok2:
@@ -143,9 +146,9 @@ class Parser(object):
                         break
                 if ok:
                     if the_one is None:
-                        the_one = ep
+                        the_one = entrypoint
                     else:
-                         raise ValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, ep))
+                         raise ValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, entrypoint))
             if the_one == None:
                 raise ValidationError("No entrypoint found given the set of facts")
             else:
@@ -158,8 +161,12 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        json_string (str): String containing JSON
-        entrypoint_name (str): Optional name of the entrypoint.
+        Args:
+            json_string (str): String containing JSON
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         # Create a validation error which can be used to maintain a list of error messages
@@ -210,7 +217,7 @@ class Parser(object):
         validation_errors = ValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
-        entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        ob_instance = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
         for id in facts:
@@ -286,7 +293,7 @@ class Parser(object):
             # Done with temporary code
 
             try:
-                entrypoint.set(fact["aspects"]["concept"], value, **kwargs)
+                ob_instance.set(fact["aspects"]["concept"], value, **kwargs)
                 # entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
             except Exception as e:
                 validation_errors.append(e)
@@ -295,7 +302,7 @@ class Parser(object):
         if validation_errors.get_errors():
             raise validation_errors
 
-        return entrypoint
+        return ob_instance
 
     def from_JSON(self, in_filename, entrypoint_name=None):
         """
@@ -303,9 +310,13 @@ class Parser(object):
         is given the entrypoint will be derived from the facts.  In some cases this is not
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
-        
-        in_filename(str): input filename
-        entrypoint_name (str): Optional name of the entrypoint.
+
+        Args:
+            in_filename (str): input filename
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         with open(in_filename, "r") as infile: 
@@ -319,8 +330,12 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        xml_string(str): String containing XML.
-        entrypoint_name (str): Optional name of the entrypoint.
+        Args:
+            xml_string(str): String containing XML.
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         # NOTE: The XML parser has much less effort placed into both the coding and testing as
@@ -453,8 +468,12 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        in_filename (str): input filename
-        entrypoint_name (str): Optional name of the entrypoint.
+        Args:
+            in_filename (str): input filename
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         with open(in_filename, "r") as infile: 
@@ -474,8 +493,9 @@ class Parser(object):
         """ 
         Exports XBRL as JSON to the given filename given a data model entrypoint. 
 
-        entrypoint (Entrypoint): entry point to export to JSON
-        out_filename (str): output filename
+        Args:
+            entrypoint (Entrypoint): entry point to export to JSON
+            out_filename (str): output filename
         """
         
         entrypoint.to_JSON(out_filename)
@@ -483,8 +503,9 @@ class Parser(object):
     def to_XML_string(self, entrypoint):
         """ 
         Returns XBRL as an XML string given a data model entrypoint.
-        
-        entrypoint (Entrypoint): entry point to export to XML
+
+        Args:
+            entrypoint (Entrypoint): entry point to export to XML
         """
 
         return entrypoint.to_XML_string()
@@ -492,9 +513,10 @@ class Parser(object):
     def to_XML(self, entrypoint, out_filename):
         """ 
         Exports XBRL as XML to the given filename given a data model entrypoint. 
-        
-        entrypoint (Entrypoint): entry point to export to XML
-        out_filename (str): output filename
+
+        Args:
+            entrypoint (Entrypoint): entry point to export to XML
+            out_filename (str): output filename
         """
         
         entrypoint.to_XML(out_filename)
@@ -507,10 +529,11 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        in_filename (str): full path to input file
-        out_filename (str): full path to output file
-        entrypoint_name (str): Optional name of the entrypoint.
-        file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
+        Args:
+            in_filename (str): full path to input file
+            out_filename (str): full path to output file
+            entrypoint_name (str): Optional name of the entrypoint.
+            file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
         """
 
         if file_format == FileFormat.JSON:
@@ -530,9 +553,10 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        in_filename (str): full path to input file
-        entrypoint_name (str): Optional name of the entrypoint.
-        file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
+        Args:
+            in_filename (str): full path to input file
+            entrypoint_name (str): Optional name of the entrypoint.
+            file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
 
         TODO: At this point in time errors part output via print statements.  Future implementation
         should actually return the conditions instead.  It also may be desirable to list the 
