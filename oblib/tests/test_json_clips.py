@@ -1523,7 +1523,8 @@ CLIPS = [
         "aspects": {
             "concept": "dei:LegalEntityIdentifier",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ParticipantAxis": "1"
         }
     }
     """
@@ -1534,7 +1535,8 @@ CLIPS = [
         "aspects": {
             "concept": "dei:LegalEntityIdentifier",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ParticipantAxis": "1"
         }
     }
     """
@@ -1654,7 +1656,8 @@ CLIPS = [
         "aspects": {
             "concept": "solar:TrackerAzimuth",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00"
+            "period": "2017-11-01T00:00:00",
+            "solar:DeviceIdentifierAxis": "1"
         }
     }
     """
@@ -1665,7 +1668,8 @@ CLIPS = [
         "aspects": {
             "concept": "solar:TrackerAzimuth",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00"
+            "period": "2017-11-01T00:00:00",
+            "solar:DeviceIdentifierAxis": "1"
         }
     }
     """
@@ -1676,7 +1680,8 @@ CLIPS = [
         "aspects": {
             "concept": "solar:TrackerAzimuth",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00"
+            "period": "2017-11-01T00:00:00",
+            "solar:DeviceIdentifierAxis": "1"
         }
     }
     """
@@ -1788,7 +1793,6 @@ CLIPS = [
             "concept": "solar:SiteAcreage",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ZoningPermitIdentifierAxis": "1",
             "solar:SiteIdentifierAxis": "1"
         }
     }
@@ -1812,7 +1816,9 @@ CLIPS = [
         "aspects": {
             "concept": "solar:ExpectedEnergyAtP50",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00"
+            "period": "2017-11-01T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:PeriodAxis": "solar:PeriodMonthMember"
         }
     }
     """
@@ -1824,7 +1830,8 @@ CLIPS = [
             "concept": "solar:ExpectedEnergyAtP50",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
-            "solar:PVSystemIdentifierAxis": "1"
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:PeriodAxis": "solar:PeriodMonthMember"
         }
     }
     """
@@ -1927,70 +1934,74 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "System", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Storage",
         "aspects": {
             "concept": "solar:SystemDERType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:DERItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:SystemDERType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:DERItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:SystemDERType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "Site", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Preliminary",
         "aspects": {
             "concept": "solar:AmericanLandTitleAssociationSurveyStatus",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:SiteIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:aLTASurveyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:AmericanLandTitleAssociationSurveyStatus",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ZoningPermitIdentifierAxis": "1"
+            "solar:SiteIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:aLTASurveyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:AmericanLandTitleAssociationSurveyStatus",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ZoningPermitIdentifierAxis": "1"
+            "solar:SiteIdentifierAxis": "1"
         }
     }
     """
@@ -2006,7 +2017,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar:batteryChemistryItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2017,7 +2028,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar:batteryChemistryItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2028,35 +2039,44 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "System", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "DC-Coupled",
         "aspects": {
             "concept": "solar:SystemBatteryConnection",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:InstallationTypeAxis": "solar:GroundMember",
+            "solar:SolarSubArrayIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:batteryConnectionItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:SystemBatteryConnection",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:InstallationTypeAxis": "solar:GroundMember",
+            "solar:SolarSubArrayIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:batteryConnectionItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:SystemBatteryConnection",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:InstallationTypeAxis": "solar:GroundMember",
+            "solar:SolarSubArrayIdentifierAxis": "1"
         }
     }
     """
@@ -2073,7 +2093,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:climateClassificationKoppenItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2085,7 +2105,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:climateClassificationKoppenItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2109,7 +2129,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:climateZoneANSIItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2121,7 +2141,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:climateZoneANSIItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2145,7 +2165,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:communicationProtocolItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2157,7 +2177,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:communicationProtocolItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2182,7 +2202,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:deviceItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2195,7 +2215,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:deviceItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2220,7 +2240,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:distributedGenOrUtilityScaleItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2232,7 +2252,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:distributedGenOrUtilityScaleItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2251,32 +2271,30 @@ CLIPS = [
             "concept": "solar:DivisionOfStateArchitectApprovalStatus",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ZoningPermitIdentifierAxis": "1"
+            "solar:SiteIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:divisionStateApprovalStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:DivisionOfStateArchitectApprovalStatus",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ZoningPermitIdentifierAxis": "1",
             "solar:SiteIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:divisionStateApprovalStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:DivisionOfStateArchitectApprovalStatus",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ZoningPermitIdentifierAxis": "1",
             "solar:SiteIdentifierAxis": "1"
         }
     }
@@ -2288,45 +2306,37 @@ CLIPS = [
         "aspects": {
             "concept": "solar:ProjectRecentEventSeverityOfEvent",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ProjectIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:eventSeverityItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:ProjectRecentEventSeverityOfEvent",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ProjectIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:eventSeverityItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:ProjectRecentEventSeverityOfEvent",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ProjectIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
-        "aspects": {
-            "concept": "solar:ZoningPermitUpfrontFeeStatus",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), "Site", "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), "Site", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2338,7 +2348,19 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:feeStatusItemType", 2, """
+        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+        "value": false,
+        "aspects": {
+            "concept": "solar:ZoningPermitUpfrontFeeStatus",
+            "entity": "JUPITER",
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ZoningPermitIdentifierAxis": "1"
+        }
+    }
+    """
+    ],
+    [_ln(), "Site", "value is not legal for type solar:feeStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invald Value",
         "aspects": {
@@ -2350,35 +2372,38 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, None, 0, """
+    [_ln(), "Fund", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:FundStatus",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:FundIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), "Fund", "value is not legal for type solar:fundStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:FundStatus",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:FundIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), "Fund", "value is not legal for type solar:fundStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:FundStatus",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:FundIdentifierAxis": "1"
         }
     }
     """
@@ -2395,18 +2420,19 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:gISFileFormatItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:SiteGeospatialBoundaryGISFileFormat",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:SiteIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:gISFileFormatItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2418,7 +2444,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:hedgeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Revenue Put",
         "aspects": {
@@ -2430,7 +2456,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:hedgeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2442,7 +2468,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:hedgeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2460,29 +2486,38 @@ CLIPS = [
         "aspects": {
             "concept": "solar:InsuranceType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ParticipantAxis": "1",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:InsuranceAxis": "1"            
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:insuranceItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:InsuranceType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ParticipantAxis": "1",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:InsuranceAxis": "1"            
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:insuranceItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:InsuranceType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ParticipantAxis": "1",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:InsuranceAxis": "1"            
         }
     }
     """
@@ -2493,29 +2528,35 @@ CLIPS = [
         "aspects": {
             "concept": "solar:NetworkType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ProductIdentifierAxis": "1",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel10PercentMember"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:internetConnectionItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:NetworkType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ProductIdentifierAxis": "1",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel10PercentMember"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:internetConnectionItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
             "concept": "solar:NetworkType",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "solar:ProductIdentifierAxis": "1",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel10PercentMember"
         }
     }
     """
@@ -2531,7 +2572,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar:inverterItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2542,7 +2583,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
+    [_ln(), "IECRECertificate", "value is not legal for type solar:inverterItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2566,7 +2607,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:inverterPhaseItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2579,7 +2620,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:inverterPhaseItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2604,7 +2645,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:investmentStatusItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:investmentStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2616,7 +2657,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:investmentStatusItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:investmentStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2639,7 +2680,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:mORLevelItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2650,7 +2691,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:mORLevelItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2674,7 +2715,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:moduleItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2687,7 +2728,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:moduleItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2713,7 +2754,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:moduleOrientationItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2726,7 +2767,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:moduleOrientationItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2752,7 +2793,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:moduleTechnologyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2765,7 +2806,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:moduleTechnologyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2792,7 +2833,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:mountingItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2806,7 +2847,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:mountingItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2832,7 +2873,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:occupancyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2844,7 +2885,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:occupancyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2869,7 +2910,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:optimizerTypeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2882,7 +2923,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
+    [_ln(), "CutSheet", "value is not legal for type solar:optimizerTypeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2907,7 +2948,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Participant", "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), "Participant", "value is not legal for type solar:participantItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2919,7 +2960,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Participant", "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), "Participant", "value is not legal for type solar:participantItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2943,7 +2984,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:preventiveMaintenanceTaskStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2955,7 +2996,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:preventiveMaintenanceTaskStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2979,7 +3020,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectAssetTypeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2991,7 +3032,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectAssetTypeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3015,7 +3056,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectClassItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3027,7 +3068,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectClassItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3051,7 +3092,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectInterconnectionItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3063,7 +3104,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectInterconnectionItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3087,7 +3128,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:projectPhaseItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3099,7 +3140,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:projectPhaseItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3123,7 +3164,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectStageItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3135,7 +3176,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:projectStageItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3159,7 +3200,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:regulatoryApprovalStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3171,7 +3212,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:regulatoryApprovalStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3195,7 +3236,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:regulatoryFacilityItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3207,7 +3248,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
+    [_ln(), "Project", "value is not legal for type solar:regulatoryFacilityItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3232,7 +3273,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:reserveCollateralItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3245,7 +3286,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:reserveCollateralItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3271,7 +3312,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:reserveUseItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3284,7 +3325,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:reserveUseItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3311,7 +3352,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:roofItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3325,7 +3366,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:roofItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3353,7 +3394,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:roofSlopeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3367,7 +3408,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:roofSlopeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3393,7 +3434,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:siteControlItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3405,7 +3446,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:siteControlItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3429,7 +3470,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:solarSystemCharacterItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3441,7 +3482,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:solarSystemCharacterItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3465,7 +3506,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:sparePartsStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3477,7 +3518,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), None, "value is not legal for type solar:sparePartsStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3501,7 +3542,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:systemAvailabilityModeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3513,7 +3554,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:systemAvailabilityModeItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3537,7 +3578,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:systemOperationalStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3549,7 +3590,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:systemOperationalStatusItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3573,7 +3614,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:titlePolicyInsuranceItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3585,7 +3626,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:titlePolicyInsuranceItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3611,7 +3652,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:trackerItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3625,7 +3666,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
+    [_ln(), "System", "value is not legal for type solar:trackerItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3651,7 +3692,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:zoningPermitPropertyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3663,7 +3704,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
+    [_ln(), "Site", "value is not legal for type solar:zoningPermitPropertyItemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
