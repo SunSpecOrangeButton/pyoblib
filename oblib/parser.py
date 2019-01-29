@@ -202,7 +202,7 @@ class Parser(object):
                 if "aspects" not in fact:
                     validation_errors.append("fact tag is missing aspects tag")
                 elif "concept" not in fact["aspects"]:
-                    validation_errors.append("aspects tag is missing xbrl:concept tag")
+                    validation_errors.append("aspects tag is missing concept tag")
                 else:
                     fact_names.append(fact["aspects"]["concept"])
             try:
@@ -228,14 +228,15 @@ class Parser(object):
             begin_error_count = len(validation_errors.get_errors())
 
             # Create kwargs and populate with entity.
-            kwargs = None
+            kwargs = {}
             if "aspects" not in fact:
                 validation_errors.append("fact tag is missing aspects tag")
             else:
                 if "concept" not in fact["aspects"]:
-                    validation_errors.append("aspects tag is missing xbrl:concept tag")
+                    validation_errors.append("aspects tag is missing concept tag")
+
                 if "entity" not in fact["aspects"]:
-                    validation_errors.append("aspects tag is missing xbrl:entity tag")
+                    validation_errors.append("aspects tag is missing entity tag")
                 else:
                     kwargs = {"entity": fact["aspects"]["entity"]}
 
@@ -274,15 +275,18 @@ class Parser(object):
                     if "Axis" in axis_chk:
                         kwargs[axis_chk.split(":")[1]] = fact["aspects"][axis_chk]
 
-            if "aspects" in fact and "xbrl:unit" in fact["aspects"] and kwargs is not None:
+            if "aspects" in fact and "unit" in fact["aspects"] and kwargs is not None:
                 kwargs["unit_name"] = fact["aspects"]["unit"]
+
+            if "value" not in fact:
+                validation_errors.append("fact tag is missing value tag")
 
             # If validation errors were found for this fact continute to the next fact
             if len(validation_errors.get_errors()) > begin_error_count:
                 continue
 
             # TODO: Temporary code
-            # Required to match behavior of to_JSON, once the two are syncrhonized it should not be required.
+            # Required to match behavior of to_JSON, once the two are synchronized it should not be required.
             value = fact["value"]
             if value == "None":
                 value = None
