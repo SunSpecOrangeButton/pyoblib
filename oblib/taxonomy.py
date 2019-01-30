@@ -207,7 +207,7 @@ class Taxonomy(object):
 
     def __init__(self):
         """Taxonomy constructor."""
-        self.semantic = taxonomy_semantic.TaxonomySemantic()
+        self.semantic = taxonomy_semantic.TaxonomySemantic(self)
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
         self.numeric_types = taxonomy_misc.TaxonomyNumericTypes()

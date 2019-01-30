@@ -144,9 +144,10 @@ class TaxonomySemantic(object):
     #    - _relationships_by_entrypoint is a map containing all relationshsips for individual entrypoints.  The
     #      entrypoint is the key and the value is a list of all concepts in the entyrpoint.
 
-    def __init__(self):
+    def __init__(self, taxonomy):
         """Constructor."""
 
+        self.taxonomy = taxonomy
         self._concepts_details = self._load_elements()
         self._concepts_by_entrypoint = self._load_concepts()
         self._relationships_by_entrypoint = self._load_relationships()

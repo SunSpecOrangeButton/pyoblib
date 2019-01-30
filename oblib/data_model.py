@@ -514,6 +514,7 @@ class Concept(object):
         self.name = concept_name
         self.parent = None
         self.children = []
+        self.validator = validator.Validator(taxonomy_semantic.taxonomy)
 
         try:
             self.metadata = taxonomy_semantic.get_concept_details(concept_name)
@@ -564,7 +565,7 @@ class Concept(object):
         e.g. integer, string, decimal, boolean, or complex enumerated type.
         False otherwise.
         """
-        return not validator.validate_concept_value(self.metadata, value)[1]
+        return not self.validator.validate_concept_value(self.metadata, value)[1]
         myType = self.get_details("type_name")
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):

@@ -18,6 +18,8 @@ import identifier
 import taxonomy
 import validator
 
+tax = taxonomy.Taxonomy()
+validator = validator.Validator(tax)
 
 class TestValidator(unittest.TestCase):
 
