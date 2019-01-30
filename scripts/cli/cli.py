@@ -19,7 +19,7 @@ import argparse
 import identifier
 from parser import Parser, FileFormat, ValidationErrors
 from taxonomy import Taxonomy
-import validator
+from validator import Validator
 
 #
 # TODO: list-types is missing
@@ -267,6 +267,7 @@ def validate_concept(args):
 
 
 def validate_value(args):
+    validator = Validator(taxonomy)
     concept_details = taxonomy.semantic.get_concept_details(args.concept)
     if concept_details is None:
         print("Not valid:", args.concept, "is not a concept name.")
