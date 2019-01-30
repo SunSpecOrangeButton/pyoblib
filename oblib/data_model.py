@@ -373,8 +373,6 @@ class Context(object):
         self.axes = {}
         for keyword in kwargs:
             if not keyword.endswith("Axis"):
-                # TODO in the future we should use metadata to identify
-                # what's an axis, not just look for the string "Axis".
                 raise OBContextException("Context given invalid keyword {}".format(keyword))
             qualified_name = keyword
             if not qualified_name.startswith("solar:"):
@@ -1135,13 +1133,10 @@ class OBInstance(object):
           write a value to an "Abstract" or a "LineItem".
         """
         if concept_name in self._all_my_concepts:
-            abstract_keywords = ["Abstract", "LineItems", "Table", "Domain", "Axis"]
-            # TODO this should be determined by looking at metadata, not trying to
-            # guess from the concept name.
-            # look at concept.get_metadata('abstract')
-            for word in abstract_keywords:
-                if concept_name.endswith(word):
-                    return False
+            concept = self._all_my_concepts[concept_name]
+            abstract = concept.get_details("abstract")
+            if abstract:
+                return False
             return True
         return False
 
