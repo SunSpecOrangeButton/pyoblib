@@ -217,7 +217,7 @@ class Parser(object):
         validation_errors = ValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
-        ob_instance = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        ob_instance = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=False)
 
         # Loop through facts.
         for id in facts:

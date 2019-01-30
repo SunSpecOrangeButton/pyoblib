@@ -18,6 +18,7 @@ import identifier
 import re
 import sys
 import taxonomy
+import validators
 from datetime import date
 from datetime import datetime
 
@@ -200,7 +201,12 @@ def _dei_legal_entity_identifier_item_type_validator(value):
 
 def _xbrli_any_uri_item_type_validator(value):
     """XBRLI Any URI validator"""
-    return _xbrli_string_item_type_validator(value)
+    errors = []
+    result = _xbrli_string_item_type_validator(value)
+    if not validators.url(value):
+        errors += "'{}' is invalid URI"
+    errors += result[1]
+    return result[0], errors
 
 def _num_us_electric_current_item_type_validator(value):
     """NUM US Electric Current validator"""
