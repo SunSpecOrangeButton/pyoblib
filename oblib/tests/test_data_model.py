@@ -896,3 +896,10 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
 
     # TODO test equals_context in the case where both contexts have duration=(start, end)
+
+    # TODO test that concepts with Axis in the name get instantiated as Axis subclass of
+    # Concept.
+
+    # TODO test that USGAAP url is included in the header if any USGAAP concepts are used.
+      
+    # TODO lots more tests for using get(), especially with partial context arguments.
