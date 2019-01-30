@@ -259,6 +259,7 @@ CLIPS = [
     }
     """
     ],
+    # TODO: verify that 0 or 1 is a valid value for boolean type
     [_ln(), None, None, 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "1",
@@ -270,6 +271,7 @@ CLIPS = [
     }
     """
     ],
+    # TODO: verify that 0 or 1 is a valid value for boolean type
     [_ln(), None, None, 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "0",
