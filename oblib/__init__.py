@@ -16,6 +16,7 @@
 
 import identifier
 import data_model
+import ob
 import parser
 import taxonomy
 import taxonomy_semantic
@@ -24,7 +25,7 @@ import taxonomy_units
 import taxonomy_misc
 import validator
 
-__all__ = ['identifier', 'data_model', 'parser',
+__all__ = ['identifier', 'data_model', 'ob', 'parser',
            'taxonomy', 'taxonomy_semantic',
            'taxonomy_types', 'taxonomy_units',
            'taxonomy_misc', 'validator']
