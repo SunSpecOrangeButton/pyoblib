@@ -144,7 +144,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         by the solar namespace.  Thus these tests prove that certain concepts are gone.
         """
 
-        self.assertFalse("dei:EntityReportingCurrencyISOCode" in tax._elements)
-        self.assertFalse("dei:BusinessContactMember" in tax._elements)
-        self.assertFalse("us-gaap:TimeSharingTransactionsAllowanceForUncollectibleAccountsOnReceivablesSoldWithRecourse" in tax._elements)
-        self.assertFalse("us-gaap:TreasuryStockValueAcquiredCostMethod" in tax._elements)
+        self.assertFalse("dei:EntityReportingCurrencyISOCode" in tax._concepts_details)
+        self.assertFalse("dei:BusinessContactMember" in tax._concepts_details)
+        self.assertFalse("us-gaap:TimeSharingTransactionsAllowanceForUncollectibleAccountsOnReceivablesSoldWithRecourse" in tax._concepts_details)
+        self.assertFalse("us-gaap:TreasuryStockValueAcquiredCostMethod" in tax._concepts_details)
