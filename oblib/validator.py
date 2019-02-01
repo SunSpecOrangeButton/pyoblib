@@ -16,10 +16,7 @@
 
 import identifier
 import re
-import sys
-import taxonomy
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime
 
 BOOLEAN_TRUE = ['true', 't', 'y', '1']
 BOOLEAN_FALSE = ['false', 'f', 'n', '0']
@@ -87,7 +84,6 @@ class Validator(object):
         errors += result[1]
         return result[0], errors
 
-
     def _get_validator_method_name(self, type_name):
         """Return the validator for a type."""
         # Check if type nillable and not string
@@ -125,7 +121,6 @@ class Validator(object):
                 errors.append("'{}' is not a valid boolean value.".format(value))
         return value, errors
 
-
     def _xbrli_string_item_type_validator(self, value):
         """Returns python str if value can be converted"""
         errors = []
@@ -135,7 +130,6 @@ class Validator(object):
     #        if type(value).__name__ not in ["str", "unicode"]:
             errors.append("'{}' is not a valid string value.".format(value))
         return value, errors
-
 
     def _xbrli_integer_item_type_validator(self, value):
         """Returns python int if value can be converted"""
@@ -150,7 +144,6 @@ class Validator(object):
         else:
             errors.append("'{}' is not a valid integer value.".format(value))
         return value, errors
-
 
     def _xbrli_decimal_item_type_validator(self, value):
         """XBRLI decimal validator."""

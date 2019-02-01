@@ -509,15 +509,15 @@ class Concept(object):
     of which concepts are parents/children of other concepts in the schema hierarchy.
     Also stores concept metadata derived from the schema.
     """
-    def __init__(self, taxonomy_semantic, concept_name):
+    def __init__(self, taxonomy, concept_name):
         """Concept constructor."""
         self.name = concept_name
         self.parent = None
         self.children = []
-        self.validator = validator.Validator(taxonomy_semantic.taxonomy)
+        self.validator = validator.Validator(taxonomy)
 
         try:
-            self.metadata = taxonomy_semantic.get_concept_details(concept_name)
+            self.metadata = taxonomy.semantic.get_concept_details(concept_name)
         except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
 
@@ -681,6 +681,7 @@ class OBInstance(object):
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
+        self.taxonomy = taxonomy
         self.entrypoint_name = entrypoint_name
         self._dev_validation_off = dev_validation_off
 
@@ -700,7 +701,7 @@ class OBInstance(object):
                     # There are a bunch of duplicate concept names that all end in "_1"
                     # that raise an exception if we try to query them.
                     continue
-                self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+                self._all_my_concepts[concept_name] = Concept(self.taxonomy, concept_name)
 
             # Get the relationships (this comes from solar_taxonomy/documents/
             #  <entrypoint>/<entrypoint><version>_def.xml)
@@ -733,7 +734,7 @@ class OBInstance(object):
 
         self._all_my_concepts = {}
         for concept_name in every_concept:
-            self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+            self._all_my_concepts[concept_name] = Concept(self.taxonomy, concept_name)
         # Take every relation from taxonomy
 
         every_relation = []
