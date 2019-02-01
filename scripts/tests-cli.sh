@@ -103,7 +103,7 @@ python scripts/cli/cli.py taxonomy list-concept-details solar:AccountsReceivable
 python scripts/cli/cli.py --csv taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-entrypoint || {
+python scripts/cli/cli.py --csv taxonomy list-entrypoints || {
     EXITVAL=1
 }
 python scripts/cli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
