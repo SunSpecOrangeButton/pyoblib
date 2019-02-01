@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+cd oblib/data
 git clone https://github.com/SunSpecOrangeButton/solar-taxonomy.git
 mkdir solar-taxonomy/external
 curl http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd > solar-taxonomy/external/us-gaap-2017-01-31.xsd
