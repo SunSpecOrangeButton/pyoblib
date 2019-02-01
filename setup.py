@@ -1,4 +1,4 @@
-import setuptools
+from setuptools import setup, find_packages
 
 TESTS_REQUIRE = [
     'pytest',
@@ -31,9 +31,9 @@ CLASSIFIERS = [
     'Programming Language :: Python :: 3.6',
 ]
 
-setuptools.setup(
-    name='pyoblib',
-    version='0.9.2',
+setup(
+    name='oblib',
+    version='0.9.0',
     description='Orange Button Python Library',
     long_description=
     """
@@ -47,7 +47,9 @@ setuptools.setup(
     """,
     author='SunSpec Alliance',
     author_email='support@sunspec.org',
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
+    package_data={'oblib': ['data/solar-taxonomy/*']},
+    include_package_data=True,
     extras_require=EXTRAS_REQUIRE,
     install_requires=INSTALL_REQUIRE,
     license='Apache 2.0',

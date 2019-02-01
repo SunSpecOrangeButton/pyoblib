@@ -21,4 +21,4 @@ docs/build/
 # Distribution Files
 build/
 dist/
-pyoblib.egg-info/
+*.egg-info/

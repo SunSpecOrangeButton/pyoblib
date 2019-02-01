@@ -24,4 +24,4 @@ if getattr( sys, 'frozen', False ) :
     SOLAR_TAXONOMY_DIR = os.path.join(sys._MEIPASS, "solar-taxonomy")
 else:
     # Running from source
-    SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "..", "solar-taxonomy")
+    SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "data", "solar-taxonomy")
