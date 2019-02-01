@@ -15,32 +15,31 @@
 import datetime
 import unittest
 
-import util
+from ..util import convert_taxonomy_xsd_bool, convert_taxonomy_xsd_date
 
 
 class TestUtil(unittest.TestCase):
 
     def test_convert_taxonomy_xsd_bool(self):
-        self.assertFalse(util.convert_taxonomy_xsd_bool(None))
-        self.assertFalse(util.convert_taxonomy_xsd_bool("false"))
-        self.assertFalse(util.convert_taxonomy_xsd_bool("False"))
-        self.assertFalse(util.convert_taxonomy_xsd_bool("FALSE"))
-        self.assertFalse(util.convert_taxonomy_xsd_bool("0"))
-        self.assertFalse(util.convert_taxonomy_xsd_bool(""))
-        self.assertTrue(util.convert_taxonomy_xsd_bool("true"))
-        self.assertTrue(util.convert_taxonomy_xsd_bool("True"))
-        self.assertTrue(util.convert_taxonomy_xsd_bool("TRUE"))
-        self.assertTrue(util.convert_taxonomy_xsd_bool("1"))
-
+        self.assertFalse(convert_taxonomy_xsd_bool(None))
+        self.assertFalse(convert_taxonomy_xsd_bool("false"))
+        self.assertFalse(convert_taxonomy_xsd_bool("False"))
+        self.assertFalse(convert_taxonomy_xsd_bool("FALSE"))
+        self.assertFalse(convert_taxonomy_xsd_bool("0"))
+        self.assertFalse(convert_taxonomy_xsd_bool(""))
+        self.assertTrue(convert_taxonomy_xsd_bool("true"))
+        self.assertTrue(convert_taxonomy_xsd_bool("True"))
+        self.assertTrue(convert_taxonomy_xsd_bool("TRUE"))
+        self.assertTrue(convert_taxonomy_xsd_bool("1"))
 
     def test_convert_taxonomy_xsd_date(self):
-        self.assertIsInstance(util.convert_taxonomy_xsd_date("2018-10-12"), datetime.date)
-        self.assertIsNone(util.convert_taxonomy_xsd_date("201-10-12"), datetime.date)
-        self.assertIsNone(util.convert_taxonomy_xsd_date("2019-42-12"), datetime.date)
-        self.assertIsNone(util.convert_taxonomy_xsd_date("2019-11-32"), datetime.date)
+        self.assertIsInstance(convert_taxonomy_xsd_date("2018-10-12"), datetime.date)
+        self.assertIsNone(convert_taxonomy_xsd_date("201-10-12"), datetime.date)
+        self.assertIsNone(convert_taxonomy_xsd_date("2019-42-12"), datetime.date)
+        self.assertIsNone(convert_taxonomy_xsd_date("2019-11-32"), datetime.date)
 
         d = datetime.date(2017, 2, 14)
-        self.assertEqual(util.convert_taxonomy_xsd_date("2017-02-14"), d)
-        self.assertNotEqual(util.convert_taxonomy_xsd_date("2017-02-15"), d)
-        self.assertNotEqual(util.convert_taxonomy_xsd_date("2017-03-14"), d)
-        self.assertNotEqual(util.convert_taxonomy_xsd_date("2018-02-14"), d)
+        self.assertEqual(convert_taxonomy_xsd_date("2017-02-14"), d)
+        self.assertNotEqual(convert_taxonomy_xsd_date("2017-02-15"), d)
+        self.assertNotEqual(convert_taxonomy_xsd_date("2017-03-14"), d)
+        self.assertNotEqual(convert_taxonomy_xsd_date("2018-02-14"), d)

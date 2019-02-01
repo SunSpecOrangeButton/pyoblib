@@ -13,12 +13,13 @@
 # limitations under the License.
 
 import unittest
-import taxonomy_misc
+from ..taxonomy_misc import TaxonomyNumericTypes, TaxonomyGenericRoles, TaxonomyRefParts, TaxonomyDocstrings
 
-tax_numeric_types = taxonomy_misc.TaxonomyNumericTypes()
-tax_generic_roles = taxonomy_misc.TaxonomyGenericRoles()
-tax_ref_parts = taxonomy_misc.TaxonomyRefParts()
-tax_doc = taxonomy_misc.TaxonomyDocstrings()
+tax_numeric_types = TaxonomyNumericTypes()
+tax_generic_roles = TaxonomyGenericRoles()
+tax_ref_parts = TaxonomyRefParts()
+tax_doc = TaxonomyDocstrings()
+
 
 class TestTaxonomyMisc(unittest.TestCase):
 
@@ -59,8 +60,8 @@ class TestTaxonomyMisc(unittest.TestCase):
 
     def test_validate_docstrings(self):
         self.assertEqual(tax_doc.docstrings()["solar:EntitySizeACPower"],
-                             "Size of the entity in megawatts AC.")
+                         "Size of the entity in megawatts AC.")
         self.assertEqual(tax_doc.docstrings()["solar:FundDescriptionAnalyst"],
-                             "Name of analyst covering the fund.")
+                         "Name of analyst covering the fund.")
         self.assertEqual(tax_doc.docstrings()["solar:IncentivesPerformanceBasedIncentiveEscalator"],
-                             "Annual escalation of the performance based incentive value (percent)")
+                         "Annual escalation of the performance based incentive value (percent)")

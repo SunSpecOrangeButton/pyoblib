@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import unittest
-import taxonomy_types
+from ..taxonomy_types import TaxonomyTypes
 
-tax = taxonomy_types.TaxonomyTypes()
+tax = TaxonomyTypes()
 
 
 class TestTaxonomyTypes(unittest.TestCase):

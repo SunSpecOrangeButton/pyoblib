@@ -18,12 +18,15 @@ import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
-from taxonomy import PeriodType, RelationshipRole
 from six import string_types
-import validator
-import identifier
+
+from .taxonomy import RelationshipRole, PeriodType
+from .validator import validate_concept_value
+from .identifier import identifier
+
 
 UNTABLE = "NON_TABLE_CONCEPTS"
+
 
 class OBException(Exception):
     """
@@ -32,6 +35,7 @@ class OBException(Exception):
     def __init__(self, message):
         super(OBException, self).__init__(message)
 
+
 class OBTypeException(OBException):
     """
     Raised if we try to set a concept to a value with an invalid data type
@@ -39,12 +43,14 @@ class OBTypeException(OBException):
     def __init__(self, message):
         super(OBTypeException, self).__init__(message)
 
+
 class OBContextException(OBException):
     """
     Raised if we try to set a concept without sufficient Context fields
     """
     def __init__(self, message):
         super(OBContextException, self).__init__(message)
+
 
 class OBConceptException(OBException):
     """
@@ -54,6 +60,7 @@ class OBConceptException(OBException):
     def __init__(self, message):
         super(OBConceptException, self).__init__(message)
 
+
 class OBNotFoundException(OBException):
     """
     Raised if we refer to a name that's not found in the taxonomy
@@ -61,12 +68,14 @@ class OBNotFoundException(OBException):
     def __init__(self, message):
         super(OBNotFoundException, self).__init__(message)
 
+
 class OBUnitException(OBException):
     """
     Raised if we try to set a concept to a value with incorrect units
     """
     def __init__(self, message):
         super(OBUnitException, self).__init__(message)
+
 
 class Axis(object):
     """
@@ -139,7 +148,6 @@ class Hypercube(object):
                     if axis.domain == relation.from_:
                         member = relation.to
                         axis.domainMembers.append( member )
-
 
     def get_name(self):
         """Return table name."""
@@ -462,7 +470,7 @@ class Fact(object):
         self.unit = unit
         self.decimals = decimals
         # Fill in the id property with a UUID:
-        self.id = identifier.identifier() # Only used when exporting JSON
+        self.id = identifier()  # Only used when exporting JSON
 
     def _toXML(self):
         """
@@ -564,7 +572,7 @@ class Concept(object):
         e.g. integer, string, decimal, boolean, or complex enumerated type.
         False otherwise.
         """
-        return not validator.validate_concept_value(self.metadata, value)[1]
+        return not validate_concept_value(self.metadata, value)[1]
         myType = self.get_details("type_name")
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):

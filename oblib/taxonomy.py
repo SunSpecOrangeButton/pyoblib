@@ -15,11 +15,8 @@
 """Handles Orange button taxonomy."""
 
 import enum
-
-import taxonomy_semantic
-import taxonomy_types
-import taxonomy_units
-import taxonomy_misc
+from .taxonomy_types import TaxonomyTypes
+from .taxonomy_misc import TaxonomyNumericTypes, TaxonomyGenericRoles, TaxonomyRefParts, TaxonomyDocstrings
 
 
 class SubstitutionGroup(enum.Enum):
@@ -158,6 +155,7 @@ class Unit(object):
         """Convert Unit to dict."""
         return vars(self)
 
+
 class Taxonomy(object):
     """
     Parent class for Taxonomy.
@@ -170,17 +168,21 @@ class Taxonomy(object):
 
     def __init__(self):
         """Taxonomy constructor."""
-        self.semantic = taxonomy_semantic.TaxonomySemantic()
-        self.types = taxonomy_types.TaxonomyTypes()
-        self.units = taxonomy_units.TaxonomyUnits()
-        self.numeric_types = taxonomy_misc.TaxonomyNumericTypes()
-        self.generic_roles = taxonomy_misc.TaxonomyGenericRoles()
-        self.ref_parts = taxonomy_misc.TaxonomyRefParts()
-        self.documentation = taxonomy_misc.TaxonomyDocstrings()
+        from .taxonomy_semantic import TaxonomySemantic
+        from .taxonomy_units import TaxonomyUnits
+
+        self.semantic = TaxonomySemantic()
+        self.types = TaxonomyTypes()
+        self.units = TaxonomyUnits()
+        self.numeric_types = TaxonomyNumericTypes()
+        self.generic_roles = TaxonomyGenericRoles()
+        self.ref_parts = TaxonomyRefParts()
+        self.documentation = TaxonomyDocstrings()
 
 
 # Accessor for singleton Taxonomy object:
 m_singletonTaxonomy = None
+
 
 def getTaxonomy():
     """Return the taxonomy."""

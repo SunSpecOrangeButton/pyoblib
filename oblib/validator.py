@@ -14,12 +14,12 @@
 
 """Validation functions."""
 
-import identifier
+from .identifier import validate
+from .taxonomy import getTaxonomy
 import re
 import sys
-import taxonomy
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime
+
 
 BOOLEAN_TRUE = ['true', 't', 'y', '1']
 BOOLEAN_FALSE = ['false', 'f', 'n', '0']
@@ -48,7 +48,7 @@ def validate_concept_value(concept, value):
     # If null check if nillable is ok and return
     if value is None and not concept.nillable:
         errors += ["'{}' is not allowed to be nillable (null).".format(concept.id)]
-    enum = taxonomy.getTaxonomy().types.get_type_enum(concept.type_name)
+    enum = getTaxonomy().types.get_type_enum(concept.type_name)
     is_enum = enum is not None
     # Check data type and validator calling
     if type(concept.type_name).__name__ in ["str", "unicode"]:
@@ -68,7 +68,7 @@ def validate_concept_value(concept, value):
     # Check identifiers.  This is based upon the name of the field containing
     # the word Identifier in it.
     if concept.id.find("Identifier") != -1:
-        if identifier.validate(value) is False:
+        if validate(value) is False:
             errors += ["'{}' is not valid identifier.".format(concept.id)]
 
     # If all conditions clear then the value passes.

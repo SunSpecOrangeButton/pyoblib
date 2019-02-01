@@ -13,12 +13,13 @@
 # limitations under the License.
 
 import unittest
-from data_model import OBInstance, Context, Hypercube, UNTABLE
 from datetime import datetime, date
-from taxonomy import getTaxonomy
 from lxml import etree
 import json
-from taxonomy import PeriodType
+
+from ..data_model import OBInstance, UNTABLE, Context
+from ..taxonomy import getTaxonomy, PeriodType
+
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -39,7 +40,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # assertCountEqual is the new name for what was previously
         # assertItemsEqual. assertItemsEqual is unsupported in Python 3
         # but assertCountEqual is unsupported in Python 2.
-
 
     def test_instantiate_empty_entrypoint(self):
         doc = OBInstance("CutSheet", self.taxonomy)
@@ -137,7 +137,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertTrue( doc.validate_context("solar:ModuleNameplateCapacity",
                                               durationContext))
 
-
     def test_validate_context_axes(self):
         doc = OBInstance("CutSheet", self.taxonomy)
 
@@ -164,7 +163,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         with self.assertRaises(Exception):
             doc.validate_context("solar:DeviceCost", badContext)
 
-
         # How do we know what are valid values for ProductIdentifierAxis and
         # TestConditionAxis?  (I think they are meant to be UUIDs.)
 
@@ -173,7 +171,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # solar:TestConditionAxis -> dimension-default -> solar:TestConditionDomain
         # i wonder what that "dimension-default" means
 
-        #'solar:InverterOutputRatedPowerAC' is on the 'solar:InverterPowerLevelTable' which requires axes: [u'solar:ProductIdentifierAxis', u'solar:InverterPowerLevelPercentAxis']. it's a duration.
+        # 'solar:InverterOutputRatedPowerAC' is on the 'solar:InverterPowerLevelTable'
+        # which requires axes: [u'solar:ProductIdentifierAxis', u'solar:InverterPowerLevelPercentAxis'].
+        # it's a duration.
         concept = 'solar:InverterOutputRatedPowerAC'
         context = Context(duration = "forever",
                           ProductIdentifierAxis = "placeholder",
@@ -190,7 +190,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
                              ProductIdentifierAxis = "placeholder")
         with self.assertRaises(Exception):
             doc.validate_context(concept, badContext)
-
 
     def test_set_separate_dimension_args(self):
         # Tests the case where .set() is called correctly.  Use the
@@ -214,7 +213,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 unit_name="USD")
 
         typeFact = doc.get("solar:TypeOfDevice",
-                        Context(duration="forever",
+                           Context(duration="forever",
                                 ProductIdentifierAxis= "placeholder",
                                 TestConditionAxis = "solar:StandardTestConditionMember"))
         self.assertEqual( typeFact.value,  "ModuleMember")
@@ -246,7 +245,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Get the data bacK:
         typeFact = doc.get("solar:TypeOfDevice",
-                        Context(duration="forever",
+                           Context(duration="forever",
                                 entity="JUPITER",
                                 ProductIdentifierAxis= "placeholder",
                                 TestConditionAxis = "solar:StandardTestConditionMember"))
@@ -257,7 +256,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                 ProductIdentifierAxis= "placeholder",
                                 TestConditionAxis = "solar:StandardTestConditionMember"))
         self.assertEqual( costFact.value, 100)
-
 
     def test_set_raises_exception(self):
         # Tests the case where .set() is called incorrectly. It should
@@ -288,7 +286,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                          ProductIdentifierAxis = "ABCD",
                                          InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel75PercentMember')) # Different
         self.assertIsNot(c1, c3)
-
 
     def test_facts_stored_with_context(self):
         # Test we can store 2 facts of the same concept but with different
@@ -335,7 +332,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 unit_name="USD")
         xml = doc.to_XML_string()
         root = etree.fromstring(xml)
-
 
         self.assertEqual( len(root.getchildren()), 6)
         # top-level xml should have child <link:schemaRef>, one <unit>, two <context>s and two <fact>s.
@@ -448,7 +444,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(costFact['aspects']['period'], now.strftime("%Y-%m-%dT%H:%M:%S"))
         self.assertEqual(costFact['aspects']['unit'], 'USD')
 
-
     def test_concepts_load_details(self):
         doc = OBInstance("CutSheet", self.taxonomy)
 
@@ -471,7 +466,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(device.children), 0)
         self.assertEqual(len(frequency.children), 0)
 
-
     def test_hypercube_can_identify_axis_domains(self):
         doc = OBInstance("CutSheet", self.taxonomy)
         table = doc.get_table("solar:CutSheetDetailsTable")
@@ -483,7 +477,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(domain, "solar:TestConditionDomain")
 
         # TODO add a test for an axis that is explicit and not domain-based
-
 
     def test_hypercube_rejects_out_of_domain_axis_values(self):
         # Try passing in something as a value for TestConditionAxis that is not
@@ -505,7 +498,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # not a valid value for InverterPowerLevelPercentAxis
         with self.assertRaises(Exception):
             doc.validate_context(concept, context)
-
 
     def test_reject_missing_or_invalid_units(self):
         # issue #28
@@ -576,7 +568,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertTrue(doc._is_valid_unit("solar:BatteryStyle", None)) #solar-types:batteryChemistryItemType
         self.assertTrue(doc._is_valid_unit("solar:TypeOfDevice", None)) #solar-types:deviceItemType
 
-
     def test_concepts_can_type_check(self):
         # Try passing in wrong data type to a typed concept:
         doc = OBInstance("CutSheet", self.taxonomy)
@@ -588,7 +579,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         concept = doc.get_concept("solar:TransformerStyle") # string
         self.assertTrue(concept.validate_datatype("Autobot"))
         self.assertTrue(concept.validate_datatype("Decepticon"))
-        #TODO: 99.99 can be converted to valid string
+        # TODO: 99.99 can be converted to valid string
         self.assertTrue(concept.validate_datatype(99.99))
 
         concept = doc.get_concept("solar:TransformerDesignFactor") # decimal
@@ -629,7 +620,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember")
 
-
     def test_hypercube_rejects_context_with_unwanted_axes(self):
         # Test that giving a context an *extra* axis that is invalid for the table
         # causes it to be rejected as well.
@@ -651,7 +641,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         with self.assertRaises(Exception):
             doc.validate_context("solar:DeviceCost", threeAxisContext)
 
-
     def test_set_default_context_values(self):
         # Test setting default values, for example something like:
         doc = OBInstance("CutSheet", self.taxonomy)
@@ -662,8 +651,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                PeriodType.duration: "forever"
                                })
         # Could also support setting default unit, even though that's not part of context:
-        
-        
+
         # If we set a fact that wants an instant context, it should use 'now':
         doc.set("solar:DeviceCost", "100", unit_name="USD", ProductIdentifierAxis = "placeholder")
         # This would normally raise an exception because it's missing instant, entity, and
@@ -694,7 +682,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(fact.unit, "W")
         self.assertEqual(fact.context.entity, "JUPITER")
         self.assertEqual(fact.context.duration, "forever")
-        
 
         # Try setting ALL the fields in set_default_context and then pass in NO context fields,
         # that should work too:
@@ -710,7 +697,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
             entity = "JUPITER",
             instant = now))
         self.assertEqual(fact.value, "99")
-
 
     def test_tableless_facts(self):
         # Some entry points, like MonthlyOperatingReport, seem to have concepts

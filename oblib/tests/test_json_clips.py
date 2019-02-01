@@ -14,20 +14,21 @@
 
 import re
 from inspect import currentframe
-
 import unittest
-import parser
-import taxonomy
-import pytest
 
-taxonomy = taxonomy.Taxonomy()
-parser = parser.Parser(taxonomy)
+from ..parser import Parser
+from ..taxonomy import Taxonomy
+
+taxonomy = Taxonomy()
+parser = Parser(taxonomy)
+
 
 def _ln():
     # Returns line number of caller.
 
     cf = currentframe()
     return cf.f_back.f_lineno
+
 
 class TestJsonClips(unittest.TestCase):
     # Note: this module is tested differently than others.  Erroneous JSON clips are run through
@@ -37,7 +38,7 @@ class TestJsonClips(unittest.TestCase):
     # necessarily required unless noted via the expression).  A line number in the JSON also is
     # present and in an ideal world the line number should also be decipherable fromt he parser.
 
-     def test_clips(self):
+    def test_clips(self):
         failure_list = []
         for clip in CLIPS:
             try:
@@ -61,6 +62,7 @@ class TestJsonClips(unittest.TestCase):
             # self.fail(msg)
             print(msg)
 
+
 CLIPS = [
     # Basic tests of each JSON field
     [_ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
@@ -75,7 +77,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Float expected", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -88,7 +90,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "is not a writeable concept", 4, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -101,7 +103,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Entity is not a string", 5, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -114,7 +116,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Illegal Period Start", 6, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -127,7 +129,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Illegal Period End", 7, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -140,7 +142,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Identifier is not a uuid", 1, """
         {
             "id": "illegal-identifier",
@@ -153,7 +155,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
 
     # Validate that all required fields are present.  Note that all fields are required except
     # periodStart and periodEnd (if missing this indicates that duration is forever)
@@ -168,7 +170,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Value is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -180,14 +182,14 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Aspects is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
             "value": 93.26,
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Concept is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -199,7 +201,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), "MonthlyOperatingReport", "Entity is missing", 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -211,7 +213,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
 
     # Check that a non-nillable field is not set to null
     [_ln(), "MasterPurchaseAgreement", "Non-nillable value is set to null", 3, """
@@ -226,7 +228,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
 
     # Type checks - basic types
 
@@ -259,7 +261,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -272,7 +274,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -285,7 +287,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -298,7 +300,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -311,7 +313,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -324,7 +326,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -337,7 +339,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -350,7 +352,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -363,7 +365,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
 
     # xbrli:dateItemType, Sample valid value is 2018-01-02
     [_ln(), None, None, 0, """
@@ -378,7 +380,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -391,7 +393,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -404,7 +406,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -417,7 +419,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -443,7 +445,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     # Leap Year
     [_ln(), None, None, 0, """
         {
@@ -457,7 +459,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -470,7 +472,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -483,7 +485,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -496,7 +498,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -509,7 +511,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -522,7 +524,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -535,7 +537,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",
@@ -548,7 +550,7 @@ CLIPS = [
             }
         }
         """
-    ],
+     ],
     [_ln(), None, None, 0, """
         {
             "id": "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2",

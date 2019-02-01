@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import unittest
-
-import taxonomy
-import taxonomy_semantic
 from six import string_types
 
-tax = taxonomy_semantic.TaxonomySemantic()
+from ..taxonomy import SubstitutionGroup, PeriodType
+from ..taxonomy_semantic import TaxonomySemantic
+
+tax = TaxonomySemantic()
 
 
 class TestTaxonomySemantic(unittest.TestCase):
@@ -34,9 +34,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsInstance(ci.name, string_types)
         self.assertIsInstance(ci.nillable, bool)
         self.assertIsInstance(ci.period_independent, bool)
-        self.assertIsInstance(ci.substitution_group, taxonomy.SubstitutionGroup)
+        self.assertIsInstance(ci.substitution_group, SubstitutionGroup)
         self.assertIsInstance(ci.type_name, string_types)
-        self.assertIsInstance(ci.period_type, taxonomy.PeriodType)
+        self.assertIsInstance(ci.period_type, PeriodType)
 
         ci = tax.get_concept_details("solar:ACDisconnectSwitchMember")
         self.assertIsNotNone(ci)
@@ -45,9 +45,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.name, "ACDisconnectSwitchMember")
         self.assertTrue(ci.nillable)
         self.assertFalse(ci.period_independent)
-        self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
+        self.assertEqual(ci.substitution_group, SubstitutionGroup.item)
         self.assertEqual(ci.type_name, "nonnum:domainItemType")
-        self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
+        self.assertEqual(ci.period_type, PeriodType.duration)
 
         # Values checks
         ci = tax.get_concept_details("solar:AdvisorInvoicesCounterparties")
@@ -57,9 +57,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.name, "AdvisorInvoicesCounterparties")
         self.assertTrue(ci.nillable)
         self.assertFalse(ci.period_independent)
-        self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
+        self.assertEqual(ci.substitution_group, SubstitutionGroup.item)
         self.assertEqual(ci.type_name, "xbrli:stringItemType")
-        self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
+        self.assertEqual(ci.period_type, PeriodType.duration)
 
         ci = tax.get_concept_details("dei:LegalEntityIdentifier")
         self.assertIsNotNone(ci)
@@ -68,9 +68,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.name, "LegalEntityIdentifier")
         self.assertTrue(ci.nillable)
         self.assertFalse(ci.period_independent)
-        self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
+        self.assertEqual(ci.substitution_group, SubstitutionGroup.item)
         self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
-        self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
+        self.assertEqual(ci.period_type, PeriodType.duration)
 
         with self.assertRaises(KeyError):
             _ = tax.get_concept_details("solar:iamnotaconcept")
