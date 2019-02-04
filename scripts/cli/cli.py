@@ -17,7 +17,8 @@ import sys
 import argparse
 
 import identifier
-from parser import Parser, FileFormat, ValidationErrors
+from ob import OBValidationErrors
+from parser import Parser, FileFormat
 from taxonomy import Taxonomy
 from validator import Validator
 
@@ -65,7 +66,7 @@ def convert(args):
 
     try:
         p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
-    except ValidationErrors as errors:
+    except OBValidationErrors as errors:
         for e in errors.get_errors():
             print(e)
 
@@ -91,7 +92,7 @@ def validate(args):
     try:
         p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
         print("Validation succcessful")
-    except ValidationErrors as errors:
+    except OBValidationErrors as errors:
         for e in errors.get_errors():
             print(e)
 

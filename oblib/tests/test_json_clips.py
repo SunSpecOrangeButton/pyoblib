@@ -16,7 +16,8 @@ import re
 from inspect import currentframe
 
 import unittest
-from parser import Parser, ValidationErrors
+from parser import Parser
+from ob import OBValidationErrors
 import taxonomy
 import pytest
 
@@ -48,14 +49,14 @@ class TestJsonClips(unittest.TestCase):
                     failure_list.append("Case {} did not cause a failure condition as expected".format(clip[0]))
             except Exception as e:
                 if clip[2] is None:
-                    if isinstance(e, ValidationErrors):
+                    if isinstance(e, OBValidationErrors):
                         for e2 in e.get_errors():
                             s = str(e2)
                             failure_list.append("Case {} should have succeeded, raised {}".format(clip[0], s))
                     else:
                         failure_list.append("Case {} should have succeeded, raised an unexpected exception ''".format(clip[0], str(e)))
                 else:
-                    if isinstance(e, ValidationErrors):
+                    if isinstance(e, OBValidationErrors):
                         for e2 in e.get_errors():
                             s = str(e2)
                             if re.search(clip[2], s, re.IGNORECASE) is None:
