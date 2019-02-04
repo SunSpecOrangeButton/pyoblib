@@ -362,9 +362,9 @@ class Parser(object):
                     if elem[0].tag == _xn("forever"):
                         duration = "forever"
                     elif elem[0].tag == _xn("startDate"):
-                        start_date = elem[0].tag.text
+                        start_date = elem[0].text
                     elif elem[0].tag == _xn("endDate"):
-                        end_date = elem[0].tag.text
+                        end_date = elem[0].text
                     elif elem[0].tag == _xn("instant"):
                         instant = elem[0].text
                 elif elem.tag == _xn("entity"):
