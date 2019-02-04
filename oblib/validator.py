@@ -16,14 +16,12 @@
 
 import identifier
 import re
-import sys
-import taxonomy
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime
 
 BOOLEAN_TRUE = ['true', 't', 'y', '1']
 BOOLEAN_FALSE = ['false', 'f', 'n', '0']
 BOOLEAN_VALUES = BOOLEAN_TRUE + BOOLEAN_FALSE
+
 
 # TODO: There are several main improvements at this point in time:
 #
@@ -41,476 +39,485 @@ BOOLEAN_VALUES = BOOLEAN_TRUE + BOOLEAN_FALSE
 #     This may require a different function signature.
 
 
-def validate_concept_value(concept_details, value):
+class Validator(object):
     """
-        Validate a concept value.
+    Performs validation
 
-        Args:
-            concept_details (ConceptDetails): concept details
-            value (*): value to be validated
-
-        Returns:
-            A Tuple (*, list of str) containing original or converted value and list of errors (if any)
+    taxonomy (Taxonomy): initialized Taxonomy.
     """
-    errors = []
-    result = value, []
-    # If null check if nillable is ok and return
-    if value is None and not concept_details.nillable:
-        errors += ["'{}' is not allowed to be nillable (null).".format(concept_details.id)]
-    enum = taxonomy.getTaxonomy().types.get_type_enum(concept_details.type_name)
-    is_enum = enum is not None
-    # Check data type and validator calling
-    if type(concept_details.type_name).__name__ in ["str", "unicode"]:
-        method_name = _get_validator_method_name(concept_details.type_name)
-        validator_module = sys.modules[__name__]
-        found_method = getattr(validator_module, method_name, None)
-        if found_method is not None:
-            if is_enum:
-                result = found_method(value, enum)
+
+    def __init__(self, taxonomy):
+        """ Initializes Validator """
+        self._taxonomy = taxonomy
+
+    def validate_concept_value(self, concept_details, value):
+        """
+            Validate a concept value.
+
+            Args:
+                concept_details (ConceptDetails): concept details
+                value (*): value to be validated
+
+            Returns:
+                A Tuple (*, list of str) containing original or converted value and list of errors (if any)
+        """
+        errors = []
+        result = value, []
+        # If null check if nillable is ok and return
+        if value is None and not concept_details.nillable:
+            errors += ["'{}' is not allowed to be nillable (null).".format(concept_details.id)]
+        enum = self._taxonomy.types.get_type_enum(concept_details.type_name)
+        is_enum = enum is not None
+        # Check data type and validator calling
+        if type(concept_details.type_name).__name__ in ["str", "unicode"]:
+            method_name = self._get_validator_method_name(concept_details.type_name)
+            # validator_module = sys.modules[__name__]
+            found_method = getattr(self, method_name, None)
+            if found_method is not None:
+                if is_enum:
+                    result = found_method(value, enum)
+                else:
+                    result = found_method(value)
+            elif is_enum:
+                result = self._generic_enum_validator(value, concept_details, enum)
             else:
-                result = found_method(value)
-        elif is_enum:
-            result = _generic_enum_validator(value, concept_details, enum)
+                raise Exception(
+                    "Concept '{}' could not be processed. Missing method '{}'.".format(concept_details.type_name,
+                                                                                       method_name))
+
+        # Check identifiers.  This is based upon the name of the field containing
+        # the word Identifier in it.
+        if concept_details.id.find("Identifier") != -1:
+            if identifier.validate(value) is False:
+                errors += ["'{}' is not valid identifier.".format(concept_details.id)]
+
+        # If all conditions clear then the value passes.
+        errors += result[1]
+        return result[0], errors
+
+    def _get_validator_method_name(self, type_name):
+        """
+            Return the validator function name for a type.
+
+            Args:
+                type_name (str): Name of the type
+
+            Returns:
+                Internal function name as string
+        """
+        # Check if type nillable and not string
+        if type_name is None and type(type_name) is not str:
+            return type_name
+
+        type_name = re.sub("[^0-9a-zA-Z]", "_", type_name)
+        type_name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", type_name)
+        type_name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", type_name).lower()
+        return "_" + type_name + "_validator"
+
+    def _generic_enum_validator(self, value, concept_details, enum):
+        """
+            A generic validator for concept enum value.
+
+            Args:
+                value (str): value representing enum value
+                concept_details (ConceptDetails): concept details
+                enum (list of str): enumerator of all possible values
+
+            Returns:
+                A Tuple (str, list of str) containing original and list of errors (if any)
+        """
+        errors = []
+        if (value not in enum):
+            errors.append("Value '{}' is not found in enum list for type '{}'."
+                          .format(value, concept_details.type_name))
+        return value, errors
+
+    # validators implementation
+    # TODO: could be moved to other file and loaded and even loading custom
+    # validator files
+
+    def _xbrli_boolean_item_type_validator(self, value):
+        """
+            A validator for XBRLI boolean concept.
+
+            Args:
+                value (boolean or int or str): value to be validated and converted if needed
+
+            Returns:
+                A Tuple (boolean or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        errors = []
+        if value is True:
+            pass
+        elif value is False:
+            pass
         else:
-            raise Exception("Concept '{}' could not be processed. Missing method '{}'.".format(concept_details.type_name, method_name))
+            # value is not a boolean
+            if str(value).lower() in BOOLEAN_VALUES:
+                value = str(value).lower() in BOOLEAN_TRUE
+            else:
+                errors.append("'{}' is not a valid boolean value.".format(value))
+        return value, errors
 
-    # Check identifiers.  This is based upon the name of the field containing
-    # the word Identifier in it.
-    if concept_details.id.find("Identifier") != -1:
-        if identifier.validate(value) is False:
-            errors += ["'{}' is not valid identifier.".format(concept_details.id)]
+    def _xbrli_string_item_type_validator(self, value):
+        """
+            A validator for XBRLI string concept.
 
-    # If all conditions clear then the value passes.
-    errors += result[1]
-    return result[0], errors
+            Args:
+                value (*): value to be validated and converted if needed
 
-
-def _get_validator_method_name(type_name):
-    """
-        Return the validator function name for a type.
-
-        Args:
-            type_name (str): Name of the type
-
-        Returns:
-            Internal function name as string
-    """
-    # Check if type nillable and not string
-    if type_name is None and type(type_name) is not str:
-        return type_name
-
-    type_name = re.sub("[^0-9a-zA-Z]", "_", type_name)
-    type_name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", type_name)
-    type_name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", type_name).lower()
-    return "_" + type_name + "_validator"
-
-def _generic_enum_validator(value, concept_details, enum):
-    """
-        A generic validator for concept enum value.
-
-        Args:
-            value (str): value representing enum value
-            concept_details (ConceptDetails): concept details
-            enum (list of str): enumerator of all possible values
-
-        Returns:
-            A Tuple (str, list of str) containing original and list of errors (if any)
-    """
-    errors = []
-    if (value not in enum):
-        errors.append("Value '{}' is not found in enum list for type '{}'."
-                      .format(value, concept_details.type_name))
-    return value, errors
-
-# validators implementation
-# TODO: could be moved to other file and loaded and even loading custom
-# validator files
-
-def _xbrli_boolean_item_type_validator(value):
-    """
-        A validator for XBRLI boolean concept.
-
-        Args:
-            value (boolean or int or str): value to be validated and converted if needed
-
-        Returns:
-            A Tuple (boolean or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    errors = []
-    if value is True:
-        pass
-    elif value is False:
-        pass
-    else:
-        # value is not a boolean
-        if str(value).lower() in BOOLEAN_VALUES:
-            value = str(value).lower() in BOOLEAN_TRUE
-        else:
-            errors.append("'{}' is not a valid boolean value.".format(value))
-    return value, errors
-
-
-def _xbrli_string_item_type_validator(value):
-    """
-        A validator for XBRLI string concept.
-
-        Args:
-            value (*): value to be validated and converted if needed
-
-        Returns:
-            A Tuple (str, list of str) containing original or converted value and list of errors (if any)
-    """
-    errors = []
-    try:
-        value = str(value)
-    except:
-#        if type(value).__name__ not in ["str", "unicode"]:
-        errors.append("'{}' is not a valid string value.".format(value))
-    return value, errors
-
-
-def _xbrli_integer_item_type_validator(value):
-    """
-        A validator for XBRLI integer concept.
-
-        Args:
-            value (int or decimal or str): value to be validated and converted if needed
-
-        Returns:
-            A Tuple (int or decimal or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    errors = []
-    if isinstance(value, int):
-        value = int(value)
-    elif isinstance(value, str):
+            Returns:
+                A Tuple (str, list of str) containing original or converted value and list of errors (if any)
+        """
+        errors = []
         try:
-            value = int(value)
+            value = str(value)
         except:
+            #        if type(value).__name__ not in ["str", "unicode"]:
+            errors.append("'{}' is not a valid string value.".format(value))
+        return value, errors
+
+    def _xbrli_integer_item_type_validator(self, value):
+        """
+            A validator for XBRLI integer concept.
+
+            Args:
+                value (int or decimal or str): value to be validated and converted if needed
+
+            Returns:
+                A Tuple (int or decimal or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        errors = []
+        if isinstance(value, int):
+            value = int(value)
+        elif isinstance(value, str):
+            try:
+                value = int(value)
+            except:
+                errors.append("'{}' is not a valid integer value.".format(value))
+        else:
             errors.append("'{}' is not a valid integer value.".format(value))
-    else:
-        errors.append("'{}' is not a valid integer value.".format(value))
-    return value, errors
+        return value, errors
 
+    def _xbrli_decimal_item_type_validator(self, value):
+        """
+            A validator for XBRLI decimal concept.
 
-def _xbrli_decimal_item_type_validator(value):
-    """
-        A validator for XBRLI decimal concept.
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
-
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    errors = []
-    if type(value) is str:
-        try:
-            result = float(value)
-        except ValueError as ex:
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        errors = []
+        if type(value) is str:
+            try:
+                result = float(value)
+            except ValueError as ex:
+                errors += ["'{}' is not a valid decimal value.".format(value)]
+        elif type(value) is not int:
             errors += ["'{}' is not a valid decimal value.".format(value)]
-    elif type(value) is not int:
-        errors += ["'{}' is not a valid decimal value.".format(value)]
-    return value, errors
+        return value, errors
 
-def _xbrli_monetary_item_type_validator(value):
-    """
-        A validator for XBRLI monetary concept.
+    def _xbrli_monetary_item_type_validator(self, value):
+        """
+            A validator for XBRLI monetary concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    errors = []
-    if type(value) is str:
-        try:
-            result = float(value)
-        except ValueError as ex:
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        errors = []
+        if type(value) is str:
+            try:
+                result = float(value)
+            except ValueError as ex:
+                errors += ["'{}' is not a valid monetary value.".format(value)]
+        elif type(value) is not int:
             errors += ["'{}' is not a valid monetary value.".format(value)]
-    elif type(value) is not int:
-        errors += ["'{}' is not a valid monetary value.".format(value)]
-    return value, errors
+        return value, errors
 
-def _xbrli_date_item_type_validator(value):
-    """
-        A validator for XBRLI date concept.
+    def _xbrli_date_item_type_validator(self, value):
+        """
+            A validator for XBRLI date concept.
 
-        Args:
-            value (date or str): value to be validated and converted if needed
+            Args:
+                value (date or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (date or str, list of str) containing original or converted value and list of errors (if any)
-    """
-    errors = []
-    if type(value) is str:
-        try:
-            result = datetime.strptime(value, '%Y-%m-%d').date()
-        except ValueError as ex:
-            print(ex)
+            Returns:
+                A Tuple (date or str, list of str) containing original or converted value and list of errors (if any)
+        """
+        errors = []
+        if type(value) is str:
+            try:
+                result = datetime.strptime(value, '%Y-%m-%d').date()
+            except ValueError as ex:
+                print(ex)
+                errors += ["'{}' is not a valid date value.".format(value)]
+        elif type(value) is not date:
+            print("{} is not {}".format(type(value), type(date)))
             errors += ["'{}' is not a valid date value.".format(value)]
-    elif type(value) is not date:
-        print("{} is not {}".format(type(value), type(date)))
-        errors += ["'{}' is not a valid date value.".format(value)]
-    return value, errors
+        return value, errors
 
-def _solar_document_identifier_appraisal(value):
-    """
-        A validator for SOLAR Document Identifier Appraisal concept.
+    def _solar_document_identifier_appraisal(self, value):
+        """
+            A validator for SOLAR Document Identifier Appraisal concept.
 
-        Args:
-            value (boolean or str): value to be validated and converted if needed
+            Args:
+                value (boolean or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (boolean or str, list of str) containing original or converted value and list of errors (if any)
-    """
-    return _xbrli_boolean_item_type_validator(value)
+            Returns:
+                A Tuple (boolean or str, list of str) containing original or converted value and list of errors (if any)
+        """
+        return self._xbrli_boolean_item_type_validator(value)
 
-def _xbrli_duration_item_type_validator(value):
-    """
-        A validator for XBRLI duration concept.
+    def _xbrli_duration_item_type_validator(self, value):
+        """
+            A validator for XBRLI duration concept.
 
-        Args:
-            value (int or str): value to be validated and converted if needed
+            Args:
+                value (int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (int or str, list of str) containing original or converted value and list of errors (if any)
-    """
-    return _xbrli_integer_item_type_validator(value)
+            Returns:
+                A Tuple (int or str, list of str) containing original or converted value and list of errors (if any)
+        """
+        return self._xbrli_integer_item_type_validator(value)
 
-def _num_power_item_type_validator(value):
-    """
-        A validator for NUM power concept.
+    def _num_power_item_type_validator(self, value):
+        """
+            A validator for NUM power concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original
-            or converted value and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original
+                or converted value and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_percent_item_type_validator(value):
-    """
-        A validator for NUM percent concept.
+    def _num_percent_item_type_validator(self, value):
+        """
+            A validator for NUM percent concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _dei_legal_entity_identifier_item_type_validator(value):
-    """
-        A validator for DEI Legal Entity Identifier concept.
+    def _dei_legal_entity_identifier_item_type_validator(self, value):
+        """
+            A validator for DEI Legal Entity Identifier concept.
 
-        Args:
-            value (str or int): value to be validated and converted if needed
+            Args:
+                value (str or int): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (str or int, list of str) containing original or converted value and list of errors (if any)
-    """
-    return _xbrli_string_item_type_validator(value)
+            Returns:
+                A Tuple (str or int, list of str) containing original or converted value and list of errors (if any)
+        """
+        return self._xbrli_string_item_type_validator(value)
 
-def _xbrli_any_uri_item_type_validator(value):
-    """
-        A validator for XBRLI Any URI concept.
+    def _xbrli_any_uri_item_type_validator(self, value):
+        """
+            A validator for XBRLI Any URI concept.
 
-        Args:
-            value (str): value to be validated and converted if needed
+            Args:
+                value (str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (str, list of str) containing original or converted value and list of errors (if any)
-    """
-    return _xbrli_string_item_type_validator(value)
+            Returns:
+                A Tuple (str, list of str) containing original or converted value and list of errors (if any)
+        """
+        return self._xbrli_string_item_type_validator(value)
 
-def _num_us_electric_current_item_type_validator(value):
-    """
-        A validator for NUM US Electric Current concept.
+    def _num_us_electric_current_item_type_validator(self, value):
+        """
+            A validator for NUM US Electric Current concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_frequency_item_type_validator(value):
-    """
-        A validator for NUM US Frequency concept.
+    def _num_us_frequency_item_type_validator(self, value):
+        """
+            A validator for NUM US Frequency concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_insolation_item_type_validator(value):
-    """
-        A validator for NUM US Insolation concept.
+    def _num_us_insolation_item_type_validator(self, value):
+        """
+            A validator for NUM US Insolation concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_irradiance_item_type_validator(value):
-    """
-        A validator for NUM US Irradience concept.
+    def _num_us_irradiance_item_type_validator(self, value):
+        """
+            A validator for NUM US Irradience concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_plane_angle_item_type_validator(value):
-    """
-        A validator for NUM US Plane Angle concept.
+    def _num_us_plane_angle_item_type_validator(self, value):
+        """
+            A validator for NUM US Plane Angle concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_pressure_item_type_validator(value):
-    """
-        A validator for NUM US Pressure concept.
+    def _num_us_pressure_item_type_validator(self, value):
+        """
+            A validator for NUM US Pressure concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_speed_item_type_validator(value):
-    """
-        A validator for NUM US Speed concept.
+    def _num_us_speed_item_type_validator(self, value):
+        """
+            A validator for NUM US Speed concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_temperature_item_type_validator(value):
-    """
-        A validator for NUM US Temperature concept.
+    def _num_us_temperature_item_type_validator(self, value):
+        """
+            A validator for NUM US Temperature concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_us_voltage_item_type_validator(value):
-    """
-        A validator for NUM US Plane Angle concept.
+    def _num_us_voltage_item_type_validator(self, value):
+        """
+            A validator for NUM US Plane Angle concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_area_item_type_validator(value):
-    """
-        A validator for NUM Area concept.
+    def _num_area_item_type_validator(self, value):
+        """
+            A validator for NUM Area concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_energy_item_type_validator(value):
-    """
-        A validator for NUM Energy concept.
+    def _num_energy_item_type_validator(self, value):
+        """
+            A validator for NUM Energy concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_length_item_type_validator(value):
-    """
-        A validator for NUM Length concept.
+    def _num_length_item_type_validator(self, value):
+        """
+            A validator for NUM Length concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_mass_item_type_validator(value):
-    """
-        A validator for NUM Mass concept.
+    def _num_mass_item_type_validator(self, value):
+        """
+            A validator for NUM Mass concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
-def _num_volume_item_type_validator(value):
-    """
-        A validator for NUM Volume concept.
+    def _num_volume_item_type_validator(self, value):
+        """
+            A validator for NUM Volume concept.
 
-        Args:
-            value (decimal or int or str): value to be validated and converted if needed
+            Args:
+                value (decimal or int or str): value to be validated and converted if needed
 
-        Returns:
-            A Tuple (decimal or int or str, list of str) containing original or converted value
-            and list of errors (if any)
-    """
-    return _xbrli_decimal_item_type_validator(value)
+            Returns:
+                A Tuple (decimal or int or str, list of str) containing original or converted value
+                and list of errors (if any)
+        """
+        return self._xbrli_decimal_item_type_validator(value)
 
