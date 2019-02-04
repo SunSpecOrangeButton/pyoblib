@@ -17,6 +17,7 @@
 import identifier
 import re
 from datetime import date, datetime
+import validators
 
 BOOLEAN_TRUE = ['true', 't', 'y', '1']
 BOOLEAN_FALSE = ['false', 'f', 'n', '0']
@@ -335,9 +336,16 @@ class Validator(object):
                 value (str): value to be validated and converted if needed
 
             Returns:
-                A Tuple (str, list of str) containing original or converted value and list of errors (if any)
+                A Tuple (str, list of str) containing original or converted value
+                and list of errors (if any)
         """
-        return self._xbrli_string_item_type_validator(value)
+
+        errors = []
+        result = self._xbrli_string_item_type_validator(value)
+        if not validators.url(value):
+            errors += "'{}' is invalid URI"
+        errors += result[1]
+        return result[0], errors
 
     def _num_us_electric_current_item_type_validator(self, value):
         """
