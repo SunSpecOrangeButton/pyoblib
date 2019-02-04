@@ -17,47 +17,12 @@
 import data_model
 import taxonomy
 import util
+import ob
 
 import enum
 import json
 import xml.etree.ElementTree as ElementTree
 import sys
-
-##################################################################################
-# NOTE: Start of temporary code.  Once a permanent ValidationErrors strategy is
-# created (even if it is analagous to the code below but in a different file)
-# this code will be removed and the new code that is shared by all modules will
-# be used instead.  In order to avoid creating a temporary file that may or may
-# not have the final approach intact these two classes are being placed here.
-
-class ValidationError(Exception):
-    
-    def __init__(self, message):
-        super().__init__(message)
-
-
-class ValidationErrors(Exception):
-    
-    def __init__(self, message, validation_errors=None):
-        super(ValidationErrors, self).__init__(message)
-        if validation_errors is not None:
-            self._errors = validation_errors
-        else:
-            self._errors = []
-
-    def append(self, validation_error):
-        if isinstance(validation_error, ValidationError):
-            self._errors.append(validation_error)
-        elif isinstance(validation_error, str):
-            self._errors.append(ValidationError(validation_error))
-        else:
-            self._errors.append(str(validation_error))
-
-    def get_errors(self):
-        return self._errors
-
-# End of temporary code.
-##################################################################################
 
 # The Following code is used internally by the XML parser - there is no known general usage
 # reason to leverage.  The extremely short function name is for brevity in the XML parser.
@@ -125,7 +90,7 @@ class Parser(object):
                         entrypoints_found.add(entrypoint)
 
         if len(entrypoints_found) == 0:
-            raise ValidationError("No entrypoint found given the set of facts")
+            raise ob.OBValidationError("No entrypoint found given the set of facts")
         elif len(entrypoints_found) == 1:
             for entrypoint in entrypoints_found:
                 return entrypoint
@@ -148,9 +113,9 @@ class Parser(object):
                     if the_one is None:
                         the_one = entrypoint
                     else:
-                         raise ValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, entrypoint))
+                         raise ob.OBValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, entrypoint))
             if the_one == None:
-                raise ValidationError("No entrypoint found given the set of facts")
+                raise ob.OBValidationError("No entrypoint found given the set of facts")
             else:
                 return the_one
 
@@ -170,7 +135,7 @@ class Parser(object):
         """
 
         # Create a validation error which can be used to maintain a list of error messages
-        validation_errors = ValidationErrors("Error(s) found in input JSON")
+        validation_errors = ob.OBValidationErrors("Error(s) found in input JSON")
 
         # Convert string to JSON data
         try:
@@ -207,14 +172,14 @@ class Parser(object):
                     fact_names.append(fact["aspects"]["concept"])
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
-            except ValidationError as ve:
+            except ob.OBValidationError as ve:
                 validation_errors.append(ve)
                 raise validation_errors
 
         # If we reach this point re-initialize the validation errors because all previous errors found
         # will be found again.  Re-initialization reduces duplicate error messages and ensures that
         # errors are found in the correct order.
-        validation_errors = ValidationErrors("Error(s) found in input JSON")
+        validation_errors = ob.OBValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
         ob_instance = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=False)
@@ -350,7 +315,7 @@ class Parser(object):
         # effort level as the JSON parser.
   
         # Create a validation error which can be used to maintain a list of error messages
-        validation_errors = ValidationErrors("Error(s) found in input JSON")
+        validation_errors = ob.OBValidationErrors("Error(s) found in input JSON")
 
         try:
             root = ElementTree.fromstring(xml_string)
@@ -371,7 +336,7 @@ class Parser(object):
                     fact_names.append(tag)
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
-            except ValidationError as ve:
+            except ob.OBValidationError as ve:
                 validation_errors.append(ve)
                 raise validation_errors
 
@@ -397,9 +362,9 @@ class Parser(object):
                     if elem[0].tag == _xn("forever"):
                         duration = "forever"
                     elif elem[0].tag == _xn("startDate"):
-                        start_date = elem[0].tag.text
+                        start_date = elem[0].text
                     elif elem[0].tag == _xn("endDate"):
-                        end_date = elem[0].tag.text
+                        end_date = elem[0].text
                     elif elem[0].tag == _xn("instant"):
                         instant = elem[0].text
                 elif elem.tag == _xn("entity"):
@@ -428,7 +393,7 @@ class Parser(object):
 
             if instant is None  and duration is None:
                 validation_errors.append(
-                    ValidationError("Context is missing both a duration and instant tag"))
+                    ob.OBValidationError("Context is missing both a duration and instant tag"))
             if entity is None:
                 validation_errors.append("Context is missing an entity tag")
 

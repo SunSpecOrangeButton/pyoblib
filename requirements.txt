@@ -1,7 +1,7 @@
 lxml==4.2.5
 pdoc==0.3.2
 six==1.12.0
-enum34==1.1.6
+enum_compat==0.0.2
 jsondiff==1.1.2
 validators==0.12.4
 
