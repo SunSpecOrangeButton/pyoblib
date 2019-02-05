@@ -419,7 +419,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         root = json.loads(jsonstring)
 
         # should have 2 facts:
-        all_facts = root["facts"].values()
+        all_facts = list(root["facts"].values())
         self.assertEqual( len(all_facts), 2)
 
         # each should have expected 'value' and 'aspects':
@@ -799,14 +799,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # TODO is supposed to be in aspects or not?
         self.assertEqual(len(facts), 1)
-        self.assertEqual(facts.values()[0]["aspects"]["precision"], "3")
+        self.assertEqual(list(facts.values())[0]["aspects"]["precision"], "3")
 
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3)
         jsonstring = doc.to_JSON_string()
         facts = json.loads(jsonstring)["facts"]
         self.assertEqual(len(facts), 1)
-        self.assertEqual(facts.values()[0]["aspects"]["decimals"], "3")
+        self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "3")
 
         # Trying to set both decimals and precision should raise an error
         with self.assertRaises(OBException):
