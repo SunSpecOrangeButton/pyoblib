@@ -419,7 +419,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         root = json.loads(jsonstring)
 
         # should have 2 facts:
-        all_facts = root["facts"].values()
+        all_facts = list(root["facts"].values())
         self.assertEqual( len(all_facts), 2)
 
         # each should have expected 'value' and 'aspects':
@@ -799,7 +799,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # TODO is supposed to be in aspects or not?
         self.assertEqual(len(facts), 1)
-        self.assertEqual(facts.values()[0]["aspects"]["precision"], "3")
+        self.assertEqual(list(facts.values())[0]["aspects"]["precision"], "3")
 
         # Set fact with decimals:
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
@@ -807,7 +807,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         jsonstring = doc.to_JSON_string()
         facts = json.loads(jsonstring)["facts"]
         self.assertEqual(len(facts), 1)
-        self.assertEqual(facts.values()[0]["aspects"]["decimals"], "3")
+        self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "3")
 
         # If you set a fact with neither it should default to decimals=2:
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
@@ -815,7 +815,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         jsonstring = doc.to_JSON_string()
         facts = json.loads(jsonstring)["facts"]
         self.assertEqual(len(facts), 1)
-        self.assertEqual(facts.values()[0]["aspects"]["decimals"], "2")
+        self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "2")
 
 
         # Trying to set both decimals and precision should raise an error
@@ -850,8 +850,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Look for fact ID in JSON:
         jsonstring = doc.to_JSON_string()
         facts = json.loads(jsonstring)["facts"]
-        self.assertEqual(len(facts.keys()), 1)
-        self.assertEqual(facts.keys()[0], fact_id)
+        self.assertEqual(len(list(facts.keys())), 1)
+        self.assertEqual(list(facts.keys())[0], fact_id)
 
         # Look for fact ID in XML:
         xml = doc.to_XML_string()
@@ -887,9 +887,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         self.assertEqual(len(facts), 2)
 
-        for fact in facts.values():
-            self.assertTrue( isinstance( fact['value'], unicode) )
-            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], unicode))
+        for fact in list(facts.values()):
+            self.assertTrue( isinstance( fact['value'], str) )
+            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], str))
 
         # TODO is there something we could set to null so we test null is exported as
         # literal, not string?
