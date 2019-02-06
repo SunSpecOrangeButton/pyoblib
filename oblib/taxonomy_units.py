@@ -92,9 +92,9 @@ class TaxonomyUnits(object):
         self._units = self._load_units()
 
     def _load_units_file(self, fn):
-        tax = _TaxonomyUnitsHandler()
+        taxonomy = _TaxonomyUnitsHandler()
         parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
+        parser.setContentHandler(taxonomy)
         if sys.version_info[0] < 3:
             # python 2.x
             with open(fn, 'r') as infile:
@@ -102,7 +102,7 @@ class TaxonomyUnits(object):
         else:
             with open(fn, 'r', encoding='utf8') as infile:
                 parser.parse(infile)
-        return tax.units()
+        return taxonomy.units()
 
     def _load_units(self):
         pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "external")
@@ -111,7 +111,12 @@ class TaxonomyUnits(object):
         return units
 
     def get_all_units(self):
-        """Return a dict of all units with unit_id as primary key."""
+        """
+        Used to lookup the entire list of units.
+
+        Returns:
+             A dict of units with unit_id as primary key.
+        """
         return self._units
 
     def _by_id(self):

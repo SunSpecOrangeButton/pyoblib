@@ -87,121 +87,6 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
         return self._generic_roles
 
 
-class TaxonomyNumericTypes(object):
-    """
-    Represents Miscellaneous Taxonomy Objects.
-
-    Represents objects that are not covered in the
-    other classes.  Generally speaking these are rarely used.
-    """
-
-    def __init__(self):
-        """Misc object constructor."""
-        self._numeric_types = self._load_numeric_types()
-
-    def _load_numeric_types_file(self, pathname):
-        tax = _TaxonomyNumericHandler()
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
-        parser.parse(open(pathname))
-        return tax.numeric_types()
-
-    def _load_numeric_types(self):
-        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
-        for filename in os.listdir(pathname):
-            if 'numeric' in filename:
-                numeric_types = self._load_numeric_types_file(os.path.join(
-                    pathname, filename))
-        return numeric_types
-
-    def get_all_numeric_types(self):
-        """
-        A list of numeric types.
-        """
-
-        return self._numeric_types
-
-    def is_numeric_type(self, numeric_type):
-        """
-        Check if a numeric type is valid.
-        """
-
-        if numeric_type in self._numeric_types:
-            return True
-        else:
-            return False
-
-
-class TaxonomyGenericRoles(object):
-    """
-    Represents Generic Roles portion of the taxonomy.  Generally speaking this is rarely used.
-    """
-
-    def __init__(self):
-        self._generic_roles = self._load_generic_roles()
-
-    def _load_generic_roles_file(self, pathname):
-        tax = _TaxonomyGenericRolesHandler()
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
-        parser.parse(open(pathname))
-        return tax.roles()
-
-    def _load_generic_roles(self):
-        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
-        for filename in os.listdir(pathname):
-            if 'gen-roles' in filename:
-                generic_roles = self._load_generic_roles_file(os.path.join(
-                    pathname, filename))
-        return generic_roles
-
-    def get_all_generic_roles(self):
-        """A list of generic roles."""
-        return self._generic_roles
-
-    def is_generic_role(self, generic_role):
-        """Check if a generic role is valid."""
-        if generic_role in self._generic_roles:
-            return True
-        else:
-            return False
-
-
-class TaxonomyRefParts(object):
-    """
-    Represents the Referential Parts portion of the Taxonomy.  Generally speaking this is rarely used.
-    """
-
-    def __init__(self):
-        self._ref_parts = self._load_ref_parts()
-
-    def _load_ref_parts_file(self, pathname):
-        tax = _TaxonomyRefPartsHandler()
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
-        parser.parse(open(pathname))
-        return tax.ref_parts()
-
-    def _load_ref_parts(self):
-        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
-        for filename in os.listdir(pathname):
-            if 'ref-parts' in filename:
-                ref_parts = self._load_ref_parts_file(os.path.join(pathname,
-                                                                   filename))
-        return ref_parts
-
-    def get_all_ref_parts(self):
-        """A list of ref parts."""
-        return self._ref_parts
-
-    def is_ref_part(self, ref_part):
-        """Check if a ref part is valid."""
-        if ref_part in self._ref_parts:
-            return True
-        else:
-            return False
-
-
 class _TaxonomyDocstringHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Docstrings from Labels file"""
 
@@ -240,6 +125,156 @@ class _TaxonomyDocstringHandler(xml.sax.ContentHandler):
         return self._docstrings
 
 
+class TaxonomyNumericTypes(object):
+    """
+    Represents Miscellaneous Taxonomy Objects.
+
+    Represents objects that are not covered in the
+    other classes.  Generally speaking these are rarely used.
+    """
+
+    def __init__(self):
+        """Misc object constructor."""
+        self._numeric_types = self._load_numeric_types()
+
+    def _load_numeric_types_file(self, pathname):
+        tax = _TaxonomyNumericHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(tax)
+        parser.parse(open(pathname))
+        return tax.numeric_types()
+
+    def _load_numeric_types(self):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
+            if 'numeric' in filename:
+                numeric_types = self._load_numeric_types_file(os.path.join(
+                    pathname, filename))
+        return numeric_types
+
+    def get_all_numeric_types(self):
+        """
+        Used to access a list of numeric types.
+
+        Returns:
+             list of all numeric types (strings).
+        """
+
+        return self._numeric_types
+
+    def is_numeric_type(self, numeric_type):
+        """
+        Used to check if a numeric type is valid.
+
+        Args:
+            numeric_type (string): Numeric type to check for validity.
+
+        Returns:
+            True if the numeric type is valid, false otherwise.
+        """
+
+        if numeric_type in self._numeric_types:
+            return True
+        else:
+            return False
+
+
+class TaxonomyGenericRoles(object):
+    """
+    Represents Generic Roles portion of the taxonomy.  Generally speaking this is rarely used.
+    """
+
+    def __init__(self):
+        self._generic_roles = self._load_generic_roles()
+
+    def _load_generic_roles_file(self, pathname):
+        tax = _TaxonomyGenericRolesHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(tax)
+        parser.parse(open(pathname))
+        return tax.roles()
+
+    def _load_generic_roles(self):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
+            if 'gen-roles' in filename:
+                generic_roles = self._load_generic_roles_file(os.path.join(
+                    pathname, filename))
+        return generic_roles
+
+    def get_all_generic_roles(self):
+        """
+        Used to access a list of all generic roles.
+
+        Returns:
+             list of all generic roles (strings).
+        """
+        return self._generic_roles
+
+    def is_generic_role(self, generic_role):
+        """
+        Used to check if a generic role is valid.
+
+        Args:
+            generic_role (string): Generic role to check for validity.
+
+        Returns:
+            True if the generic role is valid, false otherwise.
+        """
+        if generic_role in self._generic_roles:
+            return True
+        else:
+            return False
+
+
+class TaxonomyRefParts(object):
+    """
+    Represents the Referential Parts portion of the Taxonomy.  Generally speaking this is rarely used.
+    """
+
+    def __init__(self):
+        self._ref_parts = self._load_ref_parts()
+
+    def _load_ref_parts_file(self, pathname):
+        tax = _TaxonomyRefPartsHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(tax)
+        parser.parse(open(pathname))
+        return tax.ref_parts()
+
+    def _load_ref_parts(self):
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
+        for filename in os.listdir(pathname):
+            if 'ref-parts' in filename:
+                ref_parts = self._load_ref_parts_file(os.path.join(pathname,
+                                                                   filename))
+        return ref_parts
+
+    def get_all_ref_parts(self):
+        """
+        Used to access the a list of all ref parts.
+
+        Returns:
+            A list of all ref parts (strings).
+        """
+        return self._ref_parts
+
+    def is_ref_part(self, ref_part):
+        """
+        Used to check if a ref part is valid.
+
+        Args:
+            ref_part (string): Ref part to check or validity.
+
+        Returns:
+            True if the ref part is valid, false otherwise.
+        """
+        if ref_part in self._ref_parts:
+            return True
+        else:
+            return False
+
+
 class TaxonomyDocstrings(object):
     """
     Loads the documentation strings for each concept from solar_2018-03-31_r01_lab.xml
@@ -251,11 +286,18 @@ class TaxonomyDocstrings(object):
         label_file = "solar_2018-03-31_r01_lab.xml"
         filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
 
-        tax = _TaxonomyDocstringHandler()
+        taxonomy = _TaxonomyDocstringHandler()
         parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
+        parser.setContentHandler(taxonomy)
         parser.parse(open(filename))
-        return tax.docstrings()
+        return taxonomy.docstrings()
 
     def docstrings(self):
+        """
+        Used to lookup all docstrings.
+
+        Returns:
+            A map of all docstrings with a value of an array of two elements; array element 0 is
+            a xlink:label and array element 1 is a xlink:role.
+        """
         return self._docstrings

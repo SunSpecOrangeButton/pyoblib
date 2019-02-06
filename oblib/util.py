@@ -20,22 +20,28 @@ exported as part of the module so if a method has an external signature place it
 import datetime
 
 
-def convert_taxonomy_xsd_bool(s):
+def convert_taxonomy_xsd_bool(inp):
     """ 
     Returns true/false given a string loaded from the Taxonomy.  Values to check are based on
     observed values from within the Taxonomy.  If the input is not valid this will always return
     false.
+
+    Args:
+        inp (string): String containing booleans in Taxonomy XSD format.
+
+    Returns:
+        True or False
     """
 
-    if s is None:
+    if inp is None:
         return False
-    elif s.strip().lower() in ["true", "1"]:
+    elif inp.strip().lower() in ["true", "1"]:
         return True
     else:
         return False
 
 
-def convert_taxonomy_xsd_date(s):
+def convert_taxonomy_xsd_date(inp):
     """
     Returns a datetime representation of a date (in string format) loaded from the taxonomy.  It
     is assumed that the input format will be YYYY-MM-DD based upon observed values from within 
@@ -44,16 +50,32 @@ def convert_taxonomy_xsd_date(s):
     If the input is not valid this will return none.  At this point in time this function does
     not require MM and DD to be two digits since there does not appear to be any reason to reject
     data with these two validation errors.
+
+    Args:
+        inp (string): String containning dates in Taxonomy XSD format.
+
+    Returns:
+        True or False
     """
 
     try:
-        return datetime.datetime.strptime(s, "%Y-%m-%d").date()
+        return datetime.datetime.strptime(inp, "%Y-%m-%d").date()
     except ValueError:
         return None
 
-def convert_json_datetime(s):
+
+def convert_json_datetime(inp):
+    """
+    Converts a JSON data time value based upon the XBRL JSON specification format.
+
+    Args:
+        inp (string): String containning dates in Taxonomy XSD format.
+
+    Returns:
+        datetime
+    """
 
     try:
-        return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S").date()
+        return datetime.datetime.strptime(inp, "%Y-%m-%dT%H:%M:%S").date()
     except ValueError:
         return None

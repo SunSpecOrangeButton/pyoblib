@@ -61,11 +61,11 @@ class TaxonomyTypes(object):
         self._types = self._load_types()
 
     def _load_types_file(self, pathname):
-        tax = _TaxonomyTypesHandler()
+        taxonomy = _TaxonomyTypesHandler()
         parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
+        parser.setContentHandler(taxonomy)
         parser.parse(open(pathname))
-        return tax.types()
+        return taxonomy.types()
 
     def _load_types(self):
         pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
@@ -75,11 +75,21 @@ class TaxonomyTypes(object):
         return types
 
     def get_all_types(self):
-        """Return a map and sublists of all types."""
+        """
+        Used to lookup all types.
+
+        Returns:
+             A map and sublists of types.
+        """
         return self._types
 
     def is_type(self, name):
-        """Validate that a type is in the taxonomy."""
+        """
+        Validates that a type is in the taxonomy.
+
+        Returns:
+            True if the type is present, false otherwise.
+        """
         if name in self._types:
             return True
         else:
@@ -87,10 +97,11 @@ class TaxonomyTypes(object):
 
     def get_type_enum(self, name):
         """
-        Get type enumeration.
+        Used to lookup a type enumeration.
 
-        Return an enumeration given a type or None if the type does not exist
-        in the taxonomy.
+        Returns:
+             An enumeration given a type or None if the type does not exist
+             in the taxonomy.
         """
         if name in self._types:
             return self._types[name]

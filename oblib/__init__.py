@@ -15,7 +15,7 @@
 """Initializes the Orange Button package."""
 
 
-__all__ = ['identifier', 'data_model', 'parser',
+__all__ = ['identifier', 'data_model', 'ob', 'parser',
            'taxonomy', 'taxonomy_semantic',
            'taxonomy_types', 'taxonomy_units',
            'taxonomy_misc', 'validator']
