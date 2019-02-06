@@ -49,7 +49,7 @@ class TestValidator(unittest.TestCase):
         self.assertEqual(0, len(validator.validate_concept_value(concept, "Arf")[1]))
         self.assertEqual(0, len(validator.validate_concept_value(concept, "")[1]))
 
-        concept.id = "Someidentifier.identifier"
+        concept.id = "SomeIdentifier"
         self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")[1]))
         self.assertEqual(0, len(validator.validate_concept_value(concept, identifier.identifier())[1]))
 
