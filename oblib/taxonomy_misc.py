@@ -16,8 +16,7 @@
 
 import os
 import xml.sax
-from .constants import SOLAR_TAXONOMY_DIR
-
+from oblib import constants
 
 #
 # Note: All miscellaneous taxonomy files are covered except for solar-ref-roles which has only one
@@ -108,7 +107,7 @@ class TaxonomyNumericTypes(object):
         return tax.numeric_types()
 
     def _load_numeric_types(self):
-        pathname = os.path.join(SOLAR_TAXONOMY_DIR, "core")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
         for filename in os.listdir(pathname):
             if 'numeric' in filename:
                 numeric_types = self._load_numeric_types_file(os.path.join(
@@ -149,7 +148,7 @@ class TaxonomyGenericRoles(object):
         return tax.roles()
 
     def _load_generic_roles(self):
-        pathname = os.path.join(SOLAR_TAXONOMY_DIR, "core")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
         for filename in os.listdir(pathname):
             if 'gen-roles' in filename:
                 generic_roles = self._load_generic_roles_file(os.path.join(
@@ -184,7 +183,7 @@ class TaxonomyRefParts(object):
         return tax.ref_parts()
 
     def _load_ref_parts(self):
-        pathname = os.path.join(SOLAR_TAXONOMY_DIR, "core")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
         for filename in os.listdir(pathname):
             if 'ref-parts' in filename:
                 ref_parts = self._load_ref_parts_file(os.path.join(pathname,
@@ -250,7 +249,7 @@ class TaxonomyDocstrings(object):
 
     def _load_docstrings(self):
         label_file = "solar_2018-03-31_r01_lab.xml"
-        filename = os.path.join(SOLAR_TAXONOMY_DIR, "core", label_file)
+        filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
 
         tax = _TaxonomyDocstringHandler()
         parser = xml.sax.make_parser()

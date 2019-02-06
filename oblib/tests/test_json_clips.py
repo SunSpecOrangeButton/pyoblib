@@ -15,12 +15,11 @@
 import re
 from inspect import currentframe
 import unittest
+from oblib import parser, taxonomy
 
-from ..parser import Parser
-from ..taxonomy import Taxonomy
 
-taxonomy = Taxonomy()
-parser = Parser(taxonomy)
+taxonomy = taxonomy.Taxonomy()
+parser = parser.Parser(taxonomy)
 
 
 def _ln():

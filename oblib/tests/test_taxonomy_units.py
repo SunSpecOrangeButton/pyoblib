@@ -14,11 +14,10 @@
 
 import datetime
 import unittest
+from oblib import taxonomy, taxonomy_units
 
-from ..taxonomy import BaseStandard, UnitStatus
-from ..taxonomy_units import TaxonomyUnits
 
-tax = TaxonomyUnits()
+tax = taxonomy_units.TaxonomyUnits()
 
 
 class TestTaxonomyUnits(unittest.TestCase):
@@ -65,8 +64,8 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertIsInstance(unit.item_type_date, datetime.date)
         # self.assertIsInstance(unit.symbol, str)
         # self.assertIsInstance(unit.definition, str)
-        self.assertIsInstance(unit.base_standard, BaseStandard)
-        self.assertIsInstance(unit.status, UnitStatus)
+        self.assertIsInstance(unit.base_standard, taxonomy.BaseStandard)
+        self.assertIsInstance(unit.status, taxonomy.UnitStatus)
         self.assertIsInstance(unit.version_date, datetime.date)
 
         # Test values
@@ -78,8 +77,8 @@ class TestTaxonomyUnits(unittest.TestCase):
         self.assertEqual(unit.item_type_date, datetime.date(2009, 12, 16))
         self.assertEqual(unit.symbol, "VAh")
         self.assertEqual(unit.definition, "Volt-ampere (VA) hours of energy.")
-        self.assertEqual(unit.base_standard, BaseStandard.customary)
-        self.assertEqual(unit.status, UnitStatus.cr)
+        self.assertEqual(unit.base_standard, taxonomy.BaseStandard.customary)
+        self.assertEqual(unit.status, taxonomy.UnitStatus.cr)
         self.assertEqual(unit.version_date, datetime.date(2017, 7, 12))
 
         unit2 = tax.get_unit("u00291")

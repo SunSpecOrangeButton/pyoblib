@@ -16,7 +16,7 @@
 
 import os
 import xml.sax
-from .constants import SOLAR_TAXONOMY_DIR
+from oblib import constants
 
 
 class _TaxonomyTypesHandler(xml.sax.ContentHandler):
@@ -68,7 +68,7 @@ class TaxonomyTypes(object):
         return tax.types()
 
     def _load_types(self):
-        pathname = os.path.join(SOLAR_TAXONOMY_DIR, "core")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core")
         for filename in os.listdir(pathname):
             if 'types' in filename:
                 types = self._load_types_file(os.path.join(pathname, filename))

@@ -16,9 +16,7 @@
 
 import os
 import xml.sax
-from .constants import SOLAR_TAXONOMY_DIR
-from .taxonomy import PeriodType, SubstitutionGroup, Relationship, RelationshipRole
-from .util import convert_taxonomy_xsd_bool
+from oblib import constants, taxonomy, util
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -36,11 +34,14 @@ class _ElementsHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "xs:element":
-            from .taxonomy import Element
-            element = Element()
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+
+            element = taxonomy.Element()
             for item in attrs.items():
                 if item[0] == "abstract":
-                    element.abstract = convert_taxonomy_xsd_bool(item[1])
+                    element.abstract = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "id":
                     # Turn the first underscore (only the first) into
                     # a colon. For example, the concept named
@@ -52,16 +53,16 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "name":
                     element.name = item[1]
                 elif item[0] == "nillable":
-                    element.nillable = convert_taxonomy_xsd_bool(item[1])
+                    element.nillable = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "solar:periodIndependent":
-                    element.period_independent = convert_taxonomy_xsd_bool(item[1])
+                    element.period_independent = util.convert_taxonomy_xsd_bool(item[1])
                 elif item[0] == "substitutionGroup":
-                    element.substitution_group = SubstitutionGroup(item[1])
+                    element.substitution_group = taxonomy.SubstitutionGroup(item[1])
                 elif item[0] == "type":
                     element.type_name = item[1]
                 elif item[0] == "xbrli:periodType":
                     # element.period_type = item[1]
-                    element.period_type = PeriodType(item[1])
+                    element.period_type = taxonomy.PeriodType(item[1])
                 elif item[0] == "xbrldt:typedDomainRef":
                     element.typed_domain_ref = item[1]
             self._elements[element.id] = element
@@ -109,10 +110,10 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "definitionArc":
-            relationship = Relationship()
+            relationship = taxonomy.Relationship()
             for item in attrs.items():
                 if item[0] == "xlink:arcrole":
-                    relationship.role = RelationshipRole(item[1].split("/")[-1])
+                    relationship.role = taxonomy.RelationshipRole(item[1].split("/")[-1])
                 if item[0] == "xlink:from":
                     relationship.from_ = item[1].replace("_", ":", 1)
                 if item[0] == "xlink:to":
@@ -147,13 +148,13 @@ class TaxonomySemantic(object):
 
     def _load_elements(self):
         elements = self._load_elements_file(os.path.join(
-            SOLAR_TAXONOMY_DIR, "core",
+            constants.SOLAR_TAXONOMY_DIR, "core",
             "solar_2018-03-31_r01.xsd"))
         elements.update(self._load_elements_file(os.path.join(
-            SOLAR_TAXONOMY_DIR, "external",
+            constants.SOLAR_TAXONOMY_DIR, "external",
             "us-gaap-2017-01-31.xsd")))
         elements.update(self._load_elements_file(os.path.join(
-            SOLAR_TAXONOMY_DIR, "external",
+            constants.SOLAR_TAXONOMY_DIR, "external",
             "dei-2018-01-31.xsd")))
         return elements
 
@@ -167,36 +168,36 @@ class TaxonomySemantic(object):
     def _load_concepts(self):
         """Return a dict of available concepts."""
         concepts = {}
-        for dirname in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "data")):
             for filename in os.listdir(
-                    os.path.join(SOLAR_TAXONOMY_DIR, "data",
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "data",
                                  dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                        os.path.join(SOLAR_TAXONOMY_DIR,
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                      "data", dirname, filename))
-        for dirname in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "documents")):
             for filename in os.listdir(
-                    os.path.join(SOLAR_TAXONOMY_DIR, "documents",
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents",
                                  dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                        os.path.join(SOLAR_TAXONOMY_DIR,
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                      "documents", dirname, filename))
 
-        for dirname in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "process")):
             for filename in os.listdir(
-                    os.path.join(SOLAR_TAXONOMY_DIR, "process",
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "process",
                                  dirname)):
                 # if 'def.' in filename:
                 if 'pre.' in filename:
                     concepts[dirname] = self._load_concepts_file(
-                        os.path.join(SOLAR_TAXONOMY_DIR,
+                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                      "process", dirname, filename))
         return concepts
 
@@ -204,26 +205,26 @@ class TaxonomySemantic(object):
         tax = _TaxonomyRelationshipHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(tax)
-        parser.parse(open(os.path.join(SOLAR_TAXONOMY_DIR, fn)))
+        parser.parse(open(os.path.join(constants.SOLAR_TAXONOMY_DIR, fn)))
         return tax.relationships()
 
     def _load_relationships(self):
         relationships = {}
-        for dirname in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "data")):
-            for filename in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR, "data", dirname)):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("data", dirname, filename))
 
-        for dirname in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "documents")):
-            for filename in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR, "documents", dirname)):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
 
-        for dirname in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR,
+        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                                "process")):
-            for filename in os.listdir(os.path.join(SOLAR_TAXONOMY_DIR, "process", dirname)):
+            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("process", dirname, filename))
 

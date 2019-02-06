@@ -14,12 +14,11 @@
 
 """ Parses JSON/XML input and output data. """
 
-from .data_model import OBInstance, Context
-from .util import convert_json_datetime
 import enum
 import json
 import xml.etree.ElementTree as ElementTree
-import sys
+from oblib import data_model, util
+
 
 ##################################################################################
 # NOTE: Start of temporary code.  Once a permanent ValidationErrors strategy is
@@ -210,7 +209,7 @@ class Parser(object):
         validation_errors = ValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
-        entrypoint = OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Loop through facts.
         for fact in facts:
@@ -236,14 +235,14 @@ class Parser(object):
 
                 if "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
                     if fact["aspects"]["xbrl:periodStart"] == fact["aspects"]["xbrl:periodEnd"]:
-                        start = convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
+                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
                         if start is None:
                             validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
                         elif kwargs is not None:
                             kwargs["instant"] = start
                     else:
-                        start = convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                        end = convert_json_datetime(fact["aspects"]["xbrl:periodEnd"])
+                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
+                        end = util.convert_json_datetime(fact["aspects"]["xbrl:periodEnd"])
                         if start is None:
                             validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
                         if end is None:
@@ -344,7 +343,7 @@ class Parser(object):
                 raise validation_errors
 
         # Create an entrypoint.
-        entrypoint = OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
 
         # Read in units
         units = {}
@@ -401,7 +400,7 @@ class Parser(object):
                 validation_errors.append("Context is missing an entity tag")
 
             try:
-                dm_ctx = Context(**kwargs)
+                dm_ctx = data_model.Context(**kwargs)
                 contexts[context.attrib["id"]] = dm_ctx
             except Exception as e:
                 validation_errors.append(e)

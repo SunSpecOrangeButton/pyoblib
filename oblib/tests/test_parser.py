@@ -14,13 +14,11 @@
 
 import unittest
 from jsondiff import diff
-
-from ..parser import Parser
-from ..taxonomy import Taxonomy
+from oblib import parser, taxonomy
 
 
-taxonomy = Taxonomy()
-parser = Parser(taxonomy)
+taxonomy = taxonomy.Taxonomy()
+parser = parser.Parser(taxonomy)
 
 
 class TestParser(unittest.TestCase):

@@ -14,11 +14,10 @@
 
 """Validation functions."""
 
-from .identifier import validate
-from .taxonomy import getTaxonomy
 import re
 import sys
 from datetime import date, datetime
+from oblib import identifier, taxonomy
 
 
 BOOLEAN_TRUE = ['true', 't', 'y', '1']
@@ -48,7 +47,7 @@ def validate_concept_value(concept, value):
     # If null check if nillable is ok and return
     if value is None and not concept.nillable:
         errors += ["'{}' is not allowed to be nillable (null).".format(concept.id)]
-    enum = getTaxonomy().types.get_type_enum(concept.type_name)
+    enum = taxonomy.getTaxonomy().types.get_type_enum(concept.type_name)
     is_enum = enum is not None
     # Check data type and validator calling
     if type(concept.type_name).__name__ in ["str", "unicode"]:
@@ -68,7 +67,7 @@ def validate_concept_value(concept, value):
     # Check identifiers.  This is based upon the name of the field containing
     # the word Identifier in it.
     if concept.id.find("Identifier") != -1:
-        if validate(value) is False:
+        if identifier.validate(value) is False:
             errors += ["'{}' is not valid identifier.".format(concept.id)]
 
     # If all conditions clear then the value passes.
@@ -87,6 +86,7 @@ def _get_validator_method_name(type_name):
     type_name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", type_name).lower()
     return "_" + type_name + "_validator"
 
+
 def _generic_enum_validator(value, concept, enum):
     errors = []
     if (value not in enum):
@@ -97,6 +97,7 @@ def _generic_enum_validator(value, concept, enum):
 # validators implementation
 # TODO: could be moved to other file and loaded and even loading custom
 # validator files
+
 
 def _xbrli_boolean_item_type_validator(value):
     """Returns python boolean if value can be converted"""
@@ -120,7 +121,7 @@ def _xbrli_string_item_type_validator(value):
     try:
         value = str(value)
     except:
-#        if type(value).__name__ not in ["str", "unicode"]:
+        # if type(value).__name__ not in ["str", "unicode"]:
         errors.append("'{}' is not a valid string value.".format(value))
     return value, errors
 
@@ -152,6 +153,7 @@ def _xbrli_decimal_item_type_validator(value):
         errors += ["'{}' is not a valid decimal value.".format(value)]
     return value, errors
 
+
 def _xbrli_monetary_item_type_validator(value):
     """XBRLI monetary validator."""
     errors = []
@@ -163,6 +165,7 @@ def _xbrli_monetary_item_type_validator(value):
     elif type(value) is not int:
         errors += ["'{}' is not a valid monetary value.".format(value)]
     return value, errors
+
 
 def _xbrli_date_item_type_validator(value):
     """XBRLI date validator."""
@@ -178,83 +181,102 @@ def _xbrli_date_item_type_validator(value):
         errors += ["'{}' is not a valid date value.".format(value)]
     return value, errors
 
+
 def _solar_document_identifier_appraisal(value):
     """SOLAR Document Identifier Appraisal validator"""
     return _xbrli_boolean_item_type_validator(value)
+
 
 def _xbrli_duration_item_type_validator(value):
     """XBRLI duration validator."""
     return _xbrli_integer_item_type_validator(value)
 
+
 def _num_power_item_type_validator(value):
     """NUM power validator."""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_percent_item_type_validator(value):
     """NUM percent validator."""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _dei_legal_entity_identifier_item_type_validator(value):
     """DEI Legal Entity Identifier"""
     return _xbrli_string_item_type_validator(value)
+
 
 def _xbrli_any_uri_item_type_validator(value):
     """XBRLI Any URI validator"""
     return _xbrli_string_item_type_validator(value)
 
+
 def _num_us_electric_current_item_type_validator(value):
     """NUM US Electric Current validator"""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_us_frequency_item_type_validator(value):
     """NUM US Frequency validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_us_insolation_item_type_validator(value):
     """NUM US Insolation validator"""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_us_irradiance_item_type_validator(value):
     """NUM US Irradience validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_us_plane_angle_item_type_validator(value):
     """NUM US Plane Angle validator"""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_us_pressure_item_type_validator(value):
     """NUM US Pressure validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_us_speed_item_type_validator(value):
     """NUM US Speed validator"""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_us_temperature_item_type_validator(value):
     """NUM US Temperature validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_us_voltage_item_type_validator(value):
     """NUM US Voltage validator"""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_area_item_type_validator(value):
     """NUM Area validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_energy_item_type_validator(value):
     """NUM Energy validator"""
     return _xbrli_decimal_item_type_validator(value)
+
 
 def _num_length_item_type_validator(value):
     """NUM Length validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_mass_item_type_validator(value):
     """NUM Mass validator"""
     return _xbrli_decimal_item_type_validator(value)
 
+
 def _num_volume_item_type_validator(value):
     """NUM Volume validator"""
     return _xbrli_decimal_item_type_validator(value)
-

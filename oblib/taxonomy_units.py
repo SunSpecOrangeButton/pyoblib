@@ -17,8 +17,7 @@
 import xml.sax
 import os
 import sys
-from .constants import SOLAR_TAXONOMY_DIR
-from .util import convert_taxonomy_xsd_date
+from oblib import constants, util
 
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
@@ -31,8 +30,11 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         if name == "unit":
             for item in attrs.items():
                 if item[0] == "id":
-                    from .taxonomy import Unit
-                    self._curr = Unit()
+
+                    # Temporary fix for the circular dependency issue
+                    from oblib import taxonomy
+
+                    self._curr = taxonomy.Unit()
                     self._curr.id = item[1]
         elif name == "xs:enumeration":
             for item in attrs.items():
@@ -53,19 +55,25 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "itemType":
             self._curr.item_type = self._content
         elif name == "itemTypeDate":
-            self._curr.item_type_date = convert_taxonomy_xsd_date(self._content)
+            self._curr.item_type_date = util.convert_taxonomy_xsd_date(self._content)
         elif name == "symbol":
             self._curr.symbol = self._content
         elif name == "definition":
             self._curr.definition = self._content
         elif name == "baseStandard":
-            from .taxonomy import BaseStandard
-            self._curr.base_standard = BaseStandard(self._content)
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+
+            self._curr.base_standard = taxonomy.BaseStandard(self._content)
         elif name == "status":
-            from .taxonomy import UnitStatus
-            self._curr.status = UnitStatus(self._content)
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+
+            self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
-            self._curr.version_date = convert_taxonomy_xsd_date(self._content)
+            self._curr.version_date = util.convert_taxonomy_xsd_date(self._content)
 
     def units(self):
         return self._units
@@ -97,7 +105,7 @@ class TaxonomyUnits(object):
         return tax.units()
 
     def _load_units(self):
-        pathname = os.path.join(SOLAR_TAXONOMY_DIR, "external")
+        pathname = os.path.join(constants.SOLAR_TAXONOMY_DIR, "external")
         filename = "utr.xml"
         units = self._load_units_file(os.path.join(pathname, filename))
         return units

@@ -13,31 +13,26 @@
 # limitations under the License.
 
 import unittest
-
-from ..taxonomy import Unit, Element, Relationship, Taxonomy
-from ..taxonomy_semantic import TaxonomySemantic
-from ..taxonomy_types import TaxonomyTypes
-from ..taxonomy_units import TaxonomyUnits
-from ..taxonomy_misc import TaxonomyNumericTypes, TaxonomyGenericRoles, TaxonomyRefParts
+from oblib import taxonomy, taxonomy_semantic, taxonomy_types, taxonomy_units, taxonomy_misc
 
 
 class TestTaxonomy(unittest.TestCase):
 
     def test_unit(self):
-        self.assertIsInstance(Unit(), Unit)
+        self.assertIsInstance(taxonomy.Unit(), taxonomy.Unit)
 
     def test_element(self):
-        self.assertIsInstance(Element(), Element)
+        self.assertIsInstance(taxonomy.Element(), taxonomy.Element)
 
     def test_relationship(self):
-        self.assertIsInstance(Relationship(), Relationship)
+        self.assertIsInstance(taxonomy.Relationship(), taxonomy.Relationship)
 
     def test_taxonomy(self):
-        tax = Taxonomy()
-        self.assertIsInstance(tax, Taxonomy)
-        self.assertIsInstance(tax.semantic, TaxonomySemantic)
-        self.assertIsInstance(tax.types, TaxonomyTypes)
-        self.assertIsInstance(tax.units, TaxonomyUnits)
-        self.assertIsInstance(tax.numeric_types, TaxonomyNumericTypes)
-        self.assertIsInstance(tax.generic_roles, TaxonomyGenericRoles)
-        self.assertIsInstance(tax.ref_parts, TaxonomyRefParts)
+        tax = taxonomy.Taxonomy()
+        self.assertIsInstance(tax, taxonomy.Taxonomy)
+        self.assertIsInstance(tax.semantic, taxonomy_semantic.TaxonomySemantic)
+        self.assertIsInstance(tax.types, taxonomy_types.TaxonomyTypes)
+        self.assertIsInstance(tax.units, taxonomy_units.TaxonomyUnits)
+        self.assertIsInstance(tax.numeric_types, taxonomy_misc.TaxonomyNumericTypes)
+        self.assertIsInstance(tax.generic_roles, taxonomy_misc.TaxonomyGenericRoles)
+        self.assertIsInstance(tax.ref_parts, taxonomy_misc.TaxonomyRefParts)
