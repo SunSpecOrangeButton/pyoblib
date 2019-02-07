@@ -373,8 +373,6 @@ class Context(object):
         self.axes = {}
         for keyword in kwargs:
             if not keyword.endswith("Axis"):
-                # TODO in the future we should use metadata to identify
-                # what's an axis, not just look for the string "Axis".
                 raise OBContextException("Context given invalid keyword {}".format(keyword))
             qualified_name = keyword
             if not qualified_name.startswith("solar:"):
@@ -521,11 +519,11 @@ class Fact(object):
     as either XML or JSON. A Fact provides a value for a certain concept within
     a certain context, and can optionally provide units and a precision.
     """
-    def __init__(self, concept, context, unit, value, decimals=None, precision=None):
+    def __init__(self, concept_name, context, unit, value, decimals=None, precision=None):
         """
         Constructs a Fact instance.
         Args:
-          concept: string
+          concept_name: string
             name of an XBRL concept defined in the schema.
           context: reference to a Context object
             the given object becomes the parent context of this Fact.
@@ -548,7 +546,7 @@ class Fact(object):
         # in case of xml the context ID will be rendered in the fact tag.
         # in case of json the contexts' attributes will be copied to the
         # fact's aspects.
-        self.concept = concept
+        self.concept_name = concept_name
         self.value = value
         self.context = context
         self.unit = unit
@@ -589,7 +587,7 @@ class Fact(object):
                 attribs["decimals"] = str(self.decimals)
             elif self.precision is not None:
                 attribs["precision"] = str(self.precision)
-        elem = Element(self.concept, attrib=attribs)
+        elem = Element(self.concept_name, attrib=attribs)
         if self.unit == "pure":
             elem.text = "%d" % self.value
         else:
@@ -604,7 +602,7 @@ class Fact(object):
           JSON format.
         """
         aspects = self.context._toJSON()
-        aspects["concept"] = self.concept
+        aspects["concept"] = self.concept_name
         if self.unit is not None:
             aspects["unit"] = str(self.unit)
             if self.decimals is not None:
@@ -813,11 +811,25 @@ class Axis(Concept):
     an Axis may also have a Domain and a finite set of allowed Domain Members.
     """
     def __init__(self, taxonomy, concept_name):
+        """
+        Constructs an Axis instance with no parent and no children.
+        Args:
+          taxonomy: reference to the global Taxonomy instance
+            used to look up information about the named concept.
+          concept_name: string
+            name of an XBRL Concept in the taxonomy
+        Raises:
+          Nothing, but prints a warning if concept_name is not found in taxonomy
+        """
         super(Axis, self).__init__(taxonomy, concept_name)
         self.domain = None
         self.domainMembers = []
 
     def get_domain(self):
+        """
+        Returns:
+          the domain of the axis (a string, naming another concept)
+        """
         if self.domain is not None:
             return self.domain
         # TODO in what case is domain none but domain_ref not none?
@@ -909,15 +921,6 @@ class OBInstance(object):
         self._initialize_tables()
 
         self.facts = {}
-        self.namespaces = {
-            "xmlns": "http://www.xbrl.org/2003/instance",
-            "xmlns:link": "http://www.xbrl.org/2003/linkbase",
-            "xmlns:xlink": "http://www.w3.org/1999/xlink",
-            "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
-            "xmlns:units": "http://www.xbrl.org/2009/utr",
-            "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
-            "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
-        }
         self.taxonomy_name = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
         self._default_context = {}
 
@@ -934,10 +937,8 @@ class OBInstance(object):
                 # There are a bunch of duplicate concept names that all end in "_1"
                 # that raise an exception if we try to query them.
                 continue
-            # TODO XXX check whether this concept should be an Axis and if so
-            # instantiate the Axis subclass???
-            # how bout substitution_group?  =
-            # .name == 'dimension'
+            # Use substitution group to check whether this concept should be an
+            # Axis, and if so, instantiate the Axis subclass:
             subgrp = self.ts.get_concept_details(concept_name).substitution_group
             if subgrp.name == 'dimension':
                 new_concept = Axis(self.taxonomy, concept_name)
@@ -1008,6 +1009,38 @@ class OBInstance(object):
                 parent = self.get_concept(parent_name)
                 child = self.get_concept(child_name)
                 parent.add_child(child)
+
+    def _get_namespaces(self):
+        """
+        Gets all namespaces that need to be included in the header of this
+        document.
+        Args: None
+        Returns: dictionary where keys are "xmlns:<namespace>" definitions and
+            values are URLs.
+        """
+        # The following namespaces are basic and are always included.
+        namespaces = {
+            "xmlns": "http://www.xbrl.org/2003/instance",
+            "xmlns:link": "http://www.xbrl.org/2003/linkbase",
+            "xmlns:xlink": "http://www.w3.org/1999/xlink",
+            "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
+            "xmlns:units": "http://www.xbrl.org/2009/utr",
+            "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
+            "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+        }
+
+        # The following namespaces are optional and are included in the header
+        # only if they are referred to by a fact in this instance document.
+        optional_namespaces = {
+            "us-gaap": "http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd"
+        }
+        for fact in self.get_all_facts():
+            concept_prefix = fact.concept_name.split(":")[0]
+            for ns in optional_namespaces:
+                if concept_prefix == ns:
+                    namespaces[ "xmlns:{}".format(ns)] = optional_namespaces[ns]
+
+        return namespaces
 
     def get_concept(self, concept_name):
         """
@@ -1109,13 +1142,10 @@ class OBInstance(object):
           write a value to an "Abstract" or a "LineItem".
         """
         if concept_name in self._all_my_concepts:
-            abstract_keywords = ["Abstract", "LineItems", "Table", "Domain", "Axis"]
-            # TODO this should be determined by looking at metadata, not trying to
-            # guess from the concept name.
-            # look at concept.get_metadata('abstract')
-            for word in abstract_keywords:
-                if concept_name.endswith(word):
-                    return False
+            concept = self._all_my_concepts[concept_name]
+            abstract = concept.get_details("abstract")
+            if abstract:
+                return False
             return True
         return False
 
@@ -1438,8 +1468,7 @@ class OBInstance(object):
           XML-format XBRL.
         """
         # The root element:
-        xbrl = Element("xbrl", attrib = self.namespaces)
-        # TODO add usgaap here, if any concepts start with usgaap?
+        xbrl = Element("xbrl", attrib = self._get_namespaces())
 
         # Add "link:schemaRef" for the taxonomy that goes with this document:
         link = SubElement(xbrl, "link:schemaRef",
@@ -1520,11 +1549,10 @@ class OBInstance(object):
         """
         masterJsonObj = {
             "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
-            "prefixes": self.namespaces,
+            "prefixes": self._get_namespaces(),
             "dtsReferences": [],
             "facts": {}
             }
-        # TODO add usgaap here, if any concepts start with usgaap?
 
         masterJsonObj["dtsReferences"].append({
             "type": "schema",

@@ -887,11 +887,39 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # literal, not string?
 
 
+    def test_optional_namespaces_included(self):
+        # If no us-gaap concepts are used, there should be no us-gaap namespace
+        # definition in header:
+        doc = OBInstance("MonthlyOperatingReport", self.taxonomy)
+        doc.set("solar:MonthlyOperatingReportEffectiveDate",
+                date(year=2018,month=6,day=1),
+                entity = "JUPITER",
+                duration="forever")
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+
+        self.assertIn("solar", root.nsmap)
+        self.assertIn("xlink", root.nsmap)
+        self.assertIn("units", root.nsmap)
+        self.assertNotIn("us-gaap", root.nsmap)
+
+        # If a us-gaap concept has been set, however, there should be a us-gaap
+        # namespace definition in header:
+        doc.set("us-gaap:PartnersCapitalAccountReturnOfCapital", 4, unit_name="USD",
+                entity = "JUPITER", duration="forever", InvestmentClassAxis="placeholder",
+                ProjectIdentifierAxis="1", CashDistributionAxis="placeholder")
+
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+        self.assertIn("solar", root.nsmap)
+        self.assertIn("xlink", root.nsmap)
+        self.assertIn("units", root.nsmap)
+        self.assertIn("us-gaap", root.nsmap)
+
+
+    # TODO lots more tests for using get(), especially with partial context arguments.
+
     # TODO test equals_context in the case where both contexts have duration=(start, end)
 
     # TODO test that concepts with Axis in the name get instantiated as Axis subclass of
     # Concept.
-
-    # TODO test that USGAAP url is included in the header if any USGAAP concepts are used.
-      
-    # TODO lots more tests for using get(), especially with partial context arguments.
