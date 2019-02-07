@@ -19,7 +19,7 @@ from oblib import taxonomy_misc
 tax_numeric_types = taxonomy_misc.TaxonomyNumericTypes()
 tax_generic_roles = taxonomy_misc.TaxonomyGenericRoles()
 tax_ref_parts = taxonomy_misc.TaxonomyRefParts()
-tax_doc = taxonomy_misc.TaxonomyDocstrings()
+tax_doc = taxonomy_misc.TaxonomyDocumentation()
 
 
 class TestTaxonomyMisc(unittest.TestCase):
@@ -59,10 +59,19 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax_generic_roles.is_generic_role("Genric UML inheritance arc"))
         self.assertFalse(tax_generic_roles.is_generic_role("Genric UML property arc"))
 
-    def test_validate_docstrings(self):
-        self.assertEqual(tax_doc.docstrings()["solar:EntitySizeACPower"],
-                         "Size of the entity in megawatts AC.")
-        self.assertEqual(tax_doc.docstrings()["solar:FundDescriptionAnalyst"],
+    def test_get_all_concepts_documentation(self):
+        self.assertEqual(tax_doc.get_all_concepts_documentation()["solar:EntitySizeACPower"],
+                             "Size of the entity in megawatts AC.")
+        self.assertEqual(tax_doc.get_all_concepts_documentation()["solar:FundDescriptionAnalyst"],
+                             "Name of analyst covering the fund.")
+        self.assertEqual(tax_doc.get_all_concepts_documentation()["solar:IncentivesPerformanceBasedIncentiveEscalator"],
+                             "Annual escalation of the performance based incentive value (percent)")
+
+    def test_get_concept_documentation(self):
+        self.assertEqual(tax_doc.get_concept_documentation("solar:EntitySizeACPower"),
+                          "Size of the entity in megawatts AC.")
+        self.assertEqual(tax_doc.get_concept_documentation("solar:FundDescriptionAnalyst"),
                          "Name of analyst covering the fund.")
-        self.assertEqual(tax_doc.docstrings()["solar:IncentivesPerformanceBasedIncentiveEscalator"],
+        self.assertEqual(tax_doc.get_concept_documentation("solar:IncentivesPerformanceBasedIncentiveEscalator"),
                          "Annual escalation of the performance based incentive value (percent)")
+        self.assertIsNone(tax_doc.get_concept_documentation("solar:NotCorect"))

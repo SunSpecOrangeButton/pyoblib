@@ -259,6 +259,14 @@ def list_types(args):
         print(name)
 
 
+def list_concept_documentation(args):
+    documentation = taxonomy.documentation.get_concept_documentation(args.concept)
+    if documentation is None:
+        print("Not Found")
+    else:
+        print(documentation)
+
+
 def validate_concept(args):
     print("Valid:", taxonomy.semantic.is_concept(args.concept))
 
@@ -313,7 +321,7 @@ def version(args):
     print("Orange Button Core CLI version 0.9.1")
 
 
-formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=32)
+formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=34)
 
 parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
 parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
@@ -415,6 +423,12 @@ list_units_details_parser = subparsers.add_parser(
         'list-units-details',
         help='List Orange Button Units including full details')
 list_units_details_parser.set_defaults(command='list_units_details')
+
+list_concept_documentation_parser = subparsers.add_parser('list-concept-documentation',
+                                                           help='List Orange Button Documentation for a Concept')
+list_concept_documentation_parser.set_defaults(command='list_concept_documentation')
+list_concept_documentation_parser.add_argument('concept', action='store',
+                                               help='The concept to list documentation for')
 
 validate_concept_parser = subparsers.add_parser('validate-concept',
                                                 help='Validate an Orange Button Concept')

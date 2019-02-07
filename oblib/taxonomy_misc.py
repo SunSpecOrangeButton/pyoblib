@@ -87,12 +87,12 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
         return self._generic_roles
 
 
-class _TaxonomyDocstringHandler(xml.sax.ContentHandler):
+class _TaxonomyDocumentationHandler(xml.sax.ContentHandler):
     """Loads Taxonomy Docstrings from Labels file"""
 
     def __init__(self):
         """Ref parts constructor."""
-        self._docstrings = {}
+        self._documentation = {}
         self._awaiting_text_for_concept = None
 
     def startElement(self, name, attrs):
@@ -116,13 +116,13 @@ class _TaxonomyDocstringHandler(xml.sax.ContentHandler):
 
     def characters(self, chars):
         if self._awaiting_text_for_concept is not None:
-            self._docstrings[ self._awaiting_text_for_concept ] = chars
+            self._documentation[ self._awaiting_text_for_concept] = chars
 
     def endElement(self, name):
         self._awaiting_text_for_concept = None
 
     def docstrings(self):
-        return self._docstrings
+        return self._documentation
 
 
 class TaxonomyNumericTypes(object):
@@ -275,24 +275,24 @@ class TaxonomyRefParts(object):
             return False
 
 
-class TaxonomyDocstrings(object):
+class TaxonomyDocumentation(object):
     """
     Loads the documentation strings for each concept from solar_2018-03-31_r01_lab.xml
     """
     def __init__(self):
-        self._docstrings = self._load_docstrings()
+        self._documentation = self._load_documentation()
 
-    def _load_docstrings(self):
+    def _load_documentation(self):
         label_file = "solar_2018-03-31_r01_lab.xml"
         filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
 
-        taxonomy = _TaxonomyDocstringHandler()
+        taxonomy = _TaxonomyDocumentationHandler()
         parser = xml.sax.make_parser()
         parser.setContentHandler(taxonomy)
         parser.parse(open(filename))
-        return taxonomy.docstrings()
+        return taxonomy._documentation
 
-    def docstrings(self):
+    def get_all_concepts_documentation(self):
         """
         Used to lookup all docstrings.
 
@@ -300,4 +300,19 @@ class TaxonomyDocstrings(object):
             A map of all docstrings with a value of an array of two elements; array element 0 is
             a xlink:label and array element 1 is a xlink:role.
         """
-        return self._docstrings
+        return self._documentation
+
+    def get_concept_documentation(self, concept):
+        """
+        Used to load
+
+        Args:
+            concept (str): A concept name to lookup.
+
+        Returns:
+            The documentation for the concept or None if not found.
+        """
+        if concept in self._documentation:
+            return self._documentation[concept]
+        else:
+            return None

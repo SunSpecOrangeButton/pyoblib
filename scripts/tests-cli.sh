@@ -148,6 +148,11 @@ python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML compositin
     EXITVAL=1
 }
 
+# Documentation test
+python scripts/cli/cli.py taxonomy list-concept-documentation solar:Curtailment || {
+    EXITVAL=1
+}
+
 # Validation and conversion tests
 mkdir temp
 cat > temp/in.json <<- EOM
