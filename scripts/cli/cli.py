@@ -15,7 +15,6 @@
 import os
 import sys
 import argparse
-
 from oblib import identifier, ob, parser, taxonomy, validator
 
 

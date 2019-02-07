@@ -643,7 +643,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
             instant = datetime.now())
         # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
         # but the table that holds DeviceCost doesn't want this axis:
-        with self.assertRaises(OBContextException):
+        with self.assertRaises(data_model.OBContextException):
             doc.validate_context("solar:DeviceCost", threeAxisContext)
 
     def test_set_default_context_values(self):
