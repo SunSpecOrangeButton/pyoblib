@@ -1479,6 +1479,7 @@ class OBInstance(object):
         # Apparently every XML file should start with this, which ElementTree
         # doesn't do:
         # <?xml version="1.0" encoding="utf-8"?>
+        tree = xml.etree.ElementTree.ElementTree(xbrl)
         tree.write(filename)
 
     def to_XML_string(self):
