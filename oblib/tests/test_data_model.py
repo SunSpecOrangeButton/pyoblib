@@ -20,6 +20,7 @@ from taxonomy import getTaxonomy
 from lxml import etree
 import json
 from taxonomy import PeriodType
+from six import string_types
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -879,8 +880,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(facts), 2)
 
         for fact in list(facts.values()):
-            self.assertTrue( isinstance( fact['value'], str) )
-            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], str))
+            self.assertTrue( isinstance( fact['value'], string_types) )
+            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], string_types))
 
         # TODO is there something we could set to null so we test null is exported as
         # literal, not string?
