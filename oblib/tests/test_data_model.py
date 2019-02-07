@@ -20,6 +20,7 @@ from taxonomy import getTaxonomy
 from lxml import etree
 import json
 from taxonomy import PeriodType
+from six import string_types
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -790,7 +791,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                PeriodType.duration: "forever"
                                })
 
-        # If we set a fact that wants a duration context, it should use jan 1 - jan 31:
+        # Set fact with precision:
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, precision = 3)
 
@@ -801,6 +802,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(facts), 1)
         self.assertEqual(list(facts.values())[0]["aspects"]["precision"], "3")
 
+        # Set fact with decimals:
         doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3)
         jsonstring = doc.to_JSON_string()
@@ -812,6 +814,77 @@ class TestDataModelEntrypoint(unittest.TestCase):
         with self.assertRaises(OBException):
             doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3, precision=3)
- 
+
+
+    def test_ids_in_xml_and_json(self):
+        # facts should have IDs in both exported JSON and exported XML, and they
+        # should be the same ID either way.
+        doc = OBInstance("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               PeriodType.instant: now,
+                               PeriodType.duration: "forever"
+                               })
+
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1)
+
+        fact = doc.get("solar:ModuleNameplateCapacity",
+                       Context(
+                           ProductIdentifierAxis = 1,
+                           TestConditionAxis = "solar:StandardTestConditionMember",
+                           entity = "JUPITER",
+                           duration="forever"))
+        # Read the fact ID that was automatically assigned when we set the fact:
+        fact_id = fact.id
+
+        # Look for fact ID in JSON:
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+        self.assertEqual(len(list(facts.keys())), 1)
+        self.assertEqual(list(facts.keys())[0], fact_id)
+
+        # Look for fact ID in XML:
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+        fact = root.find("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ModuleNameplateCapacity")
+        self.assertEqual(fact.attrib["id"], fact_id)
+
+    def test_json_fields_are_strings(self):
+        # Issue #77 - all json fields should be strings other than None which should convert
+        # a JSON null literal.
+        # e.g. numbers should be "100" not 100
+        # booleans should be "true" not true
+
         
-        
+        doc = OBInstance("System", self.taxonomy, dev_validation_off=True)
+        now = datetime.now()
+        doc.set_default_context({
+            "entity": "JUPITER",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel100PercentMember",
+            PeriodType.instant: now,
+            PeriodType.duration: "forever"
+        })
+
+        # Set fact using a numeric type as value:
+        doc.set("solar:InverterOutputRatedPowerAC", 1.25, unit_name="kW",
+                ProductIdentifierAxis = 1)
+
+        # Set fact using a boolean type as value:
+        doc.set("solar:ModuleHasCertificationIEC61646", True, ProductIdentifierAxis = 1)
+
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+
+        self.assertEqual(len(facts), 2)
+
+        for fact in list(facts.values()):
+            self.assertTrue( isinstance( fact['value'], string_types) )
+            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], string_types))
+
+        # TODO is there something we could set to null so we test null is exported as
+        # literal, not string?
+
+
+    # TODO test equals_context in the case where both contexts have duration=(start, end)
