@@ -646,11 +646,11 @@ class Concept(object):
     of which concepts are parents/children of other concepts in the schema hierarchy.
     Also stores concept metadata derived from the schema.
     """
-    def __init__(self, taxonomy_semantic, concept_name):
+    def __init__(self, taxonomy, concept_name):
         """
         Constructs a Concept instance with no parent and no children.
         Args:
-          taxonomy_semantic: reference to the global TaxonomySemantic instance
+          taxonomy: reference to the global Taxonomy instance
             used to look up information about the named concept.
           concept_name: string
             name of an XBRL Concept in the taxonomy
