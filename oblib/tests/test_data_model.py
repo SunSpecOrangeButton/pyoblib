@@ -809,15 +809,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(facts), 1)
         self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "3")
 
-        # If you set a fact with neither it should default to decimals=2:
-        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
-                ProductIdentifierAxis = 1)
-        jsonstring = doc.to_JSON_string()
-        facts = json.loads(jsonstring)["facts"]
-        self.assertEqual(len(facts), 1)
-        self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "2")
-
-
         # Trying to set both decimals and precision should raise an error
         with self.assertRaises(OBException):
             doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",

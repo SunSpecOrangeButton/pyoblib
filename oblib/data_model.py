@@ -533,7 +533,7 @@ class Fact(object):
             name of the unit in which a the value is expressed, for numeric values.
             for example "kWh" for kilowatt-hours. Must match a unit defined in the
             schema.
-          value: string, integer, or float
+          value: string, integer, boolean, or float
             value of the fact. (i.e. value for given concept within given context)
           decimals: integer
             optional. For numeric types, the number of digits past the decimal point
@@ -557,9 +557,9 @@ class Fact(object):
             raise OBException("Fact given both precision and decimals - use only one.")
         self.decimals = decimals
         self.precision = precision
-        if decimals is None and precision is None:
-            # Default to 2 decimals:
-            self.decimals = 2
+        # FUTURE TODO: decide if the Concept is numeric or non-numeric. If numeric,
+        # either require a decimals/precision or provide a default. If non-numeric,
+        # don't allow decimals/precision to be set.
 
         # Fill in the id property with a UUID:
         self.id = identifier.identifier()
@@ -582,17 +582,13 @@ class Fact(object):
         """
         attribs = {"contextRef": self.context.get_id(),
                    "id": self.id}
-        # TODO the "pure" part is probably wrong now.
-        # also the self.unit may not be correct unitRef? not sure
+        # TODO the self.unit may not be correct unitRef? not sure
         if self.unit is not None:
             attribs["unitRef"] = self.unit
-            if self.unit == "pure":
-                attribs["decimals"] = "0"
-            else:
-                if self.decimals is not None:
-                    attribs["decimals"] = str(self.decimals)
-                elif self.precision is not None:
-                    attribs["precision"] = str(self.precision)
+            if self.decimals is not None:
+                attribs["decimals"] = str(self.decimals)
+            elif self.precision is not None:
+                attribs["precision"] = str(self.precision)
         elem = Element(self.concept, attrib=attribs)
         if self.unit == "pure":
             elem.text = "%d" % self.value
@@ -611,13 +607,10 @@ class Fact(object):
         aspects["concept"] = self.concept
         if self.unit is not None:
             aspects["unit"] = str(self.unit)
-            if self.unit == "pure":
-                aspects["decimals"] = "0"
-            else:
-                if self.decimals is not None:
-                    aspects["decimals"] = str(self.decimals)
-                elif self.precision is not None:
-                    aspects["precision"] = str(self.precision)
+            if self.decimals is not None:
+                aspects["decimals"] = str(self.decimals)
+            elif self.precision is not None:
+                aspects["precision"] = str(self.precision)
 
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%dT%H:%M:%S")
@@ -648,9 +641,10 @@ class Concept(object):
         self.name = concept_name
         self.parent = None
         self.children = []
+        self.validator = validator.Validator(taxonomy)
 
         try:
-            self.metadata = taxonomy_semantic.get_concept_details(concept_name)
+            self.metadata = taxonomy.semantic.get_concept_details(concept_name)
         except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
         # FUTURE TODO should we just let this exception go, actually?
@@ -727,7 +721,7 @@ class Concept(object):
           e.g. integer, string, decimal, boolean, or complex enumerated type.
           False otherwise.
         """
-        return not validator.validate_concept_value(self.metadata, value)[1]
+        return not self.validator.validate_concept_value(self.metadata, value)[1]
         myType = self.get_details("type_name")
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):
@@ -887,6 +881,7 @@ class OBInstance(object):
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
+        self.taxonomy = taxonomy
         self.entrypoint_name = entrypoint_name
         self._dev_validation_off = dev_validation_off
         self._all_my_concepts = {}
@@ -1277,7 +1272,7 @@ class OBInstance(object):
             duration value for the context, if "context" is not given
           entity: string
             entity value for the context, if "context" is not given
-          <axis name>: <axis value>
+          <axis name (*Axis)>: <axis value>
             as a convenience, instant/duration, entity, and <axis name> can be given
             directly as keyword args instead of constructing and passing a Context
             argument. These should only be passed in if the "context" keyword arg
