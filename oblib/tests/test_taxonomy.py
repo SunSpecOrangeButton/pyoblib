@@ -26,7 +26,7 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(taxonomy.Unit(), taxonomy.Unit)
 
     def test_element(self):
-        self.assertIsInstance(taxonomy.Element(), taxonomy.Element)
+        self.assertIsInstance(taxonomy.ConceptDetails(), taxonomy.ConceptDetails)
 
     def test_relationship(self):
         self.assertIsInstance(taxonomy.Relationship(), taxonomy.Relationship)
@@ -40,3 +40,4 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(tax.numeric_types, taxonomy_misc.TaxonomyNumericTypes)
         self.assertIsInstance(tax.generic_roles, taxonomy_misc.TaxonomyGenericRoles)
         self.assertIsInstance(tax.ref_parts, taxonomy_misc.TaxonomyRefParts)
+        self.assertIsInstance(tax.documentation, taxonomy_misc.TaxonomyDocstrings)

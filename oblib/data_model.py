@@ -660,9 +660,10 @@ class Concept(object):
         self.name = concept_name
         self.parent = None
         self.children = []
+        self.validator = validator.Validator(taxonomy)
 
         try:
-            self.metadata = taxonomy_semantic.get_concept_details(concept_name)
+            self.metadata = taxonomy.semantic.get_concept_details(concept_name)
         except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
         # FUTURE TODO should we just let this exception go, actually?
@@ -738,7 +739,7 @@ class Concept(object):
           e.g. integer, string, decimal, boolean, or complex enumerated type.
           False otherwise.
         """
-        return not validator.validate_concept_value(self.metadata, value)[1]
+        return not self.validator.validate_concept_value(self.metadata, value)[1]
         myType = self.get_details("type_name")
         if myType == "xbrli:integerItemType":
             if isinstance(value, int):
@@ -869,6 +870,7 @@ class OBInstance(object):
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
+        self.taxonomy = taxonomy
         self.entrypoint_name = entrypoint_name
         self._dev_validation_off = dev_validation_off
 
@@ -888,7 +890,7 @@ class OBInstance(object):
                     # There are a bunch of duplicate concept names that all end in "_1"
                     # that raise an exception if we try to query them.
                     continue
-                self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+                self._all_my_concepts[concept_name] = Concept(self.taxonomy, concept_name)
 
             # Get the relationships (this comes from solar_taxonomy/documents/
             #  <entrypoint>/<entrypoint><version>_def.xml)
@@ -927,7 +929,7 @@ class OBInstance(object):
 
         self._all_my_concepts = {}
         for concept_name in every_concept:
-            self._all_my_concepts[concept_name] = Concept(self.ts, concept_name)
+            self._all_my_concepts[concept_name] = Concept(self.taxonomy, concept_name)
         # Take every relation from taxonomy
 
         every_relation = []

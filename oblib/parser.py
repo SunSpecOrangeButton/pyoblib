@@ -17,47 +17,12 @@
 import data_model
 import taxonomy
 import util
+import ob
 
 import enum
 import json
 import xml.etree.ElementTree as ElementTree
 import sys
-
-##################################################################################
-# NOTE: Start of temporary code.  Once a permanent ValidationErrors strategy is
-# created (even if it is analagous to the code below but in a different file)
-# this code will be removed and the new code that is shared by all modules will
-# be used instead.  In order to avoid creating a temporary file that may or may
-# not have the final approach intact these two classes are being placed here.
-
-class ValidationError(Exception):
-    
-    def __init__(self, message):
-        super().__init__(message)
-
-
-class ValidationErrors(Exception):
-    
-    def __init__(self, message, validation_errors=None):
-        super(ValidationErrors, self).__init__(message)
-        if validation_errors is not None:
-            self._errors = validation_errors
-        else:
-            self._errors = []
-
-    def append(self, validation_error):
-        if isinstance(validation_error, ValidationError):
-            self._errors.append(validation_error)
-        elif isinstance(validation_error, str):
-            self._errors.append(ValidationError(validation_error))
-        else:
-            self._errors.append(str(validation_error))
-
-    def get_errors(self):
-        return self._errors
-
-# End of temporary code.
-##################################################################################
 
 # The Following code is used internally by the XML parser - there is no known general usage
 # reason to leverage.  The extremely short function name is for brevity in the XML parser.
@@ -102,40 +67,43 @@ class Parser(object):
 
     def _entrypoint_name(self, doc_concepts):
         """ 
-        Returns the name of the correct entrypoint given a set of concepts from a document (JSON or XML).
+        Used to find the name of the correct entrypoint given a set of concepts from a document (JSON or XML).
         Currently assumes that a JSON/XML document contains one and only one entrypoint and raises
         an exception if this is not true.
 
-        doc_concepts (list of strings): A list of all concepts in the input JSON/XML
+        Args:
+            doc_concepts (list of strings): A list of all concepts in the input JSON/XML document.
 
+        Returns:
+            A string contianing the name of the correct entrypoint.
         TODO: This is algorithm is fairly slow since it loops through all entry points which is time
         consuming for a small number of input concepts.  With this said there is not currently enough
         support functions in Taxonomy to accomodate other algorithms.  It may be better to move this
         into taxonomy_semantic and simultaneously improve the speed.
         """ 
 
-        eps_found = set()
-        for ep in self._taxonomy.semantic.get_all_entrypoints():
-            for concept in self._taxonomy.semantic.get_entrypoint_concepts(ep):
-                for dc in doc_concepts:
-                    if dc == concept:
-                        eps_found.add(ep)
+        entrypoints_found = set()
+        for entrypoint in self._taxonomy.semantic.get_all_entrypoints():
+            for concept in self._taxonomy.semantic.get_entrypoint_concepts(entrypoint):
+                for doc_concept in doc_concepts:
+                    if doc_concept == concept:
+                        entrypoints_found.add(entrypoint)
 
-        if len(eps_found) == 0:
-            raise ValidationError("No entrypoint found given the set of facts")
-        elif len(eps_found) == 1:
-            for ep in eps_found:
-                return ep
+        if len(entrypoints_found) == 0:
+            raise ob.OBValidationError("No entrypoint found given the set of facts")
+        elif len(entrypoints_found) == 1:
+            for entrypoint in entrypoints_found:
+                return entrypoint
         else:
             # Multiple candidate entrypoints are found.  See if there is one and only one
             # perfect fit.
             the_one = None
-            for ep in eps_found:
+            for entrypoint in entrypoints_found:
                 ok = True
-                for c in doc_concepts:
+                for doc_concept in doc_concepts:
                     ok2 = False
-                    for c2 in self._taxonomy.semantic.get_entrypoint_concepts(ep):
-                        if c == c2:
+                    for doc_concept2 in self._taxonomy.semantic.get_entrypoint_concepts(entrypoint):
+                        if doc_concept == doc_concept2:
                             ok2 = True
                             break
                     if not ok2:
@@ -143,11 +111,11 @@ class Parser(object):
                         break
                 if ok:
                     if the_one is None:
-                        the_one = ep
+                        the_one = entrypoint
                     else:
-                         raise ValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, ep))
+                         raise ob.OBValidationError("Multiple entrypoints ({}, {}) found given the set of facts".format(the_one, entrypoint))
             if the_one == None:
-                raise ValidationError("No entrypoint found given the set of facts")
+                raise ob.OBValidationError("No entrypoint found given the set of facts")
             else:
                 return the_one
 
@@ -158,12 +126,16 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        json_string (str): String containing JSON
-        entrypoint_name (str): Optional name of the entrypoint.
+        Args:
+            json_string (str): String containing JSON
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         # Create a validation error which can be used to maintain a list of error messages
-        validation_errors = ValidationErrors("Error(s) found in input JSON")
+        validation_errors = ob.OBValidationErrors("Error(s) found in input JSON")
 
         # Convert string to JSON data
         try:
@@ -190,72 +162,75 @@ class Parser(object):
         # Loop through facts to determine what type of endpoint this is.
         if not entrypoint_name:
             fact_names = []
-            for fact in facts:
+            for id in facts:
+                fact = facts[id]
                 if "aspects" not in fact:
                     validation_errors.append("fact tag is missing aspects tag")
-                elif "xbrl:concept" not in fact["aspects"]:
-                    validation_errors.append("aspects tag is missing xbrl:concept tag")
+                elif "concept" not in fact["aspects"]:
+                    validation_errors.append("aspects tag is missing concept tag")
                 else:
-                    fact_names.append(fact["aspects"]["xbrl:concept"])
+                    fact_names.append(fact["aspects"]["concept"])
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
-            except ValidationError as ve:
+            except ob.OBValidationError as ve:
                 validation_errors.append(ve)
                 raise validation_errors
 
         # If we reach this point re-initialize the validation errors because all previous errors found
-        # will be found again.  Re-initialization reduces duplicate error messages and ensures that 
+        # will be found again.  Re-initialization reduces duplicate error messages and ensures that
         # errors are found in the correct order.
-        validation_errors = ValidationErrors("Error(s) found in input JSON")
+        validation_errors = ob.OBValidationErrors("Error(s) found in input JSON")
 
         # Create an entrypoint.
-        entrypoint = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=True)
+        ob_instance = data_model.OBInstance(entrypoint_name, self._taxonomy, dev_validation_off=False)
 
         # Loop through facts.
-        for fact in facts:
+        for id in facts:
+
+            fact = facts[id]
 
             # Track the current number of errors to see if it grows for this fact
             begin_error_count = len(validation_errors.get_errors())
 
             # Create kwargs and populate with entity.
-            kwargs = None
+            kwargs = {}
             if "aspects" not in fact:
                 validation_errors.append("fact tag is missing aspects tag")
             else:
-                if "xbrl:concept" not in fact["aspects"]:
-                    validation_errors.append("aspects tag is missing xbrl:concept tag")
-                if "xbrl:entity" not in fact["aspects"]:
-                    validation_errors.append("aspects tag is missing xbrl:entity tag")
+                if "concept" not in fact["aspects"]:
+                    validation_errors.append("aspects tag is missing concept tag")
+
+                if "entity" not in fact["aspects"]:
+                    validation_errors.append("aspects tag is missing entity tag")
                 else:
-                    kwargs = {"entity": fact["aspects"]["xbrl:entity"]}
+                    kwargs = {"entity": fact["aspects"]["entity"]}
 
                 # TODO: id is not currently support by Entrypoint.  Uncomment when it is.
                 # if "id" in fact:
                 #     kwargs["id"] = fact["id"]
 
-                if "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
-                    if fact["aspects"]["xbrl:periodStart"] == fact["aspects"]["xbrl:periodEnd"]:
-                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                        if start is None:
-                            validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
-                        elif kwargs is not None:
-                            kwargs["instant"] = start
-                    else:
-                        start = util.convert_json_datetime(fact["aspects"]["xbrl:periodStart"])
-                        end = util.convert_json_datetime(fact["aspects"]["xbrl:periodEnd"])
-                        if start is None:
-                            validation_errors.append("xbrl:periodStart is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
-                        if end is None:
-                            validation_errors.append("xbrl:periodEnd is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
-
-                        if start is not None and end is not None and kwargs is not None:
+                if "period" in fact["aspects"]:
+                    period = fact["aspects"]["period"]
+                    if "/" in period:
+                        dates = period.split("/")
+                        if len(dates) != 2:
+                            validation_errors.append("period component is in an incorrect format (yyyy-mm-ddT00:00:00/yyyy-mm-ddT00:00:00 expected)")
+                        else:
+                            start = util.convert_json_datetime(dates[0])
+                            end = util.convert_json_datetime(dates[1])
+                            if start is None:
+                                validation_errors.append("period start component is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+                            if end is None:
+                                validation_errors.append("period end component is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
                             kwargs["duration"] = {}
-                            kwargs["duration"]["start"] = start 
+                            kwargs["duration"]["start"] = start
                             kwargs["duration"]["end"] = end
-                elif "xbrl:periodStart" in fact["aspects"] and "xbrl:periodEnd" not in fact["aspects"]:
-                    validation_errors.append("xbrl:periodStart is present but xbrl:periodEnd is missing")
-                elif "xbrl:periodStart" not in fact["aspects"] and "xbrl:periodEnd" in fact["aspects"]:
-                    validation_errors.append("xbrl:periodEnd is present but xbrl:periodStart is missing")
+                    else:
+                        start = util.convert_json_datetime(fact["aspects"]["period"])
+                        if start is None:
+                            validation_errors.append("start is in an incorrect format (yyyy-mm-ddT00:00:00 expected)")
+                        kwargs["instant"] = start
+
                 elif kwargs is not None:
                     kwargs["duration"] = "forever"
 
@@ -265,15 +240,30 @@ class Parser(object):
                     if "Axis" in axis_chk:
                         kwargs[axis_chk.split(":")[1]] = fact["aspects"][axis_chk]
 
-            if "aspects" in fact and "xbrl:unit" in fact["aspects"] and kwargs is not None:
-                kwargs["unit_name"] = fact["aspects"]["xbrl:unit"]
+            if "aspects" in fact and "unit" in fact["aspects"] and kwargs is not None:
+                kwargs["unit_name"] = fact["aspects"]["unit"]
+
+            if "value" not in fact:
+                validation_errors.append("fact tag is missing value tag")
 
             # If validation errors were found for this fact continute to the next fact
             if len(validation_errors.get_errors()) > begin_error_count:
                 continue
 
+            # TODO: Temporary code
+            # Required to match behavior of to_JSON, once the two are synchronized it should not be required.
+            value = fact["value"]
+            if value == "None":
+                value = None
+            elif value == "True":
+                value = True
+            elif value == "False":
+                value = False
+            # Done with temporary code
+
             try:
-                entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
+                ob_instance.set(fact["aspects"]["concept"], value, **kwargs)
+                # entrypoint.set(fact["aspects"]["xbrl:concept"], fact["value"], **kwargs)
             except Exception as e:
                 validation_errors.append(e)
 
@@ -281,7 +271,7 @@ class Parser(object):
         if validation_errors.get_errors():
             raise validation_errors
 
-        return entrypoint
+        return ob_instance
 
     def from_JSON(self, in_filename, entrypoint_name=None):
         """
@@ -289,9 +279,13 @@ class Parser(object):
         is given the entrypoint will be derived from the facts.  In some cases this is not
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
-        
-        in_filename(str): input filename
-        entrypoint_name (str): Optional name of the entrypoint.
+
+        Args:
+            in_filename (str): input filename
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         with open(in_filename, "r") as infile: 
@@ -305,8 +299,12 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        xml_string(str): String containing XML.
-        entrypoint_name (str): Optional name of the entrypoint.
+        Args:
+            xml_string(str): String containing XML.
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         # NOTE: The XML parser has much less effort placed into both the coding and testing as
@@ -317,7 +315,7 @@ class Parser(object):
         # effort level as the JSON parser.
   
         # Create a validation error which can be used to maintain a list of error messages
-        validation_errors = ValidationErrors("Error(s) found in input JSON")
+        validation_errors = ob.OBValidationErrors("Error(s) found in input JSON")
 
         try:
             root = ElementTree.fromstring(xml_string)
@@ -338,7 +336,7 @@ class Parser(object):
                     fact_names.append(tag)
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
-            except ValidationError as ve:
+            except ob.OBValidationError as ve:
                 validation_errors.append(ve)
                 raise validation_errors
 
@@ -364,9 +362,9 @@ class Parser(object):
                     if elem[0].tag == _xn("forever"):
                         duration = "forever"
                     elif elem[0].tag == _xn("startDate"):
-                        start_date = elem[0].tag.text
+                        start_date = elem[0].text
                     elif elem[0].tag == _xn("endDate"):
-                        end_date = elem[0].tag.text
+                        end_date = elem[0].text
                     elif elem[0].tag == _xn("instant"):
                         instant = elem[0].text
                 elif elem.tag == _xn("entity"):
@@ -395,7 +393,7 @@ class Parser(object):
 
             if instant is None  and duration is None:
                 validation_errors.append(
-                    ValidationError("Context is missing both a duration and instant tag"))
+                    ob.OBValidationError("Context is missing both a duration and instant tag"))
             if entity is None:
                 validation_errors.append("Context is missing an entity tag")
 
@@ -439,8 +437,12 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        in_filename (str): input filename
-        entrypoint_name (str): Optional name of the entrypoint.
+        Args:
+            in_filename (str): input filename
+            entrypoint_name (str): Optional name of the entrypoint.
+
+        Returns:
+            OBInstance containing the loaded data.
         """
 
         with open(in_filename, "r") as infile: 
@@ -460,8 +462,9 @@ class Parser(object):
         """ 
         Exports XBRL as JSON to the given filename given a data model entrypoint. 
 
-        entrypoint (Entrypoint): entry point to export to JSON
-        out_filename (str): output filename
+        Args:
+            entrypoint (Entrypoint): entry point to export to JSON
+            out_filename (str): output filename
         """
         
         entrypoint.to_JSON(out_filename)
@@ -469,8 +472,9 @@ class Parser(object):
     def to_XML_string(self, entrypoint):
         """ 
         Returns XBRL as an XML string given a data model entrypoint.
-        
-        entrypoint (Entrypoint): entry point to export to XML
+
+        Args:
+            entrypoint (Entrypoint): entry point to export to XML
         """
 
         return entrypoint.to_XML_string()
@@ -478,9 +482,10 @@ class Parser(object):
     def to_XML(self, entrypoint, out_filename):
         """ 
         Exports XBRL as XML to the given filename given a data model entrypoint. 
-        
-        entrypoint (Entrypoint): entry point to export to XML
-        out_filename (str): output filename
+
+        Args:
+            entrypoint (Entrypoint): entry point to export to XML
+            out_filename (str): output filename
         """
         
         entrypoint.to_XML(out_filename)
@@ -493,10 +498,11 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        in_filename (str): full path to input file
-        out_filename (str): full path to output file
-        entrypoint_name (str): Optional name of the entrypoint.
-        file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
+        Args:
+            in_filename (str): full path to input file
+            out_filename (str): full path to output file
+            entrypoint_name (str): Optional name of the entrypoint.
+            file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
         """
 
         if file_format == FileFormat.JSON:
@@ -516,9 +522,10 @@ class Parser(object):
         possible because more than one entrypoint could exist given the list of facts and
         in these cases an entrypoint is required.
 
-        in_filename (str): full path to input file
-        entrypoint_name (str): Optional name of the entrypoint.
-        file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
+        Args:
+            in_filename (str): full path to input file
+            entrypoint_name (str): Optional name of the entrypoint.
+            file_format (FileFormat): values are FileFormat.JSON" or FileFormat.XML"
 
         TODO: At this point in time errors part output via print statements.  Future implementation
         should actually return the conditions instead.  It also may be desirable to list the 

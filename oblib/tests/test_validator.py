@@ -18,11 +18,13 @@ import identifier
 import taxonomy
 import validator
 
+tax = taxonomy.Taxonomy()
+validator = validator.Validator(tax)
 
 class TestValidator(unittest.TestCase):
 
     def test_validate_concept_value(self):
-        concept = taxonomy.Element()
+        concept = taxonomy.ConceptDetails()
         concept.id = "SomeId"
         concept.nillable = False
         self.assertEqual(1, len(validator.validate_concept_value(concept, None)[1]))
