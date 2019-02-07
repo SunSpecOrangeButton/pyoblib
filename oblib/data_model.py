@@ -625,11 +625,11 @@ class Concept(object):
     of which concepts are parents/children of other concepts in the schema hierarchy.
     Also stores concept metadata derived from the schema.
     """
-    def __init__(self, taxonomy_semantic, concept_name):
+    def __init__(self, taxonomy, concept_name):
         """
         Constructs a Concept instance with no parent and no children.
         Args:
-          taxonomy_semantic: reference to the global TaxonomySemantic instance
+          taxonomy: reference to the global Taxonomy instance
             used to look up information about the named concept.
           concept_name: string
             name of an XBRL Concept in the taxonomy
@@ -810,12 +810,26 @@ class Axis(Concept):
     class is a subclass of Concept. In addition to the fields of a Concept,
     an Axis may also have a Domain and a finite set of allowed Domain Members.
     """
-    def __init__(self, taxonomy_semantic, concept_name):
-        super(Axis, self).__init__(taxonomy_semantic, concept_name)
+    def __init__(self, taxonomy, concept_name):
+        """
+        Constructs an Axis instance with no parent and no children.
+        Args:
+          taxonomy: reference to the global Taxonomy instance
+            used to look up information about the named concept.
+          concept_name: string
+            name of an XBRL Concept in the taxonomy
+        Raises:
+          Nothing, but prints a warning if concept_name is not found in taxonomy
+        """
+        super(Axis, self).__init__(taxonomy, concept_name)
         self.domain = None
         self.domainMembers = []
 
     def get_domain(self):
+        """
+        Returns:
+          the domain of the axis (a string, naming another concept)
+        """
         if self.domain is not None:
             return self.domain
         # TODO in what case is domain none but domain_ref not none?
@@ -927,9 +941,9 @@ class OBInstance(object):
             # Axis, and if so, instantiate the Axis subclass:
             subgrp = self.ts.get_concept_details(concept_name).substitution_group
             if subgrp.name == 'dimension':
-                new_concept = Axis(self.ts, concept_name)
+                new_concept = Axis(self.taxonomy, concept_name)
             else:
-                new_concept = Concept(self.ts, concept_name)
+                new_concept = Concept(self.taxonomy, concept_name)
             self._all_my_concepts[concept_name] = new_concept
 
 
