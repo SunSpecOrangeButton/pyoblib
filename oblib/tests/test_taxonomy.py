@@ -40,4 +40,4 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(tax.numeric_types, taxonomy_misc.TaxonomyNumericTypes)
         self.assertIsInstance(tax.generic_roles, taxonomy_misc.TaxonomyGenericRoles)
         self.assertIsInstance(tax.ref_parts, taxonomy_misc.TaxonomyRefParts)
-        self.assertIsInstance(tax.documentation, taxonomy_misc.TaxonomyDocstrings)
+        self.assertIsInstance(tax.documentation, taxonomy_misc.TaxonomyDocumentation)
