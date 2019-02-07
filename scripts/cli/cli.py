@@ -16,11 +16,8 @@ import os
 import sys
 import argparse
 
-import identifier
-from ob import OBValidationErrors
-from parser import Parser, FileFormat
-from taxonomy import Taxonomy
-from validator import Validator
+from oblib import identifier, ob, parser, taxonomy, validator
+
 
 #
 # TODO: list-types is missing
@@ -36,7 +33,7 @@ Orange Button pyoblib and CLI GitHub: https://github.com/SunSpecOrangeButton/pyo
 
 DASHES = "---------------------------------------------------------------------------------------"
 
-taxonomy = Taxonomy()
+taxonomy = taxonomy.Taxonomy()
 csv = False
 json = False
 xml = False
@@ -48,17 +45,17 @@ def info(args):
 
 def convert(args):
 
-    p = Parser(taxonomy)
+    p = parser.Parser(taxonomy)
 
     ff = None
     if json:
-        ff = FileFormat.JSON
+        ff = parser.FileFormat.JSON
     elif xml:
-        ff = FileFormat.XML
+        ff = parser.FileFormat.XML
     elif args.infile.lower().endswith(".json") and args.outfile.lower().endswith(".xml"):
-        ff = FileFormat.JSON
+        ff = parser.FileFormat.JSON
     elif args.infile.lower().endswith(".xml") and args.outfile.lower().endswith(".json"):
-        ff = FileFormat.XML
+        ff = parser.FileFormat.XML
 
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
@@ -66,24 +63,24 @@ def convert(args):
 
     try:
         p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
-    except OBValidationErrors as errors:
+    except ob.OBValidationErrors as errors:
         for e in errors.get_errors():
             print(e)
 
 
 def validate(args):
 
-    p = Parser(taxonomy)
+    p = parser.Parser(taxonomy)
 
     ff = None
     if json:
-        ff = FileFormat.JSON
+        ff = parser.FileFormat.JSON
     elif xml:
-        ff = FileFormat.XML
+        ff = parser.FileFormat.XML
     elif args.infile.lower().endswith(".json"):
-        ff = FileFormat.JSON
+        ff = parser.FileFormat.JSON
     elif args.infile.lower().endswith(".xml"):
-        ff = FileFormat.XML
+        ff = parser.FileFormat.XML
 
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
@@ -92,7 +89,7 @@ def validate(args):
     try:
         p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
         print("Validation succcessful")
-    except OBValidationErrors as errors:
+    except ob.OBValidationErrors as errors:
         for e in errors.get_errors():
             print(e)
 
@@ -268,7 +265,7 @@ def validate_concept(args):
 
 
 def validate_value(args):
-    validator = Validator(taxonomy)
+    validator = validator.Validator(taxonomy)
     concept_details = taxonomy.semantic.get_concept_details(args.concept)
     if concept_details is None:
         print("Not valid:", args.concept, "is not a concept name.")
