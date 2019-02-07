@@ -213,7 +213,7 @@ class Taxonomy(object):
         self.numeric_types = taxonomy_misc.TaxonomyNumericTypes()
         self.generic_roles = taxonomy_misc.TaxonomyGenericRoles()
         self.ref_parts = taxonomy_misc.TaxonomyRefParts()
-        self.documentation = taxonomy_misc.TaxonomyDocstrings()
+        self.documentation = taxonomy_misc.TaxonomyDocumentation()
 
 
 # Accessor for singleton Taxonomy object:
