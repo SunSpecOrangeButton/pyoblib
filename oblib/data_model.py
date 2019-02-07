@@ -12,7 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Orange Button data model."""
+"""
+Orange Button data model. Consists of the OBInstance class, which represents
+an XBRL Instance Document, and its supporting classes representing XBRL
+facts, concepts, contexts, and hypercubes.
+
+Typical usage if you're writing Orange Button is to instantiate an OBInstance
+document, then call the .set() method to add data to it, and finally use the
+to_XML_string() or to_JSON_string() methods to export to the desired format.
+Example code:
+
+from oblib.taxonomy import getTaxonomy, PeriodType
+from oblib.data_model import OBInstance
+
+taxonomy = getTaxonomy()
+mor_document = OBInstance("MonthlyOperatingReport", taxonomy)
+mor_document.set_default_context({"entity": "My Company Name",
+                                  PeriodType.duration: "forever"})
+mor_document.set("solar:MonthlyOperatingReportEffectiveDate",
+                 date(year=2018, month=12, day=1))
+mor_document.set("solar:MeasuredEnergy", "1246.25", unit_name="kWh")
+xml = mor_document.to_XML_string()
+
+Typical usage if you're reading Orange Button is to take an OBInstance document
+created by the Parser module and call the .get() method to read data from it.
+
+"""
 
 import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
@@ -74,16 +99,6 @@ class OBUnitException(OBException):
         super(OBUnitException, self).__init__(message)
 
 
-class Axis(object):
-    """
-    A table axis. A concept with some extra stuff.
-    """
-    def __init__(self, concept):
-        self.concept = concept
-        self.domain = None
-        self.domainMembers = []
-
-
 class Hypercube(object):
     """
     Data structure representing a table (aka a Hypercube) within a document.
@@ -93,14 +108,16 @@ class Hypercube(object):
     by storing Context objects, which act as keys to locate facts within the
     table.
     """
-    def __init__(self, entry_point, table_name):
+    def __init__(self, ob_instance, table_name):
         """
-        entry_point is a reference to the EntryPoint document instance this table
-        belongs to.
-        table_name is the name of this table within the solar taxonomy, for
-        example: "solar:ProductIdentifierTable".
-        Creates a table instance with an empty list of Contexts. Figures out
-        the axes and allowed line items using the relationships from the EntryPoint.
+        Constructs a Hypercube instance with an empty list of Contexts. Figures out
+        the axes and allowed line items using the relationships from the OBInstance.
+
+        Args:
+          ob_instance: reference to OBInstance instance
+            the OBInstance that this table belongs to.
+          table_name: string
+            name of the table within the solar taxonomy, e.g.: "solar:ProductIdentifierTable".
         """
 
         self._table_name = table_name
@@ -112,15 +129,18 @@ class Hypercube(object):
         # this table instance.
         self.contexts = []
 
-        relationships = entry_point.relations
+        relationships = ob_instance.relations
         # Use the relationships to find the names of my axes:
         for relation in relationships:
             if relation.role == taxonomy.RelationshipRole.hypercube_dimension:
                 if relation.from_ == self._table_name:
                     axis_name = relation.to
                     if not axis_name in self._axes:
-                        concept = entry_point.get_concept(axis_name)
-                        self._axes[axis_name] = Axis(concept)
+                        if not isinstance( ob_instance.get_concept(axis_name), Axis):
+                            raise Exception(
+                                "Expected {} to be an Axis instance but it isn't"\
+                                .format(axis_name))
+                        self._axes[axis_name] = ob_instance.get_concept(axis_name)
 
         # If there's an arcrole of "all" then the "from" is a LineItems
         # and the "to" is the table?  I think?
@@ -147,28 +167,41 @@ class Hypercube(object):
                         axis.domainMembers.append( member )
 
     def get_name(self):
-        """Return table name."""
+        """
+        Returns:
+          The name of the table, a string
+        """
         return self._table_name
 
     def get_axes(self):
-        """Return a list of strings which are the names of the table's axes."""
+        """
+        Returns:
+          A list of strings which are the names of the table's axes.
+        """
         return list(self._axes.keys())
 
     def has_line_item(self, line_item_name):
         """
-        Return True if the given line_item_name (a string naming a concept)
-        can be stored in this table.
+        Args:
+          line_item_name: string
+            Name of a concept which may or may not be a line item
+        Returns:
+           True if the given line_item_name is a line itme which can be stored
+           in this table.
         """
         return line_item_name in self._allowed_line_items
 
     def store_context(self, new_context):
         """
-        new_context must be a Context object.
-        If there is a matching Context stored in the table already, returns
-        that one and makes no change to the table.
-        Otherwise, a unique ID is assigned to the new context and it's stored.
-        Either way, it returns a Context object with an ID and the returned
-        context is the one that should be used.
+        De-duplicates a Context to avoid storing duplicate contexts in the table.
+        Args:
+          new_context: a Context instance
+        Returns:
+          A Context object with an ID that client code should use.
+          If there is a matching Context stored in the table already, returns
+          that one and makes no change to the table.
+          Otherwise, a unique ID is assigned to the new context and it's both
+          stored and returned.
         """
         for context in self.contexts:
             if context.equals_context(new_context):
@@ -181,9 +214,11 @@ class Hypercube(object):
 
     def lookup_context(self, old_context):
         """
-        old_context: a Context object.
-        If there is a matching Context stored in the table already, returns
-        that one; otherwise returns None.
+        Args:
+          old_context: a Context instance
+        Returns:
+          If there is a matching Context stored in the table already, returns
+          that one; otherwise returns None.
         """
         for context in self.contexts:
             if context.equals_context(old_context):
@@ -192,51 +227,61 @@ class Hypercube(object):
 
     def _toXML(self):
         """
-        Returns a list of XML tags representing all the contexts in the table,
-        ready to be added to an ElementTree.
+        Returns:
+          a list of XML tags representing all the contexts in the table,
+          ready to be added to an ElementTree.
         """
         return [context._toXML() for context in self.contexts]
 
     def is_typed_dimension(self, dimensionName):
         """
-        Returns True if the dimensionName (a string) is a dimension with a defined
-        domain, as opposed to an explicit dimension.
+        Args:
+          dimensionName: string
+            name of a dimension (aka an Axis concept) which is an axis of this table
+        Returns:
+          True if the dimensionName (a string) is a dimension with a defined
+          domain, as opposed to an explicit dimension.
         """
-        # if not present, return None? or throw exception?
+        # TODO if not present, return False? or throw exception?
         return self.get_domain(dimensionName) is not None
 
     def get_domain(self, dimensionName):
         """
-        Gets the domain name (the name of a Concept) corresponding to the named
-        dimension, if that dimension is a typed dimension; otherwise returns None.
+        Args:
+          dimensionName: string
+            name of a dimension (aka an Axis concept) which is an axis of this table
+        Returns:
+          The domain name (a string, name of a Concept) corresponding to the named
+          dimension, if that dimension is a typed dimension; otherwise returns None.
         """
         axis = self._axes[dimensionName]
-        if axis.domain is not None:
-            return axis.domain
+        return axis.get_domain()
 
-        concept = self._axes[dimensionName].concept
-        domain_ref = concept.get_details("typed_domain_ref")
-
-        if domain_ref is not None:
-            # The typed_domain_ref metadata property will contain something like
-            #    "#solar_ProductIdentifierDomain"  which is actually an internal link
-            # to an ID inside the taxonomy XML document. I am making the assumption here
-            # that it can be easily translated to an actual domain name by just replacing
-            # "#solar_" with "solar": but a better approach would be to look up the element
-            # matching the ID and read the name from that element.
-            return domain_ref.replace("#solar_", "solar:")
-        return None
 
     def get_valid_values_for_axis(self, dimensionName):
+        """
+        Args:
+          dimensionName: string
+            name of a dimension (aka an Axis concept) which is an axis of this table
+        Returns:
+          if this axis is restricted to certain values (an enumerated type), returns
+          a list of strings where each string is a valid value (the name of a
+          Member-type concept)
+          Otherwise, returns empty list.
+        """
+
         axis = self._axes[dimensionName]
         return axis.domainMembers
 
     def is_axis_value_within_domain(self, dimensionName, dimensionValue):
         """
-        dimensionName: a string naming one of the dimensions of this table.
-        dimensionValue: a string containing a proposed value for that dimension
-        returns True if the given value is allowed in the given dimension, False
-        otherwise.
+        Args:
+          dimensionName: string
+            name of a dimension (aka an Axis concept) which is an axis of this table
+          dimensionValue: a string containing a proposed value for that dimension
+        Returns:
+          True if the given value is allowed in the given dimension, False
+          otherwise.
         """
         # TODO make this a method of the Axis object?
         axis = self._axes[dimensionName]
@@ -252,11 +297,14 @@ class Hypercube(object):
 
     def validate_context(self, context):
         """
-        context: a Context object
-        returns True if the given context provides valid values for all axes required
-        to store it in this table. Raises an exception if any axis is missing, or
-        has an out-of-bound value, or if an axis is given that doesn't belong in
-        this table.
+        Args:
+          context: a Context instance
+            the context to be validated.
+        Returns:
+          None
+        Raises:
+          an OBContextException if any axis is missing, or has an out-of-bound value,
+          or if an axis is given that doesn't belong in this table.
         """
         for axis_name in self._axes:
             if not axis_name in context.axes:
@@ -290,21 +338,26 @@ class Context(object):
     """
     def __init__(self, **kwargs):
         """
-        Keyword arguments accepted to constructor are:
-        instant -- a period of instant type (e.g. a single datetime)
-        duration -- a period of duration type: either a mini dictionary
-                    with {"start": <date>, "end": <date>} fields, OR
-                     the special string "forever"
-        entity -- name of the entity making the report (e.g. business or other
-                  enterprise)
-        All other arguments aside from the above will be assumed to be the
-        names of Axes. For example, an argument of:
-        InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember'
-        indicates that the context is going into a Hypercube that has an
-        InverterPowerLevelPercentAxis, and for this context the value of that axis
-        is to be 'solar:InverterPowerLevel50PercentMember'
-        (i.e. this context describes the case where the inverter power level is 50%)
-        EITHER instant OR duration (not both) is required.
+        Constructs a Context object from keyword arguments. A context must have
+        EITHER an instant OR a duration, but not both.
+        Keyword Args:
+          instant: datetime
+            A period of instant type (e.g. a single datetime)
+          duration: a dict with start and end fields {"start": <date>, "end": <date>}
+            OR the literal string "forever" if there's no limit to the duration.
+          entity: string
+            Name of the entity making the report (e.g. business or other enterprise)
+          <axis name>: <axis value>
+            All other keyword arguments aside from instant, duration, and entity are
+            assumed to be names of axes required by the table. For example, a kwarg like:
+            InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember'
+            indicates that the context is going into a Hypercube that has an
+            InverterPowerLevelPercentAxis, and for this context the value of that axis
+            is to be 'solar:InverterPowerLevel50PercentMember'
+            (i.e. this context describes the case where the inverter power level is 50%)
+        Raises:
+          OBContextException if required fields are missing or if conflicting fields are
+          given.
         """
         self.instant = None
         self.duration = None
@@ -324,8 +377,6 @@ class Context(object):
         self.axes = {}
         for keyword in kwargs:
             if not keyword.endswith("Axis"):
-                # TODO in the future we should use metadata to identify
-                # what's an axis, not just look for the string "Axis".
                 raise OBContextException("Context given invalid keyword {}".format(keyword))
             qualified_name = keyword
             if not qualified_name.startswith("solar:"):
@@ -335,6 +386,12 @@ class Context(object):
         self.id_scheme = "http://xbrl.org/entity/identification/scheme" #???
 
     def equals_context(self, other_context):
+        """
+        Args:
+          other_context: a Context object
+        Returns:
+          True if all my fields are the same as the fields in other_context.
+        """
         if other_context.entity != self.entity:
             return False
 
@@ -360,15 +417,31 @@ class Context(object):
 
     def set_id(self, hypercube, new_id):
         """
-        Adds this context to a hypercube
+        Adds this context to a hypercube and sets its ID. (A context ID is only
+        meaningful within a certain hypercube)
+        Args:
+          hypercube: reference to a Hypercube instance
+            the given hypercube instance becomes the parent of this context
+          new_id: string
+            this context's ID becomes the given ID.
+        Returns:
+          None
         """
         self.hypercube = hypercube
         self._id = new_id
 
     def get_id(self):
+        """
+        Returns:
+          This context's ID (a string)
+        """
         return self._id
 
     def _toXML(self):
+        """
+        Returns: an XML Element representing this context and all its fields in
+        XBRL XML format.
+        """
         # if neither prod_month nor instant is provided, then period will
         # be "forever"
         context = Element("context", attrib={"id": self.get_id()})
@@ -417,8 +490,9 @@ class Context(object):
 
     def _toJSON(self):
         """
-        Returns context's entity, period, and extra dimensions as JSON dictionary
-        object.
+        Returns:
+          A JSON-style dictionary object containing this context's fields
+          (entity, period, and extra dimensions)
         """
         aspects = {"entity": self.entity}
 
@@ -435,9 +509,9 @@ class Context(object):
             # TODO is there a difference in how typed axes vs explicit axes
             # are represented in JSON?
             if self.hypercube.is_typed_dimension(dimension):
-                value_str = self.axes[dimension]
+                value_str = str(self.axes[dimension])
             else:
-                value_str = self.axes[dimension]
+                value_str = str(self.axes[dimension])
             aspects[dimension] = value_str
 
         return aspects
@@ -449,40 +523,75 @@ class Fact(object):
     as either XML or JSON. A Fact provides a value for a certain concept within
     a certain context, and can optionally provide units and a precision.
     """
-    def __init__(self, concept, context, unit, value, decimals=2):
+    def __init__(self, concept_name, context, unit, value, decimals=None, precision=None):
         """
-        Concept is the field name - it must match the schema definition.
-        Context is a reference to this fact's parent Context object.
-        Units is a string naming the unit, for example "kWh"
-        Value is a string, integer, or float
-        Decimals is used only for float types, it is the number of
-        digits
+        Constructs a Fact instance.
+        Args:
+          concept_name: string
+            name of an XBRL concept defined in the schema.
+          context: reference to a Context object
+            the given object becomes the parent context of this Fact.
+          unit: string
+            name of the unit in which a the value is expressed, for numeric values.
+            for example "kWh" for kilowatt-hours. Must match a unit defined in the
+            schema.
+          value: string, integer, boolean, or float
+            value of the fact. (i.e. value for given concept within given context)
+          decimals: integer
+            optional. For numeric types, the number of digits past the decimal point
+            that are to be considered valid. Defaults to 2, i.e. value is precise to
+            2 digits past decimal point.
+          precision: integer
+            optional. For numeric types, the total number of significant digits.
+            EITHER precision OR decimals can be specified, not both.
+        Raises:
+          OBException if constructor is given conflicting information
         """
         # in case of xml the context ID will be rendered in the fact tag.
         # in case of json the contexts' attributes will be copied to the
         # fact's aspects.
-        self.concept = concept
+        self.concept_name = concept_name
         self.value = value
         self.context = context
         self.unit = unit
+
+        if decimals is not None and precision is not None:
+            raise OBException("Fact given both precision and decimals - use only one.")
         self.decimals = decimals
+        self.precision = precision
+        # FUTURE TODO: decide if the Concept is numeric or non-numeric. If numeric,
+        # either require a decimals/precision or provide a default. If non-numeric,
+        # don't allow decimals/precision to be set.
+
         # Fill in the id property with a UUID:
-        self.id = identifier.identifier()  # Only used when exporting JSON
+        self.id = identifier.identifier()
+
+    def set_id(self, new_id):
+        """
+        Args:
+          new_id: string
+            The ID of this Fact becomes the new_id.
+        """
+        self.id = new_id
+
+    # FUTURE TODO: setters and getters for concept, value, context, unit?
 
     def _toXML(self):
         """
-        Return the Fact as an XML element.
+        Returns:
+          an XML element representing this Fact and all its fields in XBRL
+          XML format.
         """
-        attribs = {"contextRef": self.context.get_id()}
-        # TODO the "pure" part is probably wrong now.
-        # also the self.unit may not be correct unitRef? not sure
+        attribs = {"contextRef": self.context.get_id(),
+                   "id": self.id}
+        # TODO the self.unit may not be correct unitRef? not sure
         if self.unit is not None:
             attribs["unitRef"] = self.unit
-            if self.unit == "pure" or self.unit == "degrees":
-                attribs["decimals"] = "0"
-            else:
+            if self.decimals is not None:
                 attribs["decimals"] = str(self.decimals)
-        elem = Element(self.concept, attrib=attribs)
+            elif self.precision is not None:
+                attribs["precision"] = str(self.precision)
+        elem = Element(self.concept_name, attrib=attribs)
         if self.unit == "pure":
             elem.text = "%d" % self.value
         else:
@@ -491,12 +600,18 @@ class Fact(object):
 
     def _toJSON(self):
         """
-        Return the Fact as a JSON dictionary object
+        Returns:
+          a JSON-style dict representing this Fact and all its fields in XBRL
+          JSON format.
         """
         aspects = self.context._toJSON()
-        aspects["concept"] = self.concept
+        aspects["concept"] = self.concept_name
         if self.unit is not None:
-            aspects["unit"] = self.unit
+            aspects["unit"] = str(self.unit)
+            if self.decimals is not None:
+                aspects["decimals"] = str(self.decimals)
+            elif self.precision is not None:
+                aspects["precision"] = str(self.precision)
 
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%dT%H:%M:%S")
@@ -514,7 +629,16 @@ class Concept(object):
     Also stores concept metadata derived from the schema.
     """
     def __init__(self, taxonomy, concept_name):
-        """Concept constructor."""
+        """
+        Constructs a Concept instance with no parent and no children.
+        Args:
+          taxonomy: reference to the global Taxonomy instance
+            used to look up information about the named concept.
+          concept_name: string
+            name of an XBRL Concept in the taxonomy
+        Raises:
+          Nothing, but prints a warning if concept_name is not found in taxonomy
+        """
         self.name = concept_name
         self.parent = None
         self.children = []
@@ -524,37 +648,60 @@ class Concept(object):
             self.metadata = taxonomy.semantic.get_concept_details(concept_name)
         except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
+        # FUTURE TODO should we just let this exception go, actually?
 
     def get_details(self, field_name):
         """
-        Returns the concept metadata value for the named field, or None if there
-        is no value for that field. Accepted field_names are:
-        'period_type'
-        'nillable'
-        'id'
-        'name'
-        'substitution_group'
-        'type_name'
-        'period_independent'
-        'typed_domain_ref' (only present for dimension concepts)
+        Args:
+          field_name: string
+            name of the concept metadata field to be queried.
+            Accepted field_names are:
+            'period_type'
+            'nillable'
+            'abstract'
+            'id'
+            'name'
+            'substitution_group'
+            'type_name'
+            'period_independent'
+            'typed_domain_ref' (only present for dimension concepts)
+        Returns:
+          concept metadata value for the named field, or None if there
+          is no value for that field. 
         """
         return getattr( self.metadata, field_name, None)
 
     def set_parent(self, new_parent):
-        """Set a concept parent."""
+        """
+        Sets the parent concept (in the tree structure) of this concept
+        Args:
+          new_parent: Concept instance
+            new_parent becomes parent of this concept, this concept becomes
+            child of parent
+        """
         self.parent = new_parent
         if self not in self.parent.children:
             self.parent.children.append(self)
 
     def add_child(self, new_child):
-        """Add a child concept."""
+        """
+        Adds a child concept (in the tree structure) to this concept.
+        Args:
+          new_child: Concept instance
+            new_child becomes a child of this concept, this concept becomes
+            parent of child
+        """
         if new_child not in self.children:
             self.children.append(new_child)
         new_child.parent = self
 
     def get_ancestors(self):
-        """Returns a flat list of Concept instances, including the concept's
-        parent, its parent's parent, etc. recursively up to the root of the tree."""
+        """
+        Gets all of the concept's ancestors (in the tree structure)
+        Returns:
+          flat list of Concept instances, including the concept's parent,
+          its parent's parent, etc. recursively up to the root of the tree.
+        """
         ancestors = []
         curr = self
         while curr.parent is not None:
@@ -564,9 +711,15 @@ class Concept(object):
 
     def validate_datatype(self, value):
         """
-        True if the given value matches the expected type of this concept.
-        e.g. integer, string, decimal, boolean, or complex enumerated type.
-        False otherwise.
+        Checks whether the given value is a valid one for this concept, given
+        this concept's data type.
+        Please note: this method is slated to be moved to the validator module.
+        Args:
+          value: a float, integer, string, boolean, or date
+        Returns:
+          True if the given value matches the expected type of this concept.
+          e.g. integer, string, decimal, boolean, or complex enumerated type.
+          False otherwise.
         """
         return not self.validator.validate_concept_value(self.metadata, value)[1]
         myType = self.get_details("type_name")
@@ -653,40 +806,99 @@ class Concept(object):
         return True
 
 
+class Axis(Concept):
+    """
+    A table axis. All Axes are concepts, but not all concepts are Axes, so this
+    class is a subclass of Concept. In addition to the fields of a Concept,
+    an Axis may also have a Domain and a finite set of allowed Domain Members.
+    """
+    def __init__(self, taxonomy, concept_name):
+        """
+        Constructs an Axis instance with no parent and no children.
+        Args:
+          taxonomy: reference to the global Taxonomy instance
+            used to look up information about the named concept.
+          concept_name: string
+            name of an XBRL Concept in the taxonomy
+        Raises:
+          Nothing, but prints a warning if concept_name is not found in taxonomy
+        """
+        super(Axis, self).__init__(taxonomy, concept_name)
+        self.domain = None
+        self.domainMembers = []
+
+    def get_domain(self):
+        """
+        Returns:
+          the domain of the axis (a string, naming another concept)
+        """
+        if self.domain is not None:
+            return self.domain
+        # TODO in what case is domain none but domain_ref not none?
+        domain_ref = self.get_details("typed_domain_ref")
+
+        if domain_ref is not None:
+            # The typed_domain_ref metadata property will contain something like
+            #    "#solar_ProductIdentifierDomain"  which is actually an internal link
+            # to an ID inside the taxonomy XML document. I am making the assumption here
+            # that it can be easily translated to an actual domain name by just replacing
+            # "#solar_" with "solar": but a better approach would be to look up the element
+            # matching the ID and read the name from that element.
+            return domain_ref.replace("#solar_", "solar:")
+        return None
+
+
+
 
 class OBInstance(object):
     """
-    Data structure representing an entrypoint.
+    Data structure representing an Orange Button Instance document.
+    (Apologies if the name is confusing: the name of this thing in XBRL
+    nomenclature is an "instance", not to be confused with "an instance
+    of a class" in Python.)
+    You can think of an XBRL Instance as a kind of abstract document that
+    stores Facts in a format-agnostic way. It doesn't become a physical
+    document until it's exported as a particular data format.
 
-    A data structure representing an orange button document
-    from a particular entrypoint -- for example, an MOR.
-    This class's representation of the data is format-agnostic, it just
-    provides methods for getting/setting and validation; translation to
-    and from particular physical file format (or database schema) will
-    be handled elsewhere.
+    Each Fact provides a value for a certain Concept within a certain Context.
+    An OBInstance is more than just a list of facts, however -- the facts
+    and contexts may be grouped into one or more Hypercubes (tables).
+
+    An OBInstance usually has a single "entrypoint" defining what Concepts
+    it can hold. For example, if the entrypoint is "MonthlyOperatingReport",
+    that means this instance document represents a monthly operating report,
+    and is restricted to storing the Concepts that the Orange Button schema
+    allows in a Monthly Operating Report. (There is not always a single
+    entrypoint, though -- the spec supports a multiple-entrypoint Instance
+    or an Instance with no entrypoint. These are not implemented yet.)
     """
     def __init__(self, entrypoint_name, taxonomy, dev_validation_off=False):
         """
-        Initialize an entrypoint.
-
-        Initializes an empty instance of a document corresponding to the named
-        entrypoint. entrypoint_name is a string that must match an entry point
-        in the taxonomy. Looks up the list of concepts for this entry point
-        from the taxonomy to know what concepts are allowed in the document.
-        Looks up the relationships between concepts for this entry point from
-        the taxonomy to know the hierarchical relationship of concepts, tables,
-        and axes/dimensions.
-        taxonomy_semantic should be the global singleton TaxonomySemantic
-        object.
-
-        An optional flag ("dev_validation_off") can be set to turn validation
-        rules off during development.  This should not be used during a release.
+        Constructs an OBInstance instance. It starts out empty, until Facts
+        are added.
+        Args:
+          entrypoint_name: string
+            Either the name of an Entrypoint as defined in the Orange Button
+            schema -- for example, "CutSheet", "MonthlyOperatingReport", "System"
+            -- or the string "All".  If an Entrypoint is named, then this
+            OBInstance is restricted to holding only the XBRL Concepts allowed
+            by the taxonomy for that Entrypoint. If the string "All" is given,
+            then there is no restriction and ANY XBRL Concept from the
+            Orange Button taxonomy may be used.
+          taxonomy: reference to the Taxonomy singleton.
+            reference is stored and used to look up taxonomy relationships.
+          dev_validation_off: boolean
+            default False. Set it to True to turn validation rules off during 
+            development. This should not be used during a release.
+        Raises:
+          OBNotFoundException if the named Entrypoint cannot be found.
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
         self.taxonomy = taxonomy
         self.entrypoint_name = entrypoint_name
         self._dev_validation_off = dev_validation_off
+        self._all_my_concepts = {}
 
         if entrypoint_name == "All":
             self._init_all_entrypoint()
@@ -698,13 +910,8 @@ class OBInstance(object):
 
             # This gives me the list of every concept that could ever be
             # included in the document.
-            self._all_my_concepts = {}
-            for concept_name in self.ts.get_entrypoint_concepts(entrypoint_name):
-                if concept_name.endswith("_1"):
-                    # There are a bunch of duplicate concept names that all end in "_1"
-                    # that raise an exception if we try to query them.
-                    continue
-                self._all_my_concepts[concept_name] = Concept(self.taxonomy, concept_name)
+            concept_list = self.ts.get_entrypoint_concepts(entrypoint_name)
+            self._initialize_concepts(concept_list)
 
             # Get the relationships (this comes from solar_taxonomy/documents/
             #  <entrypoint>/<entrypoint><version>_def.xml)
@@ -716,30 +923,46 @@ class OBInstance(object):
         self._initialize_tables()
 
         self.facts = {}
-        self.namespaces = {
-            "xmlns": "http://www.xbrl.org/2003/instance",
-            "xmlns:link": "http://www.xbrl.org/2003/linkbase",
-            "xmlns:xlink": "http://www.w3.org/1999/xlink",
-            "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
-            "xmlns:units": "http://www.xbrl.org/2009/utr",
-            "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
-            "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
-            # TODO add usgaap here, if any concepts start with usgaap?
-        }
         self.taxonomy_name = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
         self._default_context = {}
 
+    def _initialize_concepts(self, concept_name_list):
+        """
+        Initializes the internal Concept dictionary of the instance. Called by the
+        constructor, client code should not call this.
+        Args:
+          concept_name_list: list of strings
+            names of every concept allowed in this document.
+        """
+        for concept_name in concept_name_list:
+            if concept_name.endswith("_1"):
+                # There are a bunch of duplicate concept names that all end in "_1"
+                # that raise an exception if we try to query them.
+                continue
+            # Use substitution group to check whether this concept should be an
+            # Axis, and if so, instantiate the Axis subclass:
+            subgrp = self.ts.get_concept_details(concept_name).substitution_group
+            if subgrp.name == 'dimension':
+                new_concept = Axis(self.taxonomy, concept_name)
+            else:
+                new_concept = Concept(self.taxonomy, concept_name)
+            self._all_my_concepts[concept_name] = new_concept
+
+
     def _init_all_entrypoint(self):
+        """
+        Initializes the Instance to allow all concepts. Called by the constructor,
+        client code should not call this.
+        Args: None
+        Returns: None
+        """
         # take every concept from taxonomy
         every_concept = []
         for x in self.ts._concepts.values():
             every_concept.extend(x)
+        self._initialize_concepts(every_concept)
 
-        self._all_my_concepts = {}
-        for concept_name in every_concept:
-            self._all_my_concepts[concept_name] = Concept(self.taxonomy, concept_name)
         # Take every relation from taxonomy
-
         every_relation = []
         for x in self.ts._relationships.values():
             every_relation.extend(x)
@@ -749,10 +972,11 @@ class OBInstance(object):
 
     def _initialize_tables(self):
         """
-        Find tables.
-
-        Use relations to find all of the tables (hypercubes) allowed in
-        the document, and the axes and lineitems for each one.
+        Initializes the internal Hypercube (table) structures of the OBInstance,
+        using relations from the taxonomy to find the axes and lineitems for each one.
+        Called by the constructor, client code should NOT call this.
+        Args: None
+        Returns: None
         """
         # When there's an arcrole of "hypercube-dimensions", the "from"
         # is a hypercube/table, and the "to" is an axis. Use these
@@ -768,7 +992,13 @@ class OBInstance(object):
             self._tables[table_name] = Hypercube(self, table_name)
 
     def _initialize_parents(self):
-        """Put the concepts into a tree based on domain-member relations."""
+        """
+        Initializes the internal Concept tree of the Instance, using relations
+        from the taxonomy to relate parents to children in a tree structure.
+        Called by the constructor, client code should NOT call this.
+        Args: None
+        Returns: None
+        """
         for relation in self.relations:
             if relation.role == taxonomy.RelationshipRole.domain_member:
                 parent_name = relation.from_
@@ -780,29 +1010,78 @@ class OBInstance(object):
                 child = self.get_concept(child_name)
                 parent.add_child(child)
 
+    def _get_namespaces(self):
+        """
+        Gets all namespaces that need to be included in the header of this
+        document.
+        Args: None
+        Returns: dictionary where keys are "xmlns:<namespace>" definitions and
+            values are URLs.
+        """
+        # The following namespaces are basic and are always included.
+        namespaces = {
+            "xmlns": "http://www.xbrl.org/2003/instance",
+            "xmlns:link": "http://www.xbrl.org/2003/linkbase",
+            "xmlns:xlink": "http://www.w3.org/1999/xlink",
+            "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
+            "xmlns:units": "http://www.xbrl.org/2009/utr",
+            "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
+            "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+        }
+
+        # The following namespaces are optional and are included in the header
+        # only if they are referred to by a fact in this instance document.
+        optional_namespaces = {
+            "us-gaap": "http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd"
+        }
+        for fact in self.get_all_facts():
+            concept_prefix = fact.concept_name.split(":")[0]
+            for ns in optional_namespaces:
+                if concept_prefix == ns:
+                    namespaces[ "xmlns:{}".format(ns)] = optional_namespaces[ns]
+
+        return namespaces
+
     def get_concept(self, concept_name):
         """
-        Returns the Concept instance object matching given concept_name string.
+        Args:
+          concept_name: string
+            name of a concept 
+        Returns:
+          Concept instance matching concept_name, if it's a concept allowed
+          in this instance document by the entrypoint.
         """
         return self._all_my_concepts[concept_name]
 
     def get_table_names(self):
         """
-        Returns a list of strings identifying all tables that can be included
-        in this document.
+        Args: None
+        Returns:
+          A list of strings identifying all table (hypercubes) allowed
+          in this instance document by the entrypoint.
         """
         return list(self._tables.keys())
 
     def get_table(self, table_name):
         """
-        Returns the Table instance matching the given table_name string, if it
-        is present in this document.
+        Args:
+          table_name: string
+            name of a table (Hypercube)
+        Returns:
+          Hypercube instance matching the given table_name string, if it's a
+          table allowed in this instance document by the entrypoint.
         """
         return self._tables[table_name]
 
     def _identify_relations(self, concept_name):
-        # Development method for listing all relationships for debugging
-        # purposes. Do not use in production.
+        """
+        Development method that lists all relationships for the given concept,
+        for debugging purposes. Do not use in production.
+        Args:
+          concept_name: string
+            name of a concept
+        Returns: None
+        """
         from_me = [r for r in self.relations if r['from'] == concept_name]
         for x in from_me:
             print("{} -> {} -> {}".format(concept_name, x.role, x.to))
@@ -812,10 +1091,15 @@ class OBInstance(object):
 
     def get_table_for_concept(self, concept_name):
         """
-        Returns the table for a concept.
-
-        Given a concept_name, returns the table (Hypercube object) which
-        that concept belongs inside of, or None if there's no match.
+        Args:
+          concept_name: string
+            name of a concept that can be written to this instance document
+        Returns:
+          Hypercube instance -- the table where the named concept belongs,
+          if the named concept belongs on a table in this instance document.
+          Note there are some concepts that belong in the instance document
+          but not in any table. In that case, returns a placeholder table
+          identified by the constant UNTABLE.
         """
         if concept_name not in self._all_my_concepts:
             raise OBConceptException(
@@ -839,35 +1123,48 @@ class OBInstance(object):
 
     def get_all_writable_concepts(self):
         """
-        Return list of strings naming all concepts that can be written to this
-        document.
+        Args: None
+        Returns:
+          list of strings. Strings are the names of all concepts that can be written
+          to this instance document as allowed by the entrypoint.
         """
         return [c for c in self._all_my_concepts if self.is_concept_writable(c)]
 
     def is_concept_writable(self, concept_name):
         """
-        Return whether a concept is writable.
-
-        Returns True if concept_name is a writeable concept within this
-        document. False for concepts not in this document or concepts that
-        are only abstract parents of writeable concepts. e.g. you can't
-        write a value to an "Abstract" or a "LineItem".
+        Args:
+          concept_name: string
+            name of a concept
+        Returns:
+          True if concept_name is a writeable concept within this
+          document. False for concepts not in this document or concepts that
+          are only abstract parents of writeable concepts. e.g. you can't
+          write a value to an "Abstract" or a "LineItem".
         """
         if concept_name in self._all_my_concepts:
-            abstract_keywords = ["Abstract", "LineItems", "Table", "Domain", "Axis"]
-            for word in abstract_keywords:
-                if concept_name.endswith(word):
-                    return False
+            concept = self._all_my_concepts[concept_name]
+            abstract = concept.get_details("abstract")
+            if abstract:
+                return False
             return True
         return False
 
     def validate_context(self, concept_name, context):
         """
-        True if the given Context object contains all the information
-        needed to provide full context for the named concept -- sufficient
-        time period information (duration/instant), sufficient axes to place
-        the fact within its table, etc.
-        Otherwise, raises an exception explaining what is wrong.
+        Args:
+          concept_name: string
+            name of a concept that can be written to this instance document
+          context: Context instance
+            context to validate.
+        Returns:
+          True if the given Context object contains all the information
+          needed to provide full context for the named concept. i.e. if it
+          provides either a valid duration or a valid instant, whichever
+          the concept requires, and it also provides valid values for each and
+          every dimension (Axis) required by the table where the concepr resides.
+        Raises:
+          OBContextException explaining what is wrong, if some needed information
+          is missing or invalid.
         """
         # TODO Refactor to put this logic into the Concept?
         period_type = self.get_concept(concept_name).get_details("period_type")
@@ -905,7 +1202,20 @@ class OBInstance(object):
 
         return True
 
-    def _is_valid_unit(self, concept, unit_id):
+    def _is_valid_unit(self, concept_name, unit_id):
+        """
+        Args:
+          concept_name: string
+            name of a concept that can be written to this instance document
+          unit_id: string
+            id of a unit that can be
+        Returns:
+          True if the unit can be used to write a value to the named concept.
+          For example, if a concept is a measurement of energy, then kWh
+          is a valid unit but kW is not.
+        Raises:
+          OBUnitException explaining why the unit is not valid.
+        """
         # TODO Refactor to move this logic into the Concept class?
 
         unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
@@ -914,15 +1224,15 @@ class OBInstance(object):
                          "xbrli:anyURIItemType"]
         # There is type-checking we can do for these unitless types but we'll handle
         # it elsewhere
-
-        required_type = self.get_concept(concept).get_details("type_name")
+        
+        required_type = self.get_concept(concept_name).get_details("type_name")
         if required_type in unitlessTypes:
             if unit_id is None:
                 return True
             else:
                 raise OBUnitException(
                     "Unit {} given for unitless concept {} ({})".format(
-                        unit_id, concept, required_type))
+                        unit_id, concept_name, required_type))
 
         if required_type.startswith("solar-types:"):
             print("I don't know how to validate {} yet, skipping for now".format(required_type))
@@ -933,7 +1243,7 @@ class OBInstance(object):
         if unit_id is None:
             raise OBUnitException(
                 "No unit given for concept {}, requires type {}".format(
-                    concept, required_type))
+                    concept_name, required_type))
 
         unit = self.tu.get_unit(unit_id)
         if not unit:
@@ -956,27 +1266,55 @@ class OBInstance(object):
 
     def set(self, concept_name, value, **kwargs):
         """
-        Adds a fact to the document.
+        Adds a fact to the document. Stores a Fact that sets the named
+        concept to the given value within the given context.
+        
+        If concept_name and context are identical to a previous call, the old fact
+        will be overwritten. Otherwise, a new fact is created.
 
-        The concept_name and the context together identify the fact to set,
-        and the value will be stored for that fact. If concept_name and context
-        match a fact already in the document, the old fact will be overwritten.
-        Otherwise, a new fact is created.
+        The context can be provided in one of two ways: either a Context object
+        passed in using the 'context=' keyword arg, OR the duration/instant, entity,
+        and extra axes that define a context can all be passed in as separate keyword
+        args. (Not both!)
 
         Args:
-            unit_name : string
-                a string naming a unit
-            precision : int
-                number of places past the decimal point (for decimal type only)
-            context : Context
-                can be specified by kwargs duration, instant and entity
-            duration : str or dict
-                "forever" or {"start": <datetime>, "end": <datetime>}
-            instant : datetime
-            entity : str
-                entity name
-            *Axis = <value> (not implemented)
-                the name of any Axis in a table in this entrypoint
+          concept_name: string
+            name of a concept that can be written to this instance document
+          value: string, float, int, boolean, or date
+            value to set for the concept
+        Keyword Args:
+          context: a Context instance
+            context for the fact being set. Required unless supplying duration/instant
+            entity/axes separately.
+          unit_name: string
+            required if value is a numeric type. Specifies the unit in which the value
+            is counted.
+          precision: integer
+            number of significant digits of precision (for decimal values only)
+          decimals: integer
+            number of places past the decimal point to be considered precise. (For
+            decimal values only. Only one of precision or decimals is accepted, not
+            both. Defaults to decimals=2.)
+          instant: datetime
+            instant value for the context, if "context" is not given
+          duration: a dict with start and end fields {"start": <date>, "end": <date>}
+            duration value for the context, if "context" is not given
+          entity: string
+            entity value for the context, if "context" is not given
+          <axis name (*Axis)>: <axis value>
+            as a convenience, instant/duration, entity, and <axis name> can be given
+            directly as keyword args instead of constructing and passing a Context
+            argument. These should only be passed in if the "context" keyword arg
+            is not used.  See the Context class constructor for more details -- usage
+            is identical.
+          
+        Returns:
+          None
+        Raises:
+          OBConceptException: if the concept is not writable in this document
+          OBContextException: if the context is not correct for the concept
+          OBUnitException: if the unit given is wrong for the concept
+          OBTypeException: if the value given is the wrong type for the concept
         """
 
         if "unit_name" in kwargs:
@@ -988,6 +1326,12 @@ class OBInstance(object):
 
         if "precision" in kwargs:
             precision = kwargs.pop("precision")
+        else:
+            precision = None
+        if "decimals" in kwargs:
+            decimals = kwargs.pop("decimals")
+        else:
+            decimals = None
 
         if not self.is_concept_writable(concept_name):
             raise OBConceptException(
@@ -1028,8 +1372,9 @@ class OBInstance(object):
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID
 
-        f = Fact(concept_name, context, unit_name, value)
-        # TODO pass in decimals? Fact expects decimals and "precision" is slightly different
+        f = Fact(concept_name, context, unit_name, value,
+                 precision=precision,
+                 decimals=decimals)
 
         # self.facts is nested dict keyed first on table then on context ID
         # and finally on concept:
@@ -1043,10 +1388,17 @@ class OBInstance(object):
         # Or: we could keep facts in a flat list, and get() could look them
         # up by getting context from hypercube and getting fact from context
 
-    def get(self, concept, context=None):
+    def get(self, concept_name, context=None):
         """
-        Returns the value of a fact previously set. The concept
-        and context together identify the fact to read.
+        Looks up the value of a fact given its concept name and context.
+        Args:
+          concept_name: string
+            Name of the concept to get the value for.
+          context: Context instance
+            The context identifying the fact to look up.
+        Returns:
+          The value of the fact previously set, if a match is found for
+          concept_name and context. None if no match is found.
         """
         # look up the facts we have
         # complain if no value for concept
@@ -1064,18 +1416,19 @@ class OBInstance(object):
 
         # TODO a function that returns multiple, i.e. all facts for given
         # concept regardless of context, or vice versa.
-        table = self.get_table_for_concept(concept)
+        table = self.get_table_for_concept(concept_name)
         context = table.lookup_context(context)
         if table.get_name() in self.facts:
             if context.get_id() in self.facts[table.get_name()]:
-                if concept in self.facts[table.get_name()][context.get_id()]:
-                    return self.facts[table.get_name()][context.get_id()][concept]
+                if concept_name in self.facts[table.get_name()][context.get_id()]:
+                    return self.facts[table.get_name()][context.get_id()][concept_name]
         return None
 
     def get_all_facts(self):
         """
-        Returns a flattened list of Fact instances -- all of the facts that
-        have been set in this document so far.
+        Returns: a list of Fact instances. All facts that have been set in this
+        document will be returned in a single flat list, regardless of which
+        table or context they belong to.
         """
         all_facts = []
         for table_dict in list(self.facts.values()):
@@ -1086,9 +1439,15 @@ class OBInstance(object):
 
     def _make_unit_tag(self, unit_id):
         """
-        Return an XML tag for a unit (such as kw, kwh, etc). Fact tags can
-        reference this unit tag.
+        Args:
+          unit_id: string
+            ID of any unit in the taxonomy
+        Returns:
+          an XML Element representing the unit, to be included in the
+          XML-format XBRL document.
         """
+        # TODO validate that this unit_id is valid and matches something
+        # in the taxonomy.
         # See http://www.xbrl.org/utr/utr.xml
         unit = Element("unit", attrib={"id": unit_id})
         measure = SubElement(unit, "measure")
@@ -1099,11 +1458,13 @@ class OBInstance(object):
 
     def _toXML_tag(self):
         """
-        Returns an XML tag which is the root of an XML tree representing
-        the entire document contents (all contexts, units, and facts) in XML form.
+        Returns:
+          an XML Element which is the root of an XML tree representing
+          the entire document contents (all contexts, units, and facts) in 
+          XML-format XBRL.
         """
         # The root element:
-        xbrl = Element("xbrl", attrib = self.namespaces)
+        xbrl = Element("xbrl", attrib = self._get_namespaces())
 
         # Add "link:schemaRef" for the taxonomy that goes with this document:
         link = SubElement(xbrl, "link:schemaRef",
@@ -1130,46 +1491,60 @@ class OBInstance(object):
 
     def to_XML(self, filename):
         """
-        Exports XBRL as XML to the given filename.
-
-        To ensure future support use the method with the same name and functionality in Parser.
+        Exports the document as XML-formatted XBRL to the given filename
+        Note: this method is slated to be moved to Parser.
+        To ensure future support use the method with the same name and
+        functionality in Parser.
+        Args:
+          filename: string
+            filesystem path of a location to write the document to.
         """
         xbrl = self._toXML_tag()
-        tree = xml.etree.ElementTree.ElementTree(xbrl)
+
         # Apparently every XML file should start with this, which ElementTree
         # doesn't do:
         # <?xml version="1.0" encoding="utf-8"?>
+        tree = xml.etree.ElementTree.ElementTree(xbrl)
         tree.write(filename)
 
     def to_XML_string(self):
         """
-        Returns XBRL as an XML string.
-
-        To ensure future support use the method with the same name and functionality in Parser.
+        Exports the document as XML-formatted XBRL string
+        Note: this method is slated to be moved to Parser.
+        To ensure future support use the method with the same name and
+        functionality in Parser.
+        Returns:
+          String containing entire document as XML-formatted XBRL.
         """
         xbrl = self._toXML_tag()
         return xml.etree.ElementTree.tostring(xbrl).decode()
 
     def to_JSON(self, filename):
         """
-        Exports XBRL as JSON to the given filename.
-
-        To ensure future support use the method with the same name and functionality in Parser.
+        Exports the document as JSON-formatted XBRL to the given filename
+        Note: this method is slated to be moved to Parser.
+        To ensure future support use the method with the same name and
+        functionality in Parser.
+        Args:
+          filename: string
+            filesystem path of a location to write the document to.
         """
-
         outfile = open(filename, "w")
         outfile.write(self.to_JSON_string())
         outfile.close()
 
     def to_JSON_string(self):
         """
-        Returns XBRL as a JSON string
-
-        To ensure future support use the method with the same name and functionality in Parser.
+        Exports the document as JSON-formatted XBRL string
+        Note: this method is slated to be moved to Parser.
+        To ensure future support use the method with the same name and
+        functionality in Parser.
+        Returns:
+          String containing entire document as JSON-formatted XBRL.
         """
         masterJsonObj = {
             "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
-            "prefixes": self.namespaces,
+            "prefixes": self._get_namespaces(),
             "dtsReferences": [],
             "facts": {}
             }
@@ -1187,22 +1562,48 @@ class OBInstance(object):
 
     def set_default_context(self, dictionary):
         """
-        Dictionary can have keys: "entity", PeriodType.instant, PeriodType.duration, and also
-        axes.
-        Sets these values as the defaults for this document. These values
-        are used to fill in any fields that are missing from any contexts
-        passed into set(). For example, if you set the "entity" as a default
-        on the document, then after that you can leave "entity" out of your
-        contexts and the default entity will be used.
+        Set default values for context entity, instant/duration, and/or axes.
+        The default values are used to fill in any fields that are missing
+        from any contexts passed into set().
+        For example:
+          document.set_default_context({"entity": "MyCompanyName"})
+        sets "MyCompanyName" as the default "entity" of this document. From
+        then on, you can call document.set() without providing an entity in
+        the context, and "MyCompanyName" will be used as the entity.
+        You can set a default for an axis and it will simply be ignored by any
+        contexts that do not require that axis.
+
+        Args:
+          dictionary: a python dict that can have the following keys:
+            "entity": string, entity name to set as default for all contexts.
+            PeriodType.instant: date to set as default for all instant-period
+              contexts.
+            PeriodType.duration: either a dict with keys "start" and "end"
+              whose values are dates, OR the literal string "forever". This
+              will be set as default for all duration-period contexts.
+            <*Axis>: If the key is the name of an Axis on one of the document's
+              tables, and the value is a valid value for that axis, then the
+              value will be used as default value for that axis for all
+              contexts that require it.
         """
         self._default_context.update(dictionary)
 
     def _fill_in_context_from_defaults(self, context, concept):
         """
-        context: None, or a Context object that may be missing some fields
-        concept: a Concept object (used to determine what fields are required)
-        Returns a Context object that has had all its required fields filled in
-        from the default context (see set_default_context()) if possible.
+        Uses default values (set by using set_default_context()) to fill in any
+        missing fields in a given context object.
+        Args:
+          context: a Context instance, or None.
+            if provided, values are used to override the defaults
+          concept: a Concept object
+            concept that a context is intended to be used with. The concept is
+            used to determine what fields are required in the context.
+        Returns: a new Context object. The returned Context has field values
+          (entity, duration/instant, axes) copied from the context argument where
+          available and filled in from the default context
+          (see set_default_context()) for any fields not present in the context
+          argument. If context argument was None, then all field values will be
+          taken from the defaults.
         """
         period = concept.get_details("period_type") # PeriodType.instant or PeriodType.duration
         if context is None:
@@ -1238,10 +1639,10 @@ class OBInstance(object):
         """
         (Placeholder).
 
-        Returns true if all of the facts in the document validate.
-        i.e. they have allowed data types, allowed units, anything that needs
-        to be in a table has all the required axis values to identify its place
-        in that table, etc.
+        Returns: true if all of the facts in the document validate.
+          i.e. they have allowed data types, allowed units, anything that needs
+          to be in a table has all the required axis values to identify its place
+          in that table, etc.
         """
         return True
 
@@ -1249,7 +1650,7 @@ class OBInstance(object):
         """
         (Placeholder).
 
-        (Placeholder) Returns true if no required facts are missing, i.e. if
-        there is a value for all concepts with nillable=False
+        Returns: True if no required facts are missing, i.e. if
+          there is a value for all concepts with nillable=False
         """
         return True

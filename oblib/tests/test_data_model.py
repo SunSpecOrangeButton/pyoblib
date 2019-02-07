@@ -13,9 +13,10 @@
 # limitations under the License.
 
 import unittest
+import json
 from datetime import datetime, date
 from lxml import etree
-import json
+from six import string_types
 from oblib import data_model, taxonomy
 
 
@@ -412,7 +413,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         root = json.loads(jsonstring)
 
         # should have 2 facts:
-        all_facts = root["facts"].values()
+        all_facts = list(root["facts"].values())
         self.assertEqual( len(all_facts), 2)
 
         # each should have expected 'value' and 'aspects':
@@ -642,7 +643,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
             instant = datetime.now())
         # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
         # but the table that holds DeviceCost doesn't want this axis:
-        with self.assertRaises(Exception):
+        with self.assertRaises(OBContextException):
             doc.validate_context("solar:DeviceCost", threeAxisContext)
 
     def test_set_default_context_values(self):
@@ -766,3 +767,152 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # has <simpleContent> which has <restriction> which hasa bunch of <xs:enumeration>
         # each of which has a value like "ModuleMember", "OptimizerMember", etc.
         pass
+
+
+    def test_decimals_and_precision(self):
+        # if we set a fact and pass in a Decimals argument,
+        # then when we write out to JSON or XML we should see decimals there.
+        # Same with Precision.
+        # Trying to set both Decimals and Precision should give an error.
+        # If we don't set either, it should default to decimals=2.
+
+        doc = data_model.OBInstance("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               taxonomy.PeriodType.instant: now,
+                               taxonomy.PeriodType.duration: "forever"
+                               })
+
+        # Set fact with precision:
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1, precision = 3)
+
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+
+        # TODO is supposed to be in aspects or not?
+        self.assertEqual(len(facts), 1)
+        self.assertEqual(list(facts.values())[0]["aspects"]["precision"], "3")
+
+        # Set fact with decimals:
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1, decimals = 3)
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+        self.assertEqual(len(facts), 1)
+        self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "3")
+
+        # Trying to set both decimals and precision should raise an error
+        with self.assertRaises(data_model.OBException):
+            doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1, decimals = 3, precision=3)
+
+
+    def test_ids_in_xml_and_json(self):
+        # facts should have IDs in both exported JSON and exported XML, and they
+        # should be the same ID either way.
+        doc = data_model.OBInstance("CutSheet", self.taxonomy)
+        now = datetime.now()
+        doc.set_default_context({"entity": "JUPITER",
+                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               taxonomy.PeriodType.instant: now,
+                               taxonomy.PeriodType.duration: "forever"
+                               })
+
+        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+                ProductIdentifierAxis = 1)
+
+        fact = doc.get("solar:ModuleNameplateCapacity",
+                       data_model.Context(
+                           ProductIdentifierAxis = 1,
+                           TestConditionAxis = "solar:StandardTestConditionMember",
+                           entity = "JUPITER",
+                           duration="forever"))
+        # Read the fact ID that was automatically assigned when we set the fact:
+        fact_id = fact.id
+
+        # Look for fact ID in JSON:
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+        self.assertEqual(len(list(facts.keys())), 1)
+        self.assertEqual(list(facts.keys())[0], fact_id)
+
+        # Look for fact ID in XML:
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+        fact = root.find("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ModuleNameplateCapacity")
+        self.assertEqual(fact.attrib["id"], fact_id)
+
+    def test_json_fields_are_strings(self):
+        # Issue #77 - all json fields should be strings other than None which should convert
+        # a JSON null literal.
+        # e.g. numbers should be "100" not 100
+        # booleans should be "true" not true
+
+        
+        doc = data_model.OBInstance("System", self.taxonomy, dev_validation_off=True)
+        now = datetime.now()
+        doc.set_default_context({
+            "entity": "JUPITER",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel100PercentMember",
+            taxonomy.PeriodType.instant: now,
+            taxonomy.PeriodType.duration: "forever"
+        })
+
+        # Set fact using a numeric type as value:
+        doc.set("solar:InverterOutputRatedPowerAC", 1.25, unit_name="kW",
+                ProductIdentifierAxis = 1)
+
+        # Set fact using a boolean type as value:
+        doc.set("solar:ModuleHasCertificationIEC61646", True, ProductIdentifierAxis = 1)
+
+        jsonstring = doc.to_JSON_string()
+        facts = json.loads(jsonstring)["facts"]
+
+        self.assertEqual(len(facts), 2)
+
+        for fact in list(facts.values()):
+            self.assertTrue( isinstance( fact['value'], string_types) )
+            self.assertTrue( isinstance( fact['aspects']['solar:ProductIdentifierAxis'], string_types))
+
+        # TODO is there something we could set to null so we test null is exported as
+        # literal, not string?
+
+
+    def test_optional_namespaces_included(self):
+        # If no us-gaap concepts are used, there should be no us-gaap namespace
+        # definition in header:
+        doc = data_model.OBInstance("MonthlyOperatingReport", self.taxonomy)
+        doc.set("solar:MonthlyOperatingReportEffectiveDate",
+                date(year=2018,month=6,day=1),
+                entity = "JUPITER",
+                duration="forever")
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+
+        self.assertIn("solar", root.nsmap)
+        self.assertIn("xlink", root.nsmap)
+        self.assertIn("units", root.nsmap)
+        self.assertNotIn("us-gaap", root.nsmap)
+
+        # If a us-gaap concept has been set, however, there should be a us-gaap
+        # namespace definition in header:
+        doc.set("us-gaap:PartnersCapitalAccountReturnOfCapital", 4, unit_name="USD",
+                entity = "JUPITER", duration="forever", InvestmentClassAxis="placeholder",
+                ProjectIdentifierAxis="1", CashDistributionAxis="placeholder")
+
+        xml = doc.to_XML_string()
+        root = etree.fromstring(xml)
+        self.assertIn("solar", root.nsmap)
+        self.assertIn("xlink", root.nsmap)
+        self.assertIn("units", root.nsmap)
+        self.assertIn("us-gaap", root.nsmap)
+
+
+    # TODO lots more tests for using get(), especially with partial context arguments.
+
+    # TODO test equals_context in the case where both contexts have duration=(start, end)
+
+    # TODO test that concepts with Axis in the name get instantiated as Axis subclass of
+    # Concept.
