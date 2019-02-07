@@ -576,9 +576,9 @@ class Fact(object):
             raise OBException("Fact given both precision and decimals - use only one.")
         self.decimals = decimals
         self.precision = precision
-        if decimals is None and precision is None:
-            # Default to 2 decimals:
-            self.decimals = 2
+        # FUTURE TODO: decide if the Concept is numeric or non-numeric. If numeric,
+        # either require a decimals/precision or provide a default. If non-numeric,
+        # don't allow decimals/precision to be set.
 
         # Fill in the id property with a UUID:
         self.id = identifier.identifier()
@@ -601,17 +601,13 @@ class Fact(object):
         """
         attribs = {"contextRef": self.context.get_id(),
                    "id": self.id}
-        # TODO the "pure" part is probably wrong now.
-        # also the self.unit may not be correct unitRef? not sure
+        # TODO the self.unit may not be correct unitRef? not sure
         if self.unit is not None:
             attribs["unitRef"] = self.unit
-            if self.unit == "pure":
-                attribs["decimals"] = "0"
-            else:
-                if self.decimals is not None:
-                    attribs["decimals"] = str(self.decimals)
-                elif self.precision is not None:
-                    attribs["precision"] = str(self.precision)
+            if self.decimals is not None:
+                attribs["decimals"] = str(self.decimals)
+            elif self.precision is not None:
+                attribs["precision"] = str(self.precision)
         elem = Element(self.concept, attrib=attribs)
         if self.unit == "pure":
             elem.text = "%d" % self.value
@@ -630,13 +626,10 @@ class Fact(object):
         aspects["concept"] = self.concept
         if self.unit is not None:
             aspects["unit"] = str(self.unit)
-            if self.unit == "pure":
-                aspects["decimals"] = "0"
-            else:
-                if self.decimals is not None:
-                    aspects["decimals"] = str(self.decimals)
-                elif self.precision is not None:
-                    aspects["precision"] = str(self.precision)
+            if self.decimals is not None:
+                aspects["decimals"] = str(self.decimals)
+            elif self.precision is not None:
+                aspects["precision"] = str(self.precision)
 
         if isinstance( self.value, datetime.datetime):
             value_str = self.value.strftime("%Y-%m-%dT%H:%M:%S")
