@@ -15,8 +15,9 @@
 import os
 import sys
 import argparse
-from oblib import identifier, ob, parser, taxonomy, validator
-
+from oblib import identifier, ob, taxonomy, validator
+# from oblib.validator import Validator
+from oblib.parser import Parser, FileFormat
 
 #
 # TODO: list-types is missing
@@ -44,17 +45,17 @@ def info(args):
 
 def convert(args):
 
-    p = parser.Parser(taxonomy)
+    p = Parser(taxonomy)
 
     ff = None
     if json:
-        ff = parser.FileFormat.JSON
+        ff = FileFormat.JSON
     elif xml:
-        ff = parser.FileFormat.XML
+        ff = FileFormat.XML
     elif args.infile.lower().endswith(".json") and args.outfile.lower().endswith(".xml"):
-        ff = parser.FileFormat.JSON
+        ff = FileFormat.JSON
     elif args.infile.lower().endswith(".xml") and args.outfile.lower().endswith(".json"):
-        ff = parser.FileFormat.XML
+        ff = FileFormat.XML
 
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
@@ -69,17 +70,17 @@ def convert(args):
 
 def validate(args):
 
-    p = parser.Parser(taxonomy)
+    p = Parser(taxonomy)
 
     ff = None
     if json:
-        ff = parser.FileFormat.JSON
+        ff = FileFormat.JSON
     elif xml:
-        ff = parser.FileFormat.XML
+        ff = FileFormat.XML
     elif args.infile.lower().endswith(".json"):
-        ff = parser.FileFormat.JSON
+        ff = FileFormat.JSON
     elif args.infile.lower().endswith(".xml"):
-        ff = parser.FileFormat.XML
+        ff = FileFormat.XML
 
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
@@ -264,13 +265,13 @@ def validate_concept(args):
 
 
 def validate_value(args):
-    validator = validator.Validator(taxonomy)
+    v = validator.Validator(taxonomy)
     concept_details = taxonomy.semantic.get_concept_details(args.concept)
     if concept_details is None:
         print("Not valid:", args.concept, "is not a concept name.")
         return
 
-    result = validator.validate_concept_value(concept_details, args.value)
+    result = v.validate_concept_value(concept_details, args.value)
     if not result[1]:
         print("Valid:", result[0])
     else:
