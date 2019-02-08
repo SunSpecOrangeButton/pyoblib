@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export PYTHONPATH=`pwd`/oblib
+
+export PYTHONPATH=`pwd`
 EXITVAL=0
 
 # Basic tests
@@ -321,7 +322,7 @@ rm -rf temp
 
 # Print results and exit
 echo ""
-if [ $EXITVAL -eq 0 ]
+if [[ $EXITVAL -eq 0 ]]
 then
     echo "Tests completed successfully"
 else

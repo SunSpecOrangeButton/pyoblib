@@ -14,16 +14,6 @@
 
 """Initializes the Orange Button package."""
 
-import identifier
-import data_model
-import ob
-import parser
-import taxonomy
-import taxonomy_semantic
-import taxonomy_types
-import taxonomy_units
-import taxonomy_misc
-import validator
 
 __all__ = ['identifier', 'data_model', 'ob', 'parser',
            'taxonomy', 'taxonomy_semantic',

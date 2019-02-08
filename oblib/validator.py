@@ -14,10 +14,11 @@
 
 """Validation functions."""
 
-import identifier
 import re
 from datetime import date, datetime
+from oblib import identifier
 import validators
+
 
 BOOLEAN_TRUE = ['true', 't', 'y', '1']
 BOOLEAN_FALSE = ['false', 'f', 'n', '0']
@@ -528,4 +529,3 @@ class Validator(object):
                 and list of errors (if any)
         """
         return self._xbrli_decimal_item_type_validator(value)
-

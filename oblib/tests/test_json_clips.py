@@ -14,21 +14,21 @@
 
 import re
 from inspect import currentframe
-
 import unittest
-from parser import Parser
-from ob import OBValidationErrors
-import taxonomy
 import pytest
+from oblib import parser, taxonomy, ob
+
 
 taxonomy = taxonomy.Taxonomy()
-parser = Parser(taxonomy)
+parser = parser.Parser(taxonomy)
+
 
 def _ln():
     # Returns line number of caller.
 
     cf = currentframe()
     return cf.f_back.f_lineno
+
 
 class TestJsonClips(unittest.TestCase):
     # Note: this module is tested differently than others.  Erroneous JSON clips are run through
@@ -38,7 +38,7 @@ class TestJsonClips(unittest.TestCase):
     # necessarily required unless noted via the expression).  A line number in the JSON also is
     # present and in an ideal world the line number should also be decipherable fromt he parser.
 
-     def test_clips(self):
+    def test_clips(self):
         failure_list = []
         for clip in CLIPS:
             try:
@@ -49,14 +49,14 @@ class TestJsonClips(unittest.TestCase):
                     failure_list.append("Case {} did not cause a failure condition as expected".format(clip[0]))
             except Exception as e:
                 if clip[2] is None:
-                    if isinstance(e, OBValidationErrors):
+                    if isinstance(e, ob.OBValidationErrors):
                         for e2 in e.get_errors():
                             s = str(e2)
                             failure_list.append("Case {} should have succeeded, raised {}".format(clip[0], s))
                     else:
                         failure_list.append("Case {} should have succeeded, raised an unexpected exception ''".format(clip[0], str(e)))
                 else:
-                    # if isinstance(e, OBValidationErrors):
+                    # if isinstance(e, ob.OBValidationErrors):
                     #     for e2 in e.get_errors():
                     #         s = str(e2)
                     #         if re.search(clip[2], s, re.IGNORECASE) is None:
@@ -64,7 +64,7 @@ class TestJsonClips(unittest.TestCase):
                     # else:
                     #     failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
 
-                    if not isinstance(e, OBValidationErrors):
+                    if not isinstance(e, ob.OBValidationErrors):
                         failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
 
         if len(failure_list) > 0:
@@ -77,6 +77,7 @@ class TestJsonClips(unittest.TestCase):
             # self.fail(msg)
             print(msg)
             print("{} issues found out of {} test cases".format(len(failure_list), len(CLIPS)))
+
 
 CLIPS = [
     # TODO: validate identifier not only strin but UUID also?

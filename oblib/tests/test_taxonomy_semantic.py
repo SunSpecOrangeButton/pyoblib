@@ -13,10 +13,9 @@
 # limitations under the License.
 
 import unittest
-
-import taxonomy
-#import taxonomy_semantic
 from six import string_types
+from oblib import taxonomy, taxonomy_semantic
+
 
 taxonomy_obj = taxonomy.Taxonomy()
 tax = taxonomy_obj.semantic

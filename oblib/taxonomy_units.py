@@ -15,12 +15,9 @@
 """Taxonomy units."""
 
 import xml.sax
-
-import constants
-import taxonomy
-import util
 import os
 import sys
+from oblib import constants, util
 
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
@@ -33,6 +30,10 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         if name == "unit":
             for item in attrs.items():
                 if item[0] == "id":
+
+                    # Temporary fix for the circular dependency issue
+                    from oblib import taxonomy
+
                     self._curr = taxonomy.Unit()
                     self._curr.id = item[1]
         elif name == "xs:enumeration":
@@ -60,8 +61,16 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
         elif name == "definition":
             self._curr.definition = self._content
         elif name == "baseStandard":
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+
             self._curr.base_standard = taxonomy.BaseStandard(self._content)
         elif name == "status":
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+
             self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
             self._curr.version_date = util.convert_taxonomy_xsd_date(self._content)

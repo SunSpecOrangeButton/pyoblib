@@ -15,11 +15,7 @@
 """Handles Orange button taxonomy."""
 
 import enum
-
-import taxonomy_semantic
-import taxonomy_types
-import taxonomy_units
-import taxonomy_misc
+from oblib import taxonomy_types, taxonomy_misc
 
 
 class SubstitutionGroup(enum.Enum):
@@ -195,6 +191,7 @@ class Unit(object):
         """Convert Unit to dict."""
         return vars(self)
 
+
 class Taxonomy(object):
     """
     Parent class for Taxonomy.
@@ -207,6 +204,10 @@ class Taxonomy(object):
 
     def __init__(self):
         """Taxonomy constructor."""
+
+        # Temporary fix for the circular dependency issue
+        from oblib import taxonomy_semantic, taxonomy_units
+
         self.semantic = taxonomy_semantic.TaxonomySemantic()
         self.types = taxonomy_types.TaxonomyTypes()
         self.units = taxonomy_units.TaxonomyUnits()
@@ -218,6 +219,7 @@ class Taxonomy(object):
 
 # Accessor for singleton Taxonomy object:
 m_singletonTaxonomy = None
+
 
 def getTaxonomy():
     """Return the taxonomy."""

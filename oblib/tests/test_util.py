@@ -14,8 +14,7 @@
 
 import datetime
 import unittest
-
-import util
+from oblib import util
 
 
 class TestUtil(unittest.TestCase):
@@ -31,7 +30,6 @@ class TestUtil(unittest.TestCase):
         self.assertTrue(util.convert_taxonomy_xsd_bool("True"))
         self.assertTrue(util.convert_taxonomy_xsd_bool("TRUE"))
         self.assertTrue(util.convert_taxonomy_xsd_bool("1"))
-
 
     def test_convert_taxonomy_xsd_date(self):
         self.assertIsInstance(util.convert_taxonomy_xsd_date("2018-10-12"), datetime.date)

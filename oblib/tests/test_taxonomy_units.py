@@ -14,9 +14,8 @@
 
 import datetime
 import unittest
+from oblib import taxonomy, taxonomy_units
 
-import taxonomy
-import taxonomy_units
 
 tax = taxonomy_units.TaxonomyUnits()
 

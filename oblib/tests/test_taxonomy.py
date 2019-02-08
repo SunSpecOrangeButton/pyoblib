@@ -13,11 +13,7 @@
 # limitations under the License.
 
 import unittest
-import taxonomy
-import taxonomy_semantic
-import taxonomy_types
-import taxonomy_units
-import taxonomy_misc
+from oblib import taxonomy, taxonomy_semantic, taxonomy_types, taxonomy_units, taxonomy_misc
 
 
 class TestTaxonomy(unittest.TestCase):

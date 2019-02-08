@@ -16,9 +16,7 @@
 
 import os
 import xml.sax
-
-import constants
-
+from oblib import constants
 
 #
 # Note: All miscellaneous taxonomy files are covered except for solar-ref-roles which has only one

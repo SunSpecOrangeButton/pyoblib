@@ -15,12 +15,9 @@
 import os
 import sys
 import argparse
-
-import identifier
-from ob import OBValidationErrors
-from parser import Parser, FileFormat
-from taxonomy import Taxonomy
-from validator import Validator
+from oblib import identifier, ob, taxonomy, validator
+# from oblib.validator import Validator
+from oblib.parser import Parser, FileFormat
 
 #
 # TODO: list-types is missing
@@ -36,7 +33,7 @@ Orange Button pyoblib and CLI GitHub: https://github.com/SunSpecOrangeButton/pyo
 
 DASHES = "---------------------------------------------------------------------------------------"
 
-taxonomy = Taxonomy()
+taxonomy = taxonomy.Taxonomy()
 csv = False
 json = False
 xml = False
@@ -66,7 +63,7 @@ def convert(args):
 
     try:
         p.convert(args.infile, args.outfile, ff, entrypoint_name=args.entrypoint)
-    except OBValidationErrors as errors:
+    except ob.OBValidationErrors as errors:
         for e in errors.get_errors():
             print(e)
 
@@ -92,7 +89,7 @@ def validate(args):
     try:
         p.validate(args.infile, ff, entrypoint_name=args.entrypoint)
         print("Validation succcessful")
-    except OBValidationErrors as errors:
+    except ob.OBValidationErrors as errors:
         for e in errors.get_errors():
             print(e)
 
@@ -276,13 +273,13 @@ def validate_concept(args):
 
 
 def validate_value(args):
-    validator = Validator(taxonomy)
+    v = validator.Validator(taxonomy)
     concept_details = taxonomy.semantic.get_concept_details(args.concept)
     if concept_details is None:
         print("Not valid:", args.concept, "is not a concept name.")
         return
 
-    result = validator.validate_concept_value(concept_details, args.value)
+    result = v.validate_concept_value(concept_details, args.value)
     if not result[1]:
         print("Valid:", result[0])
     else:

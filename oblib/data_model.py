@@ -43,12 +43,12 @@ import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
-from taxonomy import PeriodType, RelationshipRole
 from six import string_types
-import validator
-import identifier
+from oblib import taxonomy, validator, identifier
+
 
 UNTABLE = "NON_TABLE_CONCEPTS"
+
 
 class OBException(Exception):
     """
@@ -57,6 +57,7 @@ class OBException(Exception):
     def __init__(self, message):
         super(OBException, self).__init__(message)
 
+
 class OBTypeException(OBException):
     """
     Raised if we try to set a concept to a value with an invalid data type
@@ -64,12 +65,14 @@ class OBTypeException(OBException):
     def __init__(self, message):
         super(OBTypeException, self).__init__(message)
 
+
 class OBContextException(OBException):
     """
     Raised if we try to set a concept without sufficient Context fields
     """
     def __init__(self, message):
         super(OBContextException, self).__init__(message)
+
 
 class OBConceptException(OBException):
     """
@@ -79,12 +82,14 @@ class OBConceptException(OBException):
     def __init__(self, message):
         super(OBConceptException, self).__init__(message)
 
+
 class OBNotFoundException(OBException):
     """
     Raised if we refer to a name that's not found in the taxonomy
     """
     def __init__(self, message):
         super(OBNotFoundException, self).__init__(message)
+
 
 class OBUnitException(OBException):
     """
@@ -127,7 +132,7 @@ class Hypercube(object):
         relationships = ob_instance.relations
         # Use the relationships to find the names of my axes:
         for relation in relationships:
-            if relation.role == RelationshipRole.hypercube_dimension:
+            if relation.role == taxonomy.RelationshipRole.hypercube_dimension:
                 if relation.from_ == self._table_name:
                     axis_name = relation.to
                     if not axis_name in self._axes:
@@ -140,7 +145,7 @@ class Hypercube(object):
         # If there's an arcrole of "all" then the "from" is a LineItems
         # and the "to" is the table?  I think?
         for relation in relationships:
-            if relation.role == RelationshipRole.dimension_all:
+            if relation.role == taxonomy.RelationshipRole.dimension_all:
                 if relation.to == self._table_name:
                     line_item = relation.from_
                     if not self.has_line_item(line_item):
@@ -149,18 +154,17 @@ class Hypercube(object):
         # If there's dimension-domain or domain-member relationships for any
         # of my axes, extract that information as well:
         for relation in relationships:
-            if relation.role == RelationshipRole.dimension_domain:
+            if relation.role == taxonomy.RelationshipRole.dimension_domain:
                 if relation.from_ in self._axes:
                     domain = relation.to
                     self._axes[ relation.from_ ].domain = domain
 
         for relation in relationships:
-            if relation.role == RelationshipRole.domain_member:
+            if relation.role == taxonomy.RelationshipRole.domain_member:
                 for axis in list(self._axes.values()):
                     if axis.domain == relation.from_:
                         member = relation.to
                         axis.domainMembers.append( member )
-
 
     def get_name(self):
         """
@@ -359,14 +363,14 @@ class Context(object):
         self.duration = None
         self.entity = None
         # kwargs must provide exactly one of instant or duration
-        if PeriodType.instant.value in kwargs and PeriodType.duration.value in kwargs:
+        if taxonomy.PeriodType.instant.value in kwargs and taxonomy.PeriodType.duration.value in kwargs:
             raise OBContextException("Context given both instant and duration")
-        if (PeriodType.instant.value not in kwargs) and (PeriodType.duration.value not in kwargs):
+        if (taxonomy.PeriodType.instant.value not in kwargs) and (taxonomy.PeriodType.duration.value not in kwargs):
             raise OBContextException("Context not given either instant or duration")
-        if PeriodType.instant.value in kwargs:
-            self.instant = kwargs.pop(PeriodType.instant.value)
-        if PeriodType.duration.value in kwargs:
-            self.duration = kwargs.pop(PeriodType.duration.value)
+        if taxonomy.PeriodType.instant.value in kwargs:
+            self.instant = kwargs.pop(taxonomy.PeriodType.instant.value)
+        if taxonomy.PeriodType.duration.value in kwargs:
+            self.duration = kwargs.pop(taxonomy.PeriodType.duration.value)
         if "entity" in kwargs:
             self.entity = kwargs.pop("entity")
         # anything that's not instant/duration or entity must be an axis
@@ -457,7 +461,7 @@ class Context(object):
             endDate = SubElement(period, "endDate")
             endDate.text = self.duration["end"].strftime("%Y-%m-%d")
         elif self.instant is not None:
-            instant_elem = SubElement(period, PeriodType.instant.value)
+            instant_elem = SubElement(period, taxonomy.PeriodType.instant.value)
             instant_elem.text = self.instant.strftime("%Y-%m-%d")
 
 
@@ -594,7 +598,6 @@ class Fact(object):
             elem.text = str(self.value)
         return elem
 
-
     def _toJSON(self):
         """
         Returns:
@@ -646,7 +649,6 @@ class Concept(object):
         except KeyError as e:
             print("Warning: no metadata found for {}".format(concept_name))
         # FUTURE TODO should we just let this exception go, actually?
-
 
     def get_details(self, field_name):
         """
@@ -968,7 +970,6 @@ class OBInstance(object):
         # can't do list(set(list)) when the starting point is a list of dicts
         # since dicts aren't trivially comparable
 
-
     def _initialize_tables(self):
         """
         Initializes the internal Hypercube (table) structures of the OBInstance,
@@ -983,13 +984,12 @@ class OBInstance(object):
         self._tables = {}
         all_table_names = set([])
         for relation in self.relations:
-            if relation.role == RelationshipRole.hypercube_dimension:
+            if relation.role == taxonomy.RelationshipRole.hypercube_dimension:
                 table_name = relation.from_
                 all_table_names.add(table_name)
 
         for table_name in all_table_names:
             self._tables[table_name] = Hypercube(self, table_name)
-
 
     def _initialize_parents(self):
         """
@@ -1000,7 +1000,7 @@ class OBInstance(object):
         Returns: None
         """
         for relation in self.relations:
-            if relation.role == RelationshipRole.domain_member:
+            if relation.role == taxonomy.RelationshipRole.domain_member:
                 parent_name = relation.from_
                 child_name = relation.to
                 if parent_name.endswith("_1") or child_name.endswith("_1"):
@@ -1169,7 +1169,7 @@ class OBInstance(object):
         # TODO Refactor to put this logic into the Concept?
         period_type = self.get_concept(concept_name).get_details("period_type")
 
-        if PeriodType(period_type) == PeriodType.duration:
+        if taxonomy.PeriodType(period_type) == taxonomy.PeriodType.duration:
             if not context.duration:
                 raise OBContextException(
                     "Missing required duration in {} context".format(
@@ -1187,8 +1187,7 @@ class OBInstance(object):
                     "Invalid duration in {} context".format(
                         concept_name))
 
-
-        if PeriodType(period_type) == PeriodType.instant:
+        if taxonomy.PeriodType(period_type) == taxonomy.PeriodType.instant:
             if not context.instant:
                 raise OBContextException(
                     "Missing required instant in {} context".format(
@@ -1370,7 +1369,6 @@ class OBInstance(object):
             raise OBTypeException(
                 "{} is the wrong datatype for {}".format(value, concept_name))
 
-
         table = self.get_table_for_concept(concept_name)
         context = table.store_context(context) # dedupes, assigns ID
 
@@ -1389,7 +1387,6 @@ class OBInstance(object):
         self.facts[table.get_name()][context.get_id()][concept_name] = f
         # Or: we could keep facts in a flat list, and get() could look them
         # up by getting context from hypercube and getting fact from context
-
 
     def get(self, concept_name, context=None):
         """
@@ -1459,7 +1456,6 @@ class OBInstance(object):
 
         return unit
 
-
     def _toXML_tag(self):
         """
         Returns:
@@ -1522,7 +1518,6 @@ class OBInstance(object):
         """
         xbrl = self._toXML_tag()
         return xml.etree.ElementTree.tostring(xbrl).decode()
-
 
     def to_JSON(self, filename):
         """

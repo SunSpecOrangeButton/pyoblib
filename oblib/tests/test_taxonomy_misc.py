@@ -13,12 +13,14 @@
 # limitations under the License.
 
 import unittest
-import taxonomy_misc
+from oblib import taxonomy_misc
+
 
 tax_numeric_types = taxonomy_misc.TaxonomyNumericTypes()
 tax_generic_roles = taxonomy_misc.TaxonomyGenericRoles()
 tax_ref_parts = taxonomy_misc.TaxonomyRefParts()
 tax_doc = taxonomy_misc.TaxonomyDocumentation()
+
 
 class TestTaxonomyMisc(unittest.TestCase):
 

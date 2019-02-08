@@ -16,11 +16,7 @@
 
 import os
 import xml.sax
-
-import constants
-import taxonomy
-import util
-import validator
+from oblib import constants, taxonomy, util
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -38,7 +34,12 @@ class _ElementsHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "xs:element":
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+            
             element = taxonomy.ConceptDetails()
+            
             for item in attrs.items():
                 if item[0] == "abstract":
                     element.abstract = util.convert_taxonomy_xsd_bool(item[1])
@@ -61,7 +62,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "type":
                     element.type_name = item[1]
                 elif item[0] == "xbrli:periodType":
-                    #element.period_type = item[1]
+                    # element.period_type = item[1]
                     element.period_type = taxonomy.PeriodType(item[1])
                 elif item[0] == "xbrldt:typedDomainRef":
                     element.typed_domain_ref = item[1]

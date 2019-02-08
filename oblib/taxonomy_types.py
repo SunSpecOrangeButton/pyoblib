@@ -16,8 +16,7 @@
 
 import os
 import xml.sax
-
-import constants
+from oblib import constants
 
 
 class _TaxonomyTypesHandler(xml.sax.ContentHandler):

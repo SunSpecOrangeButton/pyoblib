@@ -14,24 +14,23 @@
 
 """ Parses JSON/XML input and output data. """
 
-import data_model
-import taxonomy
-import util
-import ob
 
 import enum
 import json
 import xml.etree.ElementTree as ElementTree
-import sys
+from oblib import data_model, util, taxonomy, ob
+
 
 # The Following code is used internally by the XML parser - there is no known general usage
 # reason to leverage.  The extremely short function name is for brevity in the XML parser.
+
 
 _xml_ns = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
       "link:": "{http://www.xbrl.org/2003/linkbase}",
       "solar:": "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}",
       "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
       "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
+
 
 def _xn(s):
     # eXpands the Namespace to be equitable to what is read in by the XML parser.

@@ -13,13 +13,13 @@
 # limitations under the License.
 
 import unittest
-import parser
-import taxonomy
-
 from jsondiff import diff
+from oblib import parser, taxonomy
+
 
 taxonomy = taxonomy.Taxonomy()
 parser = parser.Parser(taxonomy)
+
 
 class TestParser(unittest.TestCase):
     # Note: this module is tested differently than others.  Sample JSON and XML
