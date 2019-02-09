@@ -9,7 +9,7 @@ python:
 script:
 - scripts/setup-dev.sh;
 - scripts/tests.sh;
-- scripts/tests-cli.sh
+- oblib/tests/tests-cli.sh
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
