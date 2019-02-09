@@ -21,10 +21,24 @@ REG_EX = "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 
 
 def identifier():
-    """Return valid UUID for Orange Button identifiers."""
+    """
+    Return valid UUID for Orange Button identifiers.
+
+    Returns:
+        A string containing a valid UUID.
+    """
+
     return str(uuid.uuid4())
 
 
 def validate(inp):
-    """Validate a UUID string."""
+    """
+    Validate a UUID string.
+
+    Args:
+        inp (string): Identifier to validate.
+
+    Returns:
+        True if the input string is a valid UUID, False otherwise.
+    """
     return re.search(REG_EX, inp, re.IGNORECASE) is not None

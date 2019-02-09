@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import unittest
-import taxonomy_types
+from oblib import taxonomy_types
+
 
 tax = taxonomy_types.TaxonomyTypes()
 

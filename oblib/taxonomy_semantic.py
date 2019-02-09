@@ -16,11 +16,7 @@
 
 import os
 import xml.sax
-
-import constants
-import taxonomy
-import util
-import validator
+from oblib import constants, taxonomy, util
 
 
 class _ElementsHandler(xml.sax.ContentHandler):
@@ -38,7 +34,12 @@ class _ElementsHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "xs:element":
-            element = taxonomy.Element()
+
+            # Temporary fix for the circular dependency issue
+            from oblib import taxonomy
+            
+            element = taxonomy.ConceptDetails()
+            
             for item in attrs.items():
                 if item[0] == "abstract":
                     element.abstract = util.convert_taxonomy_xsd_bool(item[1])
@@ -61,7 +62,7 @@ class _ElementsHandler(xml.sax.ContentHandler):
                 elif item[0] == "type":
                     element.type_name = item[1]
                 elif item[0] == "xbrli:periodType":
-                    #element.period_type = item[1]
+                    # element.period_type = item[1]
                     element.period_type = taxonomy.PeriodType(item[1])
                 elif item[0] == "xbrldt:typedDomainRef":
                     element.typed_domain_ref = item[1]
@@ -130,14 +131,27 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
 
 
 class TaxonomySemantic(object):
-    """Manage taxonomy elements and concepts."""
+    """
+    Manage semantic portions of the taxonomy including entrypoints, concepts,
+    concepts_details, and relationships.
+    """
+
+    # Taxonomy data is internally held in three data structures:
+    #    - _concept_Details is a map containing all concept details with their id as the key.  This maps to elements
+    #      internal to the taxonomy XSD file abd the code that loads this structure uses the term elements to match
+    #      the input data.
+    #    - _concepts_by_entrypoint is a map containing all concepts for individual entrypoints.  The entrypoint is
+    #      the key and the value is a list of all concepts in the entrypoint.
+    #    - _relationships_by_entrypoint is a map containing all relationshsips for individual entrypoints.  The
+    #      entrypoint is the key and the value is a list of all concepts in the entyrpoint.
 
     def __init__(self):
         """Constructor."""
-        self._elements = self._load_elements()
-        self._concepts = self._load_concepts()
-        self._relationships = self._load_relationships()
-        self._reduce_memory_footprint()
+
+        self._concepts_details = self._load_elements()
+        self._concepts_by_entrypoint = self._load_concepts()
+        self._relationships_by_entrypoint = self._load_relationships()
+        self._reduce_unused_semantic_data()
 
     def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
@@ -159,11 +173,11 @@ class TaxonomySemantic(object):
         return elements
 
     def _load_concepts_file(self, pathname):
-        tax = _TaxonomySemanticHandler()
+        taxonomy = _TaxonomySemanticHandler()
         parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
+        parser.setContentHandler(taxonomy)
         parser.parse(open(pathname))
-        return tax.concepts()
+        return taxonomy.concepts()
 
     def _load_concepts(self):
         """Return a dict of available concepts."""
@@ -202,11 +216,11 @@ class TaxonomySemantic(object):
         return concepts
 
     def _load_relationships_file(self, fn):
-        tax = _TaxonomyRelationshipHandler()
+        taxonomy = _TaxonomyRelationshipHandler()
         parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
+        parser.setContentHandler(taxonomy)
         parser.parse(open(os.path.join(constants.SOLAR_TAXONOMY_DIR, fn)))
-        return tax.relationships()
+        return taxonomy.relationships()
 
     def _load_relationships(self):
         relationships = {}
@@ -230,32 +244,34 @@ class TaxonomySemantic(object):
 
         return relationships
 
-    def _reduce_memory_footprint(self):
+    def _reduce_unused_semantic_data(self):
         """
-        Reduce the memory footprint post load by removing unused data.
-
         During loading of the elements unused elements may be loaded in the
         us-gaap and dei namespaces.  A new elements list can be created that
         does not contain them.  Although there is no other known cases of
         unused memory if any are found they should be addressed.
+
+        Removing the elements has two benefits:
+            - Allows simplifcation of accessor methods which no longer have to filter unused data.
+            - Reduces in-memory footprint of data
         """
         # Create a list of elements in use and set them all to False
-        elements_in_use = {}
-        for e in self._elements:
-            elements_in_use[e] = False
+        concept_details_in_use = {}
+        for e in self._concepts_details:
+            concept_details_in_use[e] = False
 
         # Find all elements loaded by the taxonomy in the concepts object and
         # set them to True
-        for key in self._concepts:
-            for c in self._concepts[key]:
-                elements_in_use[c] = True
+        for key in self._concepts_by_entrypoint:
+            for c in self._concepts_by_entrypoint[key]:
+                concept_details_in_use[c] = True
 
         # Create a new elements list and only add the elements that are in use.
         ne = {}
-        for e in self._elements:
-            if elements_in_use[e]:
-                ne[e] = self._elements[e]
-        self._elements = ne
+        for e in self._concepts_details:
+            if concept_details_in_use[e]:
+                ne[e] = self._concepts_details[e]
+        self._concepts_details = ne
 
     def get_all_concepts(self, details=False):
         """
@@ -269,55 +285,49 @@ class TaxonomySemantic(object):
             dict of concept details if details=True
         """
         if not details:
-            return list(self._concepts)
+            return list(self._concepts_by_entrypoint)
         else:
-            return self._elements
+            return self._concepts_details
 
     def get_all_type_names(self):
         """
-        Return all type names in elements of the taxonomy.
+        Used to access all type names in elements of the taxonomy.
 
-        Returns list
+        Returns:
+             list of type names (strings).
         """
         type_names = set() # use set to eliminate duplicates
-        for e in self._elements:
-            type_names.add(self._elements[e].type_name)
+        for e in self._concepts_details:
+            type_names.add(self._concepts_details[e].type_name)
         return list(type_names)
 
     def is_concept(self, concept):
-        """Validate if a concept is present in the Taxonomy."""
-        found = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    break
-        return found
-
-    def validate_concept_value(self, concept, value):
         """
-        Validate a concept.
+        Validate if a concept is present in the Taxonomy.
 
-        Validates whether a concept is present in the Taxonomy and if
-        its value is legal.
+        Args:
+            concept (string): Concept id with the namespace required.
+
+        Return:
+            True if concept is present, False otherwise.
         """
-        # Check presence
-        found = False
-        concept_info = False
-        for c in self._concepts:
-            for cc in self._concepts[c]:
-                if cc == concept:
-                    found = True
-                    concept_info = self.get_concept_details(concept)
-                    break
-        if not found:
-            return ["'{}' concept not found.".format(concept)]
 
-        return validator.validate_concept_value(concept_info, value)
+        if concept in self._concepts_details:
+            return True
+        else:
+            return False
 
     def is_entrypoint(self, entrypoint):
-        """Validate if an end point type is present in the Taxonomy."""
-        if entrypoint in self._concepts:
+        """
+        Validate if an entrypoint type is present in the Taxonomy.
+
+        Args:
+            entrypoint (string): Entrypoint name to check for presence.
+
+        Return:
+            True if the entrypoint is present, False otherwise.
+        """
+        if entrypoint in self._concepts_by_entrypoint:
             return True
         else:
             return False
@@ -341,13 +351,13 @@ class TaxonomySemantic(object):
                 details
         """
         concepts = []
-        if entrypoint in self._concepts:
-            concepts = self._concepts[entrypoint]
+        if entrypoint in self._concepts_by_entrypoint:
+            concepts = self._concepts_by_entrypoint[entrypoint]
             if details:
                 ci = {}
                 for concept in concepts:
-                    if concept in self._elements:
-                        ci[concept] = self._elements[concept]
+                    if concept in self._concepts_details:
+                        ci[concept] = self._concepts_details[concept]
                     else:
                         # TODO: This is now known to be a bug in the taxonomy
                         # and has been submitted for fix.
@@ -365,13 +375,19 @@ class TaxonomySemantic(object):
 
     def get_entrypoint_relationships(self, entrypoint):
         """
-        Returns a list of all relationships in an entry point
-        Returns an empty list if the concept exists but has no relationships
+        Used to find the relationships for an entrypoint.
+
+        Args:
+            Entrypoint (string): Entrypoint name to lookup relationships for.
+
+        Returns:
+             A list of all relationships in an entry point.  Iif the concept exists but has no
+             relationships an empty list is returned.
         """
 
-        if entrypoint in self._concepts:
-            if entrypoint in self._relationships:
-                return self._relationships[entrypoint]
+        if entrypoint in self._concepts_by_entrypoint:
+            if entrypoint in self._relationships_by_entrypoint:
+                return self._relationships_by_entrypoint[entrypoint]
             else:
                 return []
         else:
@@ -379,10 +395,13 @@ class TaxonomySemantic(object):
 
     def get_all_entrypoints(self):
         """
-        Returns a list of all entry points (data, documents, and processes) in the Taxonomy.
+        Used to access  a list of all entry points (data, documents, and processes) in the Taxonomy.
+
+        Returns:
+            A list of entrypoint names (strings).
         """
     
-        return list(self._concepts)
+        return list(self._concepts_by_entrypoint)
 
     def get_concept_details(self, concept):
         """
@@ -399,8 +418,7 @@ class TaxonomySemantic(object):
             KeyError if concept is not found
         """
         if self.is_concept(concept):
-            return self._elements[concept]
+            return self._concepts_details[concept]
         else:
             raise KeyError('{} is not a concept in the taxonomy'.format(concept))
             return None
-

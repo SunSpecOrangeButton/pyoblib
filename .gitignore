@@ -18,3 +18,7 @@ docs/build/
 # Coverage reports
 .coverage
 
+# Distribution Files
+build/
+dist/
+*.egg-info/

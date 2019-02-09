@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import unittest
-
-import taxonomy
-import taxonomy_semantic
 from six import string_types
+from oblib import taxonomy, taxonomy_semantic
 
-tax = taxonomy_semantic.TaxonomySemantic()
+
+taxonomy_obj = taxonomy.Taxonomy()
+tax = taxonomy_obj.semantic
 
 
 class TestTaxonomySemantic(unittest.TestCase):
@@ -131,15 +131,6 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertTrue(tax.is_concept("solar:AdvisorInvoicesCounterparties"))
         self.assertTrue(tax.is_concept("dei:LegalEntityIdentifier"))
 
-    def test_validate_concept_value(self):
-        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", "Arff")[1]))
-        self.assertEqual(1, len(tax.validate_concept_value("solar:TaxEquityCommunicaionPlan", "Arff")))
-        #TODO: 37 can be converted to valid string
-        self.assertEqual(0, len(tax.validate_concept_value("solar:TaxEquityCommunicationPlan", 37)[1]))
-        self.assertEqual(1, len(tax.validate_concept_value("dei:LegalEntityIdentifier", "5493006MHB84DD0ZWV18")[1]))
-
-        # TODO: Once the validator is fully working test a large number of cases.
-
     def test_is_entrypoint(self):
         self.assertTrue(tax.is_entrypoint("AssetManager"))
         self.assertFalse(tax.is_entrypoint("AssetMnager"))
@@ -153,7 +144,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         by the solar namespace.  Thus these tests prove that certain concepts are gone.
         """
 
-        self.assertFalse("dei:EntityReportingCurrencyISOCode" in tax._elements)
-        self.assertFalse("dei:BusinessContactMember" in tax._elements)
-        self.assertFalse("us-gaap:TimeSharingTransactionsAllowanceForUncollectibleAccountsOnReceivablesSoldWithRecourse" in tax._elements)
-        self.assertFalse("us-gaap:TreasuryStockValueAcquiredCostMethod" in tax._elements)
+        self.assertFalse("dei:EntityReportingCurrencyISOCode" in tax._concepts_details)
+        self.assertFalse("dei:BusinessContactMember" in tax._concepts_details)
+        self.assertFalse("us-gaap:TimeSharingTransactionsAllowanceForUncollectibleAccountsOnReceivablesSoldWithRecourse" in tax._concepts_details)
+        self.assertFalse("us-gaap:TreasuryStockValueAcquiredCostMethod" in tax._concepts_details)
