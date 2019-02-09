@@ -15,141 +15,141 @@
 # limitations under the License.
 
 
-export PYTHONPATH=`pwd`
-EXITVAL=0
+#export PYTHONPATH=`pwd`
+#EXITVAL=0
 
 # Basic tests
-python scripts/cli/cli.py -h || {
+python oblib/cli.py -h || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --help || {
+python oblib/cli.py --help || {
     EXITVAL=1
 }
-python scripts/cli/cli.py info || {
+python oblib/cli.py info || {
     EXITVAL=1
 }
-python scripts/cli/cli.py version || {
+python oblib/cli.py version || {
     EXITVAL=1
 }
 
 # Identifier tests
-python scripts/cli/cli.py generate-identifier || {
+python oblib/cli.py generate-identifier || {
     EXITVAL=1
 }
-python scripts/cli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576d || {
+python oblib/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576d || {
     EXITVAL=1
 }
-python scripts/cli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576 || {
+python oblib/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576 || {
     EXITVAL=1
 }
-  
+
 # Units tests
-python scripts/cli/cli.py taxonomy list-units || {
+python oblib/cli.py taxonomy list-units || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-units-details || {
+python oblib/cli.py taxonomy list-units-details || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-units-details || {
+python oblib/cli.py --csv taxonomy list-units-details || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-unit-details rad || {
+python oblib/cli.py taxonomy list-unit-details rad || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-unit rad || {
+python oblib/cli.py taxonomy validate-unit rad || {
     EXITVAL=1
 }
 
 # Numeric type tests
-python scripts/cli/cli.py taxonomy list-numeric-types || {
+python oblib/cli.py taxonomy list-numeric-types || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-numeric-type electricCurrentItemType || {
+python oblib/cli.py taxonomy validate-numeric-type electricCurrentItemType || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-numeric-type electricCurrentIteType || {
+python oblib/cli.py taxonomy validate-numeric-type electricCurrentIteType || {
     EXITVAL=1
 }
 
 # Types test
-python scripts/cli/cli.py taxonomy list-type-enums climateZoneANSIItemType || {
+python oblib/cli.py taxonomy list-type-enums climateZoneANSIItemType || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-type climateZoneANSIItemType || {
+python oblib/cli.py taxonomy validate-type climateZoneANSIItemType || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-type climateZoneANSIItemype || {
+python oblib/cli.py taxonomy validate-type climateZoneANSIItemype || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-types || {
+python oblib/cli.py taxonomy list-types || {
     EXITVAL=1
 }
 
 # Semantic tests
-python scripts/cli/cli.py taxonomy validate-entrypoint MonthlyOperatingReport || {
+python oblib/cli.py taxonomy validate-entrypoint MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-entrypoint MonthlyOperatngReport || {
+python oblib/cli.py taxonomy validate-entrypoint MonthlyOperatngReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts MonthlyOperatingReport || {
+python oblib/cli.py taxonomy list-concepts MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
+python oblib/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concept-details solar:AccountsReceivableCustomerName || {
+python oblib/cli.py taxonomy list-concept-details solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-concepts-details MonthlyOperatingReport || {
+python oblib/cli.py --csv taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-entrypoints || {
+python oblib/cli.py --csv taxonomy list-entrypoints || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
+python oblib/cli.py taxonomy validate-concept solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+python oblib/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
+python oblib/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
+python oblib/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-relationships MonthlyOperatingReport || {
+python oblib/cli.py taxonomy list-relationships MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-relationships MonthlyOperatingReport || {
+python oblib/cli.py --csv taxonomy list-relationships MonthlyOperatingReport || {
     EXITVAL=1
 }
 
 # Ref parts tests
-python scripts/cli/cli.py taxonomy list-ref-parts || {
+python oblib/cli.py taxonomy list-ref-parts || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-ref-part Dimension || {
+python oblib/cli.py taxonomy validate-ref-part Dimension || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-ref-part Dimnsion || {
+python oblib/cli.py taxonomy validate-ref-part Dimnsion || {
     EXITVAL=1
 }
 
 # Generic roles tests
-python scripts/cli/cli.py taxonomy list-generic-roles || {
+python oblib/cli.py taxonomy list-generic-roles || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML composition arc" || {
+python oblib/cli.py taxonomy validate-generic-role "Generic UML composition arc" || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy validate-generic-role "Generic UML compositin arc" || {
+python oblib/cli.py taxonomy validate-generic-role "Generic UML compositin arc" || {
     EXITVAL=1
 }
 
 # Documentation test
-python scripts/cli/cli.py taxonomy list-concept-documentation solar:Curtailment || {
+python oblib/cli.py taxonomy list-concept-documentation solar:Curtailment || {
     EXITVAL=1
 }
 
@@ -288,32 +288,32 @@ cat > temp/in.xml <<- EOM
 EOM
 
 # Test with default name recognition
-python scripts/cli/cli.py validate temp/in.json || {
+python oblib/cli.py validate temp/in.json || {
     EXITVAL=1
 }
-python scripts/cli/cli.py validate --entrypoint=System temp/in.xml || {
+python oblib/cli.py validate --entrypoint=System temp/in.xml || {
     EXITVAL=1
 }
-python scripts/cli/cli.py convert temp/in.json temp/out.xml || {
+python oblib/cli.py convert temp/in.json temp/out.xml || {
     EXITVAL=1
 }
-python scripts/cli/cli.py convert --entrypoint=System temp/in.xml temp/out.json || {
+python oblib/cli.py convert --entrypoint=System temp/in.xml temp/out.json || {
     EXITVAL=1
 }
 
 # Test with names that cannot be automatically recognized
 cp temp/in.json temp/in.jsoon
 cp temp/in.xml temp/in.xmml
-python scripts/cli/cli.py --json validate temp/in.jsoon || {
+python oblib/cli.py --json validate temp/in.jsoon || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --xml validate --entrypoint=System temp/in.xmml || {
+python oblib/cli.py --xml validate --entrypoint=System temp/in.xmml || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --json convert temp/in.jsoon temp/out2.xml || {
+python oblib/cli.py --json convert temp/in.jsoon temp/out2.xml || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --xml convert --entrypoint=System temp/in.xml temp/out.json || {
+python oblib/cli.py --xml convert --entrypoint=System temp/in.xml temp/out.json || {
     EXITVAL=1
 }
 
