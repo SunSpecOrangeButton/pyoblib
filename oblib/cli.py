@@ -324,11 +324,11 @@ def version(args):
 
 formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=34)
 
-parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
-parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
-parser.add_argument("--json", help="input format is JSON", action="store_true")
-parser.add_argument("--xml", help="input format is XML", action="store_true")
-subparsers = parser.add_subparsers(help='commands')
+argparser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
+argparser.add_argument("--csv", help="place list output in CSV format", action="store_true")
+argparser.add_argument("--json", help="input format is JSON", action="store_true")
+argparser.add_argument("--xml", help="input format is XML", action="store_true")
+subparsers = argparser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
 info_parser.set_defaults(command='info')
@@ -482,7 +482,7 @@ validate_unit_parser.set_defaults(command='validate_unit')
 validate_unit_parser.add_argument('generic_unit', action='store',
                                   help='The Unit to validate')
 
-args = parser.parse_args()
+args = argparser.parse_args()
 
 if args.csv:
     csv = True
@@ -498,7 +498,7 @@ if json and xml:
 if not hasattr(args, 'command'):
     print('A command must be specified')
     print()
-    parser.print_help()
+    argparser.print_help()
     sys.exit()
 
 globals()[args.command](args)
