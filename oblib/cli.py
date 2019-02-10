@@ -24,7 +24,7 @@ from oblib.parser import Parser, FileFormat
 #
 
 INFO = """
-This the CLI for the Orange Button Core library.  Information is available at the following URL's:
+This is the CLI for the Orange Button Core library.  Information is available at the following URL's:
 
 Orange Button Overview: https://sunspec.org/orange-button-initiative/
 Orange Button GitHUb: https://github.com/SunSpecOrangeButton

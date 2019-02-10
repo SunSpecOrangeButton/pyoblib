@@ -23,7 +23,7 @@ class TestCLI(unittest.TestCase):
         text = result.stdout.decode('utf-8')
         self.assertTrue('usage: cli.py' in text)
         self.assertEqual(result.returncode, 0)
-        result = subprocess.run(["python", CLI, "-help"],
+        result = subprocess.run(["python", CLI, "--help"],
                                 stdout=PIPE, stderr=PIPE)
         text = result.stdout.decode('utf-8')
         self.assertTrue('usage: cli.py' in text)
@@ -32,12 +32,15 @@ class TestCLI(unittest.TestCase):
     def test_info(self):
         result = subprocess.run(["python", CLI, "info"],
                                 stdout=PIPE, stderr=PIPE)
-        self.assertEqual(result.returncode, 1)
+        text = result.stdout.decode('utf-8')
+        self.assertTrue('This is the CLI ' in text)
+        self.assertEqual(result.returncode, 0)
 
     def test_version(self):
-        result = subprocess.run(["python", CLI, " version"],
+        result = subprocess.run(["python", CLI, "version"],
                                 stdout=PIPE, stderr=PIPE)
-        self.assertEqual(result.returncode, 1)
+        print(result)
+        self.assertEqual(result.returncode, 0)
 
     def test_validate_identifier(self):
         result = subprocess.run(["python", CLI, "validate-identifier",
@@ -46,14 +49,14 @@ class TestCLI(unittest.TestCase):
         text = result.stdout.decode('utf-8')
         print(result)
         self.assertIn('Valid: True', text)
-        self.assertEqual(result.returncode, 1)
-        result = subprocess.run(["python", CLI, " validate-identifier",
+        self.assertEqual(result.returncode, 0)
+        result = subprocess.run(["python", CLI, "validate-identifier",
                                  "55db4ff3-5136-4be5-846b-4a93eb4c576"],
                                 stdout=PIPE, stderr=PIPE)
         text = result.stdout.decode('utf-8')
         self.assertIn('Valid: False', text)
-        self.assertEqual(result.returncode, 1)
-        result = subprocess.run(["python", CLI, " validate-identifier"],
+        self.assertEqual(result.returncode, 0)
+        result = subprocess.run(["python", CLI, "validate-identifier"],
                                 stdout=PIPE, stderr=PIPE)
         self.assertEqual(result.returncode, 2)
 
