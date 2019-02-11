@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+pwd
+ls /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages/oblib-0.9.0-py3.6.egg/oblib
+ls /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages/oblib-0.9.0-py3.6.egg/oblib/data
+ls /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages/oblib-0.9.0-py3.6.egg/oblib/data/solar-taxonomy
+ls /home/travis/virtualenv/python3.6.3/lib/python3.6/site-packages/oblib-0.9.0-py3.6.egg/oblib/data/solar-taxonomy/core
 
 # Basic tests
 python scripts/cli/cli.py -h || {
