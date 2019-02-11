@@ -15,7 +15,8 @@ INSTALL_REQUIRE = [
     'lxml==4.2.5',
     'six==1.12.0',
     'enum34==1.1.6',
-    'jsondiff==1.1.2'
+    'jsondiff==1.1.2',
+    'validators==0.12.4'
 ]
 
 CLASSIFIERS = [
