@@ -18,7 +18,6 @@
 # and it likely  could be replaced with an HTML based documentation
 # generator.  To run this script "pip install pdoc" must be issued first.
 
-export PYTHONPATH=`pwd`/oblib
 
 # pdoc --html --overwrite --html-dir=out src
 # cp -r out/oblib docs/oblib

@@ -15,9 +15,6 @@
 # limitations under the License.
 
 
-export PYTHONPATH=`pwd`
-EXITVAL=0
-
 # Basic tests
 python scripts/cli/cli.py -h || {
     EXITVAL=1
