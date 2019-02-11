@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-import ob
+from oblib import ob
 
 
 class TestOb(unittest.TestCase):
