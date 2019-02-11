@@ -50,7 +50,7 @@ setup(
 
     packages=find_packages(),
     include_package_data=True,
-    
+
     extras_require=EXTRAS_REQUIRE,
     install_requires=INSTALL_REQUIRE,
     license='Apache 2.0',
