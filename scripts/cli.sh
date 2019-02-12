@@ -17,7 +17,7 @@
 
 EXITVAL=0
 
-export PYTHONPATH=`pwd`/oblib
+export PYTHONPATH=PYTHONPATH:`pwd`
 python scripts/cli/cli.py $1 $2 $3 $4 $5 || {
     EXITVAL=$?
 }

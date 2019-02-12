@@ -523,7 +523,7 @@ class Fact(object):
     as either XML or JSON. A Fact provides a value for a certain concept within
     a certain context, and can optionally provide units and a precision.
     """
-    def __init__(self, concept_name, context, unit, value, decimals=None, precision=None):
+    def __init__(self, concept_name, context, unit, value, decimals=None, precision=None, id=None):
         """
         Constructs a Fact instance.
         Args:
@@ -544,6 +544,9 @@ class Fact(object):
           precision: integer
             optional. For numeric types, the total number of significant digits.
             EITHER precision OR decimals can be specified, not both.
+           id: string
+           optional, if included the fact id is set accordingly, otherwise it is
+           auto-generated.
         Raises:
           OBException if constructor is given conflicting information
         """
@@ -564,7 +567,10 @@ class Fact(object):
         # don't allow decimals/precision to be set.
 
         # Fill in the id property with a UUID:
-        self.id = identifier.identifier()
+        if id is None:
+            self.id = identifier.identifier()
+        else:
+            self.id = id
 
     def set_id(self, new_id):
         """
@@ -1295,6 +1301,8 @@ class OBInstance(object):
             number of places past the decimal point to be considered precise. (For
             decimal values only. Only one of precision or decimals is accepted, not
             both. Defaults to decimals=2.)
+          fact_id: string
+            Optional ID for a fact.  If not passed in it is auto-generated.
           instant: datetime
             instant value for the context, if "context" is not given
           duration: a dict with start and end fields {"start": <date>, "end": <date>}
@@ -1328,10 +1336,16 @@ class OBInstance(object):
             precision = kwargs.pop("precision")
         else:
             precision = None
+
         if "decimals" in kwargs:
             decimals = kwargs.pop("decimals")
         else:
             decimals = None
+
+        if "fact_id" in kwargs:
+            fact_id = kwargs.pop("fact_id")
+        else:
+            fact_id = None
 
         if not self.is_concept_writable(concept_name):
             raise OBConceptException(
@@ -1374,7 +1388,8 @@ class OBInstance(object):
 
         f = Fact(concept_name, context, unit_name, value,
                  precision=precision,
-                 decimals=decimals)
+                 decimals=decimals,
+                 id=fact_id)
 
         # self.facts is nested dict keyed first on table then on context ID
         # and finally on concept:
