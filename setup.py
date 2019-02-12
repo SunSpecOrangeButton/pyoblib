@@ -13,7 +13,7 @@ EXTRAS_REQUIRE['all'] = sorted(set(sum(EXTRAS_REQUIRE.values(), [])))
 
 INSTALL_REQUIRE = [
     'lxml==4.2.5',
-    'six==1.12.0',
+    'six>=1.10.0',
     'enum34==1.1.6',
     'jsondiff==1.1.2',
     'validators==0.12.4'
