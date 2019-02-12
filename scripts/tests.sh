@@ -15,6 +15,4 @@
 # limitations under the License.
 
 
-export PYTHONPATH=`pwd`/oblib
-
 pytest --cov=oblib

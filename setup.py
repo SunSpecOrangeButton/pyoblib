@@ -13,9 +13,10 @@ EXTRAS_REQUIRE['all'] = sorted(set(sum(EXTRAS_REQUIRE.values(), [])))
 
 INSTALL_REQUIRE = [
     'lxml==4.2.5',
-    'six==1.12.0',
+    'six>=1.10.0',
     'enum34==1.1.6',
-    'jsondiff==1.1.2'
+    'jsondiff==1.1.2',
+    'validators==0.12.4'
 ]
 
 CLASSIFIERS = [
@@ -47,9 +48,10 @@ setup(
     """,
     author='SunSpec Alliance',
     author_email='support@sunspec.org',
+
     packages=find_packages(),
-    package_data={'oblib': ['data/solar-taxonomy/*']},
     include_package_data=True,
+
     extras_require=EXTRAS_REQUIRE,
     install_requires=INSTALL_REQUIRE,
     license='Apache 2.0',

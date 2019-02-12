@@ -20,7 +20,7 @@
 # remove .. from the path.  This will require coding changes to find the
 # correct placement of solar-taxonomy.
 
-export PYTHONPATH=`pwd`/oblib
+
 export SOLAR_TAXONOMY_DIR='solar-taxonomy'
 pyinstaller --add-data solar-taxonomy:solar-taxonomy --clean --onefile scripts/cli/cli.py
 rm -rf build
