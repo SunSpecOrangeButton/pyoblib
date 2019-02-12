@@ -14,10 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 EXITVAL=0
 
-export PYTHONPATH=PYTHONPATH:`pwd`
 python scripts/cli/cli.py $1 $2 $3 $4 $5 || {
     EXITVAL=$?
 }
