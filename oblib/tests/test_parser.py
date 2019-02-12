@@ -125,7 +125,7 @@ TEST_XML = """
             <forever />
         </period>
     </context>
-    <solar:AppraisalAvailabilityOfDocument contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfDocument>
+    <solar:AppraisalAvailabilityOfDocument contextRef="NON_TABLE_CONCEPTS_0" id="test">true</solar:AppraisalAvailabilityOfDocument>
     <solar:AppraisalAvailabilityOfFinalDocument contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfFinalDocument>
     <solar:AppraisalAvailabilityOfDocumentExceptions contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfDocumentExceptions>
     <solar:AppraisalExceptionDescription contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalExceptionDescription>
