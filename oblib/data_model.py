@@ -544,9 +544,9 @@ class Fact(object):
           precision: integer
             optional. For numeric types, the total number of significant digits.
             EITHER precision OR decimals can be specified, not both.
-           id: string
-           optional, if included the fact id is set accordingly, otherwise it is
-           auto-generated.
+          id: string
+            optional, if included the fact id is set accordingly, otherwise it is
+            auto-generated.
         Raises:
           OBException if constructor is given conflicting information
         """
