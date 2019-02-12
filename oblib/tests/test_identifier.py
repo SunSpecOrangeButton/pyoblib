@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import unittest
-import identifier
+from oblib import identifier
 
 
 class TestIdentifier(unittest.TestCase):

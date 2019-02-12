@@ -16,9 +16,7 @@
 
 import os
 import xml.sax
-
-import constants
-
+from oblib import constants
 
 #
 # Note: All miscellaneous taxonomy files are covered except for solar-ref-roles which has only one
@@ -89,6 +87,44 @@ class _TaxonomyGenericRolesHandler(xml.sax.ContentHandler):
         return self._generic_roles
 
 
+class _TaxonomyDocumentationHandler(xml.sax.ContentHandler):
+    """Loads Taxonomy Docstrings from Labels file"""
+
+    def __init__(self):
+        """Ref parts constructor."""
+        self._documentation = {}
+        self._awaiting_text_for_concept = None
+
+    def startElement(self, name, attrs):
+        # Technically we should be using the labelArc element to connect a label
+        # element to a loc element and the loc element refers to a concept by its anchor
+        # within the main xsd, but that's really complicated and in practice the
+        # xlink:label atrr in the <label> element seems to always be "label_" plus the
+        # name of the concept.
+        concept = None
+        role = None
+        if name == "label":
+            for item in attrs.items():
+                # Do we care about the difference between xlink:role="http:.../documentation"
+                # and xlink:role="http:.../label" ??
+                if item[0] == "xlink:label":
+                    concept = item[1].replace("label_solar_", "solar:")
+                if item[0] == "xlink:role":
+                    role = item[1]
+        if concept is not None and role == "http://www.xbrl.org/2003/role/documentation":
+            self._awaiting_text_for_concept = concept
+
+    def characters(self, chars):
+        if self._awaiting_text_for_concept is not None:
+            self._documentation[ self._awaiting_text_for_concept] = chars
+
+    def endElement(self, name):
+        self._awaiting_text_for_concept = None
+
+    def docstrings(self):
+        return self._documentation
+
+
 class TaxonomyNumericTypes(object):
     """
     Represents Miscellaneous Taxonomy Objects.
@@ -118,14 +154,23 @@ class TaxonomyNumericTypes(object):
 
     def get_all_numeric_types(self):
         """
-        A list of numeric types.
+        Used to access a list of numeric types.
+
+        Returns:
+             list of all numeric types (strings).
         """
 
         return self._numeric_types
 
     def is_numeric_type(self, numeric_type):
         """
-        Check if a numeric type is valid.
+        Used to check if a numeric type is valid.
+
+        Args:
+            numeric_type (string): Numeric type to check for validity.
+
+        Returns:
+            True if the numeric type is valid, false otherwise.
         """
 
         if numeric_type in self._numeric_types:
@@ -158,11 +203,24 @@ class TaxonomyGenericRoles(object):
         return generic_roles
 
     def get_all_generic_roles(self):
-        """A list of generic roles."""
+        """
+        Used to access a list of all generic roles.
+
+        Returns:
+             list of all generic roles (strings).
+        """
         return self._generic_roles
 
     def is_generic_role(self, generic_role):
-        """Check if a generic role is valid."""
+        """
+        Used to check if a generic role is valid.
+
+        Args:
+            generic_role (string): Generic role to check for validity.
+
+        Returns:
+            True if the generic role is valid, false otherwise.
+        """
         if generic_role in self._generic_roles:
             return True
         else:
@@ -193,70 +251,68 @@ class TaxonomyRefParts(object):
         return ref_parts
 
     def get_all_ref_parts(self):
-        """A list of ref parts."""
+        """
+        Used to access the a list of all ref parts.
+
+        Returns:
+            A list of all ref parts (strings).
+        """
         return self._ref_parts
 
     def is_ref_part(self, ref_part):
-        """Check if a ref part is valid."""
+        """
+        Used to check if a ref part is valid.
+
+        Args:
+            ref_part (string): Ref part to check or validity.
+
+        Returns:
+            True if the ref part is valid, false otherwise.
+        """
         if ref_part in self._ref_parts:
             return True
         else:
             return False
 
-class _TaxonomyDocstringHandler(xml.sax.ContentHandler):
-    """Loads Taxonomy Docstrings from Labels file"""
 
-    def __init__(self):
-        """Ref parts constructor."""
-        self._docstrings = {}
-        self._awaiting_text_for_concept = None
-
-    def startElement(self, name, attrs):
-        # Technically we should be using the labelArc element to connect a label
-        # element to a loc element and the loc element refers to a concept by its anchor
-        # within the main xsd, but that's really complicated and in practice the
-        # xlink:label atrr in the <label> element seems to always be "label_" plus the
-        # name of the concept.
-        concept = None
-        role = None
-        if name == "label":
-            for item in attrs.items():
-                # Do we care about the difference between xlink:role="http:.../documentation"
-                # and xlink:role="http:.../label" ??
-                if item[0] == "xlink:label":
-                    concept = item[1].replace("label_solar_", "solar:")
-                if item[0] == "xlink:role":
-                    role = item[1]
-        if concept is not None and role == "http://www.xbrl.org/2003/role/documentation":
-            self._awaiting_text_for_concept = concept
-
-    def characters(self, chars):
-        if self._awaiting_text_for_concept is not None:
-            self._docstrings[ self._awaiting_text_for_concept ] = chars
-
-    def endElement(self, name):
-        self._awaiting_text_for_concept = None
-
-    def docstrings(self):
-        return self._docstrings
-
-
-class TaxonomyDocstrings(object):
+class TaxonomyDocumentation(object):
     """
     Loads the documentation strings for each concept from solar_2018-03-31_r01_lab.xml
     """
     def __init__(self):
-        self._docstrings = self._load_docstrings()
+        self._documentation = self._load_documentation()
 
-    def _load_docstrings(self):
+    def _load_documentation(self):
         label_file = "solar_2018-03-31_r01_lab.xml"
         filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
 
-        tax = _TaxonomyDocstringHandler()
+        taxonomy = _TaxonomyDocumentationHandler()
         parser = xml.sax.make_parser()
-        parser.setContentHandler(tax)
+        parser.setContentHandler(taxonomy)
         parser.parse(open(filename))
-        return tax.docstrings()
+        return taxonomy._documentation
 
-    def docstrings(self):
-        return self._docstrings
+    def get_all_concepts_documentation(self):
+        """
+        Used to lookup all docstrings.
+
+        Returns:
+            A map of all docstrings with a value of an array of two elements; array element 0 is
+            a xlink:label and array element 1 is a xlink:role.
+        """
+        return self._documentation
+
+    def get_concept_documentation(self, concept):
+        """
+        Used to load
+
+        Args:
+            concept (str): A concept name to lookup.
+
+        Returns:
+            The documentation for the concept or None if not found.
+        """
+        if concept in self._documentation:
+            return self._documentation[concept]
+        else:
+            return None

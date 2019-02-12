@@ -13,13 +13,13 @@
 # limitations under the License.
 
 import unittest
-import parser
-import taxonomy
-
 from jsondiff import diff
+from oblib import parser, taxonomy
+
 
 taxonomy = taxonomy.Taxonomy()
 parser = parser.Parser(taxonomy)
+
 
 class TestParser(unittest.TestCase):
     # Note: this module is tested differently than others.  Sample JSON and XML
@@ -86,28 +86,24 @@ TEST_JSON = """
       "href": "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_all_2018-03-31_r01.xsd"
     }
   ],
-  "facts": [
-    {
-      "id": "16f60d57-2536-4ec3-8414-02b95d067e02",
+  "facts": {
+    "16f60d57-2536-4ec3-8414-02b95d067e02": {
       "value": true,
       "aspects": {
-        "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
-        "xbrl:entity": "JUPITER",
-        "xbrl:periodStart": "2017-11-01T00:00:00",
-        "xbrl:periodEnd": "2017-11-30T00:00:00"
+        "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+        "entity": "JUPITER",
+        "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
       }
     },
-    {
-      "id": "8333ad4e-24b4-42c1-83b3-fca9ef7fce55",
+    "8333ad4e-24b4-42c1-83b3-fca9ef7fce55" : {
       "value": true,
       "aspects": {
-        "xbrl:concept": "solar:MonthlyOperatingReportAvailabilityOfFinalDocument",
-        "xbrl:entity": "JUPITER",
-        "xbrl:periodStart": "2017-11-01T00:00:00",
-        "xbrl:periodEnd": "2017-11-30T00:00:00"
+        "concept": "solar:MonthlyOperatingReportAvailabilityOfFinalDocument",
+        "entity": "JUPITER",
+        "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
       }
     }
-  ]
+  }
 }
 """
 

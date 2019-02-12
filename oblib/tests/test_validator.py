@@ -13,16 +13,15 @@
 # limitations under the License.
 
 import unittest
+from oblib import identifier, taxonomy, validator
 
-import identifier
-import taxonomy
-import validator
-
+tax = taxonomy.Taxonomy()
+validator = validator.Validator(tax)
 
 class TestValidator(unittest.TestCase):
 
     def test_validate_concept_value(self):
-        concept = taxonomy.Element()
+        concept = taxonomy.ConceptDetails()
         concept.id = "SomeId"
         concept.nillable = False
         self.assertEqual(1, len(validator.validate_concept_value(concept, None)[1]))
@@ -41,7 +40,7 @@ class TestValidator(unittest.TestCase):
 
         concept.type_name = "xbrli:integerItemType"
         self.assertEqual(1, len(validator.validate_concept_value(concept, "Arf")[1]))
-        #TODO: True value can be converted to integer value 1
+        # TODO: True value can be converted to integer value 1
         self.assertEqual(0, len(validator.validate_concept_value(concept, True)[1]))
         self.assertEqual(0, len(validator.validate_concept_value(concept, 52)[1]))
         self.assertEqual(0, len(validator.validate_concept_value(concept, -52)[1]))
@@ -72,7 +71,7 @@ class TestValidator(unittest.TestCase):
         for v in values.keys():
             result = validator._xbrli_boolean_item_type_validator(v)
             self.assertEqual(result[0], values[v][0])
-            if values[v][1]: # error messages are present
+            if values[v][1]:  # error messages are present
                 self.assertTrue(result[1])
             else:
                 self.assertFalse(result[1])
@@ -83,7 +82,7 @@ class TestValidator(unittest.TestCase):
         for v in values.keys():
             result = validator._xbrli_string_item_type_validator(v)
             self.assertEqual(result[0], values[v][0])
-            if values[v][1]: # error messages are present
+            if values[v][1]:  # error messages are present
                 self.assertTrue(result[1])
             else:
                 self.assertFalse(result[1])
@@ -95,7 +94,7 @@ class TestValidator(unittest.TestCase):
         for v in values.keys():
             result = validator._xbrli_integer_item_type_validator(v)
             self.assertEqual(result[0], values[v][0])
-            if values[v][1]: # error messages are present
+            if values[v][1]:  # error messages are present
                 self.assertTrue(result[1])
             else:
                 self.assertFalse(result[1])
