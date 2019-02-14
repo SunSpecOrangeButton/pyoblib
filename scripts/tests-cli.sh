@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+EXITVAL=0
 
 # Basic tests
 python scripts/cli/cli.py -h || {

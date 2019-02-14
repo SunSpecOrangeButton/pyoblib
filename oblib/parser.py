@@ -245,6 +245,8 @@ class Parser(object):
             if "value" not in fact:
                 validation_errors.append("fact tag is missing value tag")
 
+            kwargs["fact_id"] = id
+
             # If validation errors were found for this fact continute to the next fact
             if len(validation_errors.get_errors()) > begin_error_count:
                 continue
@@ -406,9 +408,15 @@ class Parser(object):
         for child in root:
             if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
                 kwargs = {}
+
+                fact_id = None
+                if "id" in child.attrib:
+                    fact_id = child.attrib["id"]
+
                 if "contextRef" in child.attrib:
                     if child.attrib["contextRef"] in contexts:
                         kwargs["context"] = contexts[child.attrib["contextRef"]]
+                        kwargs["fact_id"] = fact_id
                         tag = child.tag
                         tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
                         tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")

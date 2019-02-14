@@ -844,6 +844,25 @@ class TestDataModelEntrypoint(unittest.TestCase):
         fact = root.find("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}ModuleNameplateCapacity")
         self.assertEqual(fact.attrib["id"], fact_id)
 
+    def test_input_ids(self):
+        # Test ID's can be passed into either a Fact or an OBInstance.
+
+        fact = data_model.Fact("solar:MeasuredEnergy", None, "SI:MWh", "3164.80", id="test")
+        self.assertEqual(fact.id, "test")
+
+        doc = data_model.OBInstance("System", self.taxonomy, dev_validation_off=True)
+        now = datetime.now()
+        doc.set_default_context({
+            "entity": "JUPITER",
+            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel100PercentMember",
+            taxonomy.PeriodType.instant: now,
+            taxonomy.PeriodType.duration: "forever"
+        })
+        doc.set("solar:InverterOutputRatedPowerAC", 1.25, unit_name="kW",
+            ProductIdentifierAxis=1, fact_id="obinstance-test")
+        fact = doc.get_all_facts()[0]
+        self.assertEqual("obinstance-test", fact.id)
+
     def test_json_fields_are_strings(self):
         # Issue #77 - all json fields should be strings other than None which should convert
         # a JSON null literal.
