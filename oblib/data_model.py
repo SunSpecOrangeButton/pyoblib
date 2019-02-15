@@ -12,23 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Orange Button data model.
+""" Orange Button data model.
 
 Consists of
-    :py:class:`OBInstance`, representing an XBRL Instance Document
-    :py:class:`Concept`, representing a XBRL concept
-    :py::class:`Fact`, representing a XBRL fact
-    :py:class:`Context`, representing the XBRL context for a fact
-    :py:class:`Axis` and :py:class:`Hypercube` to represent tables within
-        Instance Documents.
+- :py:class:`OBInstance`, representing an XBRL Instance Document
+- :py:class:`Concept`, representing a XBRL concept
+- :py:class:`Fact`, representing a XBRL fact
+- :py:class:`Context`, representing the XBRL context for a fact
+- :py:class:`Axis` and :py:class:`Hypercube` to represent tables within Instance Documents.
 
 If you are writing Orange Button, the typical usage is to create an `OBInstance`
 document ``doc = OBInstance()`` and use ``doc.set`` to add data to the document,
 and ``doc.to_XML_string`` or ``doc.to_JSON_string`` to export to the desired format.
 
 Example:
-
+::
     from oblib.taxonomy import getTaxonomy, PeriodType
     from oblib.data_model import OBInstance
     taxonomy = getTaxonomy()
@@ -39,6 +37,7 @@ Example:
                      date(year=2018, month=12, day=1))
     mor_document.set("solar:MeasuredEnergy", "1246.25", unit_name="kWh")
     xml = mor_document.to_XML_string()
+::
 
 If you are reading Orange Button data, the typical usage is to read the source
 JSON or XML file with ``oblib.Parser`` to create an ``OBInstance`` document,
