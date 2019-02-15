@@ -48,8 +48,7 @@ class TaxonomyTypes(object):
     """
     Represents Taxonomy Types.
 
-    Represents Taxonomy Types and allows lookup of enumerated values
-    for each Taxonomy Type.
+    Allows lookup of enumerated values for each Taxonomy Type.
 
     Please note that in the implementation of this class the variable name
     "type" is never used although "_type" and "types" are in order to avoid

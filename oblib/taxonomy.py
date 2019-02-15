@@ -74,23 +74,29 @@ class RelationshipRole(enum.Enum):
 
 class ConceptDetails(object):
     """
-    Concept Details is used to model a data element within a Taxonomy Concept.
+    ConceptDetails models a data element within a Taxonomy Concept.
 
     Attributes:
-        abstract (boolean): False for standard concepts, True for concepts that
+        abstract: boolean
+            False for standard concepts, True for concepts that
             model relationships but don't hold data.
-        id (string): ID with the namespace (solar:, us-gaap:, dei:) for the
-            concept.
-        name (string): Name of the concept, usually identical to the ID without
+        id: str
+            ID with the namespace (solar:, us-gaap:, dei:) for the concept.
+        name: str
+            Name of the concept, usually identical to the ID without
             the namespace.
-        nillable (boolean): True if the concept can be set to None, False if it
+        nillable: boolean
+            True if the concept can be set to None, False if it
             must have a value set.
-        period_independent (boolean): True if the concept is period
-            independent, false otherwise.
-        substitution_group (SubstitutionGroup): The type of substitution group.
-        type_name (string): XBRL data type.
-        period_type (PeriodType): Duration if the period models a period of
-            time (including forever), instance if it is a point in time.
+        period_independent: boolean
+            True if the concept is period independent, false otherwise.
+        substitution_group: SubstitutionGroup
+            The type of substitution group.
+        type_name: str
+            XBRL data type.
+        period_type: PeriodType
+            Duration if the period models a period of time (including forever),
+            instance if it is a point in time.
     """
 
     def __init__(self):
@@ -122,12 +128,16 @@ class Relationship(object):
     Relationship holds a taxonomy relationship record.
 
     Attributes:
-        role (string): XBRL Arcrole
-        from_ (string): Models a relationship between two concepts in
+        role: str
+            XBRL Arcrole
+        from_: str
+            Models a relationship between two concepts in
             conjunction with to.
-        to (string): Models a relationship between two concpets in conjunction
+        to: str
+            Models a relationship between two concpets in conjunction
             with from_.
-        order (int): The order of the relationshps for a single entrypoint.
+        order: int
+            The order of the relationshps for a single entrypoint.
     """
 
     def __init__(self):
@@ -151,21 +161,32 @@ class Unit(object):
     Unit holds the definition of a Unit from the Unit Registry.
 
     Attributes:
-        id (string): ID for this unit (sample is u00020) - not normally used
+        id: str
+            ID for this unit (sample is u00020), not normally used
             but preserved for completeness.
-        unit_id (string): Unit ID for this unit (for example MMBoe) - usually
+        unit_id: str
+            Unit ID for this unit (for example MMBoe), usually
             the main lookup value.
-        unit_name (string): Spells out Unit ID (for example MMBoe == Millions 
+        unit_name: str
+            Spells out Unit ID (for example MMBoe == Millions 
             of Barrels of Oil Equivalent)
-        ns_unit (string): Namespace - not normally used in processing.
-        item_type (string): XBRL item type associated with the unit.
-        item_type_date (datetime.datetime): Date the item type was set.
-        symbol (string): Symbol used on presentation - may be same as unit_id.
-        definition (string): Definition of unit, may be same as name or may 
+        ns_unit: str
+            Namespace, not normally used in processing.
+        item_type: str
+            XBRL item type associated with the unit.
+        item_type_date: datetime.datetime
+            Date the item type was set.
+        symbol: str
+            Symbol used on presentation - may be same as unit_id.
+        definition: str
+            Definition of unit, may be same as name or may 
             elaborate.
-        base_standard (BaseStandard): Base standard for a unit.
-        status (UnitStatus): Unit status for a unit.
-        version_date (datetime.datetime): Date for a unit
+        base_standard: BaseStandard
+            Base standard for a unit.
+        status: UnitStatus
+            Unit status for a unit.
+        version_date: datetime.datetime
+            Date for a unit
     """
 
     def __init__(self):
