@@ -116,8 +116,8 @@ def list_concept_details(args):
 
 
 def list_unit_details(args):
-    unit = taxonomy.units.get_unit(args.unit)
-    if unit is not None:
+    try:
+        unit = taxonomy.units.get_unit(args.unit)
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
         print("Name:              ", unit.unit_name)
@@ -129,7 +129,7 @@ def list_unit_details(args):
         print("Definition:        ", unit.definition)
         print("Status:            ", unit.status.value)
         print("Version Date:      ", unit.version_date)
-    else:
+    except ob.OBNotFoundError as error:
         print("Not found")
 
 
@@ -232,11 +232,11 @@ def list_units_details(args):
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
         for unit_id in taxonomy.units.get_all_units():
-                unit = taxonomy.units.get_unit(unit_id)
-                print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
-                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
-                       unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
-                       unit.status.value, unit.definition))
+            unit = taxonomy.units.get_unit(unit_id)
+            print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
+                   (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                   unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
+                   unit.status.value, unit.definition))
     else:
         print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %15s' %
                 ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
@@ -245,11 +245,11 @@ def list_units_details(args):
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
         for unit_id in taxonomy.units.get_all_units():
-                unit = taxonomy.units.get_unit(unit_id)
-                print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %1s' %
-                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
-                       unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
-                       unit.status.value, unit.definition))
+            unit = taxonomy.units.get_unit(unit_id)
+            print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %1s' %
+                   (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                   unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
+                   unit.status.value, unit.definition))
 
 
 def list_types(args):
