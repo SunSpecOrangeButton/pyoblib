@@ -15,6 +15,7 @@
 """ Orange Button data model.
 
 Consists of
+
 - :py:class:`OBInstance`, representing an XBRL Instance Document
 - :py:class:`Concept`, representing a XBRL concept
 - :py:class:`Fact`, representing a XBRL fact
