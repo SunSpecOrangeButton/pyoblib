@@ -18,6 +18,7 @@ import xml.sax
 import os
 import sys
 from oblib import constants, util
+from oblib.ob import OBNotFoundError
 
 
 class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
@@ -146,28 +147,27 @@ class TaxonomyUnits(object):
             boolean
 
         Raises:
-            ValueError if attr is not valid attribute
+            ValueError if attr is not a valid attribute
         """
-        if not attr:
-            # check for any attribute
-            return (unit_str in self._units.keys() or \
-                    unit_str in self._by_id().keys() or \
-                    unit_str in self._by_unit_name().keys())
-        elif attr not in {'unit_id', 'unit_name', 'id'}:
+        if attr=='unit_id':
+            return unit_str in self._units.keys()
+        elif attr=='unit_name':
+            return unit_str in self._by_unit_name().keys()
+        elif attr=='id':
+            return unit_str in self._by_id().keys()
+        elif attr:
             raise ValueError('{} is not a valid unit attribute, must be one of'
                              '"unit_id", "unit_name" or "id"'
                              .format(attr))
-        else:
-            if attr=='unit_id':
-                return unit_str in self._units.keys()
-            elif attr=='unit_name':
-                return unit_str in self._by_unit_name().keys()
-            elif attr=='id':
-                return unit_str in self._by_id().keys()
+        else: # attr is None, check for any attribute
+            return (unit_str in self._units.keys() or \
+                    unit_str in self._by_id().keys() or \
+                    unit_str in self._by_unit_name().keys())
 
     def get_unit(self, unit_str, attr=None):
         """
-        Returns the unit with unit_id, unit_name or id is given by unit_str.
+        Returns the unit given by unit_str, checking attributes unit_id,
+        unit_name and id.
 
         The search for the unit can be restricted by specifying attr as one
         of 'unit_id', 'unit_name', or 'id'.
@@ -183,36 +183,12 @@ class TaxonomyUnits(object):
             unit: dict
 
         Raises:
-            ValueError if unit_str is not a value for a unit in the taxonomy
+            OBNotFoundError if no unit is found.
+            ValueError if attr is not unit_id, unit_name, id, or None.
         """
         found = False
-        if not attr:
-            # search by unit_id, unit_name or id
-            if self.is_unit(unit_str, attr):
-                # find unit_id
-                try:
-                    unit = self._units[unit_str]
-                    found = True
-                except:
-                    if unit_str in self._by_id():
-                        unit_id = self._by_id()[unit_str]
-                        unit = self._units[unit_id]
-                        found = True
-                    elif unit_str in self._by_unit_name():
-                        unit_id = self._by_unit_name()[unit_str]
-                        unit = self._units[unit_id]
-                        found = True
-            if not found:
-                raise ValueError("{} is not a valid unit_id, unit_name or id"
-                                .format(unit_str))
-                return None
-            else:
-                return unit
-
-        elif attr not in {'unit_id', 'unit_name', 'id'}:
-            raise ValueError('{} is not a recognized unit attribute'
-                             .format(attr))
-        else:
+        unit = None
+        if attr in {'unit_id', 'unit_name', 'id'}:
             # valid attr, search for unit_str in attr's values
             if attr=='unit_id':
                 if unit_str in self._units.keys():
@@ -228,9 +204,27 @@ class TaxonomyUnits(object):
                     unit_id = self._by_id()[unit_str]
                     unit = self._units[unit_id]
                     found = True
-            if not found:
-                raise ValueError("{} is not a valid value for {}"
-                                .format(unit_str, attr))
-                return None
-            else:
-                return unit
+        elif attr:
+            raise ValueError('{} is not a recognized unit attribute'
+                             .format(attr))
+        else:  # attr is None
+            # search by unit_id, unit_name or id
+            if self.is_unit(unit_str, attr):
+                # find unit_id
+                try:
+                    unit = self._units[unit_str]
+                    found = True
+                except:
+                    if unit_str in self._by_id():
+                        unit_id = self._by_id()[unit_str]
+                        unit = self._units[unit_id]
+                        found = True
+                    elif unit_str in self._by_unit_name():
+                        unit_id = self._by_unit_name()[unit_str]
+                        unit = self._units[unit_id]
+                        found = True
+        if found:
+            return unit
+        else:
+            raise OBNotFoundError("{} is not the type, name or id of a valid "
+                                  "unit".format(unit_str, attr))
