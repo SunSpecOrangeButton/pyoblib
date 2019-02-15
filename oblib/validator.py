@@ -17,6 +17,7 @@
 import re
 from datetime import date, datetime
 from oblib import identifier
+from oblib.ob import OBValidationError
 import validators
 
 
@@ -43,9 +44,10 @@ BOOLEAN_VALUES = BOOLEAN_TRUE + BOOLEAN_FALSE
 
 class Validator(object):
     """
-    Performs validation
+    Validates values for concepts.
 
-    taxonomy (Taxonomy): initialized Taxonomy.
+    Args:
+        taxonomy (Taxonomy): initialized Taxonomy.
     """
 
     def __init__(self, taxonomy):
@@ -54,43 +56,45 @@ class Validator(object):
 
     def validate_concept_value(self, concept_details, value):
         """
-            Validate a concept value.
+        Validate a concept value.
 
-            Args:
-                concept_details (ConceptDetails): concept details
-                value (*): value to be validated
+        Args:
+            concept_details (ConceptDetails): concept details.
+            value (*): value to be validated.
 
-            Returns:
-                A Tuple (*, list of str) containing original or converted value and list of errors (if any)
+        Returns:
+            A tuple (*, list of str) containing original or converted value 
+            and list of errors (can be empty).
         """
         errors = []
-        result = value, []
+        result = (value, [])
         # If null check if nillable is ok and return
         if value is None and not concept_details.nillable:
-            errors += ["'{}' is not allowed to be nillable (null).".format(concept_details.id)]
+            errors += ["'{}' is not allowed to be nillable (null)."
+                       .format(concept_details.id)]
         enum = self._taxonomy.types.get_type_enum(concept_details.type_name)
-        is_enum = enum is not None
         # Check data type and validator calling
         if type(concept_details.type_name).__name__ in ["str", "unicode"]:
             method_name = self._get_validator_method_name(concept_details.type_name)
             # validator_module = sys.modules[__name__]
             found_method = getattr(self, method_name, None)
-            if found_method is not None:
-                if is_enum:
+            if found_method:
+                if enum:
                     result = found_method(value, enum)
                 else:
                     result = found_method(value)
-            elif is_enum:
-                result = self._generic_enum_validator(value, concept_details, enum)
+            elif enum:
+                result = self._generic_enum_validator(value, concept_details,
+                                                      enum)
             else:
-                raise Exception(
-                    "Concept '{}' could not be processed. Missing method '{}'.".format(concept_details.type_name,
-                                                                                       method_name))
+                raise OBValidationError(
+                    "Concept '{}' could not be processed. Missing method '{}'."
+                    .format(concept_details.type_name, method_name))
 
         # Check identifiers.  This is based upon the name of the field containing
         # the word Identifier in it.
         if concept_details.id.find("Identifier") != -1:
-            if identifier.validate(value) is False:
+            if not identifier.validate(value):
                 errors += ["'{}' is not valid identifier.".format(concept_details.id)]
 
         # If all conditions clear then the value passes.
@@ -99,13 +103,13 @@ class Validator(object):
 
     def _get_validator_method_name(self, type_name):
         """
-            Return the validator function name for a type.
+        Return the validator function name for a type.
 
-            Args:
-                type_name (str): Name of the type
+        Args:
+            type_name (str): Name of the type
 
-            Returns:
-                Internal function name as string
+        Returns:
+            Internal function name as string
         """
         # Check if type nillable and not string
         if type_name is None and type(type_name) is not str:
@@ -118,15 +122,15 @@ class Validator(object):
 
     def _generic_enum_validator(self, value, concept_details, enum):
         """
-            A generic validator for concept enum value.
+        A generic validator for concept enum value.
 
-            Args:
-                value (str): value representing enum value
-                concept_details (ConceptDetails): concept details
-                enum (list of str): enumerator of all possible values
+        Args:
+            value (str): value representing enum value
+            concept_details (ConceptDetails): concept details
+            enum (list of str): enumerator of all possible values
 
-            Returns:
-                A Tuple (str, list of str) containing original and list of errors (if any)
+        Returns:
+            A Tuple (str, list of str) containing original and list of errors (if any)
         """
         errors = []
         if (value not in enum):
@@ -140,14 +144,15 @@ class Validator(object):
 
     def _xbrli_boolean_item_type_validator(self, value):
         """
-            A validator for XBRLI boolean concept.
+        A validator for XBRLI boolean item type.
 
-            Args:
-                value (boolean or int or str): value to be validated and converted if needed
+        Args:
+            value (boolean or int or str): value to be validated and converted
+            if needed.
 
-            Returns:
-                A Tuple (boolean or int or str, list of str) containing original or converted value
-                and list of errors (if any)
+        Returns:
+            A Tuple (boolean, list of str) containing original or converted
+            value and list of errors (can be empty).
         """
         errors = []
         if value is True:
@@ -164,13 +169,14 @@ class Validator(object):
 
     def _xbrli_string_item_type_validator(self, value):
         """
-            A validator for XBRLI string concept.
+        A validator for XBRLI string item type.
 
-            Args:
-                value (*): value to be validated and converted if needed
+        Args:
+            value (*): value to be validated and converted if needed.
 
-            Returns:
-                A Tuple (str, list of str) containing original or converted value and list of errors (if any)
+        Returns:
+            A Tuple (str, list of str) containing original or converted value
+            and list of errors (can be empty).
         """
         errors = []
         try:
@@ -182,14 +188,15 @@ class Validator(object):
 
     def _xbrli_integer_item_type_validator(self, value):
         """
-            A validator for XBRLI integer concept.
+        A validator for XBRLI integer item type.
 
-            Args:
-                value (int or decimal or str): value to be validated and converted if needed
+        Args:
+            value (int or decimal or str): value to be validated and 
+            converted if needed.
 
-            Returns:
-                A Tuple (int or decimal or str, list of str) containing original or converted value
-                and list of errors (if any)
+        Returns:
+            A Tuple (int, list of str) containing original or converted value
+            and list of errors (can be empty).
         """
         errors = []
         if isinstance(value, int):
@@ -205,19 +212,20 @@ class Validator(object):
 
     def _xbrli_decimal_item_type_validator(self, value):
         """
-            A validator for XBRLI decimal concept.
+        A validator for XBRLI decimal item type.
 
-            Args:
-                value (decimal or int or str): value to be validated and converted if needed
+        Args:
+            value (decimal or int or str): value to be validated and converted
+            if needed.
 
-            Returns:
-                A Tuple (decimal or int or str, list of str) containing original or converted value
-                and list of errors (if any)
+        Returns:
+            A Tuple (float, list of str) containing original or converted value
+            and list of errors (can be empty).
         """
         errors = []
         if type(value) is str:
             try:
-                result = float(value)
+                value = float(value)
             except ValueError as ex:
                 errors += ["'{}' is not a valid decimal value.".format(value)]
         elif type(value) is not int:
@@ -226,19 +234,20 @@ class Validator(object):
 
     def _xbrli_monetary_item_type_validator(self, value):
         """
-            A validator for XBRLI monetary concept.
+        A validator for XBRLI monetary item type.
 
-            Args:
-                value (decimal or int or str): value to be validated and converted if needed
+        Args:
+            value (decimal or int or str): value to be validated and converted
+            if needed.
 
-            Returns:
-                A Tuple (decimal or int or str, list of str) containing original or converted value
-                and list of errors (if any)
+        Returns:
+            A Tuple (float, list of str) containing original or converted value
+            and list of errors (can be empty).
         """
         errors = []
         if type(value) is str:
             try:
-                result = float(value)
+                value = float(value)
             except ValueError as ex:
                 errors += ["'{}' is not a valid monetary value.".format(value)]
         elif type(value) is not int:
@@ -247,18 +256,19 @@ class Validator(object):
 
     def _xbrli_date_item_type_validator(self, value):
         """
-            A validator for XBRLI date concept.
+        A validator for XBRLI date item type.
 
-            Args:
-                value (date or str): value to be validated and converted if needed
+        Args:
+            value (date or str): value to be validated and converted if needed.
 
-            Returns:
-                A Tuple (date or str, list of str) containing original or converted value and list of errors (if any)
+        Returns:
+            A Tuple (date, list of str) containing original or
+            converted value and list of errors (can be empty).
         """
         errors = []
         if type(value) is str:
             try:
-                result = datetime.strptime(value, '%Y-%m-%d').date()
+                value = datetime.strptime(value, '%Y-%m-%d').date()
             except ValueError as ex:
                 print(ex)
                 errors += ["'{}' is not a valid date value.".format(value)]
