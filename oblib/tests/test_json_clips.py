@@ -969,6 +969,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -982,6 +983,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -995,6 +997,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1008,6 +1011,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1021,6 +1025,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1034,6 +1039,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1047,6 +1053,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1060,6 +1067,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1073,6 +1081,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1086,6 +1095,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1099,6 +1109,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1112,6 +1123,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1125,6 +1137,7 @@ CLIPS = [
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1275,7 +1288,8 @@ CLIPS = [
         "aspects": {
             "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
             "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
+            "period": "2017-11-30T00:00:00",
+            "unit": "USD"
         }
     }
     """
@@ -1568,6 +1582,7 @@ CLIPS = [
             "concept": "solar:ModuleShortCircuitCurrent",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "A",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1594,6 +1609,7 @@ CLIPS = [
             "concept": "solar:InverterOutputRatedFrequency",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "Hz",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1677,6 +1693,7 @@ CLIPS = [
             "concept": "solar:TrackerAzimuth",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
+            "unit": "Degree",
             "solar:DeviceIdentifierAxis": "1"
         }
     }
@@ -1713,6 +1730,7 @@ CLIPS = [
             "concept": "solar:SiteBarometricPressure",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
+            "unit": "Pa",
             "solar:SiteIdentifierAxis": "1"
         }
     }
@@ -1758,11 +1776,12 @@ CLIPS = [
     ],
     [_ln(), None, None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
+        "value": "74.00",
         "aspects": {
             "concept": "solar:ModelAmbientTemperature",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "F",
             "solar:PVSystemIdentifierAxis": "1"
         }
     }
@@ -1773,8 +1792,9 @@ CLIPS = [
         "value": false,
         "aspects": {
             "concept": "solar:ModelAmbientTemperature",
-            "entity": "JUPITER",
+            "entity": "JUPITER",   
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "F",         
             "solar:PVSystemIdentifierAxis": "1"
         }
     }
@@ -1786,6 +1806,7 @@ CLIPS = [
         "aspects": {
             "concept": "solar:InverterInputMaximumVoltageDC",
             "entity": "JUPITER",
+            "unit": "V",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
@@ -1813,6 +1834,7 @@ CLIPS = [
             "concept": "solar:SiteAcreage",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "acre",
             "solar:SiteIdentifierAxis": "1"
         }
     }
@@ -1837,6 +1859,7 @@ CLIPS = [
             "concept": "solar:ExpectedEnergyAtP50",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
+            "unit": "J",
             "solar:PVSystemIdentifierAxis": "1",
             "solar:PeriodAxis": "solar:PeriodMonthMember"
         }
@@ -1858,11 +1881,12 @@ CLIPS = [
     ],
     [_ln(), "CutSheet", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
+        "value": "425.00",
         "aspects": {
             "concept": "solar:ModuleLength",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "cm",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1889,6 +1913,7 @@ CLIPS = [
             "concept": "solar:InverterWeight",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "kg",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1914,7 +1939,8 @@ CLIPS = [
         "aspects": {
             "concept": "solar:BatteryInverterACPowerRating",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "W"
         }
     }
     """
@@ -1937,6 +1963,7 @@ CLIPS = [
             "concept": "solar:WashingAndWasteQuantityOfWater",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "gal",
             "solar:SiteIdentifierAxis": "1"
         }
     }
