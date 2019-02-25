@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Orange Button constants."""
+"""
+Sets pyoblib constants.
+    SOLAR_TAXONOMY_DIR : path to solar taxonomy.
+"""
 
 import os
 import sys

@@ -84,8 +84,7 @@ class TaxonomyUnits(object):
     """
     Represents Taxonomy Units.
 
-    Represents Taxonomy Units and allows lookup of enumerated values for
-    each Taxonomy Unit.
+    Allows lookup of units in the taxonomy, and enumerated values for units.
     """
 
     def __init__(self):
@@ -130,7 +129,7 @@ class TaxonomyUnits(object):
 
     def is_unit(self, unit_str, attr=None):
         """
-        Return True if unit_str is the unit_id, unit_name or id of a unit in
+        Returns True if unit_str is the unit_id, unit_name or id of a unit in
         the taxonomy, False otherwise.
 
         The search for the unit can be restricted by specifying attr as one
