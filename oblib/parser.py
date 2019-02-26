@@ -18,7 +18,7 @@
 import enum
 import json
 import xml.etree.ElementTree as ElementTree
-from oblib import data_model, util, taxonomy, ob
+from oblib import data_model, util, ob
 
 
 # The Following code is used internally by the XML parser - there is no known general usage

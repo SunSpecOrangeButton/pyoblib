@@ -14,7 +14,7 @@
 
 import unittest
 from six import string_types
-from oblib import taxonomy, taxonomy_semantic
+from oblib import taxonomy
 
 
 taxonomy_obj = taxonomy.Taxonomy()
