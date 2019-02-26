@@ -35,6 +35,22 @@ oblib.identifier module
     :undoc-members:
     :show-inheritance:
 
+oblib.ob module
+---------------
+
+.. automodule:: oblib.ob
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+oblib.parser module
+-------------------
+
+.. automodule:: oblib.parser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 oblib.taxonomy module
 ---------------------
 
