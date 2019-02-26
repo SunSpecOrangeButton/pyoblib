@@ -12,16 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import sys
 import argparse
 from oblib import identifier, ob, taxonomy, validator
-# from oblib.validator import Validator
 from oblib.parser import Parser, FileFormat
 
-#
-# TODO: list-types is missing
-#
 
 INFO = """
 This the CLI for the Orange Button Core library.  Information is available at the following URL's:
@@ -31,7 +26,9 @@ Orange Button GitHUb: https://github.com/SunSpecOrangeButton
 Orange Button pyoblib and CLI GitHub: https://github.com/SunSpecOrangeButton/pyoblib
 """
 
+
 DASHES = "---------------------------------------------------------------------------------------"
+
 
 taxonomy = taxonomy.Taxonomy()
 csv = False
@@ -116,8 +113,8 @@ def list_concept_details(args):
 
 
 def list_unit_details(args):
-    unit = taxonomy.units.get_unit(args.unit)
-    if unit is not None:
+    try:
+        unit = taxonomy.units.get_unit(args.unit)
         print("Id:                ", unit.id)
         print("Unit Id:           ", unit.unit_id)
         print("Name:              ", unit.unit_name)
@@ -129,7 +126,7 @@ def list_unit_details(args):
         print("Definition:        ", unit.definition)
         print("Status:            ", unit.status.value)
         print("Version Date:      ", unit.version_date)
-    else:
+    except ob.OBNotFoundError as error:
         print("Not found")
 
 
@@ -232,11 +229,11 @@ def list_units_details(args):
         print("Id, Unit ID, Name, nsUnit, Item Type, Item Type Dt, Symbol, Base Std, Status, Ver Dt, Definition")
 
         for unit_id in taxonomy.units.get_all_units():
-                unit = taxonomy.units.get_unit(unit_id)
-                print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
-                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
-                       unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
-                       unit.status.value, unit.definition))
+            unit = taxonomy.units.get_unit(unit_id)
+            print('%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s' %
+                   (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                   unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
+                   unit.status.value, unit.definition))
     else:
         print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %15s' %
                 ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
@@ -245,11 +242,11 @@ def list_units_details(args):
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
         for unit_id in taxonomy.units.get_all_units():
-                unit = taxonomy.units.get_unit(unit_id)
-                print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %1s' %
-                       (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
-                       unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
-                       unit.status.value, unit.definition))
+            unit = taxonomy.units.get_unit(unit_id)
+            print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %1s' %
+                   (unit.id, unit.unit_id, unit.unit_name, unit.ns_unit, unit.item_type,
+                   unit.item_type_date, unit.symbol, unit.base_standard.value, unit.version_date,
+                   unit.status.value, unit.definition))
 
 
 def list_types(args):
@@ -324,11 +321,11 @@ def version(args):
 
 formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=34)
 
-parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
-parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
-parser.add_argument("--json", help="input format is JSON", action="store_true")
-parser.add_argument("--xml", help="input format is XML", action="store_true")
-subparsers = parser.add_subparsers(help='commands')
+parent_parser = argparse.ArgumentParser(description='Orange Button Core Library CLI', formatter_class=formatter)
+parent_parser.add_argument("--csv", help="place list output in CSV format", action="store_true")
+parent_parser.add_argument("--json", help="input format is JSON", action="store_true")
+parent_parser.add_argument("--xml", help="input format is XML", action="store_true")
+subparsers = parent_parser.add_subparsers(help='commands')
 
 info_parser = subparsers.add_parser('info', help='Information on Orange Button')
 info_parser.set_defaults(command='info')
@@ -482,7 +479,7 @@ validate_unit_parser.set_defaults(command='validate_unit')
 validate_unit_parser.add_argument('generic_unit', action='store',
                                   help='The Unit to validate')
 
-args = parser.parse_args()
+args = parent_parser.parse_args()
 
 if args.csv:
     csv = True
@@ -498,7 +495,7 @@ if json and xml:
 if not hasattr(args, 'command'):
     print('A command must be specified')
     print()
-    parser.print_help()
+    parent_parser.print_help()
     sys.exit()
 
 globals()[args.command](args)

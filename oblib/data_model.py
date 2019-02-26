@@ -12,30 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Orange Button data model. Consists of the OBInstance class, which represents
-an XBRL Instance Document, and its supporting classes representing XBRL
-facts, concepts, contexts, and hypercubes.
+""" Orange Button data model.
 
-Typical usage if you're writing Orange Button is to instantiate an OBInstance
-document, then call the .set() method to add data to it, and finally use the
-to_XML_string() or to_JSON_string() methods to export to the desired format.
-Example code:
+Consists of
 
-from oblib.taxonomy import getTaxonomy, PeriodType
-from oblib.data_model import OBInstance
+- :py:class:`OBInstance`, representing an XBRL Instance Document
+- :py:class:`Concept`, representing a XBRL concept
+- :py:class:`Fact`, representing a XBRL fact
+- :py:class:`Context`, representing the XBRL context for a fact
+- :py:class:`Axis` and :py:class:`Hypercube` to represent tables within Instance Documents.
 
-taxonomy = getTaxonomy()
-mor_document = OBInstance("MonthlyOperatingReport", taxonomy)
-mor_document.set_default_context({"entity": "My Company Name",
-                                  PeriodType.duration: "forever"})
-mor_document.set("solar:MonthlyOperatingReportEffectiveDate",
-                 date(year=2018, month=12, day=1))
-mor_document.set("solar:MeasuredEnergy", "1246.25", unit_name="kWh")
-xml = mor_document.to_XML_string()
+If you are writing Orange Button, the typical usage is to create an `OBInstance`
+document ``doc = OBInstance()`` and use ``doc.set`` to add data to the document,
+and ``doc.to_XML_string`` or ``doc.to_JSON_string`` to export to the desired format.
 
-Typical usage if you're reading Orange Button is to take an OBInstance document
-created by the Parser module and call the .get() method to read data from it.
+Example:
+::
+    from oblib.taxonomy import getTaxonomy, PeriodType
+    from oblib.data_model import OBInstance
+    taxonomy = getTaxonomy()
+    mor_document = OBInstance("MonthlyOperatingReport", taxonomy)
+    mor_document.set_default_context({"entity": "My Company Name",
+                                      PeriodType.duration: "forever"})
+    mor_document.set("solar:MonthlyOperatingReportEffectiveDate",
+                     date(year=2018, month=12, day=1))
+    mor_document.set("solar:MeasuredEnergy", "1246.25", unit_name="kWh")
+    xml = mor_document.to_XML_string()
+::
+
+If you are reading Orange Button data, the typical usage is to read the source
+JSON or XML file with ``oblib.Parser`` to create an ``OBInstance`` document,
+then use the document's ``.get`` method to read data from  the document.
 
 """
 
@@ -1129,7 +1136,6 @@ class OBInstance(object):
 
     def get_all_writable_concepts(self):
         """
-        Args: None
         Returns:
           list of strings. Strings are the names of all concepts that can be written
           to this instance document as allowed by the entrypoint.
@@ -1441,9 +1447,9 @@ class OBInstance(object):
 
     def get_all_facts(self):
         """
-        Returns: a list of Fact instances. All facts that have been set in this
-        document will be returned in a single flat list, regardless of which
-        table or context they belong to.
+        Returns: 
+            a list of Fact. All facts are returned in a single list, regardless
+            of which table or context they belong to.
         """
         all_facts = []
         for table_dict in list(self.facts.values()):
@@ -1510,6 +1516,7 @@ class OBInstance(object):
         Note: this method is slated to be moved to Parser.
         To ensure future support use the method with the same name and
         functionality in Parser.
+
         Args:
           filename: string
             filesystem path of a location to write the document to.
@@ -1528,6 +1535,7 @@ class OBInstance(object):
         Note: this method is slated to be moved to Parser.
         To ensure future support use the method with the same name and
         functionality in Parser.
+
         Returns:
           String containing entire document as XML-formatted XBRL.
         """
@@ -1540,6 +1548,7 @@ class OBInstance(object):
         Note: this method is slated to be moved to Parser.
         To ensure future support use the method with the same name and
         functionality in Parser.
+
         Args:
           filename: string
             filesystem path of a location to write the document to.
@@ -1554,6 +1563,7 @@ class OBInstance(object):
         Note: this method is slated to be moved to Parser.
         To ensure future support use the method with the same name and
         functionality in Parser.
+
         Returns:
           String containing entire document as JSON-formatted XBRL.
         """
@@ -1580,6 +1590,7 @@ class OBInstance(object):
         Set default values for context entity, instant/duration, and/or axes.
         The default values are used to fill in any fields that are missing
         from any contexts passed into set().
+
         For example:
           document.set_default_context({"entity": "MyCompanyName"})
         sets "MyCompanyName" as the default "entity" of this document. From
@@ -1607,12 +1618,14 @@ class OBInstance(object):
         """
         Uses default values (set by using set_default_context()) to fill in any
         missing fields in a given context object.
+
         Args:
           context: a Context instance, or None.
             if provided, values are used to override the defaults
           concept: a Concept object
             concept that a context is intended to be used with. The concept is
             used to determine what fields are required in the context.
+
         Returns: a new Context object. The returned Context has field values
           (entity, duration/instant, axes) copied from the context argument where
           available and filled in from the default context
