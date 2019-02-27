@@ -1525,7 +1525,9 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "", "expected string or bytes-like object", 2, """
+    # TODO: Supply better error message
+    # NOTE: incomplete message because it changes between Python 3.4 and 3.5for
+    [_ln(), "", "expected string or", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
