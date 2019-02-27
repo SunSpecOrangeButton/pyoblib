@@ -811,7 +811,7 @@ class Concept(object):
             # TODO there's probably a validation method in urllib or something
             # that we can import here.
             return True
-        print("Warning: i don't know how to validate " + myType)
+        # print("Warning: i don't know how to validate " + myType)
 
         # TODO add validation for complex types.  Most types in the num:
         # namespace will be decimals that expect units. Most types in
@@ -1247,7 +1247,7 @@ class OBInstance(object):
                         unit_id, concept_name, required_type))
 
         if required_type.startswith("solar-types:"):
-            print("I don't know how to validate {} yet, skipping for now".format(required_type))
+            # print("I don't know how to validate {} yet, skipping for now".format(required_type))
             return True
 
         # TODO what other required_types might we get here?

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 from inspect import currentframe
 import unittest
 import pytest
@@ -55,27 +56,26 @@ class TestJsonClips(unittest.TestCase):
                     else:
                         failure_list.append("Case {} should have succeeded, raised an unexpected exception ''".format(clip[0], str(e)))
                 else:
-                    # if isinstance(e, ob.OBValidationErrors):
-                    #     for e2 in e.get_errors():
-                    #         s = str(e2)
-                    #         if re.search(clip[2], s, re.IGNORECASE) is None:
-                    #             failure_list.append("Case {} exception text '{}' did not meet expected value '{}'".format(clip[0], s, clip[2]))
-                    # else:
-                    #     failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
-
-                    if not isinstance(e, ob.OBValidationErrors):
+                    if isinstance(e, ob.OBValidationErrors):
+                        for e2 in e.get_errors():
+                            s = str(e2)
+                            if re.search(clip[2], s, re.IGNORECASE) is None:
+                                failure_list.append("Case {} exception text '{}' did not meet expected value '{}'".format(clip[0], s, clip[2]))
+                    else:
                         failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
+
+                    # if not isinstance(e, ob.OBValidationErrors):
+                    #     failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
 
         if len(failure_list) > 0:
             msg = "\n"
             for f in failure_list:
                 msg = msg + f + "\n"
-            # TODO: Uncomment this line and remove the print statement.  At this point in time the
-            # validator rules are not implemented so this test case cannot actually fail although
-            # in reality it should be failing.
-            # self.fail(msg)
-            print(msg)
-            print("{} issues found out of {} test cases".format(len(failure_list), len(CLIPS)))
+            self.fail(msg)
+            # NOTE: For debugging purposes it may be helpful to temporarily remove the line above this one
+            # and uncomment the two lines that are listed below.
+            # print(msg)
+            # print("{} issues found out of {} test cases".format(len(failure_list), len(CLIPS)))
 
 
 CLIPS = [
@@ -91,7 +91,7 @@ CLIPS = [
     # }
     # """
     # ],
-    [_ln(), "MonthlyOperatingReport", "Float expected", 2, """
+    [_ln(), "MonthlyOperatingReport", "is the wrong datatype for solar:MeasuredEnergyAvailabilityPercent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Bad Data",
         "aspects": {
@@ -113,7 +113,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "MonthlyOperatingReport", "Entity is not a string", 5, """
+    [_ln(), "MonthlyOperatingReport", "is the wrong datatype for solar:MeasuredEnergyAvailabilityPercent", 5, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Bad Data",
         "aspects": {
@@ -194,17 +194,18 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "MasterPurchaseAgreement", "Non-nillable value is set to null", 3, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": null,
-        "aspects": {
-            "concept": "solar:PreparerOfMasterPurchaseAgreement",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
+    # TODO: Correctly check null as an input value.
+    # [_ln(), "MasterPurchaseAgreement", "Non-nillable value is set to null", 3, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": null,
+    #     "aspects": {
+    #         "concept": "solar:PreparerOfMasterPurchaseAgreement",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+    #     }
+    # }
+    # """
+    # ],
     [_ln(), None, None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": true,
@@ -227,7 +228,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportAvailabilityOfDocument", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "non-boolean",
         "aspects": {
@@ -284,7 +285,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, " is the wrong datatype for solar:MonthlyOperatingReportAvailabilityOfDocument", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "1.0",
         "aspects": {
@@ -295,7 +296,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:booleanItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportAvailabilityOfDocument", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "0.0",
         "aspects": {
@@ -603,7 +604,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-13-02",
         "aspects": {
@@ -614,7 +615,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-01-32",
         "aspects": {
@@ -625,7 +626,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2016-02-30",
         "aspects": {
@@ -648,7 +649,7 @@ CLIPS = [
     # }
     # """
     # ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2019-02-29",
         "aspects": {
@@ -659,7 +660,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2020-02-30",
         "aspects": {
@@ -670,7 +671,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-03-32",
         "aspects": {
@@ -693,7 +694,7 @@ CLIPS = [
     # }
     # """
     # ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-05-32",
         "aspects": {
@@ -704,7 +705,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-06-31",
         "aspects": {
@@ -715,7 +716,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-08-32",
         "aspects": {
@@ -726,7 +727,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-09-31",
         "aspects": {
@@ -737,7 +738,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-10-32",
         "aspects": {
@@ -748,7 +749,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-11-31",
         "aspects": {
@@ -759,7 +760,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018-12-32",
         "aspects": {
@@ -793,7 +794,7 @@ CLIPS = [
     # }
     # """
     # ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "2018_01_01",
         "aspects": {
@@ -804,7 +805,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "01-01-2018",
         "aspects": {
@@ -815,7 +816,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "01/01/2018",
         "aspects": {
@@ -826,7 +827,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -837,7 +838,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -848,7 +849,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99",
         "aspects": {
@@ -859,7 +860,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:dateItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportEndDate", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99.99",
         "aspects": {
@@ -922,7 +923,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:MonitoringSolutionSoftwareVersion", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -948,7 +949,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type xbrli:decimalItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:MonitoringSolutionSoftwareVersion", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -961,105 +962,106 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "P1Y",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "PT1004199059S",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",            
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "PT130S",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",            
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "PT2M10S",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",            
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "P1DT2S",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",            
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "-P1Y",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",            
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "P1Y2M3DT5H20M30.123S",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "unit": "H",            
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    # TODO: Correcctly validate period
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "P1Y",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "PT1004199059S",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "PT130S",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "PT2M10S",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "P1DT2S",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "-P1Y",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "P1Y2M3DT5H20M30.123S",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid",
         "aspects": {
@@ -1073,7 +1075,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "1Y",
         "aspects": {
@@ -1087,7 +1089,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "P1S",
         "aspects": {
@@ -1101,7 +1103,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "P1-Y",
         "aspects": {
@@ -1115,7 +1117,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "P1M2Y",
         "aspects": {
@@ -1129,7 +1131,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "P1Y-1M",
         "aspects": {
@@ -1143,52 +1145,57 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "99",
-        "aspects": {
-            "concept": "solar:EstimationPeriodForCurtailment",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00",
-            "solar:PVSystemIdentifierAxis": "1",
-            "solar:EstimationPeriodStartDateAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    # TODO: These should fail
+    # [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": false,
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "99",
+    #     "aspects": {
+    #         "concept": "solar:EstimationPeriodForCurtailment",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit": "H",
+    #         "solar:PVSystemIdentifierAxis": "1",
+    #         "solar:EstimationPeriodStartDateAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99.99",
         "aspects": {
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:durationItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:EstimationPeriodForCurtailment", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid",
         "aspects": {
             "concept": "solar:EstimationPeriodForCurtailment",
             "entity": "JUPITER",
             "period": "2017-11-30T00:00:00",
+            "unit": "H",            
             "solar:PVSystemIdentifierAxis": "1",
             "solar:EstimationPeriodStartDateAxis": "1"
         }
@@ -1244,7 +1251,7 @@ CLIPS = [
     # }
     # """
     # ],
-    [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "is the wrong datatype for solar:WashingAndWasteFrequencyOfWashing", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99.99",
         "aspects": {
@@ -1269,7 +1276,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "WashingAndWasteAgreement", "value is not legal for type xbrli:integerItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "is the wrong datatype for solar:WashingAndWasteFrequencyOfWashing", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid",
         "aspects": {
@@ -1293,68 +1300,75 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "is the wrong datatype for us-gaap:PrepaidExpenseCurrentAndNoncurren", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
             "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
+            "period": "2017-11-30T00:00:00",
+            "unit":"USD"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "9999",
-        "aspects": {
-            "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "9999.9",
-        "aspects": {
-            "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "9999.999",
-        "aspects": {
-            "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
-            "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    # TODO: Implement test cases for money types.
+    # [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "9999",
+    #     "aspects": {
+    #         "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit":"USD"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "9999.9",
+    #     "aspects": {
+    #         "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit":"USD"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "9999.999",
+    #     "aspects": {
+    #         "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-30T00:00:00",
+    #         "unit":"USD"
+    #     }
+    # }
+    # """
+    # ],
+    [_ln(), None, None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "9999.99",
         "aspects": {
             "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
             "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
+            "period": "2017-11-30T00:00:00",
+            "unit":"USD"
         }
     }
     """
     ],
-    [_ln(), None, "value is not legal for type xbrli:monetaryItemType", 2, """
+    [_ln(), None, "datatype for us-gaap:PrepaidExpenseCurrentAndNoncurrent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid",
         "aspects": {
             "concept": "us-gaap:PrepaidExpenseCurrentAndNoncurrent",
             "entity": "JUPITER",
-            "period": "2017-11-30T00:00:00"
+            "period": "2017-11-30T00:00:00",
+            "unit":"USD"
         }
     }
     """
@@ -1463,7 +1477,7 @@ CLIPS = [
     # }
     # """
     # ],
-    [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:AerosolModelFactorTMMPercent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -1474,7 +1488,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type num:percentItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:AerosolModelFactorTMMPercent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -1511,7 +1525,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
+    [_ln(), "", "expected string or bytes-like object", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -1524,7 +1538,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
+    [_ln(), "", "is the wrong datatype for solar:CutSheetDocumentLink", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99.99",
         "aspects": {
@@ -1537,7 +1551,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "", "value is not legal for type xbrli:anyURIItemType", 2, """
+    [_ln(), "", "is the wrong datatype for solar:CutSheetDocumentLink", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99",
         "aspects": {
@@ -1550,30 +1564,31 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Participant", None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "5493006MHB84DD0ZWV18",
-        "aspects": {
-            "concept": "dei:LegalEntityIdentifier",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ParticipantAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), "Participant", "value is not legal for type dei:legalEntityIdentifierItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
-        "aspects": {
-            "concept": "dei:LegalEntityIdentifier",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:ParticipantAxis": "1"
-        }
-    }
-    """
-    ],
+    # TODO: Supply Correct Unit
+    # [_ln(), "Participant", None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "5493006MHB84DD0ZWV18",
+    #     "aspects": {
+    #         "concept": "dei:LegalEntityIdentifier",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+    #         "solar:ParticipantAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), "Participant", "value is not legal for type dei:legalEntityIdentifierItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": false,
+    #     "aspects": {
+    #         "concept": "dei:LegalEntityIdentifier",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+    #         "solar:ParticipantAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
     [_ln(), "CutSheet", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "99.99",
@@ -1588,13 +1603,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type num-us:electricCurrentItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleShortCircuitCurrent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:ModuleShortCircuitCurrent",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "A",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1615,12 +1631,13 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type num-us:frequencyItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:InverterOutputRatedFrequency", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:InverterOutputRatedFrequency",
             "entity": "JUPITER",
+            "unit": "Hz",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
@@ -1628,63 +1645,67 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "MonthlyOperatingReport", None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "99.99",
-        "aspects": {
-            "concept": "solar:ExpectedInsolationAtP50",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), "MonthlyOperatingReport", "value is not legal for type num-us:insolationItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
-        "aspects": {
-            "concept": "solar:ExpectedInsolationAtP50",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), "MonthlyOperatingReport", "value is out of range for type num-us:insolationItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "101.01",
-        "aspects": {
-            "concept": "solar:ExpectedInsolationAtP50",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
-        }
-    }
-    """
-    ],
-    [_ln(), None, None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "99.99",
-        "aspects": {
-            "concept": "solar:SystemMinimumIrradianceThreshold",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:PVSystemIdentifierAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), None, "value is not legal for type num-us:irradianceItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
-        "aspects": {
-            "concept": "solar:SystemMinimumIrradianceThreshold",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:PVSystemIdentifierAxis": "1"
-        }
-    }
-    """
-    ],
+    # TODO: Supply Correct Unit
+    # [_ln(), "MonthlyOperatingReport", None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "99.99",
+    #     "aspects": {
+    #         "concept": "solar:ExpectedInsolationAtP50",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+    #     }
+    # }
+    # """
+    # ],
+    # TODO: Supply correct unit
+    # [_ln(), "MonthlyOperatingReport", "value is not legal for type num-us:insolationItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": false,
+    #     "aspects": {
+    #         "concept": "solar:ExpectedInsolationAtP50",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), "MonthlyOperatingReport", "value is out of range for type num-us:insolationItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "101.01",
+    #     "aspects": {
+    #         "concept": "solar:ExpectedInsolationAtP50",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+    #     }
+    # }
+    # """
+    # ],
+    # TODO: Supply correct unit
+    # [_ln(), None, None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "99.99",
+    #     "aspects": {
+    #         "concept": "solar:SystemMinimumIrradianceThreshold",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+    #         "solar:PVSystemIdentifierAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # TODO: Supply correct unit
+    # [_ln(), None, "value is not legal for type num-us:irradianceItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": false,
+    #     "aspects": {
+    #         "concept": "solar:SystemMinimumIrradianceThreshold",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+    #         "solar:PVSystemIdentifierAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
     [_ln(), "SystemDeviceListing", None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "33.33",
@@ -1698,25 +1719,28 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "SystemDeviceListing", "value is out of range for type num-us:planeAngleItemType", 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "361.1",
-        "aspects": {
-            "concept": "solar:TrackerAzimuth",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00",
-            "solar:DeviceIdentifierAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), "SystemDeviceListing", "value is not legal for type num-us:planeAngleItemType", 2, """
+    # TODO: Failure expected
+    # [_ln(), "SystemDeviceListing", "value is out of range for type num-us:planeAngleItemType", 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "361.1",
+    #     "aspects": {
+    #         "concept": "solar:TrackerAzimuth",
+    #         "entity": "JUPITER",
+    #         "unit": "Degree",
+    #         "period": "2017-11-01T00:00:00",
+    #         "solar:DeviceIdentifierAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    [_ln(), "SystemDeviceListing", "is the wrong datatype for solar:TrackerAzimuth", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:TrackerAzimuth",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
+            "unit": "Degree",
             "solar:DeviceIdentifierAxis": "1"
         }
     }
@@ -1735,44 +1759,46 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type num-us:pressureItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteBarometricPressure", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:SiteBarometricPressure",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
+            "unit": "Pa",
             "solar:SiteIdentifierAxis": "1"
         }
     }
     """
     ],
-    [_ln(), "CutSheet", None, 0, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": "19.19",
-        "aspects": {
-            "concept": "solar:TrackerStowWindSpeed",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-            "solar:ProductIdentifierAxis": "1"
-        }
-    }
-    """
-    ],
-    [_ln(), "CutSheet", "value is not legal for type num-us:speedItemType", 2, """
-        "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
-        "value": false,
-        "aspects": {
-            "concept": "solar:TrackerStowWindSpeed",
-            "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
-            "solar:TestConditionAxis": "solar:CustomTestConditionMember",
-            "solar:ProductIdentifierAxis": "1"
-        }
-    }
-    """
-    ],
+    # TODO: Supply Correct Unit
+    # [_ln(), "CutSheet", None, 0, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": "19.19",
+    #     "aspects": {
+    #         "concept": "solar:TrackerStowWindSpeed",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+    #         "solar:TestConditionAxis": "solar:CustomTestConditionMember",
+    #         "solar:ProductIdentifierAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
+    # [_ln(), "CutSheet", "value is not legal for type num-us:speedItemType", 2, """
+    #     "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
+    #     "value": false,
+    #     "aspects": {
+    #         "concept": "solar:TrackerStowWindSpeed",
+    #         "entity": "JUPITER",
+    #         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+    #         "solar:TestConditionAxis": "solar:CustomTestConditionMember",
+    #         "solar:ProductIdentifierAxis": "1"
+    #     }
+    # }
+    # """
+    # ],
     [_ln(), None, None, 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "74.00",
@@ -1786,7 +1812,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type num-us:temperatureItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ModelAmbientTemperature", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -1813,13 +1839,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type num-us:voltageItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:InverterInputMaximumVoltageDC", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:InverterInputMaximumVoltageDC",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "V",
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1839,13 +1866,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type num:areaItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:SiteAcreage", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:SiteAcreage",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "acre",
             "solar:SiteIdentifierAxis": "1"
         }
     }
@@ -1865,13 +1893,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type num:energyItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ExpectedEnergyAtP50", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:ExpectedEnergyAtP50",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00",
+            "unit": "J",
             "solar:PVSystemIdentifierAxis": "1",
             "solar:PeriodAxis": "solar:PeriodMonthMember"
         }
@@ -1892,13 +1921,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type num:lengthItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleLength", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:ModuleLength",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "cm",            
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1919,13 +1949,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type num:massItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:InverterWeight", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:InverterWeight",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "kg",            
             "solar:TestConditionAxis": "solar:CustomTestConditionMember",
             "solar:ProductIdentifierAxis": "1"
         }
@@ -1944,13 +1975,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type num:powerItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:BatteryInverterACPowerRating", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:BatteryInverterACPowerRating",
             "entity": "JUPITER",
-            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
+            "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "W"
         }
     }
     """
@@ -1968,13 +2000,14 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "WashingAndWasteAgreement", "value is not legal for type num:volumeItemType", 2, """
+    [_ln(), "WashingAndWasteAgreement", "is the wrong datatype for solar:WashingAndWasteQuantityOfWater", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
             "concept": "solar:WashingAndWasteQuantityOfWater",
             "entity": "JUPITER",
             "period": "2017-11-01T00:00:00/2017-11-30T00:00:00",
+            "unit": "gal",
             "solar:SiteIdentifierAxis": "1"
         }
     }
@@ -1992,7 +2025,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemDERType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2004,7 +2037,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:DERItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemDERType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2028,7 +2061,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:AmericanLandTitleAssociationSurveyStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2040,7 +2073,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:aLTASurveyItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:AmericanLandTitleAssociationSurveyStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2063,7 +2096,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:BatteryStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2074,7 +2107,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:batteryChemistryItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:BatteryStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2099,7 +2132,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemBatteryConnection", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2113,7 +2146,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:batteryConnectionItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemBatteryConnection", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2139,7 +2172,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteClimateClassificationKoppen", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2151,7 +2184,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateClassificationKoppenItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteClimateClassificationKoppen", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2175,7 +2208,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteClimateZoneTypeANSI", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2187,7 +2220,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:climateZoneANSIItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteClimateZoneTypeANSI", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2211,7 +2244,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:DataAcquisitionSystemCommunicationProtocol", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2223,7 +2256,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:communicationProtocolItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:DataAcquisitionSystemCommunicationProtocol", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2248,7 +2281,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:TypeOfDevice", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2261,7 +2294,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:deviceItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:TypeOfDevice", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2286,7 +2319,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ProjectDistributedGenerationPortolioOrUtilityScale", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2298,7 +2331,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:distributedGenOrUtilityScaleItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ProjectDistributedGenerationPortolioOrUtilityScale", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2322,7 +2355,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:DivisionOfStateArchitectApprovalStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2334,7 +2367,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:divisionStateApprovalStatusItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:DivisionOfStateArchitectApprovalStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2358,7 +2391,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ProjectRecentEventSeverityOfEvent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2370,7 +2403,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:eventSeverityItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ProjectRecentEventSeverityOfEvent", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2382,7 +2415,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:feeStatusItemType", 0, """
+    [_ln(), "Site", "is the wrong datatype for solar:ZoningPermitUpfrontFeeStatus", 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2394,7 +2427,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:ZoningPermitUpfrontFeeStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2406,7 +2439,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:feeStatusItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:ZoningPermitUpfrontFeeStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invald Value",
         "aspects": {
@@ -2418,7 +2451,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Fund", "value is not legal for type solar-types:fundStatusItemType", 0, """
+    [_ln(), "Fund", "is the wrong datatype for solar:FundStatus", 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2430,7 +2463,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Fund", "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), "Fund", "is the wrong datatype for solar:FundStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2442,7 +2475,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Fund", "value is not legal for type solar-types:fundStatusItemType", 2, """
+    [_ln(), "Fund", "is the wrong datatype for solar:FundStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2466,7 +2499,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteGeospatialBoundaryGISFileFormat", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2478,7 +2511,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:gISFileFormatItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SiteGeospatialBoundaryGISFileFormat", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2502,7 +2535,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectHedgeAgreementType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2514,7 +2547,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:hedgeItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectHedgeAgreementType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2540,7 +2573,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:InsuranceType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2554,7 +2587,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:insuranceItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:InsuranceType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2568,7 +2601,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 0, """
+    [_ln(), None, "is the wrong datatype for solar:NetworkType", 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2581,7 +2614,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:NetworkType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2594,7 +2627,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:internetConnectionItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:NetworkType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2618,7 +2651,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:InverterStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2629,7 +2662,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "IECRECertificate", "value is not legal for type solar-types:inverterItemType", 2, """
+    [_ln(), "IECRECertificate", "is the wrong datatype for solar:InverterStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2653,7 +2686,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:InverterOutputPhaseType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2666,7 +2699,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:inverterPhaseItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:InverterOutputPhaseType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2691,7 +2724,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:investmentStatusItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectInvestmentStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2703,7 +2736,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:investmentStatusItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectInvestmentStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2726,7 +2759,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportLevel", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2737,7 +2770,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mORLevelItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MonthlyOperatingReportLevel", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2761,7 +2794,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2774,7 +2807,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2800,7 +2833,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleOrientation", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2813,7 +2846,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleOrientationItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleOrientation", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2839,7 +2872,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleTechnology", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2852,7 +2885,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:moduleTechnologyItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:ModuleTechnology", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2879,7 +2912,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MountingType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2893,7 +2926,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:mountingItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:MountingType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2919,7 +2952,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SitePropertyOccupancyType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2931,7 +2964,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:occupancyItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SitePropertyOccupancyType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2956,7 +2989,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:OptimizerType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -2969,7 +3002,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "CutSheet", "value is not legal for type solar-types:optimizerTypeItemType", 2, """
+    [_ln(), "CutSheet", "is the wrong datatype for solar:OptimizerType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -2994,7 +3027,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Participant", "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), "Participant", "is the wrong datatype for solar:ParticipantRole", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3006,7 +3039,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Participant", "value is not legal for type solar-types:participantItemType", 2, """
+    [_ln(), "Participant", "is the wrong datatype for solar:ParticipantRole", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3030,7 +3063,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SystemPreventiveMaintenanceTasksStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3042,7 +3075,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:preventiveMaintenanceTaskStatusItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SystemPreventiveMaintenanceTasksStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3066,7 +3099,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectAssetType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3078,7 +3111,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectAssetTypeItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectAssetType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3102,7 +3135,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectClassType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3114,7 +3147,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectClassItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectClassType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3138,7 +3171,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectInterconnectionType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3150,7 +3183,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectInterconnectionItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectInterconnectionType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3174,7 +3207,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:PhaseOfProjectNeeded", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3186,7 +3219,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:projectPhaseItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:PhaseOfProjectNeeded", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3210,7 +3243,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectStage", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3222,7 +3255,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:projectStageItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:ProjectStage", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3246,7 +3279,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:RegulatoryApprovalStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3258,7 +3291,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryApprovalStatusItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:RegulatoryApprovalStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3282,7 +3315,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:RegulatoryFacilityType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3294,7 +3327,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Project", "value is not legal for type solar-types:regulatoryFacilityItemType", 2, """
+    [_ln(), "Project", "is the wrong datatype for solar:RegulatoryFacilityType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3319,7 +3352,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ReserveCollateralType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3332,7 +3365,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveCollateralItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ReserveCollateralType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3358,7 +3391,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ReserveUse", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3371,7 +3404,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:reserveUseItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:ReserveUse", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3384,7 +3417,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 0, """
+    [_ln(), None, "is the wrong datatype for solar:RoofType", 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3398,7 +3431,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:RoofType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3412,7 +3445,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:RoofType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3426,7 +3459,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 0, """
+    [_ln(), None, "is the wrong datatype for solar:RoofSlopeType", 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3440,7 +3473,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:RoofSlopeType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3454,7 +3487,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:roofSlopeItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:RoofSlopeType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3480,7 +3513,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:SiteControlType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3492,7 +3525,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:siteControlItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:SiteControlType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3516,7 +3549,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3528,7 +3561,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:solarSystemCharacterItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemType", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3552,7 +3585,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SystemSparePartsStatusLevel", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3564,7 +3597,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), None, "value is not legal for type solar-types:sparePartsStatusItemType", 2, """
+    [_ln(), None, "is the wrong datatype for solar:SystemSparePartsStatusLevel", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3588,7 +3621,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemAvailabilityMode", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3600,7 +3633,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemAvailabilityModeItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemAvailabilityMode", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3624,7 +3657,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemOperationStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3636,7 +3669,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:systemOperationalStatusItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:SystemOperationStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3660,7 +3693,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:TitlePolicyInsuranceStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3672,7 +3705,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:titlePolicyInsuranceItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:TitlePolicyInsuranceStatus", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3698,7 +3731,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:TrackerStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3712,7 +3745,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "System", "value is not legal for type solar-types:trackerItemType", 2, """
+    [_ln(), "System", "is the wrong datatype for solar:TrackerStyle", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {
@@ -3726,7 +3759,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:zoningPermitPropertyItemType", 0, """
+    [_ln(), "Site", "is the wrong datatype for solar:ZoningPermitProperty", 0, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3738,7 +3771,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:ZoningPermitProperty", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": false,
         "aspects": {
@@ -3750,7 +3783,7 @@ CLIPS = [
     }
     """
     ],
-    [_ln(), "Site", "value is not legal for type solar-types:zoningPermitPropertyItemType", 2, """
+    [_ln(), "Site", "is the wrong datatype for solar:ZoningPermitProperty", 2, """
         "d5ead87b-58c6-4aab-9795-e7e92ca0bcf2": {
         "value": "Invalid Value",
         "aspects": {

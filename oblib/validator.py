@@ -270,10 +270,10 @@ class Validator(object):
             try:
                 value = datetime.strptime(value, '%Y-%m-%d').date()
             except ValueError as ex:
-                print(ex)
+                # print(ex)
                 errors += ["'{}' is not a valid date value.".format(value)]
         elif type(value) is not date:
-            print("{} is not {}".format(type(value), type(date)))
+            # print("{} is not {}".format(type(value), type(date)))
             errors += ["'{}' is not a valid date value.".format(value)]
         return value, errors
 
