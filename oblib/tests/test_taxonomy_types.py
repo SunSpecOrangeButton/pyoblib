@@ -22,7 +22,7 @@ tax = taxonomy_types.TaxonomyTypes()
 class TestTaxonomyTypes(unittest.TestCase):
 
     def test_get_all_types(self):
-        self.assertEqual(len(tax.get_all_types()), 65)
+        self.assertEqual(67, len(tax.get_all_types()))
 
     def test_is_type(self):
         self.assertTrue(tax.is_type("solar-types:systemAvailabilityModeItemType"))

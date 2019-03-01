@@ -875,6 +875,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc.set_default_context({
             "entity": "JUPITER",
             "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel100PercentMember",
+            "solar:PVSystemIdentifierAxis": "1",
+            "solar:TestConditionAxis": "solar:NominalOperatingConditionMember",
             taxonomy.PeriodType.instant: now,
             taxonomy.PeriodType.duration: "forever"
         })
