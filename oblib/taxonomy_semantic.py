@@ -189,6 +189,8 @@ class TaxonomySemantic(object):
             # if 'def.' in filename:
             if 'pre.' in filename:
                 concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "data", filename))
@@ -197,6 +199,8 @@ class TaxonomySemantic(object):
             # if 'def.' in filename:
             if 'pre.' in filename:
                 concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "documents", filename))
@@ -206,6 +210,8 @@ class TaxonomySemantic(object):
             # if 'def.' in filename:
             if 'pre.' in filename:
                 concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "process", filename))
@@ -223,16 +229,22 @@ class TaxonomySemantic(object):
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
             if 'def.' in filename:
                 concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("data", filename))
 
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
             if 'def.' in filename:
                 concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("documents", filename))
 
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process")):
             if 'def.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("process", filename))
 
         return relationships
