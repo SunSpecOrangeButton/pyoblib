@@ -52,58 +52,12 @@ import datetime
 import json
 from six import string_types
 from oblib import taxonomy, validator, identifier
-
+from oblib.ob import (
+    OBError, OBTypeError, OBContextError,
+    OBConceptError, OBNotFoundError,
+    OBValidationError, OBUnitError)
 
 UNTABLE = "NON_TABLE_CONCEPTS"
-
-
-class OBException(Exception):
-    """
-    Base class for Orange Button data validity exceptions.
-    """
-    def __init__(self, message):
-        super(OBException, self).__init__(message)
-
-
-class OBTypeException(OBException):
-    """
-    Raised if we try to set a concept to a value with an invalid data type
-    """
-    def __init__(self, message):
-        super(OBTypeException, self).__init__(message)
-
-
-class OBContextException(OBException):
-    """
-    Raised if we try to set a concept without sufficient Context fields
-    """
-    def __init__(self, message):
-        super(OBContextException, self).__init__(message)
-
-
-class OBConceptException(OBException):
-    """
-    Raised if we try to set a concept that can't be set in the current
-    Entrypoint
-    """
-    def __init__(self, message):
-        super(OBConceptException, self).__init__(message)
-
-
-class OBNotFoundException(OBException):
-    """
-    Raised if we refer to a name that's not found in the taxonomy
-    """
-    def __init__(self, message):
-        super(OBNotFoundException, self).__init__(message)
-
-
-class OBUnitException(OBException):
-    """
-    Raised if we try to set a concept to a value with incorrect units
-    """
-    def __init__(self, message):
-        super(OBUnitException, self).__init__(message)
 
 
 class Hypercube(object):
@@ -144,7 +98,7 @@ class Hypercube(object):
                     axis_name = relation.to
                     if not axis_name in self._axes:
                         if not isinstance( ob_instance.get_concept(axis_name), Axis):
-                            raise Exception(
+                            raise OBError(
                                 "Expected {} to be an Axis instance but it isn't"\
                                 .format(axis_name))
                         self._axes[axis_name] = ob_instance.get_concept(axis_name)
@@ -310,12 +264,15 @@ class Hypercube(object):
         Returns:
           None
         Raises:
-          an OBContextException if any axis is missing, or has an out-of-bound value,
+          an OBContextError if any axis is missing, or has an out-of-bound value,
           or if an axis is given that doesn't belong in this table.
         """
+        if not isinstance(context, Context):
+            raise OBContextError("{} is not a valid Context instance".format(context))
+
         for axis_name in self._axes:
             if not axis_name in context.axes:
-                raise OBContextException(
+                raise OBContextError(
                     "Missing required {} axis for table {}".format(
                         axis_name, self._table_name))
 
@@ -324,13 +281,13 @@ class Hypercube(object):
             if self.is_typed_dimension(axis_name):
                 axis_value = context.axes[axis_name]
                 if not self.is_axis_value_within_domain(axis_name, axis_value):
-                    raise OBContextException(
+                    raise OBContextError(
                         "{} is not a valid value for the axis {}.".format(
                         axis_value, axis_name))
 
         for axis_name in context.axes:
             if not axis_name in self._axes:
-                raise OBContextException(
+                raise OBContextError(
                     "{} is not a valid axis for table {}.".format(
                         axis_name, self._table_name))
 
@@ -363,7 +320,7 @@ class Context(object):
             is to be 'solar:InverterPowerLevel50PercentMember'
             (i.e. this context describes the case where the inverter power level is 50%)
         Raises:
-          OBContextException if required fields are missing or if conflicting fields are
+          OBContextError if required fields are missing or if conflicting fields are
           given.
         """
         self.instant = None
@@ -371,9 +328,9 @@ class Context(object):
         self.entity = None
         # kwargs must provide exactly one of instant or duration
         if taxonomy.PeriodType.instant.value in kwargs and taxonomy.PeriodType.duration.value in kwargs:
-            raise OBContextException("Context given both instant and duration")
+            raise OBContextError("Context given both instant and duration")
         if (taxonomy.PeriodType.instant.value not in kwargs) and (taxonomy.PeriodType.duration.value not in kwargs):
-            raise OBContextException("Context not given either instant or duration")
+            raise OBContextError("Context not given either instant or duration")
         if taxonomy.PeriodType.instant.value in kwargs:
             self.instant = kwargs.pop(taxonomy.PeriodType.instant.value)
         if taxonomy.PeriodType.duration.value in kwargs:
@@ -384,7 +341,7 @@ class Context(object):
         self.axes = {}
         for keyword in kwargs:
             if not keyword.endswith("Axis"):
-                raise OBContextException("Context given invalid keyword {}".format(keyword))
+                raise OBContextError("Context given invalid keyword {}".format(keyword))
             qualified_name = keyword
             if not qualified_name.startswith("solar:"):
                 qualified_name = "solar:" + keyword
@@ -555,7 +512,7 @@ class Fact(object):
             optional, if included the fact id is set accordingly, otherwise it is
             auto-generated.
         Raises:
-          OBException if constructor is given conflicting information
+          OBError if constructor is given conflicting information
         """
         # in case of xml the context ID will be rendered in the fact tag.
         # in case of json the contexts' attributes will be copied to the
@@ -566,7 +523,7 @@ class Fact(object):
         self.unit = unit
 
         if decimals is not None and precision is not None:
-            raise OBException("Fact given both precision and decimals - use only one.")
+            raise OBError("Fact given both precision and decimals - use only one.")
         self.decimals = decimals
         self.precision = precision
         # FUTURE TODO: decide if the Concept is numeric or non-numeric. If numeric,
@@ -904,7 +861,7 @@ class OBInstance(object):
             default False. Set it to True to turn validation rules off during 
             development. This should not be used during a release.
         Raises:
-          OBNotFoundException if the named Entrypoint cannot be found.
+          OBNotFoundError if the named Entrypoint cannot be found.
         """
         self.ts = taxonomy.semantic
         self.tu = taxonomy.units
@@ -917,7 +874,7 @@ class OBInstance(object):
             self._init_all_entrypoint()
         else:
             if not self.ts.is_entrypoint(entrypoint_name):
-                raise OBNotFoundException(
+                raise OBNotFoundError(
                     "There is no Orange Button entrypoint named {}.".format(
                         entrypoint_name))
 
@@ -1115,7 +1072,7 @@ class OBInstance(object):
           identified by the constant UNTABLE.
         """
         if concept_name not in self._all_my_concepts:
-            raise OBConceptException(
+            raise OBConceptError(
                 "{} is not an allowed concept for {}".format(
                     concept_name, self.entrypoint_name))
         # We know that a concept belongs in a table because the concept
@@ -1175,15 +1132,18 @@ class OBInstance(object):
           the concept requires, and it also provides valid values for each and
           every dimension (Axis) required by the table where the concepr resides.
         Raises:
-          OBContextException explaining what is wrong, if some needed information
+          OBContextError explaining what is wrong, if some needed information
           is missing or invalid.
         """
+        if not isinstance(context, Context):
+            raise OBContextError("{} is not a valid Context instance".format(context))
+
         # TODO Refactor to put this logic into the Concept?
         period_type = self.get_concept(concept_name).get_details("period_type")
 
         if taxonomy.PeriodType(period_type) == taxonomy.PeriodType.duration:
             if not context.duration:
-                raise OBContextException(
+                raise OBContextError(
                     "Missing required duration in {} context".format(
                         concept_name))
 
@@ -1195,13 +1155,13 @@ class OBInstance(object):
                 # TODO check isinstance(duration["start"], datetime)
                 valid = True
             if not valid:
-                raise OBContextException(
+                raise OBContextError(
                     "Invalid duration in {} context".format(
                         concept_name))
 
         if taxonomy.PeriodType(period_type) == taxonomy.PeriodType.instant:
             if not context.instant:
-                raise OBContextException(
+                raise OBContextError(
                     "Missing required instant in {} context".format(
                         concept_name))
                 # TODO check isinstance(instant, datetime)
@@ -1226,7 +1186,7 @@ class OBInstance(object):
           For example, if a concept is a measurement of energy, then kWh
           is a valid unit but kW is not.
         Raises:
-          OBUnitException explaining why the unit is not valid.
+          OBUnitError explaining why the unit is not valid.
         """
         # TODO Refactor to move this logic into the Concept class?
 
@@ -1242,7 +1202,7 @@ class OBInstance(object):
             if unit_id is None:
                 return True
             else:
-                raise OBUnitException(
+                raise OBUnitError(
                     "Unit {} given for unitless concept {} ({})".format(
                         unit_id, concept_name, required_type))
 
@@ -1253,13 +1213,13 @@ class OBInstance(object):
         # TODO what other required_types might we get here?
 
         if unit_id is None:
-            raise OBUnitException(
+            raise OBUnitError(
                 "No unit given for concept {}, requires type {}".format(
                     concept_name, required_type))
 
         unit = self.tu.get_unit(unit_id)
         if not unit:
-            raise OBNotFoundException(
+            raise OBNotFoundError(
                 "There is no unit with unit_id={} in the taxonomy."
                  .format(unit_id))
 
@@ -1325,10 +1285,10 @@ class OBInstance(object):
         Returns:
           None
         Raises:
-          OBConceptException: if the concept is not writable in this document
-          OBContextException: if the context is not correct for the concept
-          OBUnitException: if the unit given is wrong for the concept
-          OBTypeException: if the value given is the wrong type for the concept
+          OBConceptError: if the concept is not writable in this document
+          OBContextError: if the context is not correct for the concept
+          OBUnitError: if the unit given is wrong for the concept
+          OBTypeError: if the value given is the wrong type for the concept
         """
 
         if "unit_name" in kwargs:
@@ -1354,7 +1314,7 @@ class OBInstance(object):
             fact_id = None
 
         if not self.is_concept_writable(concept_name):
-            raise OBConceptException(
+            raise OBConceptError(
                 "{} is not a writeable concept".format(concept_name))
         concept = self.get_concept(concept_name)
 
@@ -1376,17 +1336,17 @@ class OBInstance(object):
             context = self._fill_in_context_from_defaults(context, concept)
 
         if not self.validate_context(concept_name, context):
-            raise OBContextException(
+            raise OBContextError(
                 "Insufficient context for {}".format(concept_name))
 
         # Check unit type:
         if not self._dev_validation_off and not  self._is_valid_unit(concept_name, unit_name):
-            raise OBUnitException(
+            raise OBUnitError(
                 "{} is not a valid unit name for {}".format(unit_name, concept_name))
 
         # check datatype of given value against concept
         if not self._dev_validation_off and not concept.validate_datatype(value):
-            raise OBTypeException(
+            raise OBTypeError(
                 "{} is the wrong datatype for {}".format(value, concept_name))
 
         table = self.get_table_for_concept(concept_name)
@@ -1640,7 +1600,7 @@ class OBInstance(object):
             if period in self._default_context:
                 context_args[period.value] = self._default_context[period]
             else:
-                raise OBContextException(
+                raise OBContextError(
                     "{} needs a {}, no default set and no context given.".format(
                         concept.name, period.value))
             if "entity" in self._default_context:
