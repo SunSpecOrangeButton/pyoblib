@@ -125,22 +125,22 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                              TestConditionAxis = "solar:StandardTestConditionMember",
                                              duration = "forever")
 
-        self.assertTrue( doc.validate_context("solar:DeviceCost",
+        self.assertTrue( doc._is_valid_context("solar:DeviceCost",
                                               instantContext))
         # A context with a duration instead of an instant should also be
         # rejected:
         with self.assertRaises(OBContextError):
-            doc.validate_context("solar:DeviceCost", durationContext)
+            doc._is_valid_context("solar:DeviceCost", durationContext)
 
         # solar:ModuleNameplateCapacity has period_type duration.
         # A context with an instant instead of a duration should also be
         # rejected:
         with self.assertRaises(OBContextError):
-            doc.validate_context("solar:ModuleNameplateCapacity", instantContext)
-        self.assertTrue( doc.validate_context("solar:ModuleNameplateCapacity",
+            doc._is_valid_context("solar:ModuleNameplateCapacity", instantContext)
+        self.assertTrue( doc._is_valid_context("solar:ModuleNameplateCapacity",
                                               durationContext))
 
-    def test_validate_context_axes(self):
+    def test_is_valid_context_axes(self):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
 
         # The context must also provide all of the axes needed to place the
@@ -149,22 +149,22 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # DeviceCost is on the CutSheetDetailsTable so it needs a value
         # for ProductIdentifierAxis and TestConditionAxis.
         with self.assertRaises(OBContextError):
-            doc.validate_context("solar:DeviceCost", {})
+            doc._is_valid_context("solar:DeviceCost", {})
 
         context = data_model.Context(instant = datetime.now(),
                           ProductIdentifierAxis = "placeholder",
                           TestConditionAxis = "solar:StandardTestConditionMember")
-        self.assertTrue(doc.validate_context("solar:DeviceCost", context))
+        self.assertTrue(doc._is_valid_context("solar:DeviceCost", context))
 
         badContext = data_model.Context(instant = datetime.now(),
                              TestConditionAxis = "solar:StandardTestConditionMember")
         with self.assertRaises(OBContextError):
-            doc.validate_context("solar:DeviceCost", badContext)
+            doc._is_valid_context("solar:DeviceCost", badContext)
 
         badContext = data_model.Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
         with self.assertRaises(OBContextError):
-            doc.validate_context("solar:DeviceCost", badContext)
+            doc._is_valid_context("solar:DeviceCost", badContext)
 
         # How do we know what are valid values for ProductIdentifierAxis and
         # TestConditionAxis?  (I think they are meant to be UUIDs.)
@@ -182,17 +182,17 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           ProductIdentifierAxis = "placeholder",
                           InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
 
-        self.assertTrue(doc.validate_context(concept, context))
+        self.assertTrue(doc._is_valid_context(concept, context))
 
         badContext = data_model.Context(instant = datetime.now(),
                              InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
         with self.assertRaises(OBContextError):
-            doc.validate_context(concept, badContext)
+            doc._is_valid_context(concept, badContext)
 
         badContext = data_model.Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
         with self.assertRaises(OBContextError):
-            doc.validate_context(concept, badContext)
+            doc._is_valid_context(concept, badContext)
 
     def test_set_separate_dimension_args(self):
         # Tests the case where .set() is called correctly.  Use the
@@ -500,7 +500,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           InverterPowerLevelPercentAxis = 'solar:StandardTestConditionMember')
         # not a valid value for InverterPowerLevelPercentAxis
         with self.assertRaises(OBContextError):
-            doc.validate_context(concept, context)
+            doc._is_valid_context(concept, context)
 
     def test_reject_missing_or_invalid_units(self):
         # issue #28
@@ -637,7 +637,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
             ProductIdentifierAxis = "placeholder",
             TestConditionAxis = "solar:StandardTestConditionMember",
             instant = datetime.now())
-        self.assertTrue( doc.validate_context("solar:DeviceCost",
+        self.assertTrue( doc._is_valid_context("solar:DeviceCost",
                                               twoAxisContext))
 
         threeAxisContext = data_model.Context(
@@ -648,7 +648,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
         # but the table that holds DeviceCost doesn't want this axis:
         with self.assertRaises(OBContextError):
-            doc.validate_context("solar:DeviceCost", threeAxisContext)
+            doc._is_valid_context("solar:DeviceCost", threeAxisContext)
 
     def test_set_default_context_values(self):
         # Test setting default values, for example something like:

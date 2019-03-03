@@ -256,7 +256,7 @@ class Hypercube(object):
 
         return dimensionValue in axis.domainMembers
 
-    def validate_context(self, context):
+    def _is_valid_context(self, context):
         """
         Args:
           context: a Context instance
@@ -1127,7 +1127,7 @@ class OBInstance(object):
             return True
         return False
 
-    def validate_context(self, concept_name, context):
+    def _is_valid_context(self, concept_name, context):
         """
         Args:
           concept_name: string
@@ -1179,7 +1179,7 @@ class OBInstance(object):
         # required axes, if this concept is on a table:
         table = self.get_table_for_concept(concept_name)
         if table is not None:
-            table.validate_context(context)
+            table._is_valid_context(context)
 
         return True
 
@@ -1344,7 +1344,7 @@ class OBInstance(object):
         if len(self._default_context) > 0:
             context = self._fill_in_context_from_defaults(context, concept)
 
-        if not self.validate_context(concept_name, context):
+        if not self._is_valid_context(concept_name, context):
             raise OBContextError(
                 "Insufficient context for {}".format(concept_name))
 
