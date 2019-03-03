@@ -971,6 +971,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertIn("units", root.nsmap)
         self.assertIn("us-gaap", root.nsmap)
 
+    def test_all_entrypoint(self):
+        # Passing the string "All" to OBInstance should give me access to every concept
+        # instead of restricting it to an entrypoint.
+        doc = data_model.OBInstance("All", self.taxonomy)
+        self.assertEqual(len(doc._all_my_concepts), 4230) # Every concept!
 
     # TODO lots more tests for using get(), especially with partial context arguments.
 

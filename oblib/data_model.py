@@ -879,22 +879,20 @@ class OBInstance(object):
         self._dev_validation_off = dev_validation_off
         self._all_my_concepts = {}
 
-        if entrypoint_name == "All":
-            self._init_all_entrypoint()
-        else:
-            if not self.ts.is_entrypoint(entrypoint_name):
-                raise OBNotFoundError(
-                    "There is no Orange Button entrypoint named {}.".format(
-                        entrypoint_name))
 
-            # This gives me the list of every concept that could ever be
-            # included in the document.
-            concept_list = self.ts.get_entrypoint_concepts(entrypoint_name)
-            self._initialize_concepts(concept_list)
+        if not self.ts.is_entrypoint(entrypoint_name):
+            raise OBNotFoundError(
+                "There is no Orange Button entrypoint named {}.".format(
+                    entrypoint_name))
 
-            # Get the relationships (this comes from solar_taxonomy/documents/
-            #  <entrypoint>/<entrypoint><version>_def.xml)
-            self.relations = self.ts.get_entrypoint_relationships(entrypoint_name)
+        # This gives me the list of every concept that could ever be
+        # included in the document.
+        concept_list = self.ts.get_entrypoint_concepts(entrypoint_name)
+        self._initialize_concepts(concept_list)
+
+        # Get the relationships (this comes from solar_taxonomy/documents/
+        #  <entrypoint>/<entrypoint><version>_def.xml)
+        self.relations = self.ts.get_entrypoint_relationships(entrypoint_name)
 
         # Search through the relationships to find all of the tables, their
         # axes, and parent/child relationships between concepts:
@@ -926,28 +924,6 @@ class OBInstance(object):
             else:
                 new_concept = Concept(self.taxonomy, concept_name)
             self._all_my_concepts[concept_name] = new_concept
-
-
-    def _init_all_entrypoint(self):
-        """
-        Initializes the Instance to allow all concepts. Called by the constructor,
-        client code should not call this.
-        Args: None
-        Returns: None
-        """
-        # take every concept from taxonomy
-        every_concept = []
-        for x in self.ts._concepts.values():
-            every_concept.extend(x)
-        self._initialize_concepts(every_concept)
-
-        # Take every relation from taxonomy
-        every_relation = []
-        for x in self.ts._relationships.values():
-            every_relation.extend(x)
-        self.relations = every_relation  # this will contain a lot of duplicates
-        # can't do list(set(list)) when the starting point is a list of dicts
-        # since dicts aren't trivially comparable
 
     def _initialize_tables(self):
         """

@@ -213,6 +213,12 @@ class TaxonomySemantic(object):
                     concepts[dirname] = self._load_concepts_file(
                         os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                      "process", dirname, filename))
+
+        # load from "/core/" for the "All" entrypoint:
+        concepts["All"] = self._load_concepts_file(
+            os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
+                             "solar_all_2018-03-31_r01_pre.xml"))
+
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -241,6 +247,11 @@ class TaxonomySemantic(object):
             for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process", dirname)):
                 if 'def.' in filename:
                     relationships[dirname] = self._load_relationships_file(os.path.join("process", dirname, filename))
+
+        # load from "/core/" for the "All" entrypoint:
+        relationships["All"] = self._load_relationships_file(
+            os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
+                         "solar_all_2018-03-31_r01_def.xml"))
 
         return relationships
 
