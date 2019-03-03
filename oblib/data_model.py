@@ -456,7 +456,7 @@ class Context(object):
         """
         Returns:
           A JSON-style dictionary object containing this context's fields
-          (entity, period, and extra dimensions)
+          (entity, period, and extra dimensions).
         """
         aspects = {"entity": self.entity}
 
@@ -572,7 +572,8 @@ class Fact(object):
         """
         Returns:
           a JSON-style dict representing this Fact and all its fields in XBRL
-          JSON format.
+          JSON format. All values are strings except for True, False, and None
+          which are literals. (see issue #142)
         """
         aspects = self.context._toJSON()
         aspects["concept"] = self.concept_name
@@ -584,11 +585,19 @@ class Fact(object):
                 aspects["precision"] = str(self.precision)
 
         if isinstance( self.value, datetime.datetime):
-            value_str = self.value.strftime("%Y-%m-%dT%H:%M:%S")
+            # Format dates:
+            value_literal = self.value.strftime("%Y-%m-%dT%H:%M:%S")
+        elif isinstance( self.value, bool):
+            # booleans are written as boolean literals
+            value_literal = self.value
+        elif isinstance( self.value, type(None)):
+            # So are Nones:
+            value_literal = self.value
         else:
-            value_str = str(self.value)
+            # All else gets converted to string:
+            value_literal = str(self.value)
         return { "aspects": aspects,
-                 "value": value_str}
+                 "value": value_literal}
 
 
 class Concept(object):
