@@ -871,7 +871,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Issue #77 - all json fields should be strings other than None which should convert
         # a JSON null literal.  e.g. numbers should be "100" not 100
         # Issue #142 -- and booleans should convert to a JSON true/false literal.
-
         """
         "key": false - correct
         "key": "false" - incorrect
@@ -890,6 +889,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
         "key": "Null" - incorrect
         "key": "None" - incorrect
         """
+        # NOTE: for v1.0, incorrect fields are processed on input but not on output.
+        # This decision may be revisited in a future release.
+
         
         doc = data_model.OBInstance("System", self.taxonomy, dev_validation_off=True)
         now = datetime.now()

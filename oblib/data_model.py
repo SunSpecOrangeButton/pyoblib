@@ -586,7 +586,7 @@ class Fact(object):
 
         if isinstance( self.value, datetime.datetime):
             # Format dates:
-            value_literal = self.value.strftime("%Y-%m-%dT%H:%M:%S")
+            value_literal = self.value.isoformat(sep='T')
         elif isinstance( self.value, bool):
             # booleans are written as boolean literals
             value_literal = self.value
@@ -1115,7 +1115,7 @@ class OBInstance(object):
           needed to provide full context for the named concept. i.e. if it
           provides either a valid duration or a valid instant, whichever
           the concept requires, and it also provides valid values for each and
-          every dimension (Axis) required by the table where the concepr resides.
+          every dimension (Axis) required by the table where the concept resides.
         Raises:
           OBContextError explaining what is wrong, if some needed information
           is missing or invalid.
