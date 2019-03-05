@@ -37,27 +37,42 @@ Requirements
 - Python 2.7, 3.4-3.6
 
 
-Installation for Development (From GitHub)
-===========================================
+Installation
+============
+
+Installation from PyPI
+----------------------
+
+To install the library from the Python Package Index (PyPI), run the following command::
+
+    pip install oblib
+
+Installation from GitHub
+------------------------
+
+Follow the steps outlined below to install the library for development from GitHub.
+
+1. Create a fork of the `pyoblib <https://github.com/SunSpecOrangeButton/pyoblib>`_ GitHub repository.
+2. Clone it locally.
+3. Navigate to the pyoblib root directory - ``cd pyoblib``
+4. Run the setup script - ``scripts/setup-dev.sh``
+5. Install using setup.py - ``python setup.py install``
 
 A series of Bash (Mac/Linux) shell scripts are available to assist with development and packaging.
-Their state is preliminary but they can be used to get started.
 
 * cli.sh: Runs the CLI before it is packaged.
 * dist-cli.sh: Packages the CLI into a single file executable.
 * docs.sh: Creates the documentation (currently requires some manual work).
 * setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
-* tests.sh Runs the python tests.
-* tests-cli.sh Runs the CLI test suite.
+* tests.sh: Runs the python tests.
+* tests-cli.sh: Runs the CLI test suite.
 
-All scripts must be run from the root directory (i.e. "scripts/tests.sh" is the correct usage).
-Run "scripts/setup-dev.sh" before usage of other scripts.
+All scripts must be run from the root directory (i.e. ``scripts/tests.sh`` is the correct usage).
+Run ``scripts/setup-dev.sh`` before usage of other scripts.
 
-Usage on Windows is a future feature (contributions are welcome!). It should be possible to use on Windows with
-manual setup at this point in time.
 
 Running the Tests
------------------
+~~~~~~~~~~~~~~~~~
 
 In order to run the tests run the following scripts:
 
