@@ -20,6 +20,30 @@ oblib.tests.test\_identifier module
     :undoc-members:
     :show-inheritance:
 
+tests.test\_json\_clips module
+------------------------------
+
+.. automodule:: oblib.tests.test_json_clips
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tests.test\_ob module
+---------------------
+
+.. automodule:: oblib.tests.test_ob
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+tests.test\_parser module
+-------------------------
+
+.. automodule:: oblib.tests.test_parser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 oblib.tests.test\_taxonomy module
 ---------------------------------
 

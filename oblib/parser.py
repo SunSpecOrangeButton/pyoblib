@@ -83,6 +83,10 @@ class Parser(object):
 
         entrypoints_found = set()
         for entrypoint in self._taxonomy.semantic.get_all_entrypoints():
+            if entrypoint == "All":
+                # Ignore the "All" entrypoint, which matches everything -- we're
+                # looking for a more specific one.
+                continue
             for concept in self._taxonomy.semantic.get_entrypoint_concepts(entrypoint):
                 for doc_concept in doc_concepts:
                     if doc_concept == concept:

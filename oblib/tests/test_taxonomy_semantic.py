@@ -77,13 +77,13 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_get_entrypoint_concepts(self):
         concepts = tax.get_entrypoint_concepts("MonthlyOperatingReport")
-        self.assertEqual(len(concepts), 84)
+        self.assertEqual(85, len(concepts))
         concepts = tax.get_entrypoint_concepts("MonthlyOperatingReort")
         self.assertEqual(concepts, [])
         concepts, details = tax.get_entrypoint_concepts("CutSheet",
                                                         details=True)
-        self.assertEqual(len(concepts), 302)
-        self.assertEqual(len(details), 297)
+        self.assertEqual(296, len(concepts))
+        self.assertEqual(296, len(details))
         concepts, details = tax.get_entrypoint_concepts("Utility", True)
         self.assertEqual(len(concepts), 8)
         for ci in concepts:
@@ -114,16 +114,17 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsNotNone(tax.get_all_concepts(details=True), dict)
 
     def test_get_all_type_names(self):
-        self.assertEqual(len(tax.get_all_type_names()), 91)
+        self.assertEqual(92, len(tax.get_all_type_names()))
 
     def test_get_all_entrypoints(self):
-        self.assertEqual(len(tax.get_all_entrypoints()), 159)
+        # 159 named entry points plus 1 for the "All" entry point:
+        self.assertEqual(len(tax.get_all_entrypoints()), 160)
 
     def test_get_entrypoint_relationships(self):
         self.assertIsNone(tax.get_entrypoint_relationships("Arggh"))
         self.assertEqual(len(tax.get_entrypoint_relationships("Utility")), 7)
-        self.assertEqual(len(tax.get_entrypoint_relationships("MonthlyOperatingReport")), 84)
-        self.assertEqual(len(tax.get_entrypoint_relationships("CutSheet")), 305)
+        self.assertEqual(85, len(tax.get_entrypoint_relationships("MonthlyOperatingReport")))
+        self.assertEqual(300, len(tax.get_entrypoint_relationships("CutSheet")))
 
     def test_is_concept(self):
         self.assertTrue(tax.is_concept("solar:EnvironmentalImpactReportExpirationDate"))

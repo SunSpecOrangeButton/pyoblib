@@ -163,7 +163,7 @@ class TaxonomySemantic(object):
     def _load_elements(self):
         elements = self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "core",
-            "solar_2018-03-31_r01.xsd"))
+            "solar_2019-02-27_r01.xsd"))
         elements.update(self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "external",
             "us-gaap-2017-01-31.xsd")))
@@ -181,38 +181,45 @@ class TaxonomySemantic(object):
 
     def _load_concepts(self):
         """Return a dict of available concepts."""
-        concepts = {}
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                               "data")):
-            for filename in os.listdir(
-                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "data",
-                                 dirname)):
-                # if 'def.' in filename:
-                if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file(
-                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                     "data", dirname, filename))
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                               "documents")):
-            for filename in os.listdir(
-                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents",
-                                 dirname)):
-                # if 'def.' in filename:
-                if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file(
-                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                     "documents", dirname, filename))
 
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                               "process")):
-            for filename in os.listdir(
-                    os.path.join(constants.SOLAR_TAXONOMY_DIR, "process",
-                                 dirname)):
-                # if 'def.' in filename:
-                if 'pre.' in filename:
-                    concepts[dirname] = self._load_concepts_file(
-                        os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                     "process", dirname, filename))
+        concepts = {}
+
+        for filename in os.listdir(
+                os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
+            # if 'def.' in filename:
+            if 'pre.' in filename:
+                concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
+                concepts[concept_name] = self._load_concepts_file(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                 "data", filename))
+        for filename in os.listdir(
+                os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
+            # if 'def.' in filename:
+            if 'pre.' in filename:
+                concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
+                concepts[concept_name] = self._load_concepts_file(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                 "documents", filename))
+
+        for filename in os.listdir(
+                os.path.join(constants.SOLAR_TAXONOMY_DIR, "process")):
+            # if 'def.' in filename:
+            if 'pre.' in filename:
+                concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
+                concepts[concept_name] = self._load_concepts_file(
+                    os.path.join(constants.SOLAR_TAXONOMY_DIR,
+                                 "process", filename))
+
+        # load from "/core/" for the "All" entrypoint:
+        concepts["All"] = self._load_concepts_file(
+            os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
+                             "solar_all_2019-02-27_r01_pre.xml"))
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -224,23 +231,31 @@ class TaxonomySemantic(object):
 
     def _load_relationships(self):
         relationships = {}
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                               "data")):
-            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data", dirname)):
-                if 'def.' in filename:
-                    relationships[dirname] = self._load_relationships_file(os.path.join("data", dirname, filename))
+        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
+            if 'def.' in filename:
+                concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
+                relationships[concept_name] = self._load_relationships_file(os.path.join("data", filename))
 
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                               "documents")):
-            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents", dirname)):
-                if 'def.' in filename:
-                    relationships[dirname] = self._load_relationships_file(os.path.join("documents", dirname, filename))
+        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
+            if 'def.' in filename:
+                concept_name = filename[filename.find("solar-")+6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
+                relationships[concept_name] = self._load_relationships_file(os.path.join("documents", filename))
 
-        for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-                                               "process")):
-            for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process", dirname)):
-                if 'def.' in filename:
-                    relationships[dirname] = self._load_relationships_file(os.path.join("process", dirname, filename))
+        for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process")):
+            if 'def.' in filename:
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
+                    concept_name = "CutSheet"
+                relationships[concept_name] = self._load_relationships_file(os.path.join("process", filename))
+
+        # load from "/core/" for the "All" entrypoint:
+        relationships["All"] = self._load_relationships_file(
+            os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
+                         "solar_all_2019-02-27_r01_def.xml"))
 
         return relationships
 
@@ -359,17 +374,10 @@ class TaxonomySemantic(object):
                     if concept in self._concepts_details:
                         ci[concept] = self._concepts_details[concept]
                     else:
-                        # TODO: This is now known to be a bug in the taxonomy
-                        # and has been submitted for fix.
-                        # Remove this comment once completed.
-                        # Here are some samples that are not found:
-                        # Warning, concept not found: solar:MeterRatingAccuracy_1
-                        # Warning, concept not found: solar:MeterRevenueGrade_1
-                        # Warning, concept not found: solar:MeterBidirectional_1
-                        # Warning, concept not found: solar:RevenueMeterPowerFactor_1
-                        # Warning, concept not found: solar:InverterPowerLevel10PercentMember_1
-                        # print("Warning, concept not found:", concept)
-                        pass
+                        # NOTE: This is encountered if a historical bug in the Taxonomy occurs.
+                        # Printing a warning will be left in case this reoccurs in the future.
+                        print("Warning, concept not found:", concept)
+
                 return concepts, ci
         return concepts
 
