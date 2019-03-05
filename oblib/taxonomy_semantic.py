@@ -181,9 +181,9 @@ class TaxonomySemantic(object):
 
     def _load_concepts(self):
         """Return a dict of available concepts."""
+
         concepts = {}
-        # for dirname in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR,
-        #                                        "data")):
+
         for filename in os.listdir(
                 os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
             # if 'def.' in filename:
@@ -215,6 +215,11 @@ class TaxonomySemantic(object):
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "process", filename))
+
+        # load from "/core/" for the "All" entrypoint:
+        concepts["All"] = self._load_concepts_file(
+            os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
+                             "solar_all_2019-02-27_r01_pre.xml"))
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -246,6 +251,11 @@ class TaxonomySemantic(object):
                 if concept_name == "cutsheet":   # Note: CutSheet is not named using camel case like other files
                     concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("process", filename))
+
+        # load from "/core/" for the "All" entrypoint:
+        relationships["All"] = self._load_relationships_file(
+            os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
+                         "solar_all_2019-02-27_r01_def.xml"))
 
         return relationships
 

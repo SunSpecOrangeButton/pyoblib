@@ -117,7 +117,8 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(92, len(tax.get_all_type_names()))
 
     def test_get_all_entrypoints(self):
-        self.assertEqual(159, len(tax.get_all_entrypoints()))
+        # 159 named entry points plus 1 for the "All" entry point:
+        self.assertEqual(len(tax.get_all_entrypoints()), 160)
 
     def test_get_entrypoint_relationships(self):
         self.assertIsNone(tax.get_entrypoint_relationships("Arggh"))
