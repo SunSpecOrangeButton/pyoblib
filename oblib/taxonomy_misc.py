@@ -283,7 +283,7 @@ class TaxonomyDocumentation(object):
         self._documentation = self._load_documentation()
 
     def _load_documentation(self):
-        label_file = "solar_2018-03-31_r01_lab.xml"
+        label_file = "solar_2019-02-27_r01_lab.xml"
         filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
 
         taxonomy = _TaxonomyDocumentationHandler()
