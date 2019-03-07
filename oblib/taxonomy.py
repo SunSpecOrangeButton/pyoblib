@@ -15,7 +15,6 @@
 """Handles Orange button taxonomy."""
 
 import enum
-from oblib import taxonomy_types, taxonomy_misc
 from oblib.ob import OBNotFoundError
 
 
