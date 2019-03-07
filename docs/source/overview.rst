@@ -40,15 +40,15 @@ Requirements
 Installation
 ============
 
-Installation from PyPI
-----------------------
+Installing the library from PyPI
+--------------------------------
 
 To install the library from the Python Package Index (PyPI), run the following command::
 
     pip install oblib
 
-Installation from GitHub
-------------------------
+Installing the library from GitHub
+----------------------------------
 
 Follow the steps outlined below to install the library for development from GitHub.
 
@@ -78,4 +78,21 @@ In order to run the tests run the following scripts:
 
 * tests.sh - Runs the python tests.
 * tests-cli.sh - Runs the CLI test suite.
+
+Installing the CLI Tool
+-----------------------
+
+Follow the steps outlined below to the Command Line Interface (CLI) tool.
+
+1. Download an installer that matches your system type -
+
+    • Mac - :download:`OB Mac Installer <../../dist/ob>`
+    • Windows -
+    • Linux -
+
+2. Move the downloaded file to the executable path - ``sudo mv ob /usr/local/bin``
+
+Now, the CLI tool can be invoked from the command line by using the command ``ob``.
+For the full set of commands, use the help option as ``ob --help``
+
 

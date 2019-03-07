@@ -15,7 +15,7 @@
 import sys
 import argparse
 from oblib import identifier, ob, taxonomy, validator
-from oblib.parser import Parser, FileFormat
+from oblib import parser as ob_parser
 
 
 INFO = """
@@ -42,17 +42,17 @@ def info(args):
 
 def convert(args):
 
-    p = Parser(taxonomy)
+    p = ob_parser.Parser(taxonomy)
 
     ff = None
     if json:
-        ff = FileFormat.JSON
+        ff = ob_parser.FileFormat.JSON
     elif xml:
-        ff = FileFormat.XML
+        ff = ob_parser.FileFormat.XML
     elif args.infile.lower().endswith(".json") and args.outfile.lower().endswith(".xml"):
-        ff = FileFormat.JSON
+        ff = ob_parser.FileFormat.JSON
     elif args.infile.lower().endswith(".xml") and args.outfile.lower().endswith(".json"):
-        ff = FileFormat.XML
+        ff = ob_parser.FileFormat.XML
 
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
@@ -67,17 +67,17 @@ def convert(args):
 
 def validate(args):
 
-    p = Parser(taxonomy)
+    p = ob_parser.Parser(taxonomy)
 
     ff = None
     if json:
-        ff = FileFormat.JSON
+        ff = ob_parser.FileFormat.JSON
     elif xml:
-        ff = FileFormat.XML
+        ff = ob_parser.FileFormat.XML
     elif args.infile.lower().endswith(".json"):
-        ff = FileFormat.JSON
+        ff = ob_parser.FileFormat.JSON
     elif args.infile.lower().endswith(".xml"):
-        ff = FileFormat.XML
+        ff = ob_parser.FileFormat.XML
 
     if ff is None:
         print("Unable to determine file format.  Conversion not processed.")
@@ -139,7 +139,7 @@ def list_entrypoint_concepts_details(args):
 
     if csv:
         _, concepts_details = taxonomy.semantic.get_entrypoint_concepts(args.entrypoint,
-                                                                      details=True)
+                                                                        details=True)
         print("Id, Name, Abstract, Nillable, Period Indicator, "
               "Substitution Group, Type, Period Type")
         for c in concepts_details:
@@ -149,7 +149,7 @@ def list_entrypoint_concepts_details(args):
             d.substitution_group.value, d.type_name, d.period_type.value))
     else:
         _, concepts_details = taxonomy.semantic.get_entrypoint_concepts(args.entrypoint,
-                                                                      details=True)
+                                                                        details=True)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
                 ("Id", "Name", "Abstract", "Nillable", "Period Ind",
                  "Substitution Group", "Type", "Period Type"))
@@ -236,8 +236,8 @@ def list_units_details(args):
                    unit.status.value, unit.definition))
     else:
         print('%6s %22s %40s %35s %23s %10s %6s %9s %10s %8s %15s' %
-                ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
-                "Status", "Ver Dt", "Definition"))
+              ("Id", "Unit ID", "Name", "nsUnit", "Item Type", "I Type Dt", "Symbol", "Base Std",
+               "Status", "Ver Dt", "Definition"))
         print('%0.6s %0.22s %0.40s %0.35s %0.23s %0.10s %0.6s %0.9s %0.10s %0.8s %0.15s' %
                 (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
 
@@ -281,7 +281,7 @@ def validate_value(args):
         print("Valid:", result[0])
     else:
         # Note: the following line is not valid in 2.7 so use sys.stdout.write instead.
-        #print("Not valid:", end=" ")
+        # print("Not valid:", end=" ")
         sys.stdout.write("Not valid: ")
         for error in result[1]:
             print(error)
