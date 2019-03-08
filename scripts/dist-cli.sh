@@ -22,6 +22,8 @@
 
 
 export SOLAR_TAXONOMY_DIR='solar-taxonomy'
-pyinstaller --add-data solar-taxonomy:solar-taxonomy --clean --onefile scripts/cli/cli.py
+pyinstaller --add-data oblib/data/solar-taxonomy:solar-taxonomy --clean --onefile scripts/cli/cli.py
 rm -rf build
-mv dist/cli dist/ob
+rm -rf cli.spec
+mkdir dist-cli
+mv dist/cli dist-cli/ob
