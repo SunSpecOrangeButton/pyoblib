@@ -44,6 +44,7 @@ setup(
     simplify working with Orange Button data.
 
     Documentation: https://pyoblib.readthedocs.io/en/latest/
+    
     Source code: https://github.com/SunSpecOrangeButton/pyoblib
     """,
     author='SunSpec Alliance',
