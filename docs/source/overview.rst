@@ -84,15 +84,18 @@ Installing the CLI Tool
 
 Follow the steps outlined below to the Command Line Interface (CLI) tool.
 
-1. Download an installer that matches your system type -
+1. Download an executable that matches your system type -
 
-    • Mac - :download:`OB Mac Installer <../../dist/ob>`
+    • Mac - :download:`OB Mac Executable <../../dist-cli/Mac/ob>`
     • Windows -
-    • Linux -
+    • Linux - :download:`OB Linux Executable <../../dist-cli/Linux/ob>`
 
-2. Move the downloaded file to the executable path - ``sudo mv ob /usr/local/bin``
+2. Register the executable -
+
+To be able to run the executable from the command line, follow one of the two options -
+    a. Move the downloaded file to the executable path -
+        • Mac, Linux - ``sudo mv ob /usr/local/bin``
+    b. Add the OB executable file path to the system PATH environment variable.
 
 Now, the CLI tool can be invoked from the command line by using the command ``ob``.
 For the full set of commands, use the help option as ``ob --help``
-
-
