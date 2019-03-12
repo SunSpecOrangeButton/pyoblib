@@ -44,16 +44,10 @@ class TestTaxonomy(unittest.TestCase):
         self.assertIsInstance(tax.documentation, taxonomy.TaxonomyDocumentation)
 
 
-class TestTaxonomyMisc(unittest.TestCase):
+class TestTaxonomyNumericTypes(unittest.TestCase):
 
     def test_get_all_numeric_types(self):
         self.assertEqual(len(tax.numeric_types.get_all_numeric_types()), 13)
-
-    def test_get_all_ref_parts(self):
-        self.assertEqual(len(tax.ref_parts.get_all_ref_parts()), 6)
-
-    def test_get_all_generic_roles(self):
-        self.assertEqual(len(tax.generic_roles.get_all_generic_roles()), 5)
 
     def test_validate_numeric_types(self):
         self.assertTrue(tax.numeric_types.is_numeric_type("num-us:insolationItemType"))
@@ -65,6 +59,12 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax.numeric_types.is_numeric_type("num-us:speedItemTye"))
         self.assertFalse(tax.numeric_types.is_numeric_type("num-us:luminousIntensityIteType"))
 
+
+class TestTaxonomyRefParts(unittest.TestCase):
+
+    def test_get_all_ref_parts(self):
+        self.assertEqual(len(tax.ref_parts.get_all_ref_parts()), 6)
+
     def test_is_ref_part(self):
         self.assertTrue(tax.ref_parts.is_ref_part("Publisher"))
         self.assertTrue(tax.ref_parts.is_ref_part("Sample"))
@@ -73,6 +73,12 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax.ref_parts.is_ref_part("Sampl"))
         self.assertFalse(tax.ref_parts.is_ref_part("Confidentialit"))
 
+
+class TestTaxonomyGenericRoles(unittest.TestCase):
+
+    def test_get_all_generic_roles(self):
+        self.assertEqual(len(tax.generic_roles.get_all_generic_roles()), 5)
+
     def test_is_generic_role(self):
         self.assertTrue(tax.generic_roles.is_generic_role("Generic UML aggregation arc"))
         self.assertTrue(tax.generic_roles.is_generic_role("Generic UML inheritance arc"))
@@ -80,6 +86,9 @@ class TestTaxonomyMisc(unittest.TestCase):
         self.assertFalse(tax.generic_roles.is_generic_role("Genric UML aggregation arc"))
         self.assertFalse(tax.generic_roles.is_generic_role("Genric UML inheritance arc"))
         self.assertFalse(tax.generic_roles.is_generic_role("Genric UML property arc"))
+
+
+class TextTaxonomyDocumentation(unittest.TestCase):
 
     def test_get_all_concepts_documentation(self):
         self.assertEqual(tax.documentation.get_all_concepts_documentation()["solar:EntitySizeACPower"],
