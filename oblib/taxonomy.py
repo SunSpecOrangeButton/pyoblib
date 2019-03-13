@@ -15,7 +15,8 @@
 """Handles Orange button taxonomy."""
 
 import enum
-from oblib.ob import OBNotFoundError
+from oblib import taxonomy_loader
+from oblib import ob
 
 
 class SubstitutionGroup(enum.Enum):
@@ -537,7 +538,7 @@ class TaxonomyUnits(object):
         if found:
             return unit
         else:
-            raise OBNotFoundError("{} is not the type, name or id of a valid "
+            raise ob.OBNotFoundError("{} is not the type, name or id of a valid "
                                   "unit".format(unit_str, attr))
 
 
@@ -749,7 +750,6 @@ class Taxonomy(object):
     def __init__(self):
         """Taxonomy constructor."""
 
-        from oblib import taxonomy_loader
         tl = taxonomy_loader.TaxonomyLoader()
 
         self.semantic = TaxonomySemantic(tl)

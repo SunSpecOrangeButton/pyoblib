@@ -32,9 +32,6 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
             for item in attrs.items():
                 if item[0] == "id":
 
-                    # Temporary fix for the circular dependency issue
-                    from oblib import taxonomy
-
                     self._curr = taxonomy.Unit()
                     self._curr.id = item[1]
         elif name == "xs:enumeration":
@@ -63,14 +60,8 @@ class _TaxonomyUnitsHandler(xml.sax.ContentHandler):
             self._curr.definition = self._content
         elif name == "baseStandard":
 
-            # Temporary fix for the circular dependency issue
-            from oblib import taxonomy
-
             self._curr.base_standard = taxonomy.BaseStandard(self._content)
         elif name == "status":
-
-            # Temporary fix for the circular dependency issue
-            from oblib import taxonomy
 
             self._curr.status = taxonomy.UnitStatus(self._content)
         elif name == "versionDate":
@@ -220,9 +211,6 @@ class _ElementsHandler(xml.sax.ContentHandler):
 
     def startElement(self, name, attrs):
         if name == "xs:element":
-
-            # Temporary fix for the circular dependency issue
-            from oblib import taxonomy
 
             element = taxonomy.ConceptDetails()
 
