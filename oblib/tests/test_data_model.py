@@ -23,11 +23,12 @@ from oblib.ob import (
     OBConceptError, OBNotFoundError,
     OBValidationError, OBUnitError)
 
+tax = taxonomy.Taxonomy()
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
     def setUp(self):
-        self.taxonomy = taxonomy.getTaxonomy()
+        self.taxonomy = tax
 
     def tearDown(self):
         pass
