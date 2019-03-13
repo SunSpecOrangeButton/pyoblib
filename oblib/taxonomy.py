@@ -15,7 +15,6 @@
 """Handles Orange button taxonomy."""
 
 import enum
-from oblib import taxonomy_loader
 from oblib import ob
 
 
@@ -750,6 +749,7 @@ class Taxonomy(object):
     def __init__(self):
         """Taxonomy constructor."""
 
+        from oblib import taxonomy_loader
         tl = taxonomy_loader.TaxonomyLoader()
 
         self.semantic = TaxonomySemantic(tl)
