@@ -1,4 +1,4 @@
-# Copyright 2018 SunSpec Alliance
+# Copyright 2019 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,10 @@ import json
 from datetime import datetime, date
 from lxml import etree
 from six import string_types
-from oblib import data_model, taxonomy
-from oblib.ob import (
-    OBError, OBTypeError, OBContextError,
-    OBConceptError, OBNotFoundError,
-    OBValidationError, OBUnitError)
+from oblib import data_model, taxonomy, ob
 
 tax = taxonomy.Taxonomy()
+
 
 class TestDataModelEntrypoint(unittest.TestCase):
 
@@ -112,7 +109,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # (either duration or instant)
 
         # We shouldn't even be able to instantiate a context with no time info:
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             noTimeContext = data_model.Context(ProductIdentifierAxis="placeholder",
                                                TestConditionAxis="solar:StandardTestConditionMember")
 
@@ -130,13 +127,13 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                               instantContext))
         # A context with a duration instead of an instant should also be
         # rejected:
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:DeviceCost", durationContext)
 
         # solar:ModuleNameplateCapacity has period_type duration.
         # A context with an instant instead of a duration should also be
         # rejected:
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:ModuleNameplateCapacity", instantContext)
         self.assertTrue( doc._is_valid_context("solar:ModuleNameplateCapacity",
                                               durationContext))
@@ -149,7 +146,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # DeviceCost is on the CutSheetDetailsTable so it needs a value
         # for ProductIdentifierAxis and TestConditionAxis.
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:DeviceCost", {})
 
         context = data_model.Context(instant = datetime.now(),
@@ -159,12 +156,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         badContext = data_model.Context(instant = datetime.now(),
                              TestConditionAxis = "solar:StandardTestConditionMember")
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:DeviceCost", badContext)
 
         badContext = data_model.Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:DeviceCost", badContext)
 
         # How do we know what are valid values for ProductIdentifierAxis and
@@ -187,12 +184,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         badContext = data_model.Context(instant = datetime.now(),
                              InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel100PercentMember')
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context(concept, badContext)
 
         badContext = data_model.Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context(concept, badContext)
 
     def test_set_separate_dimension_args(self):
@@ -265,10 +262,10 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Tests the case where .set() is called incorrectly. It should
         # raise exceptions if required information is missing.
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc.set("solar:TypeOfDevice", "ModuleMember")
 
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc.set("solar:DeviceCost", 100)
 
     def test_hypercube_store_context(self):
@@ -500,7 +497,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                           ProductIdentifierAxis = "placeholder",
                           InverterPowerLevelPercentAxis = 'solar:StandardTestConditionMember')
         # not a valid value for InverterPowerLevelPercentAxis
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context(concept, context)
 
     def test_reject_missing_or_invalid_units(self):
@@ -510,7 +507,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # -- reject attempt to set a fact using a unit that is the wrong type
         now = datetime.now()
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
-        with self.assertRaises(OBUnitError):
+        with self.assertRaises(ob.OBUnitError):
             # Unit is required but not provided, so this should fail:
             doc.set(
                 "solar:DeviceCost", 100,
@@ -519,7 +516,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember")
 
-        with self.assertRaises(OBNotFoundError):
+        with self.assertRaises(ob.OBNotFoundError):
             # Zorkmids is not a real unit, so this should fail:
             doc.set(
                 "solar:DeviceCost", 100,
@@ -529,7 +526,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 TestConditionAxis= "solar:StandardTestConditionMember",
                 unit_name="zorkmids")
 
-        with self.assertRaises(OBUnitError):
+        with self.assertRaises(ob.OBUnitError):
             # kWh is a real unit but the wrong type, so this should fail:
             doc.set(
                 "solar:DeviceCost", 100,
@@ -604,7 +601,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     def test_reject_invalid_datatype(self):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
-        with self.assertRaises(OBTypeError):
+        with self.assertRaises(ob.OBTypeError):
             # A non-integer is given, this should fail:
             doc.set(
                 "solar:TrackerNumberOfControllers", 0.5,
@@ -613,7 +610,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 ProductIdentifierAxis= "placeholder",
                 TestConditionAxis= "solar:StandardTestConditionMember")
 
-        with self.assertRaises(OBTypeError):
+        with self.assertRaises(ob.OBTypeError):
             # A string that can't be parsed into an integer should fail:
             doc.set(
                 "solar:TrackerNumberOfControllers", "abcdefg",
@@ -648,7 +645,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
             instant = datetime.now())
         # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
         # but the table that holds DeviceCost doesn't want this axis:
-        with self.assertRaises(OBContextError):
+        with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:DeviceCost", threeAxisContext)
 
     def test_set_default_context_values(self):
@@ -809,10 +806,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(list(facts.values())[0]["aspects"]["decimals"], "3")
 
         # Trying to set both decimals and precision should raise an error
-        with self.assertRaises(OBError):
+        with self.assertRaises(ob.OBError):
             doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3, precision=3)
-
 
     def test_ids_in_xml_and_json(self):
         # facts should have IDs in both exported JSON and exported XML, and they
@@ -945,7 +941,6 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 self.assertTrue( isinstance( aspects['solar:ProductIdentifierAxis'], string_types))
             if "solar:DeviceIdentifierAxis" in aspects:
                 self.assertTrue( isinstance( aspects['solar:DeviceIdentifierAxis'], string_types))
-
 
     def test_optional_namespaces_included(self):
         # If no us-gaap concepts are used, there should be no us-gaap namespace
