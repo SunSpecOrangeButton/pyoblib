@@ -14,7 +14,7 @@ EXTRAS_REQUIRE['all'] = sorted(set(sum(EXTRAS_REQUIRE.values(), [])))
 INSTALL_REQUIRE = [
     'lxml==4.2.5',
     'six>=1.10.0',
-    'enum34==1.1.6',
+    'enum_compat==0.0.2',
     'jsondiff==1.1.2',
     'validators==0.12.4'
 ]
@@ -24,8 +24,6 @@ CLASSIFIERS = [
     'License :: OSI Approved :: Apache Software License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
@@ -34,7 +32,7 @@ CLASSIFIERS = [
 
 setup(
     name='oblib',
-    version='0.9.0',
+    version='1.0.0',
     description='Orange Button Python Library',
     long_description=
     """
