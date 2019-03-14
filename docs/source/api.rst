@@ -59,34 +59,10 @@ oblib.taxonomy module
     :undoc-members:
     :show-inheritance:
 
-oblib.taxonomy\_misc module
----------------------------
+oblib.taxonomy\_loader module
+-----------------------------
 
-.. automodule:: oblib.taxonomy_misc
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-oblib.taxonomy\_semantic module
--------------------------------
-
-.. automodule:: oblib.taxonomy_semantic
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-oblib.taxonomy\_types module
-----------------------------
-
-.. automodule:: oblib.taxonomy_types
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-oblib.taxonomy\_units module
-----------------------------
-
-.. automodule:: oblib.taxonomy_units
+.. automodule:: oblib.taxonomy_loader
     :members:
     :undoc-members:
     :show-inheritance:

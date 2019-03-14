@@ -61,8 +61,7 @@ Follow the steps outlined below to install the library for development from GitH
 A series of Bash (Mac/Linux) shell scripts are available to assist with development and packaging.
 
 * cli.sh: Runs the CLI before it is packaged.
-* dist-cli.sh: Packages the CLI into a single file executable.
-* docs.sh: Creates the documentation (currently requires some manual work).
+* dist-cli.sh: Packages the CLI into a single executable file.
 * setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
 * tests.sh: Runs the python tests.
 * tests-cli.sh: Runs the CLI test suite.
@@ -87,7 +86,7 @@ Follow the steps outlined below to the Command Line Interface (CLI) tool.
 1. Download an executable that matches your system type -
 
     • Mac - :download:`OB Mac Executable <../../dist-cli/Mac/ob>`
-    • Windows - :download:`OB Windows Executable <../../dist-cli/Windows/ob>`
+    • Windows - :download:`OB Windows Executable <../../dist-cli/Windows/ob.exe>`
     • Linux - :download:`OB Linux Executable <../../dist-cli/Linux/ob>`
 
 2. Register the executable -
