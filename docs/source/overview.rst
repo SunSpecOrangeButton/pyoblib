@@ -5,8 +5,6 @@
 The Orange Button Python Library, also called, pyoblib, provides functions to interact and work with the
 SunSpec Orange Button Taxonomy and provides capabilities that simplify working with Orange Button data.
 
-This project is being actively developed and is not yet ready for production use.
-
 The pyoblib library leverages the Python standard library to the extent possible to minimize required dependencies.
 pyoblib is Open Sourced and is maintained by the Orange Button Open Source community. The source code is available on GitHub -
 `pyoblib <https://github.com/SunSpecOrangeButton/pyoblib>`_.
@@ -34,7 +32,7 @@ pyoblib Class and Module Structure
 
 Requirements
 ============
-- Python 2.7, 3.4-3.6
+- Python 3.4-3.6
 
 
 Installation

@@ -15,7 +15,7 @@ Full Documentation can be found at [Read the Docs](https://pyoblib.readthedocs.i
 
 ### Requirements
 
-Python 3.4 - 3.6.  The recommended version is Python 3.6.
+Python 3.4 - 3.6.
 
 ### Installation
 
