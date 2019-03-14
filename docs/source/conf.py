@@ -21,7 +21,7 @@ print(sys.path)
 # -- Project information -----------------------------------------------------
 
 project = 'pyoblib'
-copyright = '2018, SunSpec Alliance'
+copyright = '2019, SunSpec Alliance'
 author = 'SunSpec Alliance'
 
 # The short X.Y version
