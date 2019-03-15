@@ -49,8 +49,8 @@ functionality of the CLI.  This should be sufficient since the functionality is 
 The project style guide is [PEP8](https://www.python.org/dev/peps/pep-0008/).  Flake8 is a useful tool to test whether
 the PEP8 standard has been met (although this testing has not been automated yet).
 
-Another useful resource is the [Google Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) which
-has additional details about writing coding above and beyond what is available in pep8.
+Docstrings follow the [Google Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) which also
+has additional guidance for coding above and beyond PEP8.
 
 ## How to report a bug
 
