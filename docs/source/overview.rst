@@ -5,8 +5,6 @@
 The Orange Button Python Library, also called, pyoblib, provides functions to interact and work with the
 SunSpec Orange Button Taxonomy and provides capabilities that simplify working with Orange Button data.
 
-This project is being actively developed and is not yet ready for production use.
-
 The pyoblib library leverages the Python standard library to the extent possible to minimize required dependencies.
 pyoblib is Open Sourced and is maintained by the Orange Button Open Source community. The source code is available on GitHub -
 `pyoblib <https://github.com/SunSpecOrangeButton/pyoblib>`_.
@@ -34,7 +32,7 @@ pyoblib Class and Module Structure
 
 Requirements
 ============
-- Python 2.7, 3.4-3.6
+- Python 3.4-3.6
 
 
 Installation
@@ -61,8 +59,7 @@ Follow the steps outlined below to install the library for development from GitH
 A series of Bash (Mac/Linux) shell scripts are available to assist with development and packaging.
 
 * cli.sh: Runs the CLI before it is packaged.
-* dist-cli.sh: Packages the CLI into a single file executable.
-* docs.sh: Creates the documentation (currently requires some manual work).
+* dist-cli.sh: Packages the CLI into a single executable file.
 * setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
 * tests.sh: Runs the python tests.
 * tests-cli.sh: Runs the CLI test suite.
@@ -87,7 +84,7 @@ Follow the steps outlined below to the Command Line Interface (CLI) tool.
 1. Download an executable that matches your system type -
 
     • Mac - :download:`OB Mac Executable <../../dist-cli/Mac/ob>`
-    • Windows - :download:`OB Windows Executable <../../dist-cli/Windows/ob>`
+    • Windows - :download:`OB Windows Executable <../../dist-cli/Windows/ob.exe>`
     • Linux - :download:`OB Linux Executable <../../dist-cli/Linux/ob>`
 
 2. Register the executable -

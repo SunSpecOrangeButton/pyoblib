@@ -1,4 +1,4 @@
-# Copyright 2018 SunSpec Alliance
+# Copyright 2019 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 import re
 from datetime import date, datetime
-from oblib import identifier
-from oblib.ob import OBValidationError
+from oblib import identifier, ob
 import validators
 
 
@@ -87,7 +86,7 @@ class Validator(object):
                 result = self._generic_enum_validator(value, concept_details,
                                                       enum)
             else:
-                raise OBValidationError(
+                raise ob.OBValidationError(
                     "Concept '{}' could not be processed. Missing method '{}'."
                     .format(concept_details.type_name, method_name))
 

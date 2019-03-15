@@ -11,71 +11,21 @@ Button Taxonomy and provides capabilities that simplify working with Orange Butt
 
 Full Documentation can be found at [Read the Docs](https://pyoblib.readthedocs.io/en/latest/).
 
-NOTE: This library is being actively developed and is not yet ready for production use.
-
 ## Getting Started
 
 ### Requirements
 
-Python 2.7, 3.4 - 3.6.  The recommended version is Python 3.6.
+Python 3.4 - 3.6.
 
 ### Installation
 
-A series of Bash (Mac/Linux) shell scripts are available to assist with development and packaging. Their state is
-preliminary but they can be used to get started.
-
-* cli.sh: Runs the CLI before it is packaged.
-* dist-cli.sh: Packages the CLI into a single file executable.
-* docs.sh: Creates the documentation (currently requires some manual work).
-* setup-dev.sh: Downloads the solar-taxonomy, us-gaap taxonomy, and Units registry.
-* tests.sh Runs the python tests.
-* tests-cli.sh Runs the CLI test suite.
-
-All scripts must be run from the root core directory (i.e. "scripts/tests.sh" is the correct usage).
-Run "scripts/setup-dev.sh" before usage of other scripts.
-
-Usage on Windows is a future feature (feel free to add).  It should be possible to use on Windows with manual setup at
-this point in time.
-
-## Running the tests
-
-In order to run the tests run:
-
-* tests.sh Runs the python tests.
-* tests-cli.sh Runs the CLI test suite.
-
-Upon a pull request Travis will also operate all of the test cases.
-
-### Break down into end to end tests
-
-All public member functions should have a corresponding test located in a test file in oblib/tests with "test_" being
-prefixed before the function name.  Whenever a new function or method is written please write a test.  Also whenever an
-issue is identified add additional tests so that the issue can be fixed and the issue will not re-occur.  Private member
-function tests are optional although in some cases they may be needed to fix issues.
-
-The CLI tests only test that the CLI completes and returns exit status 0 (success).  The CLI tests do not test the
-functionality of the CLI.  This should be sufficient since the functionality is already covered in the Python Test cases.
-
-### Coding style tests
-
-The project style guide is [PEP8](https://www.python.org/dev/peps/pep-0008/).  Flake8 is a useful tool to test whether
-the PEP8 standard has been met (although this has not been automated, nor has a flake8 configuration file been established yet).
-
-Another useful resource is the [Google Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) which
-has additional details about writing coding above and beyond what is available in pep8.
-
-## Deployment
-
-The future intent is to deploy to PyPl.  This is not implemented yet.  PyInstaller is used to build a working CLI.
+For instructions on how to install, refer to the [Installation section](https://pyoblib.readthedocs.io/en/latest/overview.html#installation)
+on Read the Docs.
 
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull
 requests.
-
-## Versioning
-
-Versioning will be established when this reaches its first release.  At this point in time this is a development release.
 
 ## Authors
 

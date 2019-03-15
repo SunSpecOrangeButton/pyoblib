@@ -52,38 +52,6 @@ oblib.tests.test\_taxonomy module
     :undoc-members:
     :show-inheritance:
 
-oblib.tests.test\_taxonomy\_misc module
----------------------------------------
-
-.. automodule:: oblib.tests.test_taxonomy_misc
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-oblib.tests.test\_taxonomy\_semantic module
--------------------------------------------
-
-.. automodule:: oblib.tests.test_taxonomy_semantic
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-oblib.tests.test\_taxonomy\_types module
-----------------------------------------
-
-.. automodule:: oblib.tests.test_taxonomy_types
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-oblib.tests.test\_taxonomy\_units module
-----------------------------------------
-
-.. automodule:: oblib.tests.test_taxonomy_units
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 oblib.tests.test\_util module
 -----------------------------
 

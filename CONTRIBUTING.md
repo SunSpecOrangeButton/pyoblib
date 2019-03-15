@@ -34,6 +34,24 @@ For all changes follow the procedure documented at the bottom of the
 
 Unsure where to begin?  Please enquire on our [Slack Channel](https://orange-button.slack.com/).
 
+### Writing tests
+
+All public member functions should have a corresponding test located in a test file in oblib/tests with "test_" being
+prefixed before the function name.  Whenever a new function or method is written please write a test.  Also whenever an
+issue is identified add additional tests so that the issue can be fixed and the issue will not re-occur.  Private member
+function tests are optional although in some cases they may be needed to fix issues.
+
+The CLI tests only test that the CLI completes and returns exit status 0 (success).  The CLI tests do not test the
+functionality of the CLI.  This should be sufficient since the functionality is already covered in the Python Test cases.
+
+### Code style
+
+The project style guide is [PEP8](https://www.python.org/dev/peps/pep-0008/).  Flake8 is a useful tool to test whether
+the PEP8 standard has been met (although this testing has not been automated yet).
+
+Docstrings follow the [Google Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) which also
+has additional guidance for coding above and beyond PEP8.
+
 ## How to report a bug
 
 Please use [GitHub Issues](https://github.com/SunSpecOrangeButton/pyoblib/issues) for all bug reports.

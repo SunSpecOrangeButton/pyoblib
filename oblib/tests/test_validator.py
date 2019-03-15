@@ -1,4 +1,4 @@
-# Copyright 2018 SunSpec Alliance
+# Copyright 2019 SunSpec Alliance
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ from oblib import identifier, taxonomy, validator
 
 tax = taxonomy.Taxonomy()
 validator = validator.Validator(tax)
+
 
 class TestValidator(unittest.TestCase):
 
