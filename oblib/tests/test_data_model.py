@@ -983,3 +983,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
     # TODO test that concepts with Axis in the name get instantiated as Axis subclass of
     # Concept.
+
+    def test_ct_issue(self):
+        # Test for issue found in create_templates program
+        doc = data_model.OBInstance("Project", self.taxonomy)
+        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
+         'us-gaap:SaleLeasebackTransactionDescriptionAxis': 'us-gaap:SaleLeasebackTransactionNameDomain',
+         'solar:ProjectIdentifierAxis': '1'}
+        doc.set('us-gaap:SaleLeasebackTransactionDescription', 'Sample String', **kwargs)

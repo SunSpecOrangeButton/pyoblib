@@ -343,7 +343,8 @@ class Context(object):
             if not keyword.endswith("Axis"):
                 raise OBContextError("Context given invalid keyword {}".format(keyword))
             qualified_name = keyword
-            if not qualified_name.startswith("solar:"):
+            # Add solar: namespace iff no namespace is present.
+            if ":" not in qualified_name:
                 qualified_name = "solar:" + keyword
             self.axes[qualified_name] = kwargs[keyword]
 
@@ -823,7 +824,13 @@ class Axis(Concept):
             # that it can be easily translated to an actual domain name by just replacing
             # "#solar_" with "solar": but a better approach would be to look up the element
             # matching the ID and read the name from that element.
-            return domain_ref.replace("#solar_", "solar:")
+            # Also dei and us-gaap namespaces follow same patter.
+            if "#solar_" in domain_ref:
+                return domain_ref.replace("#solar_", "solar:")
+            elif "#dei_" in domain_ref:
+                return domain_ref.replace("#dei_", "dei:")
+            elif "#dei_" in domain_ref:
+                return domain_ref.replace("#us-gaap_", "us-gaap:")
         return None
 
 
