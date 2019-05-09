@@ -907,7 +907,7 @@ class OBInstance(object):
         self._initialize_tables()
 
         self.facts = {}
-        self.taxonomy_name = "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd"
+        self.taxonomy_name = "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-02-27_r01.xsd"
         self._default_context = {}
 
     def _initialize_concepts(self, concept_name_list):
@@ -988,7 +988,7 @@ class OBInstance(object):
             "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
             "xmlns:units": "http://www.xbrl.org/2009/utr",
             "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
-            "xmlns:solar": "http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+            "xmlns:solar": "http://xbrl.us/Solar/v1.3/2019-02-27/solar"
         }
 
         # The following namespaces are optional and are included in the header

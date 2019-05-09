@@ -75,7 +75,7 @@ TEST_JSON = """
   "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
   "prefixes": {
     "xbrl": "http://www.xbrl.org/WGWD/YYYY-MM-DD/oim",
-    "solar": "http://xbrl.us/Solar/v1.1/2018-02-09/solar",
+    "solar": "http://xbrl.us/Solar/v1.3/2019-02-27/solar",  
     "us-gaap": "http://fasb.org/us-gaap/2017-01-31",
     "iso4217": "http://www.xbrl.org/2003/iso4217",
     "SI": "http://www.xbrl.org/2009/utr"
@@ -83,7 +83,7 @@ TEST_JSON = """
   "dtsReferences": [
     {
       "type": "schema",
-      "href": "https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_all_2018-03-31_r01.xsd"
+      "href": "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-02-27_r01.xsd"
     }
   ],
   "facts": {
@@ -111,7 +111,7 @@ TEST_XML = """
 <xbrl 
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:solar="http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+    xmlns:solar="http://xbrl.us/Solar/v1.3/2019-02-27/solar"
     xmlns:units="http://www.xbrl.org/2009/utr"
     xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -146,7 +146,7 @@ TEST_XML_2 = """
 <xbrl
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:solar="http://xbrl.us/Solar/v1.2/2018-03-31/solar"
+    xmlns:solar="http://xbrl.us/Solar/v1.3/2019-02-27/solar"
     xmlns:units="http://www.xbrl.org/2009/utr"
     xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
     xmlns:xlink="http://www.w3.org/1999/xlink"
