@@ -27,7 +27,7 @@ from oblib import data_model, util, ob
 
 _xml_ns = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
       "link:": "{http://www.xbrl.org/2003/linkbase}",
-      "solar:": "{http://xbrl.us/Solar/v1.2/2018-03-31/solar}",
+      "solar:": "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}",
       "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
       "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
 
@@ -335,7 +335,7 @@ class Parser(object):
                 if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
 
                     tag = child.tag
-                    tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                    tag = tag.replace("{http://xbrl.us/Solar/v1.3/2019-02-27/solar}", "solar:")
                     tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
                     tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
                     fact_names.append(tag)
@@ -422,7 +422,7 @@ class Parser(object):
                         kwargs["context"] = contexts[child.attrib["contextRef"]]
                         kwargs["fact_id"] = fact_id
                         tag = child.tag
-                        tag = tag.replace("{http://xbrl.us/Solar/v1.2/2018-03-31/solar}", "solar:")
+                        tag = tag.replace("{http://xbrl.us/Solar/v1.3/2019-02-27/solar}", "solar:")
                         tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
                         tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
                         try:
