@@ -89,6 +89,7 @@ class Hypercube(object):
         # self.contexts stores a list of contexts that have been populated within
         # this table instance.
         self.contexts = []
+        self.ts = ob_instance.ts
 
         relationships = ob_instance.relations
         # Use the relationships to find the names of my axes:
@@ -271,10 +272,12 @@ class Hypercube(object):
             raise OBContextError("{} is not a valid Context instance".format(context))
 
         for axis_name in self._axes:
-            if not axis_name in context.axes:
+            if self.ts.get_concept_details(axis_name).typed_domain_ref and not axis_name in context.axes:
                 raise OBContextError(
                     "Missing required {} axis for table {}".format(
                         axis_name, self._table_name))
+            elif not self.ts.get_concept_details(axis_name).typed_domain_ref and not axis_name in context.axes:
+                continue
 
             # Check that the value is not outside the domain, for domain-based axes:
             axis = self._axes[axis_name]
