@@ -107,6 +107,7 @@ def list_concept_details(args):
         print("Period Independent:", c.period_independent)
         print("Substitution Group:", c.substitution_group.value)
         print("Type:              ", c.type_name)
+        print("Typed Domain Ref:  ", c.typed_domain_ref)
         print("Period Type:       ", c.period_type.value)
     else:
         print("Not found")
@@ -144,22 +145,22 @@ def list_entrypoint_concepts_details(args):
               "Substitution Group, Type, Period Type")
         for c in concepts_details:
             d = concepts_details[c]
-            print('%s, %s, %s, %s, %s, %s, %s, %s' %
+            print('%s, %s, %s, %s, %s, %s, %s, %s, %s' %
             (d.id, d.name, d.abstract, d.nillable, d.period_independent,
-            d.substitution_group.value, d.type_name, d.period_type.value))
+            d.substitution_group.value, d.type_name, d.typed_domain_ref, d.period_type.value))
     else:
         _, concepts_details = taxonomy.semantic.get_entrypoint_concepts(args.entrypoint,
                                                                         details=True)
         print('%85s %80s %8s %8s %10s %20s %28s %8s' %
                 ("Id", "Name", "Abstract", "Nillable", "Period Ind",
                  "Substitution Group", "Type", "Period Type"))
-        print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.8s' %
-                (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
+        print('%0.85s %0.80s %0.8s %0.8s %0.10s %0.20s %0.28s %0.40s %0.8s' %
+                (DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES, DASHES))
         for c in concepts_details:
             d = concepts_details[c]
-            print('%85s %80s %8s %8s %10s %20s %28s %8s' %
+            print('%85s %80s %8s %8s %10s %20s %28s %40s %8s' %
             (d.id, d.name, d.abstract, d.nillable, d.period_independent,
-            d.substitution_group.value, d.type_name, d.period_type.value))
+            d.substitution_group.value, d.type_name, d.typed_domain_ref, d.period_type.value))
 
 
 def list_concepts(args):

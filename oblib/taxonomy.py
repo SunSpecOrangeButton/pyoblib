@@ -108,6 +108,7 @@ class ConceptDetails(object):
         self.period_independent = None
         self.substitution_group = None
         self.type_name = None
+        self.typed_domain_ref = None
         self.period_type = None
 
     def __repr__(self):
@@ -119,6 +120,7 @@ class ConceptDetails(object):
             "," + str(self.period_independent) + \
             "," + str(self.substitution_group) + \
             "," + str(self.type_name) + \
+            "," + str(self.typed_domain_ref) + \
             "," + str(self.period_type) + \
             "}"
 
