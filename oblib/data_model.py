@@ -1183,12 +1183,16 @@ class OBInstance(object):
         Raises:
           OBUnitError explaining why the unit is not valid.
         """
-        # TODO Refactor to move this logic into the Concept class?
+        # TODO Refactor to move this logic into the Concept class or place in Parser?
+        # TODO Examine full definition of valid units and update logic to be completely equitable
 
         unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
                          "xbrli:decimalItemType", "xbrli:booleanItemType",
                          "xbrli:dateItemType", "num:percentItemType",
-                         "xbrli:anyURIItemType"]
+                         "xbrli:anyURIItemType", "dei:legalEntityIdentifierItemType"]
+        # NOTE: As a quick fix dei:legalEntityIdentifier Type has been added so that the sample programs
+        # works but this is a case of using hardcoding as opposed to correct logic.
+
         # There is type-checking we can do for these unitless types but we'll handle
         # it elsewhere
         

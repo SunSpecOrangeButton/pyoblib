@@ -91,8 +91,8 @@ class Validator(object):
                     .format(concept_details.type_name, method_name))
 
         # Check identifiers.  This is based upon the name of the field containing
-        # the word Identifier in it.
-        if concept_details.id.find("Identifier") != -1:
+        # the word Identifier in it.  Avoid UtilityIdentifier which is a LEI.
+        if concept_details.id != "solar:UtilityIdentifier" and concept_details.id.find("Identifier") != -1:
             if not identifier.validate(value):
                 errors += ["'{}' is not valid identifier.".format(concept_details.id)]
 
