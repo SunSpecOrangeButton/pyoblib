@@ -219,6 +219,13 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsInstance(ci.type_name, string_types)
         self.assertIsInstance(ci.period_type, taxonomy.PeriodType)
 
+        ci = tax.semantic.get_concept_details("solar:MonthlyPeriodAxis")
+        self.assertIsNone(ci.typed_domain_ref)
+
+        ci = tax.semantic.get_concept_details("solar:PVSystemIdentifierAxis")
+        self.assertIsInstance(ci.typed_domain_ref, string_types)
+
+        # Values checks
         ci = tax.semantic.get_concept_details("solar:ACDisconnectSwitchMember")
         self.assertIsNotNone(ci)
         self.assertTrue(ci.abstract)
@@ -230,7 +237,6 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.type_name, "nonnum:domainItemType")
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
-        # Values checks
         ci = tax.semantic.get_concept_details("solar:AdvisorInvoicesCounterparties")
         self.assertIsNotNone(ci)
         self.assertFalse(ci.abstract)
@@ -252,6 +258,9 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
         self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
+
+        ci = tax.semantic.get_concept_details("solar:PVSystemIdentifierAxis")
+        self.assertEqual(ci.typed_domain_ref, "#solar_PVSystemIdentifierDomain")
 
         with self.assertRaises(KeyError):
             _ = tax.semantic.get_concept_details("solar:iamnotaconcept")
