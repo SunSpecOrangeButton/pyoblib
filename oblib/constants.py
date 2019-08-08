@@ -28,3 +28,42 @@ if getattr( sys, 'frozen', False ) :
 else:
     # Running from source
     SOLAR_TAXONOMY_DIR = os.path.join(BASE_DIR, "data", "solar-taxonomy")
+
+
+# The following constants are based on hard-coded dates found in other modules.  Moving all of them into constants
+# is a first step towards standardization.  The second step will be analysis to see if some of them can be combined
+# and a potential third step will be to move away from hardcoding altogether.
+
+XML_NS = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
+      "link:": "{http://www.xbrl.org/2003/linkbase}",
+      "solar:": "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}",
+      "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
+      "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
+
+XBRL_ORG_INSTANCE = "{http://www.xbrl.org/2003/instance}"
+
+DEI_NS = "{http://xbrl.sec.gov/dei/2014-01-31}"
+
+GAAP_NS = "{http://fasb.org/us-gaap/2017-01-31}"
+
+SOLAR_NS = "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}"
+
+TAXONOMY_ALL_FILENAME = "solar_all_2019-02-27_r01_def.xml"
+
+ROLE_DOCUMENTATION = "http://www.xbrl.org/2003/role/documentation"
+
+OPTIONAL_NAMESPACES = {
+    "us-gaap": "http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd"
+}
+
+NAMESPACES = {
+    "xmlns": "http://www.xbrl.org/2003/instance",
+    "xmlns:link": "http://www.xbrl.org/2003/linkbase",
+    "xmlns:xlink": "http://www.w3.org/1999/xlink",
+    "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
+    "xmlns:units": "http://www.xbrl.org/2009/utr",
+    "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
+    "xmlns:solar": "http://xbrl.us/Solar/v1.3/2019-02-27/solar"
+}
+
+TAXONOMY_NAME = "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-02-27_r01.xsd"

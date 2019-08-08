@@ -18,6 +18,7 @@ import xml.sax
 import os
 import sys
 
+from constants import TAXONOMY_ALL_FILENAME, ROLE_DOCUMENTATION
 from oblib import constants, util, taxonomy
 
 
@@ -182,7 +183,7 @@ class _TaxonomyDocumentationHandler(xml.sax.ContentHandler):
                     concept = item[1].replace("label_solar_", "solar:")
                 if item[0] == "xlink:role":
                     role = item[1]
-        if concept is not None and role == "http://www.xbrl.org/2003/role/documentation":
+        if concept is not None and role == ROLE_DOCUMENTATION:
             self._awaiting_text_for_concept = concept
 
     def characters(self, chars):
@@ -512,6 +513,6 @@ class TaxonomyLoader(object):
         # load from "/core/" for the "All" entrypoint:
         relationships["All"] = self._load_relationships_file(
             os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
-                         "solar_all_2019-02-27_r01_def.xml"))
+                         TAXONOMY_ALL_FILENAME))
 
         return relationships
