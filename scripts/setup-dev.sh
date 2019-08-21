@@ -17,7 +17,7 @@
 
 mkdir oblib/data
 cd oblib/data
-git clone --branch v1.3.0 https://github.com/SunSpecOrangeButton/solar-taxonomy.git
+git clone --branch 2019-07-31 https://github.com/SunSpecOrangeButton/solar-taxonomy.git
 cd solar-taxonomy
 rm SolarTaxonomyMaster.xlsx
 mkdir external

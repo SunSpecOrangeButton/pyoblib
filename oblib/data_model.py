@@ -51,9 +51,8 @@ from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
 
-from constants import OPTIONAL_NAMESPACES, NAMESPACES, TAXONOMY_NAME
 from six import string_types
-from oblib import taxonomy, validator, identifier
+from oblib import constants, taxonomy, validator, identifier
 from oblib.ob import (
     OBError, OBTypeError, OBContextError,
     OBConceptError, OBNotFoundError,
@@ -909,7 +908,7 @@ class OBInstance(object):
         self._initialize_tables()
 
         self.facts = {}
-        self.taxonomy_name = TAXONOMY_NAME
+        self.taxonomy_name = constants.TAXONOMY_NAME
         self._default_context = {}
 
     def _initialize_concepts(self, concept_name_list):
@@ -983,11 +982,11 @@ class OBInstance(object):
             values are URLs.
         """
         # The following namespaces are basic and are always included.
-        namespaces = NAMESPACES
+        namespaces = constants.NAMESPACES
 
         # The following namespaces are optional and are included in the header
         # only if they are referred to by a fact in this instance document.
-        optional_namespaces = OPTIONAL_NAMESPACES
+        optional_namespaces = constants.OPTIONAL_NAMESPACES
         for fact in self.get_all_facts():
             concept_prefix = fact.concept_name.split(":")[0]
             for ns in optional_namespaces:

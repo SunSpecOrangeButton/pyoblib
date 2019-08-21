@@ -19,8 +19,7 @@ import enum
 import json
 import xml.etree.ElementTree as ElementTree
 
-from constants import XML_NS, XBRL_ORG_INSTANCE, DEI_NS, GAAP_NS, SOLAR_NS
-from oblib import data_model, util, ob
+from oblib import constants, data_model, util, ob
 
 
 def _xn(s):
@@ -28,10 +27,10 @@ def _xn(s):
 
     if s is None:
         return None
-    for n in XML_NS:
+    for n in constants.XML_NS:
         if n in s:
-            return s.replace(n, XML_NS[n])
-    return XBRL_ORG_INSTANCE + s
+            return s.replace(n, constants.XML_NS[n])
+    return constants.XBRL_ORG_INSTANCE + s
 
 # End of XML parsign utility code
 
@@ -326,9 +325,9 @@ class Parser(object):
                 if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
 
                     tag = child.tag
-                    tag = tag.replace(SOLAR_NS, "solar:")
-                    tag = tag.replace(GAAP_NS, "us-gaap:")
-                    tag = tag.replace(DEI_NS, "dei:")
+                    tag = tag.replace(constants.SOLAR_NS, "solar:")
+                    tag = tag.replace(constants.GAAP_NS, "us-gaap:")
+                    tag = tag.replace(constants.DEI_NS, "dei:")
                     fact_names.append(tag)
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
@@ -413,9 +412,9 @@ class Parser(object):
                         kwargs["context"] = contexts[child.attrib["contextRef"]]
                         kwargs["fact_id"] = fact_id
                         tag = child.tag
-                        tag = tag.replace(SOLAR_NS, "solar:")
-                        tag = tag.replace(GAAP_NS, "us-gaap:")
-                        tag = tag.replace(DEI_NS, "dei:")
+                        tag = tag.replace(constants.SOLAR_NS, "solar:")
+                        tag = tag.replace(constants.GAAP_NS, "us-gaap:")
+                        tag = tag.replace(constants.DEI_NS, "dei:")
                         try:
                             entrypoint.set(tag, child.text, **kwargs)
                         except Exception as e:

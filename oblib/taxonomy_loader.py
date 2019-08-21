@@ -18,7 +18,6 @@ import xml.sax
 import os
 import sys
 
-from constants import TAXONOMY_ALL_FILENAME, ROLE_DOCUMENTATION
 from oblib import constants, util, taxonomy
 
 
@@ -183,7 +182,7 @@ class _TaxonomyDocumentationHandler(xml.sax.ContentHandler):
                     concept = item[1].replace("label_solar_", "solar:")
                 if item[0] == "xlink:role":
                     role = item[1]
-        if concept is not None and role == ROLE_DOCUMENTATION:
+        if concept is not None and role == constants.ROLE_DOCUMENTATION:
             self._awaiting_text_for_concept = concept
 
     def characters(self, chars):
@@ -368,7 +367,7 @@ class TaxonomyLoader(object):
         return ref_parts
 
     def _load_documentation(self):
-        label_file = "solar_2019-02-27_r01_lab.xml"
+        label_file = constants.SOLAR_LAB_XML
         filename = os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", label_file)
 
         taxonomy = _TaxonomyDocumentationHandler()
@@ -421,13 +420,13 @@ class TaxonomyLoader(object):
     def _load_elements(self):
         elements = self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "core",
-            "solar_2019-02-27_r01.xsd"))
+            constants.SOLAR_XSD))
         elements.update(self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "external",
-            "us-gaap-2017-01-31.xsd")))
+            constants.US_GAAP_XSD)))
         elements.update(self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "external",
-            "dei-2018-01-31.xsd")))
+            constants.DEI_XSD)))
         return elements
 
     def _load_concepts_file(self, pathname):
@@ -477,7 +476,7 @@ class TaxonomyLoader(object):
         # load from "/core/" for the "All" entrypoint:
         concepts["All"] = self._load_concepts_file(
             os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
-                         "solar_all_2019-02-27_r01_pre.xml"))
+                         constants.SOLAR_ALL_PRE_XML))
         return concepts
 
     def _load_relationships_file(self, fn):
@@ -513,6 +512,6 @@ class TaxonomyLoader(object):
         # load from "/core/" for the "All" entrypoint:
         relationships["All"] = self._load_relationships_file(
             os.path.join(constants.SOLAR_TAXONOMY_DIR, "core",
-                         TAXONOMY_ALL_FILENAME))
+                         constants.TAXONOMY_ALL_FILENAME))
 
         return relationships

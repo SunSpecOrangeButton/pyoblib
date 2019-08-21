@@ -36,7 +36,7 @@ else:
 
 XML_NS = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
       "link:": "{http://www.xbrl.org/2003/linkbase}",
-      "solar:": "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}",
+      "solar:": "{http://xbrl.us/Solar/2019-07-31/solar}",
       "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
       "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
 
@@ -46,9 +46,9 @@ DEI_NS = "{http://xbrl.sec.gov/dei/2014-01-31}"
 
 GAAP_NS = "{http://fasb.org/us-gaap/2017-01-31}"
 
-SOLAR_NS = "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}"
+SOLAR_NS = "{http://xbrl.us/Solar/2019-07-31/solar}"
 
-TAXONOMY_ALL_FILENAME = "solar_all_2019-02-27_r01_def.xml"
+TAXONOMY_ALL_FILENAME = "solar_all_2019-07-31_def.xml"
 
 ROLE_DOCUMENTATION = "http://www.xbrl.org/2003/role/documentation"
 
@@ -63,7 +63,17 @@ NAMESPACES = {
     "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
     "xmlns:units": "http://www.xbrl.org/2009/utr",
     "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
-    "xmlns:solar": "http://xbrl.us/Solar/v1.3/2019-02-27/solar"
+    "xmlns:solar": "http://xbrl.us/Solar/2019-07-31/solar"
 }
 
-TAXONOMY_NAME = "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-02-27_r01.xsd"
+TAXONOMY_NAME = "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-07-31.xsd"
+
+DEI_XSD = "dei-2018-01-31.xsd"
+
+US_GAAP_XSD = "us-gaap-2017-01-31.xsd"
+
+SOLAR_XSD = "solar_2019-07-31.xsd"
+
+SOLAR_ALL_PRE_XML = "solar_all_2019-07-31_pre.xml"
+
+SOLAR_LAB_XML = "solar_2019-07-31_lab.xml"
