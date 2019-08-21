@@ -1025,12 +1025,3 @@ class TestDataModelEntrypoint(unittest.TestCase):
          'solar:EnergyContractYearlyRateAxis': '1',
          'unit_name': 'USD'}
         doc.set('solar:EnergyCharge', '10500.26', **kwargs)
-
-    def test_set_LEI(self):
-        # Tests that setting a LEI does not require a unit (a bug fix)
-
-        doc = data_model.OBInstance("Utility", self.taxonomy)
-        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
-         'solar:UtilityIdentifierAxis': '1'}
-        # doc.set('solar:UtilityIdentifier', '1234567890ABCDEFGHIJ', **kwargs)
-        doc.set('solar:UtilityIdentifier', '12345678901234567890', **kwargs)
