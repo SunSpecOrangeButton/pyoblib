@@ -90,6 +90,7 @@ class Hypercube(object):
         # self.contexts stores a list of contexts that have been populated within
         # this table instance.
         self.contexts = []
+        self.ts = ob_instance.ts
 
         relationships = ob_instance.relations
         # Use the relationships to find the names of my axes:
@@ -272,10 +273,12 @@ class Hypercube(object):
             raise OBContextError("{} is not a valid Context instance".format(context))
 
         for axis_name in self._axes:
-            if not axis_name in context.axes:
+            if self.ts.get_concept_details(axis_name).typed_domain_ref and not axis_name in context.axes:
                 raise OBContextError(
                     "Missing required {} axis for table {}".format(
                         axis_name, self._table_name))
+            elif not self.ts.get_concept_details(axis_name).typed_domain_ref and not axis_name in context.axes:
+                continue
 
             # Check that the value is not outside the domain, for domain-based axes:
             axis = self._axes[axis_name]
@@ -1171,12 +1174,16 @@ class OBInstance(object):
         Raises:
           OBUnitError explaining why the unit is not valid.
         """
-        # TODO Refactor to move this logic into the Concept class?
+        # TODO Refactor to move this logic into the Concept class or place in Parser?
+        # TODO Examine full definition of valid units and update logic to be completely equitable
 
         unitlessTypes = ["xbrli:integerItemType", "xbrli:stringItemType",
                          "xbrli:decimalItemType", "xbrli:booleanItemType",
                          "xbrli:dateItemType", "num:percentItemType",
-                         "xbrli:anyURIItemType"]
+                         "xbrli:anyURIItemType", "dei:legalEntityIdentifierItemType"]
+        # NOTE: As a quick fix dei:legalEntityIdentifier Type has been added so that the sample programs
+        # works but this is a case of using hardcoding as opposed to correct logic.
+
         # There is type-checking we can do for these unitless types but we'll handle
         # it elsewhere
         

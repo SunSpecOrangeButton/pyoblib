@@ -144,11 +144,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # The context must also provide all of the axes needed to place the
         # fact within the right table.
 
-        # DeviceCost is on the CutSheetDetailsTable so it needs a value
-        # for ProductIdentifierAxis and TestConditionAxis.
+        # Context is required
         with self.assertRaises(ob.OBContextError):
             doc._is_valid_context("solar:DeviceCost", {})
 
+        # DeviceCost is on the CutSheetDetailsTable so it needs a value
+        # for the required ProductIdentifierAxis but not for the optional TestConditionAxis.
         context = data_model.Context(instant = datetime.now(),
                           ProductIdentifierAxis = "placeholder",
                           TestConditionAxis = "solar:StandardTestConditionMember")
@@ -161,8 +162,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         badContext = data_model.Context(instant = datetime.now(),
                              ProductIdentifierAxis = "placeholder")
-        with self.assertRaises(ob.OBContextError):
-            doc._is_valid_context("solar:DeviceCost", badContext)
+        doc._is_valid_context("solar:DeviceCost", badContext)
 
         # How do we know what are valid values for ProductIdentifierAxis and
         # TestConditionAxis?  (I think they are meant to be UUIDs.)
@@ -991,3 +991,46 @@ class TestDataModelEntrypoint(unittest.TestCase):
          'us-gaap:SaleLeasebackTransactionDescriptionAxis': 'us-gaap:SaleLeasebackTransactionNameDomain',
          'solar:ProjectIdentifierAxis': '1'}
         doc.set('us-gaap:SaleLeasebackTransactionDescription', 'Sample String', **kwargs)
+
+    def test_optional_required_axis(self):
+        # Tests that an optional axis can be either present or not in input data.
+
+        # Required With Axis
+        doc = data_model.OBInstance("System", self.taxonomy)
+        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
+         'solar:TestConditionAxis': 'solar:StandardTestConditionMember',
+         'solar:ProductIdentifierAxis': '1',
+         'solar:PVSystemIdentifierAxis': '1'}
+        doc.set('solar:ProductName', 'Sample Product', **kwargs)
+
+        # Required Without Axis
+        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
+         'solar:TestConditionAxis': 'solar:StandardTestConditionMember',
+         'solar:ProductIdentifierAxis': '1'}
+        with self.assertRaises(ob.OBContextError):
+            doc.set('solar:ProductName', 'Sample Product', **kwargs)
+
+        # Optional With Axis
+        doc = data_model.OBInstance("IECRECertificate", self.taxonomy)
+        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
+         'solar:PowerPurchaseAgreementContractAxis': '1',
+         'solar:EnergyContractYearlyRateAxis': '1',
+         'solar:MonthlyPeriodAxis': '1',
+         'unit_name': 'USD'}
+        doc.set('solar:EnergyCharge', '10500.26', **kwargs)
+
+        # Optional Without Axis
+        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
+         'solar:PowerPurchaseAgreementContractAxis': '1',
+         'solar:EnergyContractYearlyRateAxis': '1',
+         'unit_name': 'USD'}
+        doc.set('solar:EnergyCharge', '10500.26', **kwargs)
+
+    def test_set_LEI(self):
+        # Tests that setting a LEI does not require a unit (a bug fix)
+
+        doc = data_model.OBInstance("Utility", self.taxonomy)
+        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
+         'solar:UtilityIdentifierAxis': '1'}
+        # doc.set('solar:UtilityIdentifier', '1234567890ABCDEFGHIJ', **kwargs)
+        doc.set('solar:UtilityIdentifier', '12345678901234567890', **kwargs)
