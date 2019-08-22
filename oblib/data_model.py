@@ -50,12 +50,13 @@ import xml.etree.ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import datetime
 import json
+
 from six import string_types
-from oblib import taxonomy, validator, identifier
+from oblib import constants, taxonomy, validator, identifier
 from oblib.ob import (
     OBError, OBTypeError, OBContextError,
     OBConceptError, OBNotFoundError,
-    OBValidationError, OBUnitError)
+    OBUnitError)
 
 UNTABLE = "NON_TABLE_CONCEPTS"
 
@@ -910,7 +911,7 @@ class OBInstance(object):
         self._initialize_tables()
 
         self.facts = {}
-        self.taxonomy_name = "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-02-27_r01.xsd"
+        self.taxonomy_name = constants.TAXONOMY_NAME
         self._default_context = {}
 
     def _initialize_concepts(self, concept_name_list):
@@ -984,21 +985,11 @@ class OBInstance(object):
             values are URLs.
         """
         # The following namespaces are basic and are always included.
-        namespaces = {
-            "xmlns": "http://www.xbrl.org/2003/instance",
-            "xmlns:link": "http://www.xbrl.org/2003/linkbase",
-            "xmlns:xlink": "http://www.w3.org/1999/xlink",
-            "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
-            "xmlns:units": "http://www.xbrl.org/2009/utr",
-            "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
-            "xmlns:solar": "http://xbrl.us/Solar/v1.3/2019-02-27/solar"
-        }
+        namespaces = constants.NAMESPACES
 
         # The following namespaces are optional and are included in the header
         # only if they are referred to by a fact in this instance document.
-        optional_namespaces = {
-            "us-gaap": "http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd"
-        }
+        optional_namespaces = constants.OPTIONAL_NAMESPACES
         for fact in self.get_all_facts():
             concept_prefix = fact.concept_name.split(":")[0]
             for ns in optional_namespaces:

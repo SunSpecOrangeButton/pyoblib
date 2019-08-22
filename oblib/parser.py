@@ -18,18 +18,8 @@
 import enum
 import json
 import xml.etree.ElementTree as ElementTree
-from oblib import data_model, util, ob
 
-
-# The Following code is used internally by the XML parser - there is no known general usage
-# reason to leverage.  The extremely short function name is for brevity in the XML parser.
-
-
-_xml_ns = {"xbrldi:": "{http://xbrl.org/2006/xbrldi}",
-      "link:": "{http://www.xbrl.org/2003/linkbase}",
-      "solar:": "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}",
-      "dei:": "{http://xbrl.sec.gov/dei/2014-01-31}",
-      "us-gaap:": "{http://fasb.org/us-gaap/2017-01-31}"}
+from oblib import constants, data_model, util, ob
 
 
 def _xn(s):
@@ -37,10 +27,10 @@ def _xn(s):
 
     if s is None:
         return None
-    for n in _xml_ns:
+    for n in constants.XML_NS:
         if n in s:
-            return s.replace(n, _xml_ns[n])
-    return "{http://www.xbrl.org/2003/instance}" + s 
+            return s.replace(n, constants.XML_NS[n])
+    return constants.XBRL_ORG_INSTANCE + s
 
 # End of XML parsign utility code
 
@@ -335,9 +325,9 @@ class Parser(object):
                 if child.tag != _xn("link:schemaRef") and child.tag != _xn("unit") and child.tag != _xn("context"):
 
                     tag = child.tag
-                    tag = tag.replace("{http://xbrl.us/Solar/v1.3/2019-02-27/solar}", "solar:")
-                    tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
-                    tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+                    tag = tag.replace(constants.SOLAR_NS, "solar:")
+                    tag = tag.replace(constants.GAAP_NS, "us-gaap:")
+                    tag = tag.replace(constants.DEI_NS, "dei:")
                     fact_names.append(tag)
             try:
                 entrypoint_name = self._entrypoint_name(fact_names)
@@ -422,9 +412,9 @@ class Parser(object):
                         kwargs["context"] = contexts[child.attrib["contextRef"]]
                         kwargs["fact_id"] = fact_id
                         tag = child.tag
-                        tag = tag.replace("{http://xbrl.us/Solar/v1.3/2019-02-27/solar}", "solar:")
-                        tag = tag.replace("{http://fasb.org/us-gaap/2017-01-31}", "us-gaap:")
-                        tag = tag.replace("{http://xbrl.sec.gov/dei/2014-01-31}", "dei:")
+                        tag = tag.replace(constants.SOLAR_NS, "solar:")
+                        tag = tag.replace(constants.GAAP_NS, "us-gaap:")
+                        tag = tag.replace(constants.DEI_NS, "dei:")
                         try:
                             entrypoint.set(tag, child.text, **kwargs)
                         except Exception as e:

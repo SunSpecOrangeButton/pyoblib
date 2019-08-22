@@ -363,10 +363,10 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                                        'solar:TestConditionAxis'])
             for axis in axes:
                 if axis.attrib["dimension"] == 'solar:ProductIdentifierAxis':
-                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}ProductIdentifierDomain")
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-07-31/solar}ProductIdentifierDomain")
                     self.assertEqual(axis.getchildren()[0].text, "placeholder")
                 elif axis.attrib["dimension"] == 'solar:TestConditionsAxis':
-                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/v1.3/2019-02-27/solar}TestConditionDomain")
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-07-31/solar}TestConditionDomain")
                     self.assertEqual(axis.getchildren()[0].text, "solar:StandardTestConditionMember")
 
             # one should have period containing <forever/> other should have period containing <instant> containing today's date.
@@ -383,8 +383,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Expect to see two facts solar:DeviceCost and solar:TypeOfDevice,
         # each containing text of the fact value
-        costFact = root.find('{http://xbrl.us/Solar/v1.3/2019-02-27/solar}DeviceCost')
-        typeFact = root.find('{http://xbrl.us/Solar/v1.3/2019-02-27/solar}TypeOfDevice')
+        costFact = root.find('{http://xbrl.us/Solar/2019-07-31/solar}DeviceCost')
+        typeFact = root.find('{http://xbrl.us/Solar/2019-07-31/solar}TypeOfDevice')
         self.assertEqual(costFact.text, "100")
         self.assertEqual(typeFact.text, "ModuleMember")
         # They should have contextRef and (in the case of cost) unitRef attributes:
@@ -842,7 +842,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Look for fact ID in XML:
         xml = doc.to_XML_string()
         root = etree.fromstring(xml)
-        fact = root.find("{http://xbrl.us/Solar/v1.3/2019-02-27/solar}ModuleNameplateCapacity")
+        fact = root.find("{http://xbrl.us/Solar/2019-07-31/solar}ModuleNameplateCapacity")
         self.assertEqual(fact.attrib["id"], fact_id)
 
     def test_input_ids(self):
@@ -975,7 +975,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Passing the string "All" to OBInstance should give me access to every concept
         # instead of restricting it to an entrypoint.
         doc = data_model.OBInstance("All", self.taxonomy)
-        self.assertEqual(len(doc._all_my_concepts), 4230) # Every concept!
+        self.assertEqual(4231, len(doc._all_my_concepts)) # Every concept!
 
     # TODO lots more tests for using get(), especially with partial context arguments.
 
@@ -1025,12 +1025,3 @@ class TestDataModelEntrypoint(unittest.TestCase):
          'solar:EnergyContractYearlyRateAxis': '1',
          'unit_name': 'USD'}
         doc.set('solar:EnergyCharge', '10500.26', **kwargs)
-
-    def test_set_LEI(self):
-        # Tests that setting a LEI does not require a unit (a bug fix)
-
-        doc = data_model.OBInstance("Utility", self.taxonomy)
-        kwargs = {'duration': 'forever', 'entity': 'PLUTO',
-         'solar:UtilityIdentifierAxis': '1'}
-        # doc.set('solar:UtilityIdentifier', '1234567890ABCDEFGHIJ', **kwargs)
-        doc.set('solar:UtilityIdentifier', '12345678901234567890', **kwargs)
