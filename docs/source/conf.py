@@ -25,9 +25,9 @@ copyright = '2019, SunSpec Alliance'
 author = 'SunSpec Alliance'
 
 # The short X.Y version
-version = '1.0'
+version = '1.1'
 # The full version, including alpha/beta/rc tags
-release = 'v1.0.0'
+release = 'v1.1.0'
 
 
 # -- General configuration ---------------------------------------------------
