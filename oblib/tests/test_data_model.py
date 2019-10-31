@@ -975,7 +975,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Passing the string "All" to OBInstance should give me access to every concept
         # instead of restricting it to an entrypoint.
         doc = data_model.OBInstance("All", self.taxonomy)
-        self.assertEqual(4303, len(doc._all_my_concepts)) # Every concept!
+        self.assertEqual(4231, len(doc._all_my_concepts)) # Every concept!
 
     # TODO lots more tests for using get(), especially with partial context arguments.
 

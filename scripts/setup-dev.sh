@@ -17,11 +17,10 @@
 
 mkdir oblib/data
 cd oblib/data
-git clone --branch 2019-09-20 https://github.com/SunSpecOrangeButton/solar-taxonomy.git
+git clone --branch 2019-07-31 https://github.com/SunSpecOrangeButton/solar-taxonomy.git
 cd solar-taxonomy
 rm SolarTaxonomyMaster.xlsx
 mkdir external
 curl http://xbrl.fasb.org/us-gaap/2017/elts/us-gaap-2017-01-31.xsd > external/us-gaap-2017-01-31.xsd
 curl https://xbrl.sec.gov/dei/2018/dei-2018-01-31.xsd > external/dei-2018-01-31.xsd
 curl https://www.xbrl.org/utr/utr.xml > external/utr.xml
-
