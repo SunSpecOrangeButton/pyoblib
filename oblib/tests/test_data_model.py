@@ -363,10 +363,10 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                                        'solar:TestConditionAxis'])
             for axis in axes:
                 if axis.attrib["dimension"] == 'solar:ProductIdentifierAxis':
-                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-07-31/solar}ProductIdentifierDomain")
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-09-20/solar}ProductIdentifierDomain")
                     self.assertEqual(axis.getchildren()[0].text, "placeholder")
                 elif axis.attrib["dimension"] == 'solar:TestConditionsAxis':
-                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-07-31/solar}TestConditionDomain")
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-09-20/solar}TestConditionDomain")
                     self.assertEqual(axis.getchildren()[0].text, "solar:StandardTestConditionMember")
 
             # one should have period containing <forever/> other should have period containing <instant> containing today's date.
@@ -383,8 +383,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Expect to see two facts solar:DeviceCost and solar:TypeOfDevice,
         # each containing text of the fact value
-        costFact = root.find('{http://xbrl.us/Solar/2019-07-31/solar}DeviceCost')
-        typeFact = root.find('{http://xbrl.us/Solar/2019-07-31/solar}TypeOfDevice')
+        costFact = root.find('{http://xbrl.us/Solar/2019-09-20/solar}DeviceCost')
+        typeFact = root.find('{http://xbrl.us/Solar/2019-09-20/solar}TypeOfDevice')
         self.assertEqual(costFact.text, "100")
         self.assertEqual(typeFact.text, "ModuleMember")
         # They should have contextRef and (in the case of cost) unitRef attributes:
@@ -842,7 +842,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Look for fact ID in XML:
         xml = doc.to_XML_string()
         root = etree.fromstring(xml)
-        fact = root.find("{http://xbrl.us/Solar/2019-07-31/solar}ModuleNameplateCapacity")
+        fact = root.find("{http://xbrl.us/Solar/2019-09-20/solar}ModuleNameplateCapacity")
         self.assertEqual(fact.attrib["id"], fact_id)
 
     def test_input_ids(self):
