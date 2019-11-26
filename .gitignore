@@ -22,5 +22,5 @@ docs/build/
 build/
 dist/
 *.egg-info/
-
+dist-cli/
 .pytest_cache
