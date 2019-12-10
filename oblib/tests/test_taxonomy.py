@@ -308,7 +308,7 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_get_all_entrypoints(self):
         # 159 named entry points plus 1 for the "All" entry point:
-        self.assertEqual(len(tax.semantic.get_all_entrypoints()), 160)
+        self.assertEqual(len(tax.semantic.get_all_entrypoints()), 161)
 
     def test_get_entrypoint_relationships(self):
         self.assertIsNone(tax.semantic.get_entrypoint_relationships("Arggh"))

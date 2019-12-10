@@ -75,7 +75,7 @@ TEST_JSON = """
   "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
   "prefixes": {
     "xbrl": "http://www.xbrl.org/WGWD/YYYY-MM-DD/oim",
-    "solar": "http://xbrl.us/Solar/2019-07-31/solar",  
+    "solar": "http://xbrl.us/Solar/2019-09-20/solar",  
     "us-gaap": "http://fasb.org/us-gaap/2017-01-31",
     "iso4217": "http://www.xbrl.org/2003/iso4217",
     "SI": "http://www.xbrl.org/2009/utr"
@@ -83,7 +83,7 @@ TEST_JSON = """
   "dtsReferences": [
     {
       "type": "schema",
-      "href": "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-07-31.xsd"
+      "href": "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-09-20.xsd"
     }
   ],
   "facts": {
@@ -111,12 +111,12 @@ TEST_XML = """
 <xbrl 
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:solar="http://xbrl.us/Solar/2019-07-31/solar"
+    xmlns:solar="http://xbrl.us/Solar/2019-09-20/solar"
     xmlns:units="http://www.xbrl.org/2009/utr"
     xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMRLSchema-instance">
-    <link:schemaRef xlink:href="https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd" xlink:type="simple" />
+    <link:schemaRef xlink:href="https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-09-20.xsd" xlink:type="simple" />
     <context id="NON_TABLE_CONCEPTS_0">
         <entity>
             <identifier scheme="http://xbrl.org/entity/identification/scheme" >JUPITER</identifier>
@@ -146,12 +146,12 @@ TEST_XML_2 = """
 <xbrl
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:solar="http://xbrl.us/Solar/2019-07-31/solar"
+    xmlns:solar="http://xbrl.us/Solar/2019-09-20/solar"
     xmlns:units="http://www.xbrl.org/2009/utr"
     xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMRLSchema-instance">
-    <link:schemaRef xlink:href="https://raw.githubusercontent.com/xbrlus/solar/v1.2/core/solar_2018-03-31_r01.xsd" xlink:type="simple" />
+    <link:schemaRef xlink:href="https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-09-20.xsd" xlink:type="simple" />
     <context id="solar:SolarArrayTable_1">
         <entity>
             <identifier scheme="http://xbrl.org/entity/identification/scheme">kWh Analytics</identifier>
