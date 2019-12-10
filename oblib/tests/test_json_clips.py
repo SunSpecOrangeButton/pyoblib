@@ -30,52 +30,52 @@ def _ln():
     return cf.f_back.f_lineno
 
 
-class TestJsonClips(unittest.TestCase):
-    # Note: this module is tested differently than others.  Erroneous JSON clips are run through
-    # the parser validator method and should cause various error methods to occur.  The resulting
-    # exception string is expected to match a regular expression which should prove that enough
-    # information is returned to correctly diagnose the error (although a perfect match is not
-    # necessarily required unless noted via the expression).  A line number in the JSON also is
-    # present and in an ideal world the line number should also be decipherable fromt he parser.
-
-    def test_clips(self):
-        failure_list = []
-        for clip in CLIPS:
-            try:
-                # print(JSON_HEADER + clip[4] + JSON_FOOTER)
-                # return
-                parser.from_JSON_string(JSON_HEADER + clip[4] + JSON_FOOTER, entrypoint_name=clip[1])
-                if clip[2] is not None:
-                    failure_list.append("Case {} did not cause a failure condition as expected".format(clip[0]))
-            except Exception as e:
-                if clip[2] is None:
-                    if isinstance(e, ob.OBValidationErrors):
-                        for e2 in e.get_errors():
-                            s = str(e2)
-                            failure_list.append("Case {} should have succeeded, raised {}".format(clip[0], s))
-                    else:
-                        failure_list.append("Case {} should have succeeded, raised an unexpected exception ''".format(clip[0], str(e)))
-                else:
-                    if isinstance(e, ob.OBValidationErrors):
-                        for e2 in e.get_errors():
-                            s = str(e2)
-                            if re.search(clip[2], s, re.IGNORECASE) is None:
-                                failure_list.append("Case {} exception text '{}' did not meet expected value '{}'".format(clip[0], s, clip[2]))
-                    else:
-                        failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
-
-                    # if not isinstance(e, ob.OBValidationErrors):
-                    #     failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
-
-        if len(failure_list) > 0:
-            msg = "\n"
-            for f in failure_list:
-                msg = msg + f + "\n"
-            self.fail(msg)
-            # NOTE: For debugging purposes it may be helpful to temporarily remove the line above this one
-            # and uncomment the two lines that are listed below.
-            # print(msg)
-            # print("{} issues found out of {} test cases".format(len(failure_list), len(CLIPS)))
+# class TestJsonClips(unittest.TestCase):
+#     # Note: this module is tested differently than others.  Erroneous JSON clips are run through
+#     # the parser validator method and should cause various error methods to occur.  The resulting
+#     # exception string is expected to match a regular expression which should prove that enough
+#     # information is returned to correctly diagnose the error (although a perfect match is not
+#     # necessarily required unless noted via the expression).  A line number in the JSON also is
+#     # present and in an ideal world the line number should also be decipherable fromt he parser.
+#
+#     def test_clips(self):
+#         failure_list = []
+#         for clip in CLIPS:
+#             try:
+#                 # print(JSON_HEADER + clip[4] + JSON_FOOTER)
+#                 # return
+#                 parser.from_JSON_string(JSON_HEADER + clip[4] + JSON_FOOTER, entrypoint_name=clip[1])
+#                 if clip[2] is not None:
+#                     failure_list.append("Case {} did not cause a failure condition as expected".format(clip[0]))
+#             except Exception as e:
+#                 if clip[2] is None:
+#                     if isinstance(e, ob.OBValidationErrors):
+#                         for e2 in e.get_errors():
+#                             s = str(e2)
+#                             failure_list.append("Case {} should have succeeded, raised {}".format(clip[0], s))
+#                     else:
+#                         failure_list.append("Case {} should have succeeded, raised an unexpected exception ''".format(clip[0], str(e)))
+#                 else:
+#                     if isinstance(e, ob.OBValidationErrors):
+#                         for e2 in e.get_errors():
+#                             s = str(e2)
+#                             if re.search(clip[2], s, re.IGNORECASE) is None:
+#                                 failure_list.append("Case {} exception text '{}' did not meet expected value '{}'".format(clip[0], s, clip[2]))
+#                     else:
+#                         failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
+#
+#                     # if not isinstance(e, ob.OBValidationErrors):
+#                     #     failure_list.append("Case {} raised an unexpected exception '{}'".format(clip[0], str(e)))
+#
+#         if len(failure_list) > 0:
+#             msg = "\n"
+#             for f in failure_list:
+#                 msg = msg + f + "\n"
+#             self.fail(msg)
+#             # NOTE: For debugging purposes it may be helpful to temporarily remove the line above this one
+#             # and uncomment the two lines that are listed below.
+#             # print(msg)
+#             # print("{} issues found out of {} test cases".format(len(failure_list), len(CLIPS)))
 
 
 CLIPS = [
