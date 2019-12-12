@@ -328,6 +328,18 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertTrue(tax.semantic.is_entrypoint("MonthlyOperatingReport"))
         self.assertFalse(tax.semantic.is_entrypoint("MonthlyOperatingRepot"))
 
+    def test_get_concept_units(self):
+        units = tax.get_concept_units("solar:Albedo")
+        self.assertEqual(1, len(units))
+        self.assertEqual(["Pure"], units)
+        units = tax.get_concept_units("solar:AllProjectAccountBalances")
+        self.assertIsNone((units))
+        units = tax.get_concept_units("solar:ArrayTotalModuleArea")
+        self.assertEqual(7,len(units))
+        self.assertEqual(
+            ["Acre", "Square Foot", "Square Mile", "Square Yard", "Hectare", "Square km", "Square metre"],
+            units)
+
     def test_unrequired_concepts_removed(self):
         """
         In order to save memory concepts that are not required should be removed from memory after the taxonomy

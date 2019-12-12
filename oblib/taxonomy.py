@@ -746,6 +746,9 @@ class Taxonomy(object):
     Use this class to load and access all elements of the Taxonomy. Taxonomy
     supplies a single import location and is better than loading a portion
     of the Taxonomy unless there is a specific need to save memory.
+
+    This class also contains methods for cases where more than one child is
+    required to fulfill the method results.
     """
 
     def __init__(self):
@@ -761,3 +764,34 @@ class Taxonomy(object):
         self.generic_roles = TaxonomyGenericRoles(tl)
         self.ref_parts = TaxonomyRefParts(tl)
         self.documentation = TaxonomyDocumentation(tl)
+
+    def get_concept_units(self, concept):
+        """
+        Args:
+            concept : str
+                concept name
+
+        Returns:
+            list containing valid unit ids if any or None if the concept type does not support units.  Please note
+            that an empty list is possible if the concept type is supportive of units but not units are defined
+            in the taxonomy (this would technically be a taxonomy issue and a standards change request should be
+            submitted but it does happen occasionally).
+
+        Raises:
+            KeyError if concept is not found
+        """
+
+        details = self.semantic.get_concept_details(concept)
+        if details.type_name.startswith("num:") or details.type_name.startswith("num-us:"):
+            if details.type_name in ["num:percentItemType"]:
+                return ["Pure"]
+            else:
+                u = []
+                for unit in self.units.get_all_units():
+                    ud = self.units.get_unit(unit)
+                    if details.type_name.lower().find(ud.item_type.lower()) != -1:
+                        u.append(ud.unit_name)
+                return u
+        else:
+            return None
+
