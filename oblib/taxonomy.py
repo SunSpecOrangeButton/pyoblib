@@ -607,7 +607,7 @@ class TaxonomySemantic(object):
             dict of concept details if details=True
         """
         if not details:
-            return list(self._concepts_by_entrypoint)
+            return list(self._concepts_details.keys())
         else:
             return self._concepts_details
 
