@@ -98,7 +98,6 @@ def generate_identifier(args):
 def list_concept_details(args):
     print()
     c = taxonomy.semantic.get_concept_details(args.concept)
-    print(c)
     if c is not None:
         print("Id:                ", c.id)
         print("Name:              ", c.name)

@@ -727,15 +727,11 @@ class TaxonomySemantic(object):
                 concept name
 
         Returns:
-            dict containing concept attributes
-
-        Raises:
-            KeyError if concept is not found
+            A single ConceptDetail object if found or None if not found.
         """
         if self.is_concept(concept):
             return self._concepts_details[concept]
         else:
-            raise KeyError('{} is not a concept in the taxonomy'.format(concept))
             return None
 
 

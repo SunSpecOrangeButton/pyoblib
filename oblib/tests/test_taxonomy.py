@@ -262,8 +262,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         ci = tax.semantic.get_concept_details("solar:PVSystemIdentifierAxis")
         self.assertEqual(ci.typed_domain_ref, "#solar_PVSystemIdentifierDomain")
 
-        with self.assertRaises(KeyError):
-            _ = tax.semantic.get_concept_details("solar:iamnotaconcept")
+        self.assertIsNone(tax.semantic.get_concept_details("solar:iamnotaconcept"))
 
     def test_get_entrypoint_concepts(self):
         concepts = tax.semantic.get_entrypoint_concepts("MonthlyOperatingReport")
