@@ -60,6 +60,16 @@ class UnitStatus(enum.Enum):
     cr = "CR"
 
 
+class EntrypointType(enum.Enum):
+    """
+    Legal vaues for Entrypoint types.
+    """
+
+    data = "Data"
+    documents = "Documents"
+    process = "Process"
+
+
 class RelationshipRole(enum.Enum):
     """
     Legal values for Relationship roles.
@@ -70,6 +80,35 @@ class RelationshipRole(enum.Enum):
     dimension_domain = "dimension-domain"
     domain_member = "domain-member"
     hypercube_dimension = "hypercube-dimension"
+
+
+class Entrypoint(object):
+    """
+    Entrypoint models a entrypoint element within the Taxonomy.
+
+    Attributes:
+        name: str
+            Name
+        full_name: str
+            Full name includng number and type (Data, Document, Process)
+        number: str
+            Entrypoint number (usually used for sorting)
+        entrypoint_type: str
+            Data, Document, or Process
+        description: str
+            Description of the entrypoint
+        _path: str
+            Path to base filename (used by loader - not externally exposed)
+    """
+
+    def __init__(self):
+        self.name = None
+        self.full_name = None
+        self.number = None
+        self.entrypoint_type = None
+        self.number = None
+        self.description = None
+        self._path = None
 
 
 class ConceptDetails(object):
@@ -561,7 +600,7 @@ class TaxonomySemantic(object):
     def __init__(self, tl):
         """Constructor."""
 
-        self._concepts_details = tl._load_elements()
+        self._entrypoints, self._concepts_details = tl._load_entrypoints_concept_details()
         self._concepts_by_entrypoint = tl._load_concepts()
         self._relationships_by_entrypoint = tl._load_relationships()
         self._reduce_unused_semantic_data()
@@ -708,15 +747,43 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def get_all_entrypoints(self):
+    def get_all_entrypoints(self, details=False):
         """
         Used to access  a list of all entry points (data, documents, and processes) in the Taxonomy.
 
+        Args:
+            details: boolean, default False
+                if True return details for each concept
+
         Returns:
-            A list of entrypoint names (strings).
+            entrypoints: list
+                elements of the list are entrypoint names
+            details: dict
+                primary key is name from entrypoints, value is dict of entrypoints
+                details (only returned if details=True
         """
 
-        return list(self._concepts_by_entrypoint)
+        if details:
+            return list(self._concepts_by_entrypoint), self._entrypoints
+        else:
+            return list(self._concepts_by_entrypoint)
+
+    def get_entrypoint_details(self, entrypoint):
+        """
+        Used to acces a single entry point details
+
+        Args:
+             entrypoint: str
+                Entrypoint to return details for
+
+        Returns:
+            The details for the entrypoint or None if not found.
+        """
+
+        if entrypoint in self._entrypoints:
+            return self._entrypoints[entrypoint]
+        else:
+            return None
 
     def get_concept_details(self, concept):
         """

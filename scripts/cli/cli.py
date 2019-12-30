@@ -135,6 +135,43 @@ def list_entrypoints(args):
         print(entrypoint)
 
 
+def list_entrypoints_details(args):
+
+    if csv:
+        _, entrypoints_details = taxonomy.semantic.get_all_entrypoints(details=True)
+
+        print("Name, Full Name, Entrypoint Type, Number, Description")
+        for e in entrypoints_details:
+            d = entrypoints_details[e]
+            print('%s, %s, %s, %s, %s' %
+            (d.name, d.full_name, d.entrypoint_type.value, d.number, d.description))
+    else:
+        _, entrypoints_details = taxonomy.semantic.get_all_entrypoints(details=True)
+
+        print('%54s %85s %15s %6s %90s' %
+              ("Name", "Full Name", "Entrypoint Type", "Number", "Description"))
+        print('%0.54s %0.85s %0.15s %0.6s %0.90s' %
+              (DASHES, DASHES, DASHES, DASHES, DASHES))
+        for e in entrypoints_details:
+            d = entrypoints_details[e]
+            print('%54s %85s %15s %6s %90s' %
+            (d.name, d.full_name, d.entrypoint_type.value, d.number, d.description))
+
+
+def list_entrypoint_details(args):
+
+    print()
+    e = taxonomy.semantic.get_entrypoint_details(args.entrypoint)
+    if e is not None:
+        print("Name:            ", e.name)
+        print("Full Name:       ", e.full_name)
+        print("Entrypoint Type: ", e.entrypoint_type.value)
+        print("Number:          ", e.number)
+        print("Description:     ", e.description)
+    else:
+        print("Not found")
+
+
 def list_entrypoint_concepts_details(args):
 
     if csv:
@@ -382,6 +419,16 @@ list_concepts_details_parser.add_argument('entrypoint', action='store',
 
 list_entrypoints_parser = subparsers.add_parser('list-entrypoints', help='List Orange Button Entry Points')
 list_entrypoints_parser.set_defaults(command='list_entrypoints')
+
+list_entrypoints_details_parser = subparsers.add_parser('list-entrypoints-details',
+                                                        help='List Orange Button Entry Points with details')
+list_entrypoints_details_parser.set_defaults(command='list_entrypoints_details')
+
+list_entrypoint_details_parser = subparsers.add_parser('list-entrypoint-details',
+                                                 help='List Orange Button entrypoint details')
+list_entrypoint_details_parser.set_defaults(command='list_entrypoint_details')
+list_entrypoint_details_parser.add_argument('entrypoint', action='store',
+                                      help='The entrypoint to list details for')
 
 list_concepts_parser = subparsers.add_parser('list-concepts',
                                              help='List concepts in an Orange Button Entry Point')

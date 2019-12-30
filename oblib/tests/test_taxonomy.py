@@ -306,8 +306,49 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(92, len(tax.semantic.get_all_type_names()))
 
     def test_get_all_entrypoints(self):
-        # 159 named entry points plus 1 for the "All" entry point:
-        self.assertEqual(len(tax.semantic.get_all_entrypoints()), 161)
+        # 160 named entry points plus 1 for the "All" entry point:
+        self.assertEqual(161, len(tax.semantic.get_all_entrypoints()))
+
+    def test_get_all_entrypoints_details(self):
+        entrypoints, details = tax.semantic.get_all_entrypoints(details=True)
+
+        # 159 named entry points plus 1 for the "All" entry point abd 1 for the "UML" entry point:
+        self.assertEqual(161, len(entrypoints))
+
+        # 159 named entry points
+        self.assertEqual(159, len(details))
+
+        self.assertIsNotNone(details["CutSheet"])
+        self.assertIsNotNone(details["Site"])
+        self.assertIsNotNone(details["MonthlyOperatingReport"])
+        self.assertIsNotNone(details["ProjectFinancing"])
+
+        self._name = None
+        self.full_name = None
+        self.number = None
+        self.entrypoint_type = None
+        self.number = None
+        self.description = None
+        self._path = None
+
+
+        self.assertEqual("System", details["System"].name)
+        self.assertEqual("100270 - Documents - Board Resolution for Master Lessee, Lessee and Operator",
+                         details["BoardResolutionforMasterLesseeLesseeandOperator"].full_name)
+        self.assertEqual(taxonomy.EntrypointType.data, details["Site"].entrypoint_type)
+        self.assertEqual(taxonomy.EntrypointType.documents, details["MonthlyOperatingReport"].entrypoint_type)
+        self.assertEqual(taxonomy.EntrypointType.process, details["ProjectFinancing"].entrypoint_type)
+        self.assertEqual(100255, details["AssignmentOfInterest"].number)
+        self.assertEqual("This schema contains the entry point for the AssignmentOfInterest",
+                         details["AssignmentOfInterest"].description)
+
+    def test_get_entrypoint_details(self):
+        details = tax.semantic.get_entrypoint_details("MonthlyOperatingReport")
+        self.assertEqual("MonthlyOperatingReport", details.name)
+        self.assertEqual("100825 - Documents - Monthly Operating Report", details.full_name)
+        self.assertEqual(taxonomy.EntrypointType.documents, details.entrypoint_type)
+        self.assertEqual(100825, details.number)
+        self.assertEqual("This schema contains the entry point for the MonthlyOperatingReport", details.description)
 
     def test_get_entrypoint_relationships(self):
         self.assertIsNone(tax.semantic.get_entrypoint_relationships("Arggh"))
