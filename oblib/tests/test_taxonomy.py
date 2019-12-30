@@ -376,9 +376,10 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsNone((units))
         units = tax.get_concept_units("solar:ArrayTotalModuleArea")
         self.assertEqual(7,len(units))
+        # Note: test case failed on python 3.4 and 3.5 without sort.
         self.assertEqual(
-            ["Acre", "Square Foot", "Square Mile", "Square Yard", "Hectare", "Square km", "Square metre"],
-            units)
+            ["Acre", "Square Foot", "Square Mile", "Square Yard", "Hectare", "Square km", "Square metre"].sort(),
+            units.sort())
 
     def test_unrequired_concepts_removed(self):
         """

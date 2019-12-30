@@ -175,12 +175,12 @@ cat > temp/in.json <<- EOM
     "xmlns:xsi": "http://www.w3.org/2001/XMRLSchema-instance",
     "xmlns:units": "http://www.xbrl.org/2009/utr",
     "xmlns:xbrldi": "http://xbrl.org/2006/xbrldi",
-    "xmlns:solar": "http://xbrl.us/Solar/2019-07-31/solar"
+    "xmlns:solar": "http://xbrl.us/Solar/2019-09-20/solar"
   },
   "dtsReferences": [
     {
       "type": "schema",
-      "href": "https://raw.githubusercontent.com/xbrlus/solar/core/solar_2019-07-31.xsd"
+      "href": "https://raw.githubusercontent.com/xbrlus/solar/core/solar_2019-09-20.xsd"
     }
   ],
   "facts": {
@@ -264,7 +264,7 @@ cat > temp/in.xml <<- EOM
 <xbrl
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:solar="http://xbrl.us/Solar/2019-07-31/solar"
+    xmlns:solar="http://xbrl.us/Solar/2019-09-20/solar"
     xmlns:units="http://www.xbrl.org/2009/utr"
     xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
     xmlns:xlink="http://www.w3.org/1999/xlink"
