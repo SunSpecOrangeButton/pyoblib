@@ -350,6 +350,43 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
         return self._relationships
 
 
+class _TaxonomyCalculationHandler(xml.sax.ContentHandler):
+    """
+    Reads the files in solar-taxonomy/documents/<document name>/*_def.xml .
+
+    This extracts the calculations between the concepts, such as when one
+    concept is a parent of another, when a concept belongs to a hypercube,
+    etc.
+    As a SAX parser,it streams the XML, and startElement() is called
+    once for each XML element in the file.
+    """
+
+    def __init__(self):
+        self._calculations = []
+
+    def startElement(self, name, attrs):
+        if name == "calculationArc":
+            calculation = taxonomy.Calculation()
+            for item in attrs.items():
+                if item[0] == "xlink:arcrole":
+                    calculation.role = taxonomy.CalculationRole(item[1].split("/")[-1])
+                if item[0] == "xlink:from":
+                    calculation.from_ = item[1].replace("_", ":", 1)
+                if item[0] == "xlink:to":
+                    calculation.to = item[1].replace("_", ":", 1)
+                if item[0] == "order":
+                    calculation.order = item[1]
+                if item[0] == "weight":
+                    calculation.weight = item[1]
+            self._calculations.append(calculation)
+            # Question TBD: do we need to remember which document definition
+            # this calculation came from? would the same concepts ever have
+            # different calculations in one document than another?
+
+    def calculations(self):
+        return self._calculations
+
+
 class TaxonomyLoader(object):
 
     """
@@ -558,3 +595,10 @@ class TaxonomyLoader(object):
                          constants.TAXONOMY_ALL_FILENAME))
 
         return relationships
+
+    def _load_calculations(self):
+        taxonomy = _TaxonomyCalculationHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(taxonomy)
+        parser.parse(open(os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", constants.SOLAR_CALCULATION_XML)))
+        return taxonomy.calculations()

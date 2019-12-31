@@ -96,7 +96,6 @@ def generate_identifier(args):
 
 
 def list_concept_details(args):
-    print()
     c = taxonomy.semantic.get_concept_details(args.concept)
     if c is not None:
         print("Id:                ", c.id)
@@ -229,6 +228,32 @@ def list_relationships(args):
                        (r.role.value, r.from_, r.to, r.order))
         else:
             print("Not found")
+
+
+def list_concept_calculation(args):
+    calculations = taxonomy.semantic.get_concept_calculation(args.concept)
+    if calculations == None:
+        print("Not found")
+    elif len(calculations) == 0:
+        print("No calculation")
+    else:
+        for calculation in calculations:
+            if calculation[1] == 1:
+                sign = "+"
+            else:
+                sign = "-"
+            print(sign, calculation[0])
+    print()
+
+    usages = taxonomy.semantic.get_concept_calculated_usage(args.concept)
+    if usages == None:
+        pass # Not found would have been printed above
+    elif len(calculations) == 0:
+        print("Not used in any calculations")
+    else:
+        print("Usages:")
+        for usage in usages:
+            print(" ", usage)
 
 
 def list_type_enums(args):
@@ -399,6 +424,12 @@ list_concept_details_parser = subparsers.add_parser('list-concept-details',
 list_concept_details_parser.set_defaults(command='list_concept_details')
 list_concept_details_parser.add_argument('concept', action='store',
                                       help='The concept to list details for')
+
+list_concept_calculation_parser = subparsers.add_parser('list-concept-calculation',
+                                                 help='List Orange Button concept calculation')
+list_concept_calculation_parser.set_defaults(command='list_concept_calculation')
+list_concept_calculation_parser.add_argument('concept', action='store',
+                                      help='The concept to list calculation for')
 
 list_unit_details_parser = subparsers.add_parser('list-unit-details',
                                               help='List Orange Button unit details')

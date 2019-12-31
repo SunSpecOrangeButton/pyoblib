@@ -77,3 +77,5 @@ SOLAR_XSD = "solar_2019-09-20.xsd"
 SOLAR_ALL_PRE_XML = "solar_all_2019-09-20_pre.xml"
 
 SOLAR_LAB_XML = "solar_2019-09-20_lab.xml"
+
+SOLAR_CALCULATION_XML = "solar_all_2019-09-20_cal.xml"

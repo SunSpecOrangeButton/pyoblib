@@ -135,6 +135,9 @@ python scripts/cli/cli.py taxonomy list-relationships MonthlyOperatingReport || 
 python scripts/cli/cli.py --csv taxonomy list-relationships MonthlyOperatingReport || {
     EXITVAL=1
 }
+python scripts/cli/cli.py taxonomy list-concept-calculation us-gaap:StockholdersEquity || {
+    EXITVAL=1
+}
 
 # Ref parts tests
 python scripts/cli/cli.py taxonomy list-ref-parts || {

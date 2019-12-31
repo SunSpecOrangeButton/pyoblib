@@ -82,6 +82,14 @@ class RelationshipRole(enum.Enum):
     hypercube_dimension = "hypercube-dimension"
 
 
+class CalculationRole(enum.Enum):
+    """
+    Legal values for Calculation roles.
+    """
+
+    summation_item = "summation-item"
+
+
 class Entrypoint(object):
     """
     Entrypoint models a entrypoint element within the Taxonomy.
@@ -194,6 +202,43 @@ class Relationship(object):
             "," + str(self.from_) + \
             "," + str(self.to) + \
             "," + str(self.order) + \
+            "}"
+
+
+class Calculation(object):
+    """
+    Calculation holds a taxonomy calculation record.
+
+    Attributes:
+        role: str
+            XBRL Arcrole
+        from_: str
+            Models a calculation between two concepts in
+            conjunction with to.
+        to: str
+            Models a calculation between two concpets in conjunction
+            with from_.
+        order: int
+            The order of the calculations for a single entrypoint
+        weight: int
+            The weight (-1 or 1) for calcuations.
+    """
+
+    def __init__(self):
+        """Relationship constructor."""
+        self.role = None
+        self.from_ = None
+        self.to = None
+        self.order = None
+        self.weight = None
+
+    def __repr__(self):
+        """Return a printable representation of an calculation."""
+        return "{" + str(self.role) + \
+            "," + str(self.from_) + \
+            "," + str(self.to) + \
+            "," + str(self.order) + \
+            "," + str(self.weight) + \
             "}"
 
 
@@ -603,6 +648,7 @@ class TaxonomySemantic(object):
         self._entrypoints, self._concepts_details = tl._load_entrypoints_concept_details()
         self._concepts_by_entrypoint = tl._load_concepts()
         self._relationships_by_entrypoint = tl._load_relationships()
+        self._calculations = tl._load_calculations()
         self._reduce_unused_semantic_data()
 
     def _reduce_unused_semantic_data(self):
@@ -800,6 +846,50 @@ class TaxonomySemantic(object):
             return self._concepts_details[concept]
         else:
             return None
+
+    def get_concept_calculation(self, concept):
+        """
+        Return information on a concepts calculations.
+
+        Args:
+             concept: str
+                concept name
+
+        Returns:
+            An array of arrays where each tuple contains a calculated field and the second value
+            is either +1 or -1 to specify whether the field should be added or subtracted as part of
+            the calculation.  If the concept is not a calcuated field an empty array is returned.
+            If the concept name is not valid None will be returned.
+        """
+        if not self.is_concept(concept):
+            return None
+
+        data = []
+        for calculation in self._calculations:
+            if concept == calculation.from_:
+                data.append([calculation.to, int(calculation.weight)])
+        return data
+
+    def get_concept_calculated_usage(self, concept):
+        """
+        Return information on what calcuations a concept is used in.
+
+        Args:
+            concept: str
+                concept name
+
+        Returns:
+            An array of all concepts that this concepet is used as part of a calcuation in.  If there is
+            no calcuated usage an empty array is returned.  If the concept name is not found then none is
+            returned.
+        """
+        if not self.is_concept(concept):
+            return None
+        data = []
+        for calculation in self._calculations:
+            if concept == calculation.to:
+                data.append(calculation.from_)
+        return data
 
 
 class Taxonomy(object):

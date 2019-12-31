@@ -368,6 +368,23 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertTrue(tax.semantic.is_entrypoint("MonthlyOperatingReport"))
         self.assertFalse(tax.semantic.is_entrypoint("MonthlyOperatingRepot"))
 
+    def test_get_concept_calculation(self):
+        self.assertIsNone(tax.semantic.get_concept_calculation("solar:notaconcept"))
+        self.assertEqual(0, len(tax.semantic.get_concept_calculation("solar:Curtailment")))
+        self.assertEqual(4, len(tax.semantic.get_concept_calculation("us-gaap:Revenues")))
+        calcs = tax.semantic.get_concept_calculation("us-gaap:PropertyPlantAndEquipmentNet")
+        self.assertEqual("us-gaap:PropertyPlantAndEquipmentGross", calcs[0][0])
+        self.assertEqual(1, calcs[0][1])
+        self.assertEqual("us-gaap:AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment", calcs[1][0])
+        self.assertEqual(-1, calcs[1][1])
+
+    def test_get_concept_calculated_usage(self):
+        self.assertIsNone(tax.semantic.get_concept_calculated_usage("solar:notaconcept"))
+        self.assertEqual(0, len(tax.semantic.get_concept_calculated_usage("solar:Curtailment")))
+        calc = tax.semantic.get_concept_calculated_usage("us-gaap:TreasuryStockValue")
+        self.assertEqual(1, len(calc))
+        self.assertEqual("us-gaap:StockholdersEquity", calc[0])
+
     def test_get_concept_units(self):
         units = tax.get_concept_units("solar:Albedo")
         self.assertEqual(1, len(units))
