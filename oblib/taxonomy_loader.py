@@ -196,6 +196,53 @@ class _TaxonomyDocumentationHandler(xml.sax.ContentHandler):
         return self._documentation
 
 
+class _EntrypointsHandler(xml.sax.ContentHandler):
+    """
+    Reads the base entrypoints definitions.
+
+    This extracts the names, descriptions, and files for the entrypoints
+    As a SAX parser it streams the XML, and startElemnts is called once for
+    each elment in the file.
+    """
+
+    def __init__(self):
+        self._entrypoints = {}
+        self._curr = None
+
+    def startElement(self, name, attrs):
+        if name == "tp:entryPoint":
+            self._curr = taxonomy.Entrypoint()
+
+        elif name == "tp:entryPointDocument":
+            for item in attrs.items():
+                if item[0] == "href":
+                    self._curr._path = item[1]
+
+    def characters(self, content):
+        self._content = content
+
+    def endElement(self, name):
+        if name == "tp:entryPoint":
+            # For now do not save the Full Solar Entry Point (this is hardcoded in the software as ALL).
+            if self._curr.full_name != "Full Solar Entry Point":
+                self._entrypoints[self._curr.name] = self._curr
+        if name == "tp:name":
+            # Split this up unless this is a top level name as well which can be skipped.
+            if self._curr:
+                self._curr.full_name = self._content
+                if self._curr.full_name != "Full Solar Entry Point":
+                    self._curr.number = int(self._content.split(" - ")[0])
+                    self._curr.entrypoint_type = taxonomy.EntrypointType(self._content.split(" - ")[1])
+                    self._curr.name = self._content.split(" - ")[2].replace(" ", "").replace(",", "")
+        elif name == "tp:description":
+            # There is a top level description as well which can be skipped.
+            if self._curr:
+                self._curr.description = self._content
+
+    def entrypoints(self):
+        return self._entrypoints
+
+
 class _ElementsHandler(xml.sax.ContentHandler):
     """
     Reads the files in solar-taxonomy/core/*.xsd .
@@ -303,6 +350,43 @@ class _TaxonomyRelationshipHandler(xml.sax.ContentHandler):
         return self._relationships
 
 
+class _TaxonomyCalculationHandler(xml.sax.ContentHandler):
+    """
+    Reads the files in solar-taxonomy/documents/<document name>/*_def.xml .
+
+    This extracts the calculations between the concepts, such as when one
+    concept is a parent of another, when a concept belongs to a hypercube,
+    etc.
+    As a SAX parser,it streams the XML, and startElement() is called
+    once for each XML element in the file.
+    """
+
+    def __init__(self):
+        self._calculations = []
+
+    def startElement(self, name, attrs):
+        if name == "calculationArc":
+            calculation = taxonomy.Calculation()
+            for item in attrs.items():
+                if item[0] == "xlink:arcrole":
+                    calculation.role = taxonomy.CalculationRole(item[1].split("/")[-1])
+                if item[0] == "xlink:from":
+                    calculation.from_ = item[1].replace("_", ":", 1)
+                if item[0] == "xlink:to":
+                    calculation.to = item[1].replace("_", ":", 1)
+                if item[0] == "order":
+                    calculation.order = item[1]
+                if item[0] == "weight":
+                    calculation.weight = item[1]
+            self._calculations.append(calculation)
+            # Question TBD: do we need to remember which document definition
+            # this calculation came from? would the same concepts ever have
+            # different calculations in one document than another?
+
+    def calculations(self):
+        return self._calculations
+
+
 class TaxonomyLoader(object):
 
     """
@@ -408,6 +492,12 @@ class TaxonomyLoader(object):
         units = self._load_units_file(os.path.join(pathname, filename))
         return units
 
+    def _load_entrypoints_file(selfs, pathname):
+        eh = _EntrypointsHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(eh)
+        parser.parse(open(pathname))
+        return eh.entrypoints()
 
     def _load_elements_file(self, pathname):
         eh = _ElementsHandler()
@@ -416,7 +506,10 @@ class TaxonomyLoader(object):
         parser.parse(open(pathname))
         return eh.elements()
 
-    def _load_elements(self):
+    def _load_entrypoints_concept_details(self):
+        entrypoints = self._load_entrypoints_file(os.path.join(
+            constants.SOLAR_TAXONOMY_DIR, "META-INF", "taxonomyPackage.xml"))
+
         elements = self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "core",
             constants.SOLAR_XSD))
@@ -426,7 +519,7 @@ class TaxonomyLoader(object):
         elements.update(self._load_elements_file(os.path.join(
             constants.SOLAR_TAXONOMY_DIR, "external",
             constants.DEI_XSD)))
-        return elements
+        return entrypoints, elements
 
     def _load_concepts_file(self, pathname):
         taxonomy = _TaxonomySemanticHandler()
@@ -445,8 +538,6 @@ class TaxonomyLoader(object):
             # if 'def.' in filename:
             if 'pre.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
-                if concept_name == "cutsheet":  # Note: CutSheet is not named using camel case like other files
-                    concept_name = "CutSheet"
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "data", filename))
@@ -455,8 +546,6 @@ class TaxonomyLoader(object):
             # if 'def.' in filename:
             if 'pre.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
-                if concept_name == "cutsheet":  # Note: CutSheet is not named using camel case like other files
-                    concept_name = "CutSheet"
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "documents", filename))
@@ -466,8 +555,6 @@ class TaxonomyLoader(object):
             # if 'def.' in filename:
             if 'pre.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
-                if concept_name == "cutsheet":  # Note: CutSheet is not named using camel case like other files
-                    concept_name = "CutSheet"
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "process", filename))
@@ -490,22 +577,16 @@ class TaxonomyLoader(object):
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
             if 'def.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
-                if concept_name == "cutsheet":  # Note: CutSheet is not named using camel case like other files
-                    concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("data", filename))
 
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
             if 'def.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
-                if concept_name == "cutsheet":  # Note: CutSheet is not named using camel case like other files
-                    concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("documents", filename))
 
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process")):
             if 'def.' in filename:
                 concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
-                if concept_name == "cutsheet":  # Note: CutSheet is not named using camel case like other files
-                    concept_name = "CutSheet"
                 relationships[concept_name] = self._load_relationships_file(os.path.join("process", filename))
 
         # load from "/core/" for the "All" entrypoint:
@@ -514,3 +595,10 @@ class TaxonomyLoader(object):
                          constants.TAXONOMY_ALL_FILENAME))
 
         return relationships
+
+    def _load_calculations(self):
+        taxonomy = _TaxonomyCalculationHandler()
+        parser = xml.sax.make_parser()
+        parser.setContentHandler(taxonomy)
+        parser.parse(open(os.path.join(constants.SOLAR_TAXONOMY_DIR, "core", constants.SOLAR_CALCULATION_XML)))
+        return taxonomy.calculations()

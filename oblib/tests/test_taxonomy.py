@@ -262,8 +262,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         ci = tax.semantic.get_concept_details("solar:PVSystemIdentifierAxis")
         self.assertEqual(ci.typed_domain_ref, "#solar_PVSystemIdentifierDomain")
 
-        with self.assertRaises(KeyError):
-            _ = tax.semantic.get_concept_details("solar:iamnotaconcept")
+        self.assertIsNone(tax.semantic.get_concept_details("solar:iamnotaconcept"))
 
     def test_get_entrypoint_concepts(self):
         concepts = tax.semantic.get_entrypoint_concepts("MonthlyOperatingReport")
@@ -307,8 +306,49 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(92, len(tax.semantic.get_all_type_names()))
 
     def test_get_all_entrypoints(self):
-        # 159 named entry points plus 1 for the "All" entry point:
-        self.assertEqual(len(tax.semantic.get_all_entrypoints()), 161)
+        # 160 named entry points plus 1 for the "All" entry point:
+        self.assertEqual(161, len(tax.semantic.get_all_entrypoints()))
+
+    def test_get_all_entrypoints_details(self):
+        entrypoints, details = tax.semantic.get_all_entrypoints(details=True)
+
+        # 159 named entry points plus 1 for the "All" entry point abd 1 for the "UML" entry point:
+        self.assertEqual(161, len(entrypoints))
+
+        # 159 named entry points
+        self.assertEqual(159, len(details))
+
+        self.assertIsNotNone(details["CutSheet"])
+        self.assertIsNotNone(details["Site"])
+        self.assertIsNotNone(details["MonthlyOperatingReport"])
+        self.assertIsNotNone(details["ProjectFinancing"])
+
+        self._name = None
+        self.full_name = None
+        self.number = None
+        self.entrypoint_type = None
+        self.number = None
+        self.description = None
+        self._path = None
+
+
+        self.assertEqual("System", details["System"].name)
+        self.assertEqual("100270 - Documents - Board Resolution for Master Lessee, Lessee and Operator",
+                         details["BoardResolutionforMasterLesseeLesseeandOperator"].full_name)
+        self.assertEqual(taxonomy.EntrypointType.data, details["Site"].entrypoint_type)
+        self.assertEqual(taxonomy.EntrypointType.documents, details["MonthlyOperatingReport"].entrypoint_type)
+        self.assertEqual(taxonomy.EntrypointType.process, details["ProjectFinancing"].entrypoint_type)
+        self.assertEqual(100255, details["AssignmentOfInterest"].number)
+        self.assertEqual("This schema contains the entry point for the AssignmentOfInterest",
+                         details["AssignmentOfInterest"].description)
+
+    def test_get_entrypoint_details(self):
+        details = tax.semantic.get_entrypoint_details("MonthlyOperatingReport")
+        self.assertEqual("MonthlyOperatingReport", details.name)
+        self.assertEqual("100825 - Documents - Monthly Operating Report", details.full_name)
+        self.assertEqual(taxonomy.EntrypointType.documents, details.entrypoint_type)
+        self.assertEqual(100825, details.number)
+        self.assertEqual("This schema contains the entry point for the MonthlyOperatingReport", details.description)
 
     def test_get_entrypoint_relationships(self):
         self.assertIsNone(tax.semantic.get_entrypoint_relationships("Arggh"))
@@ -327,6 +367,36 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertFalse(tax.semantic.is_entrypoint("AssetMnager"))
         self.assertTrue(tax.semantic.is_entrypoint("MonthlyOperatingReport"))
         self.assertFalse(tax.semantic.is_entrypoint("MonthlyOperatingRepot"))
+
+    def test_get_concept_calculation(self):
+        self.assertIsNone(tax.semantic.get_concept_calculation("solar:notaconcept"))
+        self.assertEqual(0, len(tax.semantic.get_concept_calculation("solar:Curtailment")))
+        self.assertEqual(4, len(tax.semantic.get_concept_calculation("us-gaap:Revenues")))
+        calcs = tax.semantic.get_concept_calculation("us-gaap:PropertyPlantAndEquipmentNet")
+        self.assertEqual("us-gaap:PropertyPlantAndEquipmentGross", calcs[0][0])
+        self.assertEqual(1, calcs[0][1])
+        self.assertEqual("us-gaap:AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment", calcs[1][0])
+        self.assertEqual(-1, calcs[1][1])
+
+    def test_get_concept_calculated_usage(self):
+        self.assertIsNone(tax.semantic.get_concept_calculated_usage("solar:notaconcept"))
+        self.assertEqual(0, len(tax.semantic.get_concept_calculated_usage("solar:Curtailment")))
+        calc = tax.semantic.get_concept_calculated_usage("us-gaap:TreasuryStockValue")
+        self.assertEqual(1, len(calc))
+        self.assertEqual("us-gaap:StockholdersEquity", calc[0])
+
+    def test_get_concept_units(self):
+        units = tax.get_concept_units("solar:Albedo")
+        self.assertEqual(1, len(units))
+        self.assertEqual(["Pure"], units)
+        units = tax.get_concept_units("solar:AllProjectAccountBalances")
+        self.assertIsNone((units))
+        units = tax.get_concept_units("solar:ArrayTotalModuleArea")
+        self.assertEqual(7,len(units))
+        # Note: test case failed on python 3.4 and 3.5 without sort.
+        self.assertEqual(
+            ["Acre", "Square Foot", "Square Mile", "Square Yard", "Hectare", "Square km", "Square metre"].sort(),
+            units.sort())
 
     def test_unrequired_concepts_removed(self):
         """

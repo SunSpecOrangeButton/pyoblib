@@ -60,6 +60,16 @@ class UnitStatus(enum.Enum):
     cr = "CR"
 
 
+class EntrypointType(enum.Enum):
+    """
+    Legal vaues for Entrypoint types.
+    """
+
+    data = "Data"
+    documents = "Documents"
+    process = "Process"
+
+
 class RelationshipRole(enum.Enum):
     """
     Legal values for Relationship roles.
@@ -70,6 +80,43 @@ class RelationshipRole(enum.Enum):
     dimension_domain = "dimension-domain"
     domain_member = "domain-member"
     hypercube_dimension = "hypercube-dimension"
+
+
+class CalculationRole(enum.Enum):
+    """
+    Legal values for Calculation roles.
+    """
+
+    summation_item = "summation-item"
+
+
+class Entrypoint(object):
+    """
+    Entrypoint models a entrypoint element within the Taxonomy.
+
+    Attributes:
+        name: str
+            Name
+        full_name: str
+            Full name includng number and type (Data, Document, Process)
+        number: str
+            Entrypoint number (usually used for sorting)
+        entrypoint_type: str
+            Data, Document, or Process
+        description: str
+            Description of the entrypoint
+        _path: str
+            Path to base filename (used by loader - not externally exposed)
+    """
+
+    def __init__(self):
+        self.name = None
+        self.full_name = None
+        self.number = None
+        self.entrypoint_type = None
+        self.number = None
+        self.description = None
+        self._path = None
 
 
 class ConceptDetails(object):
@@ -155,6 +202,43 @@ class Relationship(object):
             "," + str(self.from_) + \
             "," + str(self.to) + \
             "," + str(self.order) + \
+            "}"
+
+
+class Calculation(object):
+    """
+    Calculation holds a taxonomy calculation record.
+
+    Attributes:
+        role: str
+            XBRL Arcrole
+        from_: str
+            Models a calculation between two concepts in
+            conjunction with to.
+        to: str
+            Models a calculation between two concpets in conjunction
+            with from_.
+        order: int
+            The order of the calculations for a single entrypoint
+        weight: int
+            The weight (-1 or 1) for calcuations.
+    """
+
+    def __init__(self):
+        """Relationship constructor."""
+        self.role = None
+        self.from_ = None
+        self.to = None
+        self.order = None
+        self.weight = None
+
+    def __repr__(self):
+        """Return a printable representation of an calculation."""
+        return "{" + str(self.role) + \
+            "," + str(self.from_) + \
+            "," + str(self.to) + \
+            "," + str(self.order) + \
+            "," + str(self.weight) + \
             "}"
 
 
@@ -561,9 +645,10 @@ class TaxonomySemantic(object):
     def __init__(self, tl):
         """Constructor."""
 
-        self._concepts_details = tl._load_elements()
+        self._entrypoints, self._concepts_details = tl._load_entrypoints_concept_details()
         self._concepts_by_entrypoint = tl._load_concepts()
         self._relationships_by_entrypoint = tl._load_relationships()
+        self._calculations = tl._load_calculations()
         self._reduce_unused_semantic_data()
 
     def _reduce_unused_semantic_data(self):
@@ -607,7 +692,7 @@ class TaxonomySemantic(object):
             dict of concept details if details=True
         """
         if not details:
-            return list(self._concepts_by_entrypoint)
+            return list(self._concepts_details.keys())
         else:
             return self._concepts_details
 
@@ -708,15 +793,43 @@ class TaxonomySemantic(object):
         else:
             return None
 
-    def get_all_entrypoints(self):
+    def get_all_entrypoints(self, details=False):
         """
         Used to access  a list of all entry points (data, documents, and processes) in the Taxonomy.
 
+        Args:
+            details: boolean, default False
+                if True return details for each concept
+
         Returns:
-            A list of entrypoint names (strings).
+            entrypoints: list
+                elements of the list are entrypoint names
+            details: dict
+                primary key is name from entrypoints, value is dict of entrypoints
+                details (only returned if details=True
         """
 
-        return list(self._concepts_by_entrypoint)
+        if details:
+            return list(self._concepts_by_entrypoint), self._entrypoints
+        else:
+            return list(self._concepts_by_entrypoint)
+
+    def get_entrypoint_details(self, entrypoint):
+        """
+        Used to acces a single entry point details
+
+        Args:
+             entrypoint: str
+                Entrypoint to return details for
+
+        Returns:
+            The details for the entrypoint or None if not found.
+        """
+
+        if entrypoint in self._entrypoints:
+            return self._entrypoints[entrypoint]
+        else:
+            return None
 
     def get_concept_details(self, concept):
         """
@@ -727,16 +840,56 @@ class TaxonomySemantic(object):
                 concept name
 
         Returns:
-            dict containing concept attributes
-
-        Raises:
-            KeyError if concept is not found
+            A single ConceptDetail object if found or None if not found.
         """
         if self.is_concept(concept):
             return self._concepts_details[concept]
         else:
-            raise KeyError('{} is not a concept in the taxonomy'.format(concept))
             return None
+
+    def get_concept_calculation(self, concept):
+        """
+        Return information on a concepts calculations.
+
+        Args:
+             concept: str
+                concept name
+
+        Returns:
+            An array of arrays where each tuple contains a calculated field and the second value
+            is either +1 or -1 to specify whether the field should be added or subtracted as part of
+            the calculation.  If the concept is not a calcuated field an empty array is returned.
+            If the concept name is not valid None will be returned.
+        """
+        if not self.is_concept(concept):
+            return None
+
+        data = []
+        for calculation in self._calculations:
+            if concept == calculation.from_:
+                data.append([calculation.to, int(calculation.weight)])
+        return data
+
+    def get_concept_calculated_usage(self, concept):
+        """
+        Return information on what calcuations a concept is used in.
+
+        Args:
+            concept: str
+                concept name
+
+        Returns:
+            An array of all concepts that this concepet is used as part of a calcuation in.  If there is
+            no calcuated usage an empty array is returned.  If the concept name is not found then none is
+            returned.
+        """
+        if not self.is_concept(concept):
+            return None
+        data = []
+        for calculation in self._calculations:
+            if concept == calculation.to:
+                data.append(calculation.from_)
+        return data
 
 
 class Taxonomy(object):
@@ -746,6 +899,9 @@ class Taxonomy(object):
     Use this class to load and access all elements of the Taxonomy. Taxonomy
     supplies a single import location and is better than loading a portion
     of the Taxonomy unless there is a specific need to save memory.
+
+    This class also contains methods for cases where more than one child is
+    required to fulfill the method results.
     """
 
     def __init__(self):
@@ -761,3 +917,34 @@ class Taxonomy(object):
         self.generic_roles = TaxonomyGenericRoles(tl)
         self.ref_parts = TaxonomyRefParts(tl)
         self.documentation = TaxonomyDocumentation(tl)
+
+    def get_concept_units(self, concept):
+        """
+        Args:
+            concept : str
+                concept name
+
+        Returns:
+            list containing valid unit ids if any or None if the concept type does not support units.  Please note
+            that an empty list is possible if the concept type is supportive of units but not units are defined
+            in the taxonomy (this would technically be a taxonomy issue and a standards change request should be
+            submitted but it does happen occasionally).
+
+        Raises:
+            KeyError if concept is not found
+        """
+
+        details = self.semantic.get_concept_details(concept)
+        if details.type_name.startswith("num:") or details.type_name.startswith("num-us:"):
+            if details.type_name in ["num:percentItemType"]:
+                return ["Pure"]
+            else:
+                u = []
+                for unit in self.units.get_all_units():
+                    ud = self.units.get_unit(unit)
+                    if details.type_name.lower().find(ud.item_type.lower()) != -1:
+                        u.append(ud.unit_name)
+                return u
+        else:
+            return None
+
