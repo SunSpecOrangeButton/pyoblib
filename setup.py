@@ -16,7 +16,7 @@ INSTALL_REQUIRE = [
     'six>=1.10.0',
     'enum_compat==0.0.2',
     'jsondiff==1.1.2',
-    'validators==0.12.4'
+    'validators==0.12.6'
 ]
 
 CLASSIFIERS = [
