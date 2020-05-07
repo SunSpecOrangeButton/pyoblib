@@ -32,7 +32,7 @@ CLASSIFIERS = [
 
 setup(
     name='oblib',
-    version='1.1.2',
+    version='1.1.3',
     description='Orange Button Python Library',
     long_description=
     """

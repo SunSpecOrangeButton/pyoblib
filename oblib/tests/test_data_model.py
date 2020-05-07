@@ -62,21 +62,21 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                        "solar:CutSheetDetailsTable"])
         self._check_arrays_equivalent(
             doc.get_table("solar:InverterPowerLevelTable").get_axes(),
-            ["solar:ProductIdentifierAxis",
-             "solar:InverterPowerLevelPercentAxis"])
+            ["solar:ProdIDAxis",
+             "solar:InverterPowerLevelPctAxis"])
         self._check_arrays_equivalent(
             doc.get_table("solar:CutSheetDetailsTable").get_axes(),
-            ["solar:ProductIdentifierAxis",
-             "solar:TestConditionAxis"])
+            ["solar:ProdIDAxis",
+             "solar:TestCondAxis"])
 
     def test_get_table_for_concept(self):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         # The CutSheet instance should know that RevenueMeterFrequency
         # is a concept that belongs in the CutSheetDetailsTable
-        table = doc.get_table_for_concept("solar:RevenueMeterFrequency")
+        table = doc.get_table_for_concept("solar:RevenueMeterFreq")
         self.assertEqual(table.get_name(), "solar:CutSheetDetailsTable")
 
-        table = doc.get_table_for_concept("solar:InverterEfficiencyAtVmaxPercent")
+        table = doc.get_table_for_concept("solar:InverterEfficAtVmaxPct")
         self.assertEqual(table.get_name(), "solar:InverterPowerLevelTable")
 
         # but if we ask for something that is not a line item concept,
@@ -98,7 +98,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertFalse(doc.is_concept_writable('solar:TestConditionDomain'))
 
         self.assertFalse(doc.is_concept_writable('solar:ProductIdentifierAxis'))
-        self.assertTrue(doc.is_concept_writable('solar:ProductIdentifier'))
+        self.assertTrue(doc.is_concept_writable('solar:ProdID'))
 
     def test_sufficient_context_instant_vs_duration(self):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
@@ -111,16 +111,16 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # We shouldn't even be able to instantiate a context with no time info:
         with self.assertRaises(ob.OBContextError):
             noTimeContext = data_model.Context(ProductIdentifierAxis="placeholder",
-                                               TestConditionAxis="solar:StandardTestConditionMember")
+                                               TestConditionAxis="solar:STCMember")
 
         # solar:DeviceCost has period_type instant
         # so it requires a context with an instant. A context without an instant
         # should be insufficient:
         instantContext = data_model.Context(ProductIdentifierAxis = "placeholder",
-                                            TestConditionAxis = "solar:StandardTestConditionMember",
+                                            TestConditionAxis = "solar:STCMember",
                                             instant = datetime.now())
         durationContext = data_model.Context(ProductIdentifierAxis = "placeholder",
-                                             TestConditionAxis = "solar:StandardTestConditionMember",
+                                             TestConditionAxis = "solar:STCMember",
                                              duration = "forever")
 
         self.assertTrue( doc._is_valid_context("solar:DeviceCost",
@@ -134,8 +134,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # A context with an instant instead of a duration should also be
         # rejected:
         with self.assertRaises(ob.OBContextError):
-            doc._is_valid_context("solar:ModuleNameplateCapacity", instantContext)
-        self.assertTrue( doc._is_valid_context("solar:ModuleNameplateCapacity",
+            doc._is_valid_context("solar:ModuleNameplateCap", instantContext)
+        self.assertTrue( doc._is_valid_context("solar:ModuleNameplateCap",
                                               durationContext))
 
     def test_is_valid_context_axes(self):
@@ -204,24 +204,24 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc.set("solar:TypeOfDevice", "ModuleMember",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis = "solar:StandardTestConditionMember"
+                TestConditionAxis = "solar:STCMember"
                 )
         now = datetime.now()
         doc.set("solar:DeviceCost", 100,
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember",
+                TestConditionAxis= "solar:STCMember",
                 unit_name="USD")
 
         typeFact = doc.get("solar:TypeOfDevice",
                            data_model.Context(duration="forever",
                                 ProductIdentifierAxis= "placeholder",
-                                TestConditionAxis = "solar:StandardTestConditionMember"))
+                                TestConditionAxis = "solar:STCMember"))
         self.assertEqual( typeFact.value,  "ModuleMember")
         costFact = doc.get("solar:DeviceCost",
                            data_model.Context(instant = now,
                                 ProductIdentifierAxis= "placeholder",
-                                TestConditionAxis = "solar:StandardTestConditionMember"))
+                                TestConditionAxis = "solar:STCMember"))
         self.assertEqual( costFact.value, 100)
         self.assertEqual( costFact.unit, "USD")
 
@@ -234,14 +234,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
         ctx = data_model.Context(duration="forever",
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
-                      TestConditionAxis = "solar:StandardTestConditionMember")
+                      TestConditionAxis = "solar:STCMember")
         doc.set("solar:TypeOfDevice", "ModuleMember", context=ctx)
 
         now = datetime.now(),
         ctx = data_model.Context(instant= now,
                       entity="JUPITER",
                       ProductIdentifierAxis= "placeholder",
-                      TestConditionAxis = "solar:StandardTestConditionMember")
+                      TestConditionAxis = "solar:STCMember")
         doc.set("solar:DeviceCost", 100, context=ctx, unit_name="USD")
 
         # Get the data bacK:
@@ -249,13 +249,13 @@ class TestDataModelEntrypoint(unittest.TestCase):
                            data_model.Context(duration="forever",
                                 entity="JUPITER",
                                 ProductIdentifierAxis= "placeholder",
-                                TestConditionAxis = "solar:StandardTestConditionMember"))
+                                TestConditionAxis = "solar:STCMember"))
         self.assertEqual( typeFact.value,  "ModuleMember")
         costFact = doc.get("solar:DeviceCost",
                            data_model.Context(instant = now,
                                 entity="JUPITER",
                                 ProductIdentifierAxis= "placeholder",
-                                TestConditionAxis = "solar:StandardTestConditionMember"))
+                                TestConditionAxis = "solar:STCMember"))
         self.assertEqual( costFact.value, 100)
 
     def test_set_raises_exception(self):
@@ -298,12 +298,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
                                    "end": datetime(year=2018, month=2, day=1)},
                           entity="JUPITER",
                           ProductIdentifierAxis= "placeholder",
-                          TestConditionAxis = "solar:StandardTestConditionMember")
+                          TestConditionAxis = "solar:STCMember")
         ctx_feb = data_model.Context(duration={"start": datetime(year=2018, month=2, day=1),
                                    "end": datetime(year=2018, month=3, day=1)},
                           entity="JUPITER",
                           ProductIdentifierAxis= "placeholder",
-                          TestConditionAxis = "solar:StandardTestConditionMember")
+                          TestConditionAxis = "solar:STCMember")
     
         doc.set(concept, "Jan Value", context=ctx_jan)
         doc.set(concept, "Feb Value", context=ctx_feb)
@@ -322,14 +322,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis = "solar:StandardTestConditionMember"
+                TestConditionAxis = "solar:STCMember"
                 )
         now = datetime.now()
         doc.set("solar:DeviceCost", 100,
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember",
+                TestConditionAxis= "solar:STCMember",
                 unit_name="USD")
         xml = doc.to_XML_string()
         root = etree.fromstring(xml)
@@ -359,15 +359,15 @@ class TestDataModelEntrypoint(unittest.TestCase):
             axes = segment.findall("{http://xbrl.org/2006/xbrldi}typedMember")
             axis_names = [x.attrib["dimension"] for x in axes]
 
-            self._check_arrays_equivalent(axis_names, ['solar:ProductIdentifierAxis',
-                                                       'solar:TestConditionAxis'])
+            self._check_arrays_equivalent(axis_names, ['solar:ProdIDAxis',
+                                                       'solar:TestCondAxis'])
             for axis in axes:
-                if axis.attrib["dimension"] == 'solar:ProductIdentifierAxis':
-                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-09-20/solar}ProductIdentifierDomain")
+                if axis.attrib["dimension"] == 'solar:ProdIDAxis':
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2020-04-01/solar}ProdIDDomain")
                     self.assertEqual(axis.getchildren()[0].text, "placeholder")
-                elif axis.attrib["dimension"] == 'solar:TestConditionsAxis':
-                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2019-09-20/solar}TestConditionDomain")
-                    self.assertEqual(axis.getchildren()[0].text, "solar:StandardTestConditionMember")
+                elif axis.attrib["dimension"] == 'solar:TestCondAxis':
+                    self.assertEqual(axis.getchildren()[0].tag, "{http://xbrl.us/Solar/2020-04-01/solar}TestCondDomain")
+                    self.assertEqual(axis.getchildren()[0].text, "solar:STCMember")
 
             # one should have period containing <forever/> other should have period containing <instant> containing today's date.
             period = context.find("{http://www.xbrl.org/2003/instance}period")
@@ -383,8 +383,8 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Expect to see two facts solar:DeviceCost and solar:TypeOfDevice,
         # each containing text of the fact value
-        costFact = root.find('{http://xbrl.us/Solar/2019-09-20/solar}DeviceCost')
-        typeFact = root.find('{http://xbrl.us/Solar/2019-09-20/solar}TypeOfDevice')
+        costFact = root.find('{http://xbrl.us/Solar/2020-04-01/solar}DeviceCost')
+        typeFact = root.find('{http://xbrl.us/Solar/2020-04-01/solar}TypeOfDevice')
         self.assertEqual(costFact.text, "100")
         self.assertEqual(typeFact.text, "ModuleMember")
         # They should have contextRef and (in the case of cost) unitRef attributes:
@@ -401,14 +401,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis = "solar:StandardTestConditionMember",
+                TestConditionAxis = "solar:STCMember",
                 )
         now = datetime.now()
         doc.set("solar:DeviceCost", 100,
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember",
+                TestConditionAxis= "solar:STCMember",
                 unit_name="USD")
         jsonstring = doc.to_JSON_string()
 
@@ -423,9 +423,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(len(typeFacts), 1)
         typeFact = typeFacts[0]
         self.assertEqual(typeFact['value'], "ModuleMember")
-        self.assertEqual(typeFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
-        self.assertEqual(typeFact['aspects']['solar:TestConditionAxis'],
-                             "solar:StandardTestConditionMember")
+        self.assertEqual(typeFact['aspects']['solar:ProdIDAxis'], 'placeholder')
+        self.assertEqual(typeFact['aspects']['solar:TestCondAxis'],
+                             "solar:STCMember")
         self.assertEqual(typeFact['aspects']['entity'], 'JUPITER')
         # period = Forever means we don't write a period aspect:
         self.assertNotIn("period", typeFact['aspects'])
@@ -438,9 +438,9 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         costFact = costFacts[0]
         self.assertEqual(costFact['value'], '100')
-        self.assertEqual(costFact['aspects']['solar:ProductIdentifierAxis'], 'placeholder')
-        self.assertEqual(costFact['aspects']['solar:TestConditionAxis'],
-                             "solar:StandardTestConditionMember")
+        self.assertEqual(costFact['aspects']['solar:ProdIDAxis'], 'placeholder')
+        self.assertEqual(costFact['aspects']['solar:TestCondAxis'],
+                             "solar:STCMember")
         self.assertEqual(costFact['aspects']['entity'], 'JUPITER')
         self.assertEqual(costFact['aspects']['period'], now.strftime("%Y-%m-%dT%H:%M:%S"))
         self.assertEqual(costFact['aspects']['unit'], 'USD')
@@ -448,7 +448,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
     def test_concepts_load_details(self):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
 
-        frequency = doc.get_concept("solar:RevenueMeterFrequency")
+        frequency = doc.get_concept("solar:RevenueMeterFreq")
         device = doc.get_concept("solar:TypeOfDevice")
 
         # Metadata such as period-type, type-name, and nillable should be available
@@ -463,7 +463,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Parents and children should be correct:
         self.assertEqual(device.parent.name, 'solar:CutSheetDetailsLineItems')
-        self.assertEqual(frequency.parent.name, 'solar:ProductIdentifierMeterAbstract')
+        self.assertEqual(frequency.parent.name, 'solar:ProdIDMeterAbstract')
         self.assertEqual(len(device.children), 0)
         self.assertEqual(len(frequency.children), 0)
 
@@ -471,11 +471,11 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         table = doc.get_table("solar:CutSheetDetailsTable")
 
-        domain = table.get_domain("solar:ProductIdentifierAxis")
-        self.assertEqual(domain, "solar:ProductIdentifierDomain")
+        domain = table.get_domain("solar:ProdIDAxis")
+        self.assertEqual(domain, "solar:ProdIDDomain")
 
-        domain = table.get_domain("solar:TestConditionAxis")
-        self.assertEqual(domain, "solar:TestConditionDomain")
+        domain = table.get_domain("solar:TestCondAxis")
+        self.assertEqual(domain, "solar:TestCondDomain")
 
         # TODO add a test for an axis that is explicit and not domain-based
 
@@ -486,16 +486,16 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         table = doc.get_table("solar:CutSheetDetailsTable")
 
-        self.assertTrue( table.is_axis_value_within_domain("solar:TestConditionAxis",
-                                                     "solar:StandardTestConditionMember") )
+        self.assertTrue( table.is_axis_value_within_domain("solar:TestCondAxis",
+                                                     "solar:STCMember") )
 
-        self.assertFalse( table.is_axis_value_within_domain("solar:TestConditionAxis",
-                                                     "solar:InverterPowerLevel100PercentMember"))
+        self.assertFalse( table.is_axis_value_within_domain("solar:TestCondAxis",
+                                                     "solar:InverterPowerLevel100PctMember"))
 
         concept = 'solar:InverterOutputRatedPowerAC'
         context = data_model.Context(duration = "forever",
                           ProductIdentifierAxis = "placeholder",
-                          InverterPowerLevelPercentAxis = 'solar:StandardTestConditionMember')
+                          InverterPowerLevelPercentAxis = 'solar:STCMember')
         # not a valid value for InverterPowerLevelPercentAxis
         with self.assertRaises(ob.OBContextError):
             doc._is_valid_context(concept, context)
@@ -514,7 +514,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember")
+                TestConditionAxis= "solar:STCMember")
 
         with self.assertRaises(ob.OBNotFoundError):
             # Zorkmids is not a real unit, so this should fail:
@@ -523,7 +523,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember",
+                TestConditionAxis= "solar:STCMember",
                 unit_name="zorkmids")
 
         with self.assertRaises(ob.OBUnitError):
@@ -533,7 +533,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember",
+                TestConditionAxis= "solar:STCMember",
                 unit_name="kWh")
 
         # USD is a valid unit, so this should succeed:
@@ -541,32 +541,32 @@ class TestDataModelEntrypoint(unittest.TestCase):
                 entity="JUPITER",
                 instant= now,
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember",
+                TestConditionAxis= "solar:STCMember",
                 unit_name="USD")
 
     def test_is_unit_method(self):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         # Basic data types:
-        self.assertTrue(doc._is_valid_unit("solar:TrackerNumberOfControllers", None))  # pure integer
+        self.assertTrue(doc._is_valid_unit("solar:TrackerNumOfControllers", None))  # pure integer
         self.assertTrue(doc._is_valid_unit("solar:TransformerStyle", None))  # string
         self.assertTrue(doc._is_valid_unit("solar:TransformerDesignFactor", None))  # decimal
         self.assertTrue(doc._is_valid_unit("solar:MeterRevenueGrade", None))  # boolean
 
         # Advanced data types:
         self.assertTrue(doc._is_valid_unit("solar:DeviceCost", "USD"))  # xbrli:monetaryItemType
-        self.assertTrue(doc._is_valid_unit("solar:CutSheetDocumentLink", None))  # :xbrlianyURIItemType
+        self.assertTrue(doc._is_valid_unit("solar:CutSheetDocLink", None))  # :xbrlianyURIItemType
         self.assertTrue(doc._is_valid_unit("solar:CECListingDate", None))  # xbrli:dateItemType
         self.assertTrue(doc._is_valid_unit("solar:InverterHarmonicsTheshold", None))  # num:percentItemType
 
         # Physics data types:
-        self.assertTrue(doc._is_valid_unit("solar:RevenueMeterFrequency", "Hz"))  # num-us:frequencyItemType
+        self.assertTrue(doc._is_valid_unit("solar:RevenueMeterFreq", "Hz"))  # num-us:frequencyItemType
         self.assertTrue(doc._is_valid_unit("solar:InverterWidth", "cm"))  # :num:lengthItemType
-        self.assertTrue(doc._is_valid_unit("solar:BatteryRating", "kW"))  # :num:powerItemType
-        self.assertTrue(doc._is_valid_unit("solar:InverterInputMaximumOperatingCurrentDC", "A"))  # :num-us:electricCurrentItemType
-        self.assertTrue(doc._is_valid_unit("solar:InverterInputMaximumVoltageDC", "V"))  # :num-us:voltageItemType
-        self.assertTrue(doc._is_valid_unit("solar:InverterOperatingTemperatureRangeMaximum", "Cel"))  # :num-us:temperatureItemType
+        self.assertTrue(doc._is_valid_unit("solar:BatteryRtg", "kW"))  # :num:powerItemType
+        self.assertTrue(doc._is_valid_unit("solar:InverterInputMaxOpCurrentDC", "A"))  # :num-us:electricCurrentItemType
+        self.assertTrue(doc._is_valid_unit("solar:InverterInputMaxVoltageDC", "V"))  # :num-us:voltageItemType
+        self.assertTrue(doc._is_valid_unit("solar:InverterOTRMax", "Cel"))  # :num-us:temperatureItemType
         # self.assertTrue( doc.valid_unit("solar:TrackerStowWindSpeed:num-us:speedItemType", "???"))
-        self.assertTrue(doc._is_valid_unit("solar:OrientationMaximumTrackerRotationLimit", "Degree"))  # :num-us:planeAngleItemType
+        self.assertTrue(doc._is_valid_unit("solar:OrientationMaxTrackerRotationLimit", "Degree"))  # :num-us:planeAngleItemType
         
         self.assertTrue(doc._is_valid_unit("solar:TrackerStyle", None))  # solar-types:trackerItemType
         self.assertTrue(doc._is_valid_unit("solar:BatteryStyle", None))  # solar-types:batteryChemistryItemType
@@ -575,7 +575,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
     def test_concepts_can_type_check(self):
         # Try passing in wrong data type to a typed concept:
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
-        concept = doc.get_concept("solar:TrackerNumberOfControllers") # integer
+        concept = doc.get_concept("solar:TrackerNumOfControllers") # integer
         self.assertTrue(concept.validate_datatype("3"))
         self.assertFalse(concept.validate_datatype("3.5"))
         self.assertFalse(concept.validate_datatype("a few"))
@@ -604,27 +604,27 @@ class TestDataModelEntrypoint(unittest.TestCase):
         with self.assertRaises(ob.OBTypeError):
             # A non-integer is given, this should fail:
             doc.set(
-                "solar:TrackerNumberOfControllers", 0.5,
+                "solar:TrackerNumOfControllers", 0.5,
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember")
+                TestConditionAxis= "solar:STCMember")
 
         with self.assertRaises(ob.OBTypeError):
             # A string that can't be parsed into an integer should fail:
             doc.set(
-                "solar:TrackerNumberOfControllers", "abcdefg",
+                "solar:TrackerNumOfControllers", "abcdefg",
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember")
+                TestConditionAxis= "solar:STCMember")
 
         # But a string that can be parsed into an integer should succeed:
-        doc.set("solar:TrackerNumberOfControllers", "2",
+        doc.set("solar:TrackerNumOfControllers", "2",
                 entity="JUPITER",
                 duration="forever",
                 ProductIdentifierAxis= "placeholder",
-                TestConditionAxis= "solar:StandardTestConditionMember")
+                TestConditionAxis= "solar:STCMember")
 
     def test_hypercube_rejects_context_with_unwanted_axes(self):
         # Test that giving a context an *extra* axis that is invalid for the table
@@ -633,15 +633,15 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         twoAxisContext = data_model.Context(
             ProductIdentifierAxis = "placeholder",
-            TestConditionAxis = "solar:StandardTestConditionMember",
+            TestConditionAxis = "solar:STCMember",
             instant = datetime.now())
         self.assertTrue( doc._is_valid_context("solar:DeviceCost",
                                               twoAxisContext))
 
         threeAxisContext = data_model.Context(
             ProductIdentifierAxis = "placeholder",
-            InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PercentMember',
-            TestConditionAxis = "solar:StandardTestConditionMember",
+            InverterPowerLevelPercentAxis = 'solar:InverterPowerLevel50PctMember',
+            TestConditionAxis = "solar:STCMember",
             instant = datetime.now())
         # InverterPowerLevelPercentAxis is a valid axis and this is a valid value for it,
         # but the table that holds DeviceCost doesn't want this axis:
@@ -654,7 +654,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         now = datetime.now()
         doc.set_default_context({
             "entity": "JUPITER",
-            "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+            "solar:TestConditionAxis": "solar:STCMember",
             taxonomy.PeriodType.instant: now,
             taxonomy.PeriodType.duration: "forever"
            })
@@ -666,7 +666,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # TestConditionAxis. But we set defaults for those, so they should be filled in:
         fact = doc.get("solar:DeviceCost", data_model.Context(
             ProductIdentifierAxis = "placeholder",
-            TestConditionAxis = "solar:StandardTestConditionMember",
+            TestConditionAxis = "solar:STCMember",
             entity = "JUPITER",
             instant = now))
         self.assertEqual(fact.value, "100")
@@ -678,14 +678,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # If we set a fact that wants a duration context, it should use jan 1 - jan 31:
         doc.set(
-            "solar:ModuleNameplateCapacity", "0.3",
+            "solar:ModuleNameplateCap", "0.3",
             unit_name="W",
             ProductIdentifierAxis = "placeholder")
         # Would normally raise an exception because missing duration, entity, and
         # TestConditionAxis. But we set defaults for those, so they should be filled in:
-        fact = doc.get("solar:ModuleNameplateCapacity", data_model.Context(
+        fact = doc.get("solar:ModuleNameplateCap", data_model.Context(
             ProductIdentifierAxis = "placeholder",
-            TestConditionAxis = "solar:StandardTestConditionMember",
+            TestConditionAxis = "solar:STCMember",
             entity = "JUPITER",
             duration = "forever"))
         self.assertEqual(fact.value, "0.3")
@@ -696,14 +696,14 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Try setting ALL the fields in set_default_context and then pass in NO context fields,
         # that should work too:
         doc.set_default_context({"entity": "JUPITER",
-                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               "solar:TestConditionAxis": "solar:STCMember",
                                taxonomy.PeriodType.instant: now,
                                "solar:ProductIdentifierAxis": "placeholder"
                                })
         doc.set("solar:DeviceCost", "99", unit_name="USD")
         fact = doc.get("solar:DeviceCost", data_model.Context(
             ProductIdentifierAxis = "placeholder",
-            TestConditionAxis = "solar:StandardTestConditionMember",
+            TestConditionAxis = "solar:STCMember",
             entity = "JUPITER",
             instant = now))
         self.assertEqual(fact.value, "99")
@@ -713,12 +713,12 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # in them that are not part of any table:
         doc = data_model.OBInstance("MonthlyOperatingReport", self.taxonomy)
 
-        doc.set("solar:MonthlyOperatingReportEffectiveDate",
+        doc.set("solar:OpRptEffectDate",
                 date(year=2018,month=6,day=1),
                 entity = "JUPITER",
                 duration="forever")
 
-        fact = doc.get("solar:MonthlyOperatingReportEffectiveDate",
+        fact = doc.get("solar:OpRptEffectDate",
                        data_model.Context(
                            entity = "JUPITER",
                            duration="forever"))
@@ -738,7 +738,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         now = datetime.now()
         doc.set_default_context({"entity": "JUPITER",
-                                 "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                                 "solar:TestConditionAxis": "solar:STCMember",
                                  })
 
         doc.set_default_context({taxonomy.PeriodType.instant: now,
@@ -749,7 +749,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc.set("solar:DeviceCost", "100", unit_name="USD", ProductIdentifierAxis = "placeholder")
         fact = doc.get("solar:DeviceCost", data_model.Context(
             ProductIdentifierAxis = "placeholder",
-            TestConditionAxis = "solar:StandardTestConditionMember",
+            TestConditionAxis = "solar:STCMember",
             entity = "JUPITER",
             instant = now))
         self.assertEqual(fact.value, "100")
@@ -781,13 +781,13 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         now = datetime.now()
         doc.set_default_context({"entity": "JUPITER",
-                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               "solar:TestCondAxis": "solar:STCMember",
                                taxonomy.PeriodType.instant: now,
                                taxonomy.PeriodType.duration: "forever"
                                })
 
         # Set fact with precision:
-        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+        doc.set("solar:ModuleNameplateCap", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, precision = 3)
 
         jsonstring = doc.to_JSON_string()
@@ -798,7 +798,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         self.assertEqual(list(facts.values())[0]["aspects"]["precision"], "3")
 
         # Set fact with decimals:
-        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+        doc.set("solar:ModuleNameplateCap", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3)
         jsonstring = doc.to_JSON_string()
         facts = json.loads(jsonstring)["facts"]
@@ -807,7 +807,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
 
         # Trying to set both decimals and precision should raise an error
         with self.assertRaises(ob.OBError):
-            doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+            doc.set("solar:ModuleNameplateCap", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1, decimals = 3, precision=3)
 
     def test_ids_in_xml_and_json(self):
@@ -816,18 +816,18 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = data_model.OBInstance("CutSheet", self.taxonomy)
         now = datetime.now()
         doc.set_default_context({"entity": "JUPITER",
-                               "solar:TestConditionAxis": "solar:StandardTestConditionMember",
+                               "solar:TestConditionAxis": "solar:STCMember",
                                taxonomy.PeriodType.instant: now,
                                taxonomy.PeriodType.duration: "forever"
                                })
 
-        doc.set("solar:ModuleNameplateCapacity", "6.25", unit_name="W",
+        doc.set("solar:ModuleNameplateCap", "6.25", unit_name="W",
                 ProductIdentifierAxis = 1)
 
-        fact = doc.get("solar:ModuleNameplateCapacity",
+        fact = doc.get("solar:ModuleNameplateCap",
                        data_model.Context(
                            ProductIdentifierAxis = 1,
-                           TestConditionAxis = "solar:StandardTestConditionMember",
+                           TestConditionAxis = "solar:STCMember",
                            entity = "JUPITER",
                            duration="forever"))
         # Read the fact ID that was automatically assigned when we set the fact:
@@ -842,20 +842,20 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Look for fact ID in XML:
         xml = doc.to_XML_string()
         root = etree.fromstring(xml)
-        fact = root.find("{http://xbrl.us/Solar/2019-09-20/solar}ModuleNameplateCapacity")
+        fact = root.find("{http://xbrl.us/Solar/2020-04-01/solar}ModuleNameplateCapacity")
         self.assertEqual(fact.attrib["id"], fact_id)
 
     def test_input_ids(self):
         # Test ID's can be passed into either a Fact or an OBInstance.
 
-        fact = data_model.Fact("solar:MeasuredEnergy", None, "SI:MWh", "3164.80", id="test")
+        fact = data_model.Fact("solar:MeasEnergy", None, "SI:MWh", "3164.80", id="test")
         self.assertEqual(fact.id, "test")
 
         doc = data_model.OBInstance("System", self.taxonomy, dev_validation_off=True)
         now = datetime.now()
         doc.set_default_context({
             "entity": "JUPITER",
-            "solar:InverterPowerLevelPercentAxis": "solar:InverterPowerLevel100PercentMember",
+            "solar:InverterPowerLevelPctAxis": "solar:InverterPowerLevel100PctMember",
             taxonomy.PeriodType.instant: now,
             taxonomy.PeriodType.duration: "forever"
         })
@@ -946,7 +946,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # If no us-gaap concepts are used, there should be no us-gaap namespace
         # definition in header:
         doc = data_model.OBInstance("MonthlyOperatingReport", self.taxonomy)
-        doc.set("solar:MonthlyOperatingReportEffectiveDate",
+        doc.set("solar:OpRptEffectDate",
                 date(year=2018,month=6,day=1),
                 entity = "JUPITER",
                 duration="forever")
@@ -975,7 +975,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         # Passing the string "All" to OBInstance should give me access to every concept
         # instead of restricting it to an entrypoint.
         doc = data_model.OBInstance("All", self.taxonomy)
-        self.assertEqual(len(doc._all_my_concepts), 4303) # Every concept!
+        self.assertEqual(len(doc._all_my_concepts), 4302) # Every concept!
 
     # TODO lots more tests for using get(), especially with partial context arguments.
 
@@ -989,7 +989,7 @@ class TestDataModelEntrypoint(unittest.TestCase):
         doc = data_model.OBInstance("Project", self.taxonomy)
         kwargs = {'duration': 'forever', 'entity': 'PLUTO',
          'us-gaap:SaleLeasebackTransactionDescriptionAxis': 'us-gaap:SaleLeasebackTransactionNameDomain',
-         'solar:ProjectIdentifierAxis': '1'}
+         'solar:ProjIDAxis': '1'}
         doc.set('us-gaap:SaleLeasebackTransactionDescription', 'Sample String', **kwargs)
 
     def test_optional_required_axis(self):

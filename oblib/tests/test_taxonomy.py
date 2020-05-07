@@ -93,17 +93,17 @@ class TextTaxonomyDocumentation(unittest.TestCase):
     def test_get_all_concepts_documentation(self):
         self.assertEqual(tax.documentation.get_all_concepts_documentation()["solar:EntitySizeACPower"],
                              "Size of the entity in megawatts AC.")
-        self.assertEqual(tax.documentation.get_all_concepts_documentation()["solar:FundDescriptionAnalyst"],
+        self.assertEqual(tax.documentation.get_all_concepts_documentation()["solar:FundDescAnalyst"],
                              "Name of analyst covering the fund.")
-        self.assertEqual(tax.documentation.get_all_concepts_documentation()["solar:IncentivesPerformanceBasedIncentiveEscalator"],
+        self.assertEqual(tax.documentation.get_all_concepts_documentation()["solar:IncentivePBIEscalator"],
                              "Annual escalation of the performance based incentive value (percent)")
 
     def test_get_concept_documentation(self):
         self.assertEqual(tax.documentation.get_concept_documentation("solar:EntitySizeACPower"),
                           "Size of the entity in megawatts AC.")
-        self.assertEqual(tax.documentation.get_concept_documentation("solar:FundDescriptionAnalyst"),
+        self.assertEqual(tax.documentation.get_concept_documentation("solar:FundDescAnalyst"),
                          "Name of analyst covering the fund.")
-        self.assertEqual(tax.documentation.get_concept_documentation("solar:IncentivesPerformanceBasedIncentiveEscalator"),
+        self.assertEqual(tax.documentation.get_concept_documentation("solar:IncentivePBIEscalator"),
                          "Annual escalation of the performance based incentive value (percent)")
         self.assertIsNone(tax.documentation.get_concept_documentation("solar:NotCorect"))
 
@@ -219,10 +219,10 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsInstance(ci.type_name, string_types)
         self.assertIsInstance(ci.period_type, taxonomy.PeriodType)
 
-        ci = tax.semantic.get_concept_details("solar:MonthlyPeriodAxis")
+        ci = tax.semantic.get_concept_details("solar:MonPeriodAxis")
         self.assertIsNone(ci.typed_domain_ref)
 
-        ci = tax.semantic.get_concept_details("solar:PVSystemIdentifierAxis")
+        ci = tax.semantic.get_concept_details("solar:PVSystemIDAxis")
         self.assertIsInstance(ci.typed_domain_ref, string_types)
 
         # Values checks
@@ -237,11 +237,11 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.type_name, "nonnum:domainItemType")
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
-        ci = tax.semantic.get_concept_details("solar:AdvisorInvoicesCounterparties")
+        ci = tax.semantic.get_concept_details("solar:AdvisorInvoicesCntrparty")
         self.assertIsNotNone(ci)
         self.assertFalse(ci.abstract)
-        self.assertEqual(ci.id, "solar:AdvisorInvoicesCounterparties")
-        self.assertEqual(ci.name, "AdvisorInvoicesCounterparties")
+        self.assertEqual(ci.id, "solar:AdvisorInvoicesCntrparty")
+        self.assertEqual(ci.name, "AdvisorInvoicesCntrparty")
         self.assertTrue(ci.nillable)
         self.assertFalse(ci.period_independent)
         self.assertEqual(ci.substitution_group, taxonomy.SubstitutionGroup.item)
@@ -259,8 +259,8 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertEqual(ci.type_name, "dei:legalEntityIdentifierItemType")
         self.assertEqual(ci.period_type, taxonomy.PeriodType.duration)
 
-        ci = tax.semantic.get_concept_details("solar:PVSystemIdentifierAxis")
-        self.assertEqual(ci.typed_domain_ref, "#solar_PVSystemIdentifierDomain")
+        ci = tax.semantic.get_concept_details("solar:PVSystemIDAxis")
+        self.assertEqual(ci.typed_domain_ref, "#solar_PVSystemIDDomain")
 
         self.assertIsNone(tax.semantic.get_concept_details("solar:iamnotaconcept"))
 
@@ -307,13 +307,13 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_get_all_entrypoints(self):
         # 160 named entry points plus 1 for the "All" entry point:
-        self.assertEqual(161, len(tax.semantic.get_all_entrypoints()))
+        self.assertEqual(162, len(tax.semantic.get_all_entrypoints()))
 
     def test_get_all_entrypoints_details(self):
         entrypoints, details = tax.semantic.get_all_entrypoints(details=True)
 
         # 159 named entry points plus 1 for the "All" entry point abd 1 for the "UML" entry point:
-        self.assertEqual(161, len(entrypoints))
+        self.assertEqual(162, len(entrypoints))
 
         # 159 named entry points
         self.assertEqual(159, len(details))
@@ -354,12 +354,12 @@ class TestTaxonomySemantic(unittest.TestCase):
         self.assertIsNone(tax.semantic.get_entrypoint_relationships("Arggh"))
         self.assertEqual(len(tax.semantic.get_entrypoint_relationships("Utility")), 7)
         self.assertEqual(85, len(tax.semantic.get_entrypoint_relationships("MonthlyOperatingReport")))
-        self.assertEqual(300, len(tax.semantic.get_entrypoint_relationships("CutSheet")))
+        self.assertEqual(299, len(tax.semantic.get_entrypoint_relationships("CutSheet")))
 
     def test_is_concept(self):
-        self.assertTrue(tax.semantic.is_concept("solar:EnvironmentalImpactReportExpirationDate"))
+        self.assertTrue(tax.semantic.is_concept("solar:EnvImpactRptExpDate"))
         self.assertFalse(tax.semantic.is_concept("solar:EnvironmentalImpactReportExirationDate"))
-        self.assertTrue(tax.semantic.is_concept("solar:AdvisorInvoicesCounterparties"))
+        self.assertTrue(tax.semantic.is_concept("solar:AdvisorInvoicesCntrparty"))
         self.assertTrue(tax.semantic.is_concept("dei:LegalEntityIdentifier"))
 
     def test_is_entrypoint(self):
@@ -370,7 +370,7 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_get_concept_calculation(self):
         self.assertIsNone(tax.semantic.get_concept_calculation("solar:notaconcept"))
-        self.assertEqual(0, len(tax.semantic.get_concept_calculation("solar:Curtailment")))
+        self.assertEqual(0, len(tax.semantic.get_concept_calculation("solar:Curtail")))
         self.assertEqual(4, len(tax.semantic.get_concept_calculation("us-gaap:Revenues")))
         calcs = tax.semantic.get_concept_calculation("us-gaap:PropertyPlantAndEquipmentNet")
         self.assertEqual("us-gaap:PropertyPlantAndEquipmentGross", calcs[0][0])
@@ -380,7 +380,7 @@ class TestTaxonomySemantic(unittest.TestCase):
 
     def test_get_concept_calculated_usage(self):
         self.assertIsNone(tax.semantic.get_concept_calculated_usage("solar:notaconcept"))
-        self.assertEqual(0, len(tax.semantic.get_concept_calculated_usage("solar:Curtailment")))
+        self.assertEqual(0, len(tax.semantic.get_concept_calculated_usage("solar:Curtail")))
         calc = tax.semantic.get_concept_calculated_usage("us-gaap:TreasuryStockValue")
         self.assertEqual(1, len(calc))
         self.assertEqual("us-gaap:StockholdersEquity", calc[0])
@@ -389,7 +389,7 @@ class TestTaxonomySemantic(unittest.TestCase):
         units = tax.get_concept_units("solar:Albedo")
         self.assertEqual(1, len(units))
         self.assertEqual(["Pure"], units)
-        units = tax.get_concept_units("solar:AllProjectAccountBalances")
+        units = tax.get_concept_units("solar:AllProjAcctBalances")
         self.assertIsNone((units))
         units = tax.get_concept_units("solar:ArrayTotalModuleArea")
         self.assertEqual(7,len(units))

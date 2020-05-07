@@ -27,7 +27,7 @@ author = 'SunSpec Alliance'
 # The short X.Y version
 version = '1.1'
 # The full version, including alpha/beta/rc tags
-release = 'v1.1.2'
+release = 'v1.1.3'
 
 
 # -- General configuration ---------------------------------------------------
