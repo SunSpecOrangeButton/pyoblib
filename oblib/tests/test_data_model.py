@@ -18,10 +18,11 @@ from datetime import datetime, date
 from lxml import etree
 from six import string_types
 from oblib import data_model, taxonomy, ob
+import pytest
 
 tax = taxonomy.Taxonomy()
 
-
+@pytest.mark.skip(reason="not currently being maintained")
 class TestDataModelEntrypoint(unittest.TestCase):
 
     def setUp(self):
