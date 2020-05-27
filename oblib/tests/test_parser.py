@@ -75,7 +75,7 @@ TEST_JSON = """
   "documentType": "http://www.xbrl.org/WGWD/YYYY-MM-DD/xbrl-json",
   "prefixes": {
     "xbrl": "http://www.xbrl.org/WGWD/YYYY-MM-DD/oim",
-    "solar": "http://xbrl.us/Solar/2019-09-20/solar",  
+    "solar": "http://xbrl.us/Solar/2020-04-01/solar",  
     "us-gaap": "http://fasb.org/us-gaap/2017-01-31",
     "iso4217": "http://www.xbrl.org/2003/iso4217",
     "SI": "http://www.xbrl.org/2009/utr"
@@ -83,14 +83,14 @@ TEST_JSON = """
   "dtsReferences": [
     {
       "type": "schema",
-      "href": "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-09-20.xsd"
+      "href": "https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2020-04-01.xsd"
     }
   ],
   "facts": {
     "16f60d57-2536-4ec3-8414-02b95d067e02": {
       "value": true,
       "aspects": {
-        "concept": "solar:MonthlyOperatingReportAvailabilityOfDocument",
+        "concept": "solar:OpRptAvailOfDoc",
         "entity": "JUPITER",
         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
       }
@@ -98,7 +98,7 @@ TEST_JSON = """
     "8333ad4e-24b4-42c1-83b3-fca9ef7fce55" : {
       "value": true,
       "aspects": {
-        "concept": "solar:MonthlyOperatingReportAvailabilityOfFinalDocument",
+        "concept": "solar:OpRptAvailOfFinalDoc",
         "entity": "JUPITER",
         "period": "2017-11-01T00:00:00/2017-11-30T00:00:00"
       }
@@ -111,12 +111,12 @@ TEST_XML = """
 <xbrl 
     xmlns="http://www.xbrl.org/2003/instance"
     xmlns:link="http://www.xbrl.org/2003/linkbase"
-    xmlns:solar="http://xbrl.us/Solar/2019-09-20/solar"
+    xmlns:solar="http://xbrl.us/Solar/2020-04-01/solar"
     xmlns:units="http://www.xbrl.org/2009/utr"
     xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:xsi="http://www.w3.org/2001/XMRLSchema-instance">
-    <link:schemaRef xlink:href="https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2019-09-20.xsd" xlink:type="simple" />
+    <link:schemaRef xlink:href="https://raw.githubusercontent.com/SunSpecOrangeButton/solar-taxonomy/master/core/solar_all_2020-04-01.xsd" xlink:type="simple" />
     <context id="NON_TABLE_CONCEPTS_0">
         <entity>
             <identifier scheme="http://xbrl.org/entity/identification/scheme" >JUPITER</identifier>
@@ -125,17 +125,17 @@ TEST_XML = """
             <forever />
         </period>
     </context>
-    <solar:AppraisalAvailabilityOfDocument contextRef="NON_TABLE_CONCEPTS_0" id="test">true</solar:AppraisalAvailabilityOfDocument>
-    <solar:AppraisalAvailabilityOfFinalDocument contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfFinalDocument>
-    <solar:AppraisalAvailabilityOfDocumentExceptions contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailabilityOfDocumentExceptions>
-    <solar:AppraisalExceptionDescription contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalExceptionDescription>
-    <solar:AppraisalCounterparties contextRef="NON_TABLE_CONCEPTS_0">2018-04-04</solar:AppraisalCounterparties>
-    <solar:AppraisalEffectiveDate contextRef="NON_TABLE_CONCEPTS_0">2018-01-01</solar:AppraisalEffectiveDate>
-    <solar:AppraisalExpirationDate contextRef="NON_TABLE_CONCEPTS_0">2018-05-05</solar:AppraisalExpirationDate>
-    <solar:AppraisedValueFairMarketValue contextRef="NON_TABLE_CONCEPTS_0">456456</solar:AppraisedValueFairMarketValue>
-    <solar:AppraisalDocumentLink contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalDocumentLink>
+    <solar:AppraisalAvailOfDoc contextRef="NON_TABLE_CONCEPTS_0" id="test">true</solar:AppraisalAvailOfDoc>
+    <solar:AppraisalAvailOfFinalDoc contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailOfFinalDoc>
+    <solar:AppraisalAvailOfDocExcept contextRef="NON_TABLE_CONCEPTS_0">true</solar:AppraisalAvailOfDocExcept>
+    <solar:AppraisalExceptDesc contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalExceptDesc>
+    <solar:AppraisalCntrparty contextRef="NON_TABLE_CONCEPTS_0">2018-04-04</solar:AppraisalCntrparty>
+    <solar:AppraisalEffectDate contextRef="NON_TABLE_CONCEPTS_0">2018-01-01</solar:AppraisalEffectDate>
+    <solar:AppraisalExpDate contextRef="NON_TABLE_CONCEPTS_0">2018-05-05</solar:AppraisalExpDate>
+    <solar:AppraisedValueFairMktValue contextRef="NON_TABLE_CONCEPTS_0">456456</solar:AppraisedValueFairMktValue>
+    <solar:AppraisalDocLink contextRef="NON_TABLE_CONCEPTS_0">None</solar:AppraisalDocLink>
     <solar:PreparerOfAppraisal contextRef="NON_TABLE_CONCEPTS_0">John Smith</solar:PreparerOfAppraisal>
-    <solar:DocumentIdentifierAppraisal contextRef="NON_TABLE_CONCEPTS_0">false</solar:DocumentIdentifierAppraisal>
+    <solar:DocIDAppraisal contextRef="NON_TABLE_CONCEPTS_0">false</solar:DocIDAppraisal>
 </xbrl>
 """
 

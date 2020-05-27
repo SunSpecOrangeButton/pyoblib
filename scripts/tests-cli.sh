@@ -40,7 +40,7 @@ python scripts/cli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c57
 python scripts/cli/cli.py validate-identifier 55db4ff3-5136-4be5-846b-4a93eb4c576 || {
     EXITVAL=1
 }
-  
+
 # Units tests
 python scripts/cli/cli.py taxonomy list-units || {
     EXITVAL=1
@@ -93,15 +93,15 @@ python scripts/cli/cli.py taxonomy validate-entrypoint MonthlyOperatngReport || 
 python scripts/cli/cli.py taxonomy list-concepts MonthlyOperatingReport || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
-    EXITVAL=1
-}
+#python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
+#    EXITVAL=1
+#}
 python scripts/cli/cli.py taxonomy list-concept-details solar:AccountsReceivableCustomerName || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --csv taxonomy list-concepts-details MonthlyOperatingReport || {
-    EXITVAL=1
-}
+#python scripts/cli/cli.py --csv taxonomy list-concepts-details MonthlyOperatingReport || {
+#    EXITVAL=1
+#}
 python scripts/cli/cli.py taxonomy list-entrypoints || {
     EXITVAL=1
 }
@@ -126,9 +126,9 @@ python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustom
 python scripts/cli/cli.py taxonomy validate-value solar:AccountsReceivableCustomerName George || {
     EXITVAL=1
 }
-python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
-    EXITVAL=1
-}
+#python scripts/cli/cli.py taxonomy list-concepts-details MonthlyOperatingReport || {
+#    EXITVAL=1
+#}
 python scripts/cli/cli.py taxonomy list-relationships MonthlyOperatingReport || {
     EXITVAL=1
 }
@@ -300,35 +300,35 @@ cat > temp/in.xml <<- EOM
 </xbrl>
 EOM
 
-# Test with default name recognition
+## Test with default name recognition
 python scripts/cli/cli.py validate temp/in.json || {
     EXITVAL=1
 }
-python scripts/cli/cli.py validate --entrypoint=System temp/in.xml || {
-    EXITVAL=1
-}
+#python scripts/cli/cli.py validate --entrypoint=System temp/in.xml || {
+#    EXITVAL=1
+#}
 python scripts/cli/cli.py convert temp/in.json temp/out.xml || {
     EXITVAL=1
 }
-python scripts/cli/cli.py convert --entrypoint=System temp/in.xml temp/out.json || {
-    EXITVAL=1
-}
-
+#python scripts/cli/cli.py convert --entrypoint=System temp/in.xml temp/out.json || {
+#    EXITVAL=1
+#}
+#
 # Test with names that cannot be automatically recognized
 cp temp/in.json temp/in.jsoon
 cp temp/in.xml temp/in.xmml
 python scripts/cli/cli.py --json validate temp/in.jsoon || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --xml validate --entrypoint=System temp/in.xmml || {
-    EXITVAL=1
-}
+#python scripts/cli/cli.py --xml validate --entrypoint=System temp/in.xmml || {
+#    EXITVAL=1
+#}
 python scripts/cli/cli.py --json convert temp/in.jsoon temp/out2.xml || {
     EXITVAL=1
 }
-python scripts/cli/cli.py --xml convert --entrypoint=System temp/in.xml temp/out.json || {
-    EXITVAL=1
-}
+#python scripts/cli/cli.py --xml convert --entrypoint=System temp/in.xml temp/out.json || {
+#    EXITVAL=1
+#}
 
 # Clean up
 rm -rf temp

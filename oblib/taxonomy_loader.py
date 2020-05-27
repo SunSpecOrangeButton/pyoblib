@@ -537,7 +537,7 @@ class TaxonomyLoader(object):
                 os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
             # if 'def.' in filename:
             if 'pre.' in filename:
-                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2020")]
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "data", filename))
@@ -545,7 +545,7 @@ class TaxonomyLoader(object):
                 os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
             # if 'def.' in filename:
             if 'pre.' in filename:
-                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2020")]
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "documents", filename))
@@ -554,7 +554,7 @@ class TaxonomyLoader(object):
                 os.path.join(constants.SOLAR_TAXONOMY_DIR, "process")):
             # if 'def.' in filename:
             if 'pre.' in filename:
-                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2020")]
                 concepts[concept_name] = self._load_concepts_file(
                     os.path.join(constants.SOLAR_TAXONOMY_DIR,
                                  "process", filename))
@@ -576,17 +576,17 @@ class TaxonomyLoader(object):
         relationships = {}
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "data")):
             if 'def.' in filename:
-                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2020")]
                 relationships[concept_name] = self._load_relationships_file(os.path.join("data", filename))
 
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "documents")):
             if 'def.' in filename:
-                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2020")]
                 relationships[concept_name] = self._load_relationships_file(os.path.join("documents", filename))
 
         for filename in os.listdir(os.path.join(constants.SOLAR_TAXONOMY_DIR, "process")):
             if 'def.' in filename:
-                concept_name = filename[filename.find("solar-") + 6:filename.find("_2019")]
+                concept_name = filename[filename.find("solar-") + 6:filename.find("_2020")]
                 relationships[concept_name] = self._load_relationships_file(os.path.join("process", filename))
 
         # load from "/core/" for the "All" entrypoint:
