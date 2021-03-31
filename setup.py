@@ -12,7 +12,7 @@ EXTRAS_REQUIRE = {
 EXTRAS_REQUIRE['all'] = sorted(set(sum(EXTRAS_REQUIRE.values(), [])))
 
 INSTALL_REQUIRE = [
-    'lxml==4.2.5',
+    'lxml==4.6.3',
     'six>=1.10.0',
     'enum_compat==0.0.2',
     'jsondiff==1.1.2',
